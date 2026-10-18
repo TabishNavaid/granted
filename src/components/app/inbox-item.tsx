@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
-import type { EmailDraft, Fact, InboxItem, MatchView, Milestone, MissingFact, Document } from "@/lib/types";
+import type { EmailDraft, Fact, InboxItem, MatchView, Milestone, MissingFact, Document, Section } from "@/lib/types";
 import { inboxKindLabel, doneWord } from "@/lib/agents/meta";
 import { cn } from "@/lib/utils";
 import { formatDate, formatShortDate, relativeTime, formatRange } from "@/lib/format";
@@ -25,6 +25,8 @@ export interface InboxContext {
   missingFacts: Record<string, MissingFact>;
   facts: Record<string, Fact>;
   documents: Record<string, Document>;
+  /** Each application's sections, for drafts waiting in the Inbox. */
+  sections: Record<string, Section[]>;
   funderNames: Record<string, string>;
   applicationTitles: Record<string, string>;
 }
@@ -212,16 +214,17 @@ function ItemPreview({
   const p = item.payload;
   switch (p.type) {
     case "proposal_draft": {
-      const drafted = p.sectionCount - 1;
+      const { drafted, total } = draftProgress(ctx.sections[p.applicationId], p.sectionCount);
+      const pct = total ? Math.round((drafted / total) * 100) : 0;
       return (
         <div className="max-w-xl">
           <div className="flex items-baseline justify-between gap-3 text-sm">
             <span className="font-semibold text-ink">
-              {drafted} of {p.sectionCount} sections drafted
+              {drafted} of {total} sections drafted
             </span>
-            <span className="text-ink-muted tnum">{Math.round((drafted / p.sectionCount) * 100)}%</span>
+            <span className="text-ink-muted tnum">{pct}%</span>
           </div>
-          <Progress value={(drafted / p.sectionCount) * 100} className="mt-2" aria-label="Draft progress" />
+          <Progress value={pct} className="mt-2" aria-label="Draft progress" />
           <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-muted">
             <div className="flex gap-1.5">
               <dt>Open questions</dt>
@@ -313,7 +316,7 @@ function ItemPreview({
             <dt className="text-sm text-ink-muted">Proposed</dt>
             <dd className="mt-1 font-display text-3xl text-ink">{p.proposedValue}</dd>
             <dd className="mt-1.5">
-              <CitationChip label={doc?.title ?? "Uploaded document"} sourceTitle={doc?.title} excerpt="Average attendance across all sites, 2025-26: 89%" />
+              <CitationChip label={doc?.title ?? "Uploaded document"} sourceTitle={doc?.title} excerpt={p.sourceExcerpt} page={p.sourcePage ?? undefined} />
             </dd>
           </div>
         </dl>
@@ -322,6 +325,16 @@ function ItemPreview({
     default:
       return null;
   }
+}
+
+/**
+ * How much of a draft is written: every section that has text, including
+ * ones still waiting on a fact. Without the sections loaded, trust the count
+ * the drafting run reported, which only counts sections it wrote.
+ */
+export function draftProgress(sections: Section[] | undefined, reported: number) {
+  if (!sections?.length) return { drafted: reported, total: reported };
+  return { drafted: sections.filter((s) => s.status !== "empty").length, total: sections.length };
 }
 
 /** The email as a letter: who it goes to, the subject, and the first lines. */

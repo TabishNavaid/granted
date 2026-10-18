@@ -72,6 +72,20 @@ test("inbox approve opens a flower, files the item, and offers undo", async ({ p
   await expect(page.getByRole("article", { name: title })).toBeVisible();
 });
 
+test("inbox previews read their numbers from the data", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("inbox_tour_seen", "1"));
+  await page.goto("/inbox");
+  // Meridian has seven sections and only Sustainability is empty.
+  const draft = page.getByRole("article", { name: /meridian family foundation/i });
+  await expect(draft.getByText("6 of 7 sections drafted")).toBeVisible();
+  await expect(draft.getByText("86%")).toBeVisible();
+  // The attendance update cites the passage the outcomes summary actually contains.
+  await page.getByRole("button", { name: /^open update a fact: average attendance$/i }).click();
+  const fact = page.getByRole("article", { name: /average attendance/i });
+  await fact.getByRole("button", { name: /program outcomes summary/i }).click();
+  await expect(page.getByText("Average attendance across all sites, 2025-26: 89%")).toBeVisible();
+});
+
 test("marking a grant won fills the screen with a meadow", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/pipeline");

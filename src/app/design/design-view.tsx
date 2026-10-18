@@ -127,6 +127,7 @@ export function DesignView() {
     missingFacts: {},
     facts: {},
     documents: {},
+    sections: {},
     funderNames: { funder_brightwater: "Brightwater Industries Giving Program" },
     applicationTitles: {},
   };

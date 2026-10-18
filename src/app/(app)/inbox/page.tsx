@@ -22,8 +22,9 @@ export default async function InboxPage() {
   const emailIds = items.flatMap((i) => (i.payload.type === "email_draft" ? [i.payload.emailDraftId] : []));
   const emails = await Promise.all(emailIds.map((id) => services.inbox.getEmailDraft(id)));
   const missingIds = items.flatMap((i) => (i.payload.type === "missing_facts" ? i.payload.missingFactIds : []));
+  // Workspaces for every application an Inbox item is about: questions for missing facts, sections for drafts.
   const workspaces = await Promise.all(
-    Array.from(new Set(items.flatMap((i) => (i.payload.type === "missing_facts" ? [i.payload.applicationId] : [])))).map((id) => services.applications.getWorkspace(id)),
+    Array.from(new Set(items.flatMap((i) => (i.payload.type === "missing_facts" || i.payload.type === "proposal_draft" ? [i.payload.applicationId] : [])))).map((id) => services.applications.getWorkspace(id)),
   );
 
   const ctx: InboxContext = {
@@ -33,6 +34,7 @@ export default async function InboxPage() {
     missingFacts: Object.fromEntries(workspaces.flatMap((w) => (w ? w.missingFacts.filter((m) => missingIds.includes(m.id)).map((m) => [m.id, m]) : []))),
     facts: Object.fromEntries(facts.map((f) => [f.id, f])),
     documents: Object.fromEntries(documents.map((d) => [d.id, d])),
+    sections: Object.fromEntries(workspaces.flatMap((w) => (w ? [[w.application.id, w.sections]] : []))),
     funderNames: Object.fromEntries(matches.map((m) => [m.funder.id, m.funder.name]).concat(applications.map((a) => [a.funder.id, a.funder.name]))),
     applicationTitles: Object.fromEntries(applications.map((a) => [a.id, `${a.funder.name}: ${a.opportunity.title}`])),
   };

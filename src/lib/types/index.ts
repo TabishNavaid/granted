@@ -321,7 +321,15 @@ export type InboxPayload =
   | { type: "new_matches"; matchIds: string[] }
   | { type: "milestones"; applicationId: string; milestoneIds: string[] }
   | { type: "missing_facts"; applicationId: string; missingFactIds: string[] }
-  | { type: "profile_update"; factId: string; proposedValue: string; sourceDocumentId: string };
+  | {
+      type: "profile_update";
+      factId: string;
+      proposedValue: string;
+      sourceDocumentId: string;
+      /** The passage in the source document the proposed value was read from. */
+      sourceExcerpt?: string;
+      sourcePage?: number | null;
+    };
 
 /** inbox_items */
 export interface InboxItem {

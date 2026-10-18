@@ -958,8 +958,9 @@ function applyApproval(item: InboxItem) {
         f.sourceDocumentId = p.sourceDocumentId;
         f.status = "confirmed";
         f.lastConfirmedAt = now();
-        f.sourceExcerpt = "Average attendance across all sites, 2025-26: 89%";
-        f.sourcePage = null;
+        // The old excerpt belonged to the old source, so it never carries over.
+        f.sourceExcerpt = p.sourceExcerpt ?? "";
+        f.sourcePage = p.sourcePage ?? null;
       }
       break;
     }
