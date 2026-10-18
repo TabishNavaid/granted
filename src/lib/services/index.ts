@@ -22,6 +22,7 @@ export const services: Services = {
   activity: domain("activity"),
   billing: domain("billing"),
   auth: domain("auth"),
+  loop: domain("loop"),
 };
 
 export type { Services } from "./contracts";

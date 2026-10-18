@@ -68,7 +68,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
     { key: "value", header: "Value", hideBelow: "sm", cell: (f) => <span className="font-display text-base text-ink">{f.value}</span> },
     { key: "source", header: "Source", hideBelow: "md", cell: (f) => {
       const d = docById(f.sourceDocumentId);
-      return <CitationChip label={d ? `${d.title}${f.sourcePage ? `, p.${f.sourcePage}` : ""}` : "You"} sourceTitle={d?.title} excerpt={f.sourceExcerpt} page={f.sourcePage} verifiedAt={f.lastConfirmedAt} />;
+      return <CitationChip label={d ? `${d.title}${f.sourcePage ? `, p.${f.sourcePage}` : ""}` : f.sourceLabel ?? (f.sourceUrl ? "Website" : "You")} sourceTitle={d?.title ?? f.sourceLabel ?? undefined} url={f.sourceUrl} excerpt={f.sourceExcerpt} page={f.sourcePage} verifiedAt={f.lastConfirmedAt} />;
     } },
     { key: "status", header: "Status", cell: (f) => (
       f.status === "confirmed" ? <span className="text-sm text-ink-muted">Confirmed {formatDate(f.lastConfirmedAt, "MMM yyyy")}</span>
@@ -126,7 +126,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
                 </div>
                 <div className="flex gap-1.5">
                   <dt>Founded</dt>
-                  <dd className="font-semibold text-ink tnum">{org.foundedYear}</dd>
+                  <dd className="font-semibold text-ink tnum">{org.foundedYear ?? "Not stated"}</dd>
                 </div>
               </dl>
               <p className="mt-6 max-w-[65ch] text-xl leading-relaxed text-ink">{org.mission}</p>
@@ -158,9 +158,9 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
                 <h2 className="font-display text-xl text-ink">At a glance</h2>
                 <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-5">
                   {[
-                    ["Budget", `$${(org.annualBudget / 1000).toFixed(0)}K`],
-                    ["Staff", String(org.staffCount)],
-                    ["Volunteers", String(org.volunteerCount)],
+                    ["Budget", org.annualBudget == null ? "Not stated" : `$${(org.annualBudget / 1000).toFixed(0)}K`],
+                    ["Staff", org.staffCount == null ? "Not stated" : String(org.staffCount)],
+                    ["Volunteers", org.volunteerCount == null ? "Not stated" : String(org.volunteerCount)],
                     ["Fiscal year end", org.fiscalYearEnd],
                   ].map(([k, v]) => (
                     <div key={k}>

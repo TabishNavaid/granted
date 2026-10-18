@@ -3,17 +3,18 @@
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-const steps = [
-  { href: "/onboarding", label: "Website and EIN" },
-  { href: "/onboarding/documents", label: "Documents" },
-  { href: "/onboarding/interview", label: "Short interview" },
+const allSteps = [
+  { href: "/onboarding", label: "Website" },
+  { href: "/onboarding/documents", label: "Documents", demoOnly: true },
+  { href: "/onboarding/interview", label: "Short interview", demoOnly: true },
   { href: "/onboarding/profile", label: "Confirm profile" },
   { href: "/onboarding/matches", label: "First matches" },
 ];
 
 /** Setup progress as a printed line: a number and a word per step, the current one underlined in ink. */
-export function OnboardingSteps() {
+export function OnboardingSteps({ demo = true }: { demo?: boolean }) {
   const pathname = usePathname();
+  const steps = demo ? allSteps : allSteps.filter((s) => !s.demoOnly);
   const current = Math.max(0, steps.findIndex((s) => s.href === pathname));
   return (
     <nav aria-label="Setup progress">

@@ -13,6 +13,7 @@ import type {
 } from "@/lib/types";
 import type { Services } from "./contracts";
 import { wordCount } from "@/lib/format";
+import { hasAi, runtimeMode } from "@/lib/env";
 
 /**
  * In-memory mock adapter. State lives for the life of the page (or server
@@ -22,7 +23,7 @@ import { wordCount } from "@/lib/format";
 
 const clone = <T>(v: T): T => structuredClone(v);
 
-const state = {
+export const state = {
   org: clone(seed.organization),
   members: clone(seed.members),
   documents: clone(seed.documents),
@@ -48,10 +49,10 @@ const state = {
   notifications: clone(seed.notificationSettings),
 };
 
-const now = () => new Date().toISOString();
+export const now = () => new Date().toISOString();
 const delay = (ms = 0) => new Promise((r) => setTimeout(r, ms));
 let idCounter = 1000;
-const newId = (prefix: string) => `${prefix}_${++idCounter}`;
+export const newId = (prefix: string) => `${prefix}_${++idCounter}`;
 
 function notFound(what: string, id: string): never {
   throw new Error(`${what} ${id} not found`);
@@ -269,6 +270,13 @@ export const mockServices: Services = {
     },
     async answerMissingFact(id, answer) {
       const m = state.missingFacts.find((x) => x.id === id) ?? notFound("missing fact", id);
+      if (m.gapKey && hasAi()) {
+        const { answerAndRedraft } = await import("@/lib/loop");
+        const { memoryStore } = await import("@/lib/loop/memory-store");
+        const r = await answerAndRedraft(memoryStore, id, answer);
+        if (!r.ok) throw new Error(r.error);
+        return clone(state.missingFacts.find((x) => x.id === id)!);
+      }
       m.status = "answered";
       m.answer = answer;
       const fact: Fact = {
@@ -278,6 +286,8 @@ export const mockServices: Services = {
         value: answer,
         category: "reach",
         sourceDocumentId: null,
+        sourceUrl: null,
+        sourceLabel: "You",
         sourceExcerpt: `Answered by Dana Okafor in the Meridian proposal workspace.`,
         sourcePage: null,
         confidence: 1,
@@ -434,15 +444,64 @@ export const mockServices: Services = {
     async signIn(email) {
       await delay(600);
       if (!email.includes("@")) return { ok: false, error: "Enter a valid email address." };
-      return { ok: true };
+      return { ok: true, next: "redirect" };
     },
     async signUp(input) {
       await delay(800);
       if (input.password.length < 8) return { ok: false, error: "Use at least 8 characters." };
-      return { ok: true };
+      return { ok: true, next: "redirect" };
     },
     async signOut() {
       await delay(200);
+    },
+  },
+
+  /**
+   * In demo mode the loop runs for real when a model key is set, against this
+   * in-memory state. Without a key it only pretends, so the marketing demo
+   * still walks through onboarding.
+   */
+  loop: {
+    async runtime() {
+      return runtimeMode();
+    },
+    async buildProfile(input) {
+      if (!hasAi()) {
+        await delay(900);
+        return { ok: true, data: { pageCount: 6, factCount: state.facts.length, droppedCount: 0, runId: "run_profile_onboard", fromCache: true } };
+      }
+      const { buildProfile } = await import("@/lib/loop");
+      const { memoryStore } = await import("@/lib/loop/memory-store");
+      return buildProfile(memoryStore, input);
+    },
+    async confirmProfile(input) {
+      if (!hasAi()) {
+        await delay(600);
+        return { ok: true, data: { confirmed: input.keptFactIds.length, removed: 0 } };
+      }
+      const { confirmProfile } = await import("@/lib/loop");
+      const { memoryStore } = await import("@/lib/loop/memory-store");
+      return confirmProfile(memoryStore, input);
+    },
+    async findMatches() {
+      if (!hasAi()) {
+        await delay(1200);
+        return { ok: true, data: { matchCount: state.matches.length, screened: 412, read: 24, runId: "run_discovery_w42", fromCache: true } };
+      }
+      const { findMatches } = await import("@/lib/loop");
+      const { memoryStore } = await import("@/lib/loop/memory-store");
+      return findMatches(memoryStore);
+    },
+    async draftLetter(applicationId) {
+      if (!hasAi()) {
+        await delay(2000);
+        const secs = state.sections.filter((s) => s.applicationId === applicationId).length;
+        const open = state.missingFacts.filter((m) => m.applicationId === applicationId && m.status === "open").length;
+        return { ok: true, data: { sectionCount: secs, openQuestions: open, issues: 0, wordCount: 0, runId: "run_proposal_meridian" } };
+      }
+      const { draftLetterFor } = await import("@/lib/loop");
+      const { memoryStore } = await import("@/lib/loop/memory-store");
+      return draftLetterFor(memoryStore, applicationId);
     },
   },
 };

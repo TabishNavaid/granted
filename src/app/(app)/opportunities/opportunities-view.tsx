@@ -9,11 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { EmptyState } from "@/components/ui/empty-state";
 import { Label } from "@/components/ui/label";
 import { formatDate } from "@/lib/format";
+import { FindMatchesButton } from "./find-matches-button";
 
 type Sort = "fit" | "deadline" | "amount";
 type Scope = "all" | "new" | "eligible" | "pipeline";
 
-export function OpportunitiesView({ matches }: { matches: MatchView[] }) {
+export function OpportunitiesView({ matches, demo }: { matches: MatchView[]; demo: boolean }) {
   const [sort, setSort] = React.useState<Sort>("fit");
   const [scope, setScope] = React.useState<Scope>("all");
 
@@ -37,7 +38,14 @@ export function OpportunitiesView({ matches }: { matches: MatchView[] }) {
     <PageContainer>
       <PageHeader
         title="Opportunities"
-        description={`${matches.length} funders you can actually apply to, ranked by fit. We last looked on ${formatDate(lastScan)} and we'll look again Monday.`}
+        description={
+          matches.length
+            ? demo
+              ? `${matches.length} funders you can actually apply to, ranked by fit. We last looked on ${formatDate(lastScan)} and we'll look again Monday.`
+              : `${matches.length} open federal notice${matches.length === 1 ? "" : "s"} from Grants.gov you can apply for, ranked by fit against your confirmed facts. We last looked on ${formatDate(lastScan)}.`
+            : "Nothing here yet. Confirm your profile, then search Grants.gov for open notices that fit."
+        }
+        actions={demo ? undefined : <FindMatchesButton label={matches.length ? "Search again" : "Search Grants.gov now"} size="sm" />}
       />
       <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <Tabs value={scope} onValueChange={(v) => setScope(v as Scope)}>
@@ -68,7 +76,12 @@ export function OpportunitiesView({ matches }: { matches: MatchView[] }) {
       </div>
 
       {sorted.length === 0 ? (
-        <EmptyState className="mt-6" title="No matches here" description="Try another filter. New matches show up every Monday and we'll put them in your Inbox." />
+        <EmptyState
+          className="mt-6"
+          title="No matches here"
+          description={demo ? "Try another filter. New matches show up every Monday and we'll put them in your Inbox." : matches.length ? "Try another filter." : "We search Grants.gov for posted and forecasted notices that 501(c)(3) nonprofits can apply for, read the strongest in full, and keep only the ones we can tie to your facts."}
+          action={demo || matches.length ? undefined : <FindMatchesButton size="md" />}
+        />
       ) : (
         <ul className="mt-6 border-b border-rule">
           {sorted.map((m) => (

@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { ChevronDown, PanelLeft, PanelRight } from "lucide-react";
 import type { ApplicationStage, Member, ProposalWorkspace } from "@/lib/types";
 import { services } from "@/lib/services";
-import { runProposalAgent } from "@/lib/agents";
 import { cn } from "@/lib/utils";
 import { deadlineLabel, formatDate, formatMoney } from "@/lib/format";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,7 @@ import { Checklist, CompliancePanel, QuestionsPanel, SourcesPanel } from "@/comp
 import { ExportDialog } from "@/components/proposal/export-dialog";
 import { stageMeta, stageOrder } from "@/lib/agents/meta";
 
-export function Workspace({ initial, members }: { initial: ProposalWorkspace; members: Member[] }) {
+export function Workspace({ initial, members, orgName, demo }: { initial: ProposalWorkspace; members: Member[]; orgName: string; demo: boolean }) {
   const router = useRouter();
   const { toast } = useToast();
   const [ws, setWs] = React.useState(initial);
@@ -66,11 +65,15 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
   };
 
   const answer = async (id: string, value: string) => {
-    await services.applications.answerMissingFact(id, value);
-    const next = await reload();
-    toast({ title: "Answer saved", description: "The gap is filled, and it cites you as the source." });
+    try {
+      await services.applications.answerMissingFact(id, value);
+    } catch (err) {
+      toast({ title: "We could not save that", description: err instanceof Error ? err.message : "Try again in a moment.", tone: "warning" });
+      return;
+    }
+    await reload();
+    toast({ title: "Answer saved", description: demo ? "The gap is filled, and it cites you as the source." : "Saved as a fact you stated. The paragraph was rewritten to cite it." });
     setHighlightGap(null);
-    void next;
   };
   const skip = async (id: string) => {
     await services.applications.skipMissingFact(id);
@@ -100,9 +103,24 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
 
   const draftNow = async () => {
     setDrafting(true);
-    await runProposalAgent({ orgId: app.orgId, applicationId: app.id, askAmount: app.askAmount });
+    const r = await services.loop.draftLetter(app.id);
     setDrafting(false);
-    toast({ title: "Draft requested", description: "The draft will land in your Inbox when it is ready for you.", tone: "info" });
+    if (!r.ok) {
+      toast({ title: "We could not write the draft", description: r.error, tone: "warning" });
+      return;
+    }
+    if (demo) {
+      toast({ title: "Draft requested", description: "The draft will land in your Inbox when it is ready for you.", tone: "info" });
+      return;
+    }
+    const next = await reload();
+    if (next?.sections[0]) setActiveId(next.sections[0].id);
+    setPanel(r.data.openQuestions ? "questions" : "checks");
+    toast({
+      title: "Letter drafted",
+      description: r.data.openQuestions ? `${r.data.wordCount} words. ${r.data.openQuestions} question${r.data.openQuestions === 1 ? "" : "s"} for you before it is complete.` : `${r.data.wordCount} words, every claim sourced. Read it over.`,
+    });
+    router.refresh();
   };
 
   const onCitationClick = (factId: string) => {
@@ -133,11 +151,14 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
         <div className="mt-10 border-t-2 border-ink pt-6">
           <h2 className="font-display text-2xl text-ink">No draft yet</h2>
           <p className="mt-2 max-w-[65ch] text-base text-ink-muted">
-            We will read the guidelines, build the checklist, and write every section from your facts. Anything we cannot source becomes a question for you instead of a guess. The finished draft arrives in your Inbox.
+            {demo
+              ? "We will read the guidelines, build the checklist, and write every section from your facts. Anything we cannot source becomes a question for you instead of a guess. The finished draft arrives in your Inbox."
+              : "We will write a one-page letter of inquiry from your confirmed facts and this notice's own text. Every claim carries its source. Anything we cannot source becomes a question for you instead of a guess."}
           </p>
           <Button className="mt-5" onClick={draftNow} loading={drafting}>
-            Write the first draft
+            {drafting ? "Writing from your facts" : "Write the first draft"}
           </Button>
+          {drafting ? <p className="mt-3 text-sm text-ink-muted" aria-live="polite">About half a minute.</p> : null}
           <div className="mt-10 grid gap-8 opacity-60 sm:grid-cols-3" aria-hidden>
             <div className="border-t border-rule pt-4">
               <Skeleton className="mb-3 h-3 w-24" />
@@ -300,7 +321,7 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
         </aside>
       </div>
 
-      <ExportDialog open={exportOpen} onOpenChange={setExportOpen} app={app} sections={ws.sections} />
+      <ExportDialog open={exportOpen} onOpenChange={setExportOpen} app={app} sections={ws.sections} orgName={orgName} />
     </div>
   );
 }

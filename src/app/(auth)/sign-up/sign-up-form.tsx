@@ -10,12 +10,22 @@ import { Field } from "@/components/ui/label";
 
 const linkClass = "font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-pink";
 
-export function SignUpForm() {
+export function SignUpForm({ magicLink }: { magicLink: boolean }) {
   const router = useRouter();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [sent, setSent] = React.useState(false);
   const [form, setForm] = React.useState({ fullName: "", orgName: "", email: "", password: "" });
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  if (sent) {
+    return (
+      <div>
+        <h1 className="font-display text-3xl text-ink">Check your email</h1>
+        <p className="mt-3 text-lg text-ink-muted">We sent a link to {form.email}. Open it on this device and we'll set up {form.orgName} and start with your website.</p>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -30,6 +40,7 @@ export function SignUpForm() {
           const r = await services.auth.signUp(form);
           setLoading(false);
           if (!r.ok) return setError(r.error);
+          if (r.next === "check_email") return setSent(true);
           router.push("/onboarding");
         }}
       >
@@ -42,11 +53,19 @@ export function SignUpForm() {
         <Field id="email" label="Work email">
           <Input type="email" autoComplete="email" required value={form.email} onChange={set("email")} placeholder="you@yourorg.org" />
         </Field>
-        <Field id="password" label="Password" hint="At least 8 characters." error={error ?? undefined}>
-          <Input type="password" autoComplete="new-password" required minLength={8} value={form.password} onChange={set("password")} />
-        </Field>
+        {magicLink ? (
+          error ? (
+            <p role="alert" className="border-l-[6px] border-burgundy py-1 pl-4 text-base text-ink">
+              {error}
+            </p>
+          ) : null
+        ) : (
+          <Field id="password" label="Password" hint="At least 8 characters." error={error ?? undefined}>
+            <Input type="password" autoComplete="new-password" required minLength={8} value={form.password} onChange={set("password")} />
+          </Field>
+        )}
         <Button type="submit" size="lg" loading={loading}>
-          Create workspace
+          {magicLink ? "Email me a link" : "Create workspace"}
         </Button>
         <p className="text-sm text-ink-muted">By continuing you agree to the terms and privacy policy. We never train models on your data.</p>
       </form>

@@ -40,16 +40,17 @@ export interface Organization {
   ein: string;
   websiteUrl: string;
   mission: string;
-  annualBudget: number;
+  /** Null when the organization has not stated it anywhere we read. Never inferred. */
+  annualBudget: number | null;
   fiscalYearEnd: string;
-  foundedYear: number;
+  foundedYear: number | null;
   city: string;
   state: string;
   serviceArea: string;
   causes: string[];
   populations: string[];
-  staffCount: number;
-  volunteerCount: number;
+  staffCount: number | null;
+  volunteerCount: number | null;
   createdAt: ISODate;
 }
 
@@ -86,6 +87,10 @@ export interface Fact {
   value: string;
   category: FactCategory;
   sourceDocumentId: string | null;
+  /** Web page the fact was read from, when the source is the org's own site. */
+  sourceUrl: string | null;
+  /** Short printed label for the source, e.g. "riverbendyouth.org/about" or "You". */
+  sourceLabel: string | null;
   sourceExcerpt: string;
   sourcePage: number | null;
   confidence: number;
@@ -144,6 +149,8 @@ export interface Opportunity {
   sourceUrl: string;
   lastVerifiedAt: ISODate;
   effort: "low" | "medium" | "high";
+  /** True when the funder has only announced the opportunity and has not opened it yet. */
+  forecasted: boolean;
 }
 
 export interface EligibilityCheck {
@@ -217,6 +224,8 @@ export interface MissingFact {
   suggestedLabel: string;
   status: MissingFactStatus;
   answer: string | null;
+  /** The [[gap:KEY]] the letter writer used, so a redraft can find it again. */
+  gapKey?: string | null;
 }
 
 /** compliance_checks */
@@ -333,6 +342,8 @@ export interface AgentRun {
   sourcesUsed: SourceUsed[];
   outputSummary: string;
   costUsd: number;
+  tokensIn: number;
+  tokensOut: number;
   startedAt: ISODate;
   finishedAt: ISODate | null;
   inboxItemId: string | null;

@@ -246,7 +246,7 @@ export function SourcesPanel({ facts, documents, sections, highlightFactId }: { 
   return (
     <div className="flex flex-col gap-4">
       <p className="text-sm text-ink-muted">
-        Every number in this draft comes from one of your own documents. <span className="tnum">{usedFacts.length}</span> facts cited from <span className="tnum">{docsUsed.length}</span> document{docsUsed.length === 1 ? "" : "s"}, and you can check each one.
+        Every number in this draft comes from a source you confirmed. <span className="tnum">{usedFacts.length}</span> fact{usedFacts.length === 1 ? "" : "s"} cited{docsUsed.length ? <> from <span className="tnum">{docsUsed.length}</span> document{docsUsed.length === 1 ? "" : "s"}</> : null}, and you can check each one.
       </p>
       {docTitles.length ? <p className="text-sm text-ink">{docTitles.join(", ")}</p> : null}
       <ul className="flex flex-col">
@@ -271,7 +271,7 @@ export function SourcesPanel({ facts, documents, sections, highlightFactId }: { 
               </p>
               {f.sourceExcerpt ? <blockquote className="mt-2 border-l-2 border-ink pl-3 text-sm italic leading-relaxed text-ink">“{f.sourceExcerpt}”</blockquote> : null}
               <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-muted">
-                <CitationChip label={d ? `${d.title}${f.sourcePage ? `, p.${f.sourcePage}` : ""}` : "You"} sourceTitle={d?.title} excerpt={f.sourceExcerpt} page={f.sourcePage} verifiedAt={f.lastConfirmedAt} />
+                <CitationChip label={d ? `${d.title}${f.sourcePage ? `, p.${f.sourcePage}` : ""}` : f.sourceLabel ?? (f.sourceUrl ? "Website" : "You")} sourceTitle={d?.title ?? f.sourceLabel ?? undefined} url={f.sourceUrl} excerpt={f.sourceExcerpt} page={f.sourcePage} verifiedAt={f.lastConfirmedAt} />
                 {f.status !== "confirmed" ? <Badge variant="warning">{f.status === "stale" ? "Over a year old" : "Check this"}</Badge> : <span>Confirmed {formatDate(f.lastConfirmedAt)}</span>}
               </div>
             </li>

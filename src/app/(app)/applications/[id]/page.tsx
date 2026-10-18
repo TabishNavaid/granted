@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function ApplicationPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [workspace, members] = await Promise.all([services.applications.getWorkspace(id), services.org.listMembers()]);
+  const [workspace, members, org, runtime] = await Promise.all([services.applications.getWorkspace(id), services.org.listMembers(), services.org.get(), services.loop.runtime()]);
   if (!workspace) notFound();
-  return <Workspace initial={workspace} members={members} />;
+  return <Workspace initial={workspace} members={members} orgName={org.name} demo={runtime.demo && !runtime.ai} />;
 }

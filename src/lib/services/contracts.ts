@@ -105,10 +105,33 @@ export interface BillingService {
   updateNotificationSettings(patch: Partial<NotificationSettings>): Promise<NotificationSettings>;
 }
 
+export type AuthResult = { ok: true; next: "redirect" | "check_email" } | { ok: false; error: string };
+
 export interface AuthService {
-  signIn(email: string, password: string): Promise<{ ok: true } | { ok: false; error: string }>;
-  signUp(input: { fullName: string; email: string; password: string; orgName: string }): Promise<{ ok: true } | { ok: false; error: string }>;
+  /** Password is ignored when the server uses email magic links. */
+  signIn(email: string, password: string): Promise<AuthResult>;
+  signUp(input: { fullName: string; email: string; password: string; orgName: string }): Promise<AuthResult>;
   signOut(): Promise<void>;
+}
+
+/** The real loop: website to facts to matches to a letter. Results carry kind, honest errors for the UI. */
+export type LoopErrorCode = "bad_url" | "unreachable" | "no_ai" | "rate_limited" | "no_facts" | "grants_gov" | "not_found" | "failed";
+export type LoopResult<T> = { ok: true; data: T } | { ok: false; code: LoopErrorCode; error: string };
+
+export interface RuntimeInfo {
+  /** Mock data everywhere. */
+  demo: boolean;
+  /** A model key is set, so the agents can run (against the in-memory store in demo mode). */
+  ai: boolean;
+  persistence: "memory" | "supabase";
+}
+
+export interface LoopService {
+  runtime(): Promise<RuntimeInfo>;
+  buildProfile(input: { websiteUrl: string; ein: string | null }): Promise<LoopResult<{ pageCount: number; factCount: number; droppedCount: number; runId: string; fromCache: boolean }>>;
+  confirmProfile(input: { keptFactIds: string[]; factEdits: Record<string, string>; org: { mission?: string; serviceArea?: string; name?: string } }): Promise<LoopResult<{ confirmed: number; removed: number }>>;
+  findMatches(): Promise<LoopResult<{ matchCount: number; screened: number; read: number; runId: string; fromCache: boolean }>>;
+  draftLetter(applicationId: string): Promise<LoopResult<{ sectionCount: number; openQuestions: number; issues: number; wordCount: number; runId: string }>>;
 }
 
 export interface Services {
@@ -121,4 +144,5 @@ export interface Services {
   activity: ActivityService;
   billing: BillingService;
   auth: AuthService;
+  loop: LoopService;
 }

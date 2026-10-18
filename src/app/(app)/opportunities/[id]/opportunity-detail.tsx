@@ -33,7 +33,7 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
   const start = async () => {
     setStarting(true);
     const app = await services.opportunities.startApplication(opportunity.id);
-    toast({ title: "On it", description: "We're reading the guidelines now. The draft will land in your Inbox when it's ready." });
+    toast({ title: "On it", description: "Opening the workspace. Ask for the first draft there and we'll write a letter of inquiry from your confirmed facts." });
     router.push(`/applications/${app.id}`);
   };
   const save = async () => {
@@ -78,7 +78,7 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
             </div>
             <div>
               <dt className="text-sm text-ink-muted">Deadline</dt>
-              <dd className="mt-1 font-display text-2xl text-ink">{opportunity.deadline ? formatDate(opportunity.deadline) : "Rolling"}</dd>
+              <dd className="mt-1 font-display text-2xl text-ink">{opportunity.deadline ? formatDate(opportunity.deadline) : opportunity.forecasted ? "Not announced" : "Rolling"}</dd>
               {opportunity.deadline ? (
                 <dd className={cn("mt-1 text-sm", dl.tone === "danger" ? "text-burgundy" : "text-ink-muted")}>
                   {soon ? <mark className="highlight">{dl.text}</mark> : dl.text}
@@ -87,7 +87,7 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
             </div>
             <div>
               <dt className="text-sm text-ink-muted">Process</dt>
-              <dd className="mt-1 font-display text-2xl text-ink">{opportunity.deadlineType === "loi" ? "Letter first" : opportunity.deadlineType === "rolling" ? "Rolling" : "Full proposal"}</dd>
+              <dd className="mt-1 font-display text-2xl text-ink">{opportunity.forecasted ? "Forecasted" : opportunity.deadlineType === "loi" ? "Letter first" : opportunity.deadlineType === "rolling" ? "Rolling" : "Full proposal"}</dd>
             </div>
             <div>
               <dt className="text-sm text-ink-muted">Your time</dt>
@@ -248,7 +248,7 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
               </>
             ) : (
               <>
-                <p className="mt-2 text-base text-ink-muted">We'll read the guidelines, build the checklist, and write every section from your own facts. You read it over before anything goes anywhere.</p>
+                <p className="mt-2 text-base text-ink-muted">We'll write a one-page letter of inquiry from your confirmed facts and this notice's own text. Every claim carries its source, and anything we don't know becomes a question for you.</p>
                 <Button onClick={start} loading={starting} className="mt-5 w-full">
                   Start the application
                 </Button>

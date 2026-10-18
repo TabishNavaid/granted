@@ -1,5 +1,6 @@
 "use server";
 
+import { isDemoMode } from "@/lib/env";
 import { mockServices } from "./mock";
 import type { Services } from "./contracts";
 
@@ -7,12 +8,25 @@ type Domain = keyof Services;
 
 /**
  * Single server action that every client-side service call goes through.
- * This keeps one copy of mock state (in the server process) so that a change
- * made in a client component shows up on the next server render.
- * The Supabase adapter replaces `mockServices` here and nowhere else.
+ * DEMO_MODE (or no Supabase keys) means the in-memory mock adapter, which is
+ * what the marketing demo runs on. Otherwise every call hits Supabase, scoped
+ * to the signed-in user's organization.
  */
+let real: Services | null = null;
+
+async function current(): Promise<Services> {
+  if (isDemoMode()) return mockServices;
+  if (!real) {
+    const [{ makeSupabaseServices }, { registerCacheBackend }, { supabaseCacheBackend }] = await Promise.all([import("./supabase"), import("@/lib/cache"), import("@/lib/supabase/cache-backend")]);
+    registerCacheBackend(supabaseCacheBackend());
+    real = makeSupabaseServices();
+  }
+  return real;
+}
+
 export async function invoke(domain: Domain, method: string, args: unknown[]): Promise<unknown> {
-  const svc = mockServices[domain] as unknown as Record<string, (...a: unknown[]) => Promise<unknown>>;
+  const services = await current();
+  const svc = services[domain] as unknown as Record<string, (...a: unknown[]) => Promise<unknown>>;
   const fn = svc[method];
   if (typeof fn !== "function") throw new Error(`Unknown service method ${domain}.${method}`);
   return fn.apply(svc, args);

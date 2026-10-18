@@ -32,6 +32,7 @@ export function OpportunityCard({ match, className }: { match: MatchView; classN
           {match.status === "applying" ? <span className="font-semibold text-ink">In your pipeline</span> : null}
           {match.status === "saved" ? <span className="font-semibold text-ink">Saved</span> : null}
           <span>{funderTypeLabel[funder.type]}</span>
+          {opportunity.forecasted ? <span>Forecasted, not open yet</span> : null}
         </p>
         <h3 id={`opp-${match.id}`} className="mt-1.5 font-display text-2xl leading-tight text-ink">
           <Link href={`/opportunities/${opportunity.id}`} className="hover:underline hover:decoration-pink hover:decoration-2 hover:underline-offset-4">
@@ -48,7 +49,7 @@ export function OpportunityCard({ match, className }: { match: MatchView; classN
           <div>
             <dt className="text-xs text-ink-muted">Deadline</dt>
             <dd className="font-semibold text-ink">
-              {opportunity.deadline ? formatDate(opportunity.deadline) : "Rolling"}
+              {opportunity.deadline ? formatDate(opportunity.deadline) : opportunity.forecasted ? "Not announced" : "Rolling"}
               {opportunity.deadline ? <span className={cn("ml-1.5 font-normal", dl.tone === "danger" ? "text-burgundy" : "text-ink-muted")}>{dl.text}</span> : null}
             </dd>
           </div>

@@ -31,18 +31,57 @@ function cleanHtml(html: string) {
   return html.replace(/<span data-citation[^>]*><\/span>/g, "").replace(/<span data-gap="[^"]*" data-label="([^"]*)"><\/span>/g, "<strong>[NEED: $1]</strong>");
 }
 
-function buildDocument(app: ApplicationView, sections: Section[]) {
+function buildDocument(app: ApplicationView, sections: Section[], orgName: string) {
   const body = sections
     .map((s) => `<h2>${s.title}</h2>${cleanHtml(s.bodyHtml) || "<p><em>Not written yet.</em></p>"}`)
     .join("\n");
   return `<!doctype html><html><head><meta charset="utf-8"><title>${app.opportunity.title}</title>
 <style>body{font-family:Georgia,serif;font-size:11.5pt;line-height:1.5;max-width:7in;margin:1in auto;color:#111}h1{font-size:18pt;margin-bottom:0}h2{font-size:13pt;margin-top:1.4em}p{margin:0 0 .8em}</style></head>
-<body><h1>${app.opportunity.title}</h1><p>${app.funder.name} for Riverbend Youth Collective</p>${body}</body></html>`;
+<body><h1>${app.opportunity.title}</h1><p>${app.funder.name} for ${orgName}</p>${body}</body></html>`;
+}
+
+/** Blocks of plain text per section, for the .docx builder. Headings, paragraphs, and list items. */
+function toBlocks(html: string): { kind: "h3" | "p" | "li"; text: string }[] {
+  const cleaned = cleanHtml(html).replace(/<strong>\[NEED: ([^\]]*)\]<\/strong>/g, "[NEED: $1]");
+  const blocks: { kind: "h3" | "p" | "li"; text: string }[] = [];
+  for (const m of cleaned.matchAll(/<(h3|p|li)[^>]*>([\s\S]*?)<\/\1>/g)) {
+    const text = toPlainText(m[2]);
+    if (text) blocks.push({ kind: m[1] as "h3" | "p" | "li", text });
+  }
+  if (!blocks.length) {
+    const text = toPlainText(cleaned);
+    if (text) blocks.push({ kind: "p", text });
+  }
+  return blocks;
+}
+
+async function buildDocx(app: ApplicationView, sections: Section[], orgName: string): Promise<Blob> {
+  const { Document, Packer, Paragraph, TextRun, HeadingLevel } = await import("docx");
+  const children = [
+    new Paragraph({ heading: HeadingLevel.TITLE, children: [new TextRun(app.opportunity.title)] }),
+    new Paragraph({ children: [new TextRun({ text: `${app.funder.name}, from ${orgName}`, italics: true })], spacing: { after: 300 } }),
+  ];
+  for (const s of sections) {
+    children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun(s.title)], spacing: { before: 280, after: 120 } }));
+    const blocks = toBlocks(s.bodyHtml);
+    if (!blocks.length) children.push(new Paragraph({ children: [new TextRun({ text: "Not written yet.", italics: true })] }));
+    for (const b of blocks) {
+      if (b.kind === "h3") children.push(new Paragraph({ heading: HeadingLevel.HEADING_3, children: [new TextRun(b.text)] }));
+      else if (b.kind === "li") children.push(new Paragraph({ bullet: { level: 0 }, children: [new TextRun(b.text)] }));
+      else {
+        // Mark gaps in bold so a NEED cannot slip past in Word.
+        const runs = b.text.split(/(\[NEED: [^\]]*\])/g).map((part) => new TextRun({ text: part, bold: part.startsWith("[NEED:") }));
+        children.push(new Paragraph({ children: runs, spacing: { after: 160 } }));
+      }
+    }
+  }
+  const doc = new Document({ creator: orgName, title: app.opportunity.title, styles: { default: { document: { run: { font: "Georgia", size: 23 } } } }, sections: [{ children }] });
+  return Packer.toBlob(doc);
 }
 
 const fileOptionClasses = "flex flex-col gap-1 border border-ink p-4 text-left transition-colors hover:bg-paper-tint disabled:opacity-60";
 
-export function ExportDialog({ open, onOpenChange, app, sections }: { open: boolean; onOpenChange: (o: boolean) => void; app: ApplicationView; sections: Section[] }) {
+export function ExportDialog({ open, onOpenChange, app, sections, orgName }: { open: boolean; onOpenChange: (o: boolean) => void; app: ApplicationView; sections: Section[]; orgName: string }) {
   const { toast } = useToast();
   const [busy, setBusy] = React.useState<"docx" | "pdf" | null>(null);
   const [copied, setCopied] = React.useState<string | null>(null);
@@ -50,22 +89,25 @@ export function ExportDialog({ open, onOpenChange, app, sections }: { open: bool
 
   const download = async () => {
     setBusy("docx");
-    await new Promise((r) => setTimeout(r, 600));
-    const blob = new Blob([buildDocument(app, sections)], { type: "application/msword" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${filename}.doc`;
-    a.click();
-    URL.revokeObjectURL(url);
+    try {
+      const blob = await buildDocx(app, sections, orgName);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${filename}.docx`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast({ title: "Word file downloaded", description: "Open it in Word or Google Docs. Anything still missing is marked NEED so it cannot slip past you." });
+    } catch {
+      toast({ title: "Could not build the file", description: "Try the PDF option, or copy each section by hand.", tone: "warning" });
+    }
     setBusy(null);
-    toast({ title: "Word file downloaded", description: "Open it in Word or Google Docs. Anything still missing is marked NEED so it cannot slip past you." });
   };
   const print = async () => {
     setBusy("pdf");
     const w = window.open("", "_blank", "width=900,height=1100");
     if (w) {
-      w.document.write(buildDocument(app, sections));
+      w.document.write(buildDocument(app, sections, orgName));
       w.document.close();
       w.focus();
       setTimeout(() => w.print(), 300);
