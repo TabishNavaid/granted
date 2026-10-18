@@ -17,7 +17,8 @@ import { Skeleton, SkeletonText } from "@/components/ui/skeleton";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { StageBadge } from "@/components/app/badges";
 import { PageContainer } from "@/components/app/page-header";
-import { InkStamp } from "@/components/brand/stamp";
+import { Bloom } from "@/components/drawings/bloom";
+import { flowerFor } from "@/lib/drawings";
 import { SectionEditor } from "@/components/proposal/section-editor";
 import { Checklist, CompliancePanel, QuestionsPanel, SourcesPanel } from "@/components/proposal/panels";
 import { ExportDialog } from "@/components/proposal/export-dialog";
@@ -29,6 +30,7 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
   const [ws, setWs] = React.useState(initial);
   const [activeId, setActiveId] = React.useState(initial.sections[0]?.id ?? "");
   const [panel, setPanel] = React.useState<"questions" | "checks" | "sources">(initial.missingFacts.some((m) => m.status === "open") ? "questions" : "checks");
+  const [justApproved, setJustApproved] = React.useState<string | null>(null);
   const [highlightFact, setHighlightFact] = React.useState<string | null>(null);
   const [highlightGap, setHighlightGap] = React.useState<string | null>(null);
   const [exportOpen, setExportOpen] = React.useState(false);
@@ -87,7 +89,9 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
 
   const approveSection = async () => {
     if (!active) return;
-    const next = await services.applications.setSectionStatus(active.id, active.status === "approved" ? "edited" : "approved");
+    const approving = active.status !== "approved";
+    setJustApproved(approving ? active.id : null);
+    const next = await services.applications.setSectionStatus(active.id, approving ? "approved" : "edited");
     setWs((w) => ({ ...w, sections: w.sections.map((s) => (s.id === next.id ? { ...s, status: next.status } : s)) }));
   };
 
@@ -122,7 +126,7 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
         <Link href="/pipeline" className="text-sm text-ink-muted underline-offset-4 hover:text-ink hover:underline">
           Pipeline
         </Link>
-        <header className="mt-4 border-b-2 border-ink pb-6">
+        <header className="mt-4 border-b border-rule pb-6">
           <p className="text-base text-ink-muted">{app.funder.name}</p>
           <h1 className="mt-1 font-display text-h1 text-ink">{app.opportunity.title}</h1>
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-ink-muted">
@@ -130,7 +134,7 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
             {app.opportunity.deadline ? <span>Due {formatDate(app.opportunity.deadline)}</span> : null}
           </div>
         </header>
-        <div className="mt-10 border-t-2 border-ink pt-6">
+        <div className="mt-10 border-t border-rule pt-6">
           <h2 className="font-display text-2xl text-ink">No draft yet</h2>
           <p className="mt-2 max-w-[65ch] text-base text-ink-muted">
             We will read the guidelines, build the checklist, and write every section from your facts. Anything we cannot source becomes a question for you instead of a guess. The finished draft arrives in your Inbox.
@@ -155,7 +159,7 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="border-b-2 border-ink bg-paper px-4 py-3 sm:px-6">
+      <header className="border-b border-rule bg-paper px-4 py-3 sm:px-6">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <Link href="/pipeline" className="text-sm text-ink-muted underline-offset-4 hover:text-ink hover:underline">
             Pipeline
@@ -168,7 +172,7 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
               {app.opportunity.deadline ? (
                 <>
                   <span>Due {formatDate(app.opportunity.deadline, "MMM d")}</span>
-                  <span className={cn(dl.tone === "danger" && "font-semibold text-burgundy")}>{dl.text}</span>
+                  <span className={cn(dl.tone === "danger" && "font-semibold text-alert")}>{dl.text}</span>
                 </>
               ) : null}
               {owner ? <span>{owner.fullName}</span> : null}
@@ -245,13 +249,13 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
               <div className="flex flex-1 flex-col">
                 <SectionEditor key={active.id} section={active} facts={ws.facts} onChange={onChange} onCitationClick={onCitationClick} onGapClick={onGapClick} />
               </div>
-              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-rule bg-paper px-5 py-3 sm:px-10">
+              <div className="relative flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-rule bg-paper px-5 py-3 sm:px-10">
                 <p className="text-sm text-ink-muted">
                   {active.status === "approved" ? "You approved this section." : active.status === "needs_facts" ? "A few gaps here are waiting on your answers." : "Read it over, then approve it when it sounds like you."}
                 </p>
                 {active.status === "approved" ? (
                   <div className="flex items-center gap-4">
-                    <InkStamp label="Approved" size="sm" rotate={-5} />
+                    <Bloom key={active.id} flower={flowerFor(active.id)} grow={justApproved === active.id} className="pointer-events-none -my-3 h-16 self-end" />
                     <Button variant="ghost" size="sm" onClick={approveSection}>
                       Undo approval
                     </Button>
@@ -278,11 +282,11 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
               <TabsList variant="line" aria-label="Review panels">
                 <TabsTrigger value="questions">
                   Questions
-                  {openQuestions ? <mark className="highlight text-sm font-semibold tnum">{openQuestions}</mark> : null}
+                  {openQuestions ? <mark className="circled text-sm font-semibold tnum">{openQuestions}</mark> : null}
                 </TabsTrigger>
                 <TabsTrigger value="checks">
                   Checks
-                  {fails ? <span className="text-sm font-semibold text-burgundy tnum">{fails}</span> : null}
+                  {fails ? <span className="text-sm font-semibold text-alert tnum">{fails}</span> : null}
                 </TabsTrigger>
                 <TabsTrigger value="sources">Sources</TabsTrigger>
               </TabsList>

@@ -97,7 +97,7 @@ export function InterviewStep() {
             <div ref={endRef} />
           </div>
           <form
-            className="flex items-end gap-2 border-t border-ink p-3"
+            className="flex items-end gap-2 border-t border-rule p-3"
             onSubmit={(e) => {
               e.preventDefault();
               send();
@@ -137,7 +137,7 @@ export function InterviewStep() {
           ) : null}
         </div>
       </div>
-      <aside className="border-l-2 border-ink pl-5 text-base text-ink-muted lg:self-start">
+      <aside className="border-l-[3px] border-rule-strong pl-5 text-base text-ink-muted lg:self-start">
         <h2 className="font-display text-xl text-ink">Progress</h2>
         <ol className="mt-3 flex flex-col divide-y divide-rule border-y border-rule">
           {questions.map((q, i) => {
@@ -148,7 +148,7 @@ export function InterviewStep() {
                 {state === "answered" ? <span className="text-sm text-ink-muted">Answered</span> : null}
                 {state === "now" ? (
                   <span className="text-sm font-semibold">
-                    <mark className="highlight">Now</mark>
+                    <mark className="circled">Now</mark>
                   </span>
                 ) : null}
                 {state === "next" ? <span className="text-sm text-ink-muted">Next</span> : null}

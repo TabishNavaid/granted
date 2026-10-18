@@ -10,7 +10,7 @@ const options = [
   { value: "system", label: "Device" },
 ] as const;
 
-/** Day print, night print, or whatever the device says. Three words, no icons. */
+/** Light, dark, or whatever the device says. Parked: not rendered until dark mode has its own design. */
 export function ThemeToggle({ className }: { className?: string; tone?: "paper" | "night" }) {
   const { theme, setTheme } = useTheme();
   const mounted = React.useSyncExternalStore(
@@ -20,7 +20,7 @@ export function ThemeToggle({ className }: { className?: string; tone?: "paper" 
   );
   const current = mounted ? theme ?? "system" : "system";
   return (
-    <div role="radiogroup" aria-label="Print" className={cn("inline-flex items-center gap-3 text-sm", className)}>
+    <div role="radiogroup" aria-label="Appearance" className={cn("inline-flex items-center gap-3 text-sm", className)}>
       {options.map((o) => (
         <button
           key={o.value}

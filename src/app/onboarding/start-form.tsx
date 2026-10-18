@@ -50,7 +50,7 @@ export function StartForm() {
           </div>
         </form>
       </div>
-      <aside className="border-l-2 border-ink pl-5 text-base text-ink-muted lg:self-start">
+      <aside className="border-l-[3px] border-rule-strong pl-5 text-base text-ink-muted lg:self-start">
         <h2 className="font-display text-xl text-ink">What we read</h2>
         <ul className="mt-3 flex flex-col gap-2">
           <li>Your public website: mission, programs, staff.</li>

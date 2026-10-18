@@ -32,7 +32,7 @@ const DropdownMenuItem = React.forwardRef<
   React.ComponentRef<typeof DropdownMenuPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item> & { destructive?: boolean }
 >(({ className, destructive, ...props }, ref) => (
-  <DropdownMenuPrimitive.Item ref={ref} className={cn(itemClasses, destructive && "text-burgundy [&_svg]:text-burgundy", className)} {...props} />
+  <DropdownMenuPrimitive.Item ref={ref} className={cn(itemClasses, destructive && "text-alert [&_svg]:text-alert", className)} {...props} />
 ));
 DropdownMenuItem.displayName = "DropdownMenuItem";
 

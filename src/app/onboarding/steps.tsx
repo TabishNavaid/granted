@@ -11,7 +11,7 @@ const steps = [
   { href: "/onboarding/matches", label: "First matches" },
 ];
 
-/** Setup progress as a printed line: a number and a word per step, the current one underlined in ink. */
+/** Setup progress as a line of steps: a number and a word each, the current one underlined in ink. */
 export function OnboardingSteps() {
   const pathname = usePathname();
   const current = Math.max(0, steps.findIndex((s) => s.href === pathname));
@@ -25,7 +25,7 @@ export function OnboardingSteps() {
             <li
               key={s.href}
               aria-current={active ? "step" : undefined}
-              className={cn("flex items-baseline gap-2 text-base", active ? "-mb-[13px] border-b-2 border-ink pb-3 font-semibold text-ink" : "text-ink-muted")}
+              className={cn("flex items-baseline gap-2 text-base", active ? "-mb-[14px] border-b-2 border-ink pb-3 font-semibold text-ink" : "text-ink-muted")}
             >
               <span className="font-display text-lg tnum" aria-hidden>
                 {i + 1}

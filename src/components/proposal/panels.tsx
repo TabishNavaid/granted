@@ -59,7 +59,7 @@ export function Checklist({
                 >
                   <span className="block truncate text-ink">{s.title}</span>
                   <span className="mt-0.5 flex flex-wrap gap-x-4 text-xs font-normal text-ink-muted">
-                    {s.status === "needs_facts" ? <mark className="highlight">{statusLabel[s.status]}</mark> : <span>{statusLabel[s.status]}</span>}
+                    {s.status === "needs_facts" ? <mark className="circled">{statusLabel[s.status]}</mark> : <span>{statusLabel[s.status]}</span>}
                     {s.wordLimit ? (
                       <span className="tnum">
                         {words} of {s.wordLimit} words
@@ -176,7 +176,7 @@ function QuestionCard({ q, index, sectionTitle, highlighted, onAnswer, onSkip }:
           Save
         </Button>
       </div>
-      <button type="button" onClick={() => onSkip(q.id)} className="mt-3 text-sm text-ink-muted underline decoration-[1px] underline-offset-4 hover:text-ink hover:decoration-pink">
+      <button type="button" onClick={() => onSkip(q.id)} className="mt-3 text-sm text-ink-muted underline decoration-[1px] underline-offset-4 hover:text-ink hover:decoration-corn">
         Skip for now
       </button>
     </form>
@@ -186,7 +186,7 @@ function QuestionCard({ q, index, sectionTitle, highlighted, onAnswer, onSkip }:
 const checkWord: Record<ComplianceCheck["status"], { label: string; className: string }> = {
   pass: { label: "Passed", className: "text-ink-muted" },
   warn: { label: "Review", className: "text-ink" },
-  fail: { label: "Failed", className: "text-burgundy" },
+  fail: { label: "Failed", className: "text-alert" },
 };
 
 export function CompliancePanel({ checks, onRerun, running, onJump }: { checks: ComplianceCheck[]; onRerun: () => void; running: boolean; onJump: (sectionId: string) => void }) {
@@ -196,12 +196,12 @@ export function CompliancePanel({ checks, onRerun, running, onJump }: { checks: 
   const ready = fails.length === 0;
   return (
     <div className="flex flex-col gap-4">
-      <div className={cn("border-l-[6px] py-2 pl-4 text-sm", ready ? "border-l-pink" : "border-l-burgundy")}>
+      <div className={cn("border-l-[6px] py-2 pl-4 text-sm", ready ? "border-l-grass-line" : "border-l-alert")}>
         <p className="font-display text-xl text-ink">{ready ? "Ready to submit" : `${fails.length} thing${fails.length === 1 ? "" : "s"} to sort out before you submit`}</p>
         <p className="mt-1 flex flex-wrap gap-x-4 text-ink-muted">
           <span className="tnum">{passes.length} passed</span>
           <span className="tnum">{warns.length} to review</span>
-          <span className={cn("tnum", fails.length && "font-semibold text-burgundy")}>{fails.length} failed</span>
+          <span className={cn("tnum", fails.length && "font-semibold text-alert")}>{fails.length} failed</span>
         </p>
       </div>
       <Button variant="secondary" size="sm" onClick={onRerun} loading={running} className="w-fit">
@@ -217,7 +217,7 @@ export function CompliancePanel({ checks, onRerun, running, onJump }: { checks: 
                 <p className="text-ink">{c.rule}</p>
                 <p className="text-xs text-ink-muted">{c.detail}</p>
                 {c.sectionId && c.status !== "pass" ? (
-                  <button type="button" onClick={() => onJump(c.sectionId!)} className="mt-1 text-sm font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-pink">
+                  <button type="button" onClick={() => onJump(c.sectionId!)} className="mt-1 text-sm font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-corn">
                     Go to the section
                   </button>
                 ) : null}
@@ -269,7 +269,7 @@ export function SourcesPanel({ facts, documents, sections, highlightFactId }: { 
                   used {times} time{times === 1 ? "" : "s"}
                 </span>
               </p>
-              {f.sourceExcerpt ? <blockquote className="mt-2 border-l-2 border-ink pl-3 text-sm italic leading-relaxed text-ink">“{f.sourceExcerpt}”</blockquote> : null}
+              {f.sourceExcerpt ? <blockquote className="mt-2 border-l-[3px] border-rule-strong pl-3 text-sm italic leading-relaxed text-ink">“{f.sourceExcerpt}”</blockquote> : null}
               <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-muted">
                 <CitationChip label={d ? `${d.title}${f.sourcePage ? `, p.${f.sourcePage}` : ""}` : "You"} sourceTitle={d?.title} excerpt={f.sourceExcerpt} page={f.sourcePage} verifiedAt={f.lastConfirmedAt} />
                 {f.status !== "confirmed" ? <Badge variant="warning">{f.status === "stale" ? "Over a year old" : "Check this"}</Badge> : <span>Confirmed {formatDate(f.lastConfirmedAt)}</span>}

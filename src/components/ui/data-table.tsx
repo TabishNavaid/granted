@@ -24,14 +24,14 @@ interface DataTableProps<T> {
 
 const hideMap = { sm: "hidden sm:table-cell", md: "hidden md:table-cell", lg: "hidden lg:table-cell" };
 
-/** A printed table: a heavy rule on top, hairlines between rows, no frame. */
+/** A table: hairlines between rows, a tinted header, no frame. */
 export function DataTable<T>({ columns, rows, rowKey, caption, emptyMessage = "Nothing here yet.", onRowClick, className, dense }: DataTableProps<T>) {
   return (
-    <div className={cn("relative w-full overflow-x-auto border-t-2 border-ink", className)}>
+    <div className={cn("relative w-full overflow-x-auto border-t border-rule", className)}>
       <table className="w-full border-collapse text-sm">
         {caption ? <caption className="sr-only">{caption}</caption> : null}
         <thead>
-          <tr className="border-b border-ink bg-paper-tint">
+          <tr className="border-b border-rule bg-paper-tint">
             {columns.map((c) => (
               <th
                 key={c.key}

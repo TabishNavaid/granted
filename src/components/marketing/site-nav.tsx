@@ -12,18 +12,18 @@ const links = [
 
 export function SiteNav() {
   return (
-    <header className="sticky top-0 z-30 border-b-2 border-ink bg-paper">
+    <header className="sticky top-0 z-30 border-b border-rule bg-paper">
       <div className="mx-auto flex h-16 max-w-[75rem] items-center justify-between gap-6 px-4 sm:px-6 lg:px-10">
         <Logo />
         <nav aria-label="Site" className="hidden items-center gap-7 text-base text-ink md:flex">
           {links.map((l) => (
-            <a key={l.href} href={l.href} className="underline-offset-4 decoration-2 hover:underline hover:decoration-pink">
+            <a key={l.href} href={l.href} className="underline-offset-4 decoration-2 hover:underline hover:decoration-corn">
               {l.label}
             </a>
           ))}
         </nav>
         <div className="flex items-center gap-5">
-          <Link href="/sign-in" className="text-base text-ink underline-offset-4 decoration-2 hover:underline hover:decoration-pink">
+          <Link href="/sign-in" className="text-base text-ink underline-offset-4 decoration-2 hover:underline hover:decoration-corn">
             Sign in
           </Link>
           <Button asChild>
@@ -37,7 +37,7 @@ export function SiteNav() {
 
 export function SiteFooter() {
   return (
-    <footer className="border-t-2 border-ink">
+    <footer className="border-t border-rule">
       <div className="mx-auto grid max-w-[75rem] gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1fr_auto] lg:px-10">
         <div>
           <Logo size="sm" />
@@ -48,7 +48,7 @@ export function SiteFooter() {
           <a href="#pricing" className="underline-offset-4 hover:underline">Pricing</a>
           <a href="#questions" className="underline-offset-4 hover:underline">Questions</a>
           <Link href="/design" className="underline-offset-4 hover:underline">Design system</Link>
-          <Link href="/art-review" className="underline-offset-4 hover:underline">Image credits</Link>
+          <Link href="/drawings-review" className="underline-offset-4 hover:underline">Drawing credits</Link>
           <Link href="/sign-in" className="underline-offset-4 hover:underline">Sign in</Link>
         </nav>
       </div>

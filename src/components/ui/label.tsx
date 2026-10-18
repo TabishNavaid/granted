@@ -45,7 +45,7 @@ function Field({ id, label, hint, error, optional, children, className }: FieldP
         </p>
       ) : null}
       {error ? (
-        <p id={errorId} role="alert" className="text-sm font-semibold text-burgundy">
+        <p id={errorId} role="alert" className="text-sm font-semibold text-alert">
           {error}
         </p>
       ) : null}

@@ -5,7 +5,7 @@ import * as TabsPrimitive from "@radix-ui/react-tabs";
 import { cn } from "@/lib/utils";
 
 /**
- * Tabs are a row of plain words. The current one is bold with an ink rule
+ * Tabs are a row of plain words. The current one is bold with an ink line
  * under it. "line" sits on a page rule; "pill" is the same thing without the
  * rule, for filters that live inside a section.
  */

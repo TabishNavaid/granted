@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteFooter, SiteNav } from "@/components/marketing/site-nav";
-import { DraftSheet, HeroInbox, MatchSheet, StampSheet } from "@/components/marketing/demos";
-import { Plate } from "@/components/brand/duotone";
-import { plates } from "@/lib/images";
+import { ApprovedSheet, DraftSheet, HeroInbox, MatchSheet } from "@/components/marketing/demos";
+import { Drawing } from "@/components/drawings/drawing";
+import { Meadow } from "@/components/drawings/meadow";
+import { drawingOf, flowers, grassStrips, meadowFlowers, type DrawingAsset } from "@/lib/drawings";
 import { Button } from "@/components/ui/button";
 import { PRODUCT_NAME, PRODUCT_TAGLINE } from "@/lib/brand";
 
@@ -40,38 +41,44 @@ const trust = [
 ];
 
 export default function LandingPage() {
+  const sun = drawingOf("sun");
+  // A sprout, a clump of grass, a flower: the three steps, growing.
+  const stepArt: (DrawingAsset | undefined)[] = [drawingOf("seedling"), grassStrips[0], flowers[0]];
   return (
-    <div className="flex min-h-screen flex-col">
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-yellow focus:px-3 focus:py-2 focus:text-on-yellow">
+    <div className="flex min-h-screen flex-col overflow-x-clip">
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-sm focus:bg-ink focus:px-3 focus:py-2 focus:text-white">
         Skip to content
       </a>
       <SiteNav />
 
-      {/* ---------- Hero: the headline is the poster; the Inbox is the real thing ---------- */}
       <main id="main">
-        <section className="mx-auto max-w-[75rem] px-4 pb-20 pt-14 sm:px-6 sm:pt-20 lg:px-10 lg:pb-28 lg:pt-24">
-          <h1 className="max-w-[11ch] font-display text-display tracking-[-0.03em] text-ink">{PRODUCT_TAGLINE}</h1>
-          <div className="mt-10 grid gap-8 lg:mt-14 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-16">
-            <p className="max-w-[52ch] text-lg text-ink sm:text-xl">
-              {PRODUCT_NAME} finds the funders you can win, drafts the proposal from your own documents, and keeps every deadline. You read it. You approve it. Nothing moves without you.
-            </p>
-            <div className="flex flex-col items-start gap-3">
-              <Button asChild size="lg">
-                <Link href="/sign-up">See your first matches</Link>
-              </Button>
-              <p className="text-sm text-ink-muted">Free. About twenty minutes.</p>
+        {/* ---------- Hero: the headline, the real Inbox on a sheet of paper, and a meadow along the bottom ---------- */}
+        <section className="relative">
+          {sun ? <Drawing asset={sun} eager className="absolute right-[-1.5rem] top-2 h-24 w-auto sm:right-6 sm:top-6 sm:h-32 lg:right-10 lg:h-40" /> : null}
+          <div className="relative mx-auto grid max-w-[75rem] gap-12 px-4 pb-0 pt-12 sm:px-6 sm:pt-16 lg:grid-cols-[1.22fr_1fr] lg:gap-12 lg:px-10 lg:pt-24">
+            <div className="lg:pt-6">
+              <h1 className="max-w-[16ch] pr-14 font-display text-[clamp(2.75rem,1.6rem+3.2vw,4.5rem)] leading-[1.04] text-ink sm:pr-0">{PRODUCT_TAGLINE}</h1>
+              <p className="mt-7 max-w-[46ch] text-lg text-ink sm:text-xl">
+                {PRODUCT_NAME} finds the funders you can win, drafts the proposal from your own documents, and keeps every deadline. You read it. You approve it. Nothing moves without you.
+              </p>
+              <div className="mt-9 flex flex-col items-start gap-3">
+                <Button asChild size="lg">
+                  <Link href="/sign-up">See your first matches</Link>
+                </Button>
+                <p className="text-sm text-ink-muted">Free. About twenty minutes.</p>
+              </div>
+            </div>
+            <div className="relative z-10 min-w-0 lg:mt-24">
+              <HeroInbox />
             </div>
           </div>
-
-          <div className="mt-16 max-w-[56rem] lg:mt-24">
-            <HeroInbox />
-          </div>
+          <Meadow seed="hero" clumps={46} mobileMax={5} className="-mt-6 h-32 sm:-mt-20 sm:h-44" flowers={meadowFlowers(9, "hero").map((f, i) => ({ key: `${f.slug}-${i}`, flower: f }))} />
         </section>
 
         {/* ---------- The night before ---------- */}
-        <section className="border-t-2 border-ink">
-          <div className="mx-auto grid max-w-[75rem] gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_1.4fr] lg:gap-20 lg:px-10 lg:py-28">
-            <h2 className="font-display text-4xl text-ink lg:text-5xl">You know this Sunday.</h2>
+        <section>
+          <div className="mx-auto grid max-w-[75rem] gap-10 px-4 py-24 sm:px-6 lg:grid-cols-[1fr_1.4fr] lg:gap-20 lg:px-10 lg:py-32">
+            <h2 className="font-display text-3xl text-ink sm:text-4xl lg:text-5xl">You know this Sunday.</h2>
             <div>
               <ul className="border-t border-rule text-lg text-ink sm:text-xl">
                 <li className="border-b border-rule py-5">It is 9:40 pm. The deadline is Friday at 5 pm Eastern.</li>
@@ -83,19 +90,21 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ---------- How it works: a real sequence, so real numbers ---------- */}
-        <section id="how" className="border-t-2 border-ink scroll-mt-16">
-          <div className="mx-auto max-w-[75rem] px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
-            <h2 className="max-w-[18ch] font-display text-4xl text-ink lg:text-5xl">Three things happen. You do the last one.</h2>
-            <ol className="mt-16 flex flex-col gap-20 lg:gap-28">
-              <Step n="1" title="A funder arrives with reasons" body="Every Monday we read each funder's own page, check it against your profile, and say in plain words why it fits. If you cannot apply, you never see it.">
+        <GrassLine seed="how" />
+
+        {/* ---------- How it works: a real sequence, each step with its drawing ---------- */}
+        <section id="how" className="scroll-mt-16">
+          <div className="mx-auto max-w-[75rem] px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+            <h2 className="max-w-[18ch] font-display text-3xl text-ink sm:text-4xl lg:text-5xl">Three things happen. You do the last one.</h2>
+            <ol className="mt-16 flex flex-col gap-24 lg:gap-32">
+              <Step n="1" art={stepArt[0]} title="A funder turns up, with reasons" body="Every Monday we read each funder's own page, check it against your profile, and say in plain words why it fits. If you cannot apply, you never see it.">
                 <MatchSheet />
               </Step>
-              <Step n="2" title="The draft writes itself from your own numbers" body="We turn the guidelines into a checklist, then write every section from your annual report, your 990, and the proposals you have already written. Every number carries a footnote to the page it came from." flip>
+              <Step n="2" art={stepArt[1]} title="The draft grows from your own numbers" body="We turn the guidelines into a checklist, then write every section from your annual report, your 990, and the proposals you have already written. Every number carries a footnote to the page it came from." flip>
                 <DraftSheet />
               </Step>
-              <Step n="3" title="You read it. You stamp it." body="Edit anything, answer the questions it could not, and approve. The stamp goes on, the item is filed, and nothing is submitted or sent until you do it yourself.">
-                <StampSheet />
+              <Step n="3" art={stepArt[2]} title="You read it. You approve it." body="Edit anything, answer the questions it could not, and approve. A flower goes up, the item is filed, and nothing is submitted or sent until you do it yourself.">
+                <ApprovedSheet />
               </Step>
             </ol>
             <div className="mt-20 flex flex-col items-start gap-3">
@@ -108,30 +117,31 @@ export default function LandingPage() {
         </section>
 
         {/* ---------- Trust ---------- */}
-        <section id="trust" className="border-t-2 border-ink scroll-mt-16">
-          <div className="mx-auto grid max-w-[75rem] gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.2fr_1fr] lg:items-start lg:gap-20 lg:px-10 lg:py-28">
+        <section id="trust" className="scroll-mt-16">
+          <div className="mx-auto grid max-w-[75rem] gap-10 px-4 py-24 sm:px-6 lg:grid-cols-[1fr_1.4fr] lg:gap-20 lg:px-10 lg:py-32">
             <div>
-              <h2 className="font-display text-4xl text-ink lg:text-5xl">Nothing leaves without you.</h2>
-              <p className="mt-5 max-w-[52ch] text-lg text-ink-muted">Funders can spot a made-up number from across the room. So can you.</p>
-              <ul className="mt-10 border-t border-rule text-base text-ink sm:text-lg">
-                {trust.map((t) => (
-                  <li key={t} className="max-w-[60ch] border-b border-rule py-4">
-                    {t}
-                  </li>
-                ))}
-              </ul>
+              <h2 className="max-w-[14ch] font-display text-3xl text-ink sm:text-4xl lg:text-5xl">Nothing leaves without you.</h2>
+              <p className="mt-5 max-w-[40ch] text-lg text-ink-muted">Funders can spot a made-up number from across the room. So can you.</p>
             </div>
-            <Plate image={plates.trust} inks="blue-pink" aspect="4 / 5" sizes="(min-width: 1024px) 40vw, 100vw" className="lg:mt-3" />
+            <ul className="border-t border-rule text-base text-ink sm:text-lg">
+              {trust.map((t) => (
+                <li key={t} className="max-w-[60ch] border-b border-rule py-5">
+                  {t}
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 
-        {/* ---------- Stories: a bulletin board ---------- */}
-        <section id="stories" className="border-t-2 border-ink">
-          <div className="mx-auto max-w-[75rem] px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
-            <h2 className="max-w-[18ch] font-display text-4xl text-ink lg:text-5xl">Four organizations that got their weekends back.</h2>
+        <GrassLine seed="stories" />
+
+        {/* ---------- Stories ---------- */}
+        <section id="stories">
+          <div className="mx-auto max-w-[75rem] px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+            <h2 className="max-w-[18ch] font-display text-3xl text-ink sm:text-4xl lg:text-5xl">Four organizations that got their weekends back.</h2>
             <ul className="mt-12 border-t border-rule">
               {stories.map((s) => (
-                <li key={s.org} className="grid gap-5 border-b border-rule py-8 lg:grid-cols-[1fr_20rem] lg:gap-16">
+                <li key={s.org} className="grid gap-5 border-b border-rule py-9 lg:grid-cols-[1fr_20rem] lg:gap-16">
                   <blockquote className="max-w-[40ch] text-xl leading-snug text-ink sm:text-2xl">“{s.quote}”</blockquote>
                   <div className="text-base">
                     <p className="font-semibold text-ink">{s.who}</p>
@@ -147,12 +157,12 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ---------- Pricing: a rate card ---------- */}
-        <section id="pricing" className="border-t-2 border-ink scroll-mt-16">
-          <div className="mx-auto max-w-[75rem] px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
-            <h2 className="max-w-[20ch] font-display text-4xl text-ink lg:text-5xl">Priced for the organizations the big tools price out.</h2>
+        {/* ---------- Pricing: one rate card ---------- */}
+        <section id="pricing" className="scroll-mt-16">
+          <div className="mx-auto max-w-[75rem] px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+            <h2 className="max-w-[20ch] font-display text-3xl text-ink sm:text-4xl lg:text-5xl">Priced for the organizations the big tools price out.</h2>
             <p className="mt-5 max-w-[60ch] text-lg text-ink-muted">A grant writer runs $2,000 a month. The big databases start at $299. We start at free and stay cheap on purpose.</p>
-            <div className="mt-12 border-t-2 border-ink">
+            <div className="mt-12 border-t border-rule">
               {tiers.map((t) => (
                 <div key={t.name} className="grid gap-4 border-b border-rule py-7 sm:grid-cols-[9rem_1fr_auto] sm:items-center sm:gap-8">
                   <div>
@@ -177,13 +187,13 @@ export default function LandingPage() {
         </section>
 
         {/* ---------- Questions ---------- */}
-        <section id="questions" className="border-t-2 border-ink scroll-mt-16">
-          <div className="mx-auto max-w-[75rem] px-4 py-20 sm:px-6 lg:grid lg:grid-cols-[1fr_1.4fr] lg:gap-20 lg:px-10 lg:py-28">
-            <h2 className="max-w-[16ch] font-display text-4xl text-ink lg:text-5xl">Things executive directors ask us, usually at 9:40 pm.</h2>
+        <section id="questions" className="scroll-mt-16">
+          <div className="mx-auto max-w-[75rem] px-4 py-24 sm:px-6 lg:grid lg:grid-cols-[1fr_1.4fr] lg:gap-20 lg:px-10 lg:py-32">
+            <h2 className="max-w-[16ch] font-display text-3xl text-ink sm:text-4xl lg:text-5xl">Things executive directors ask us, usually at 9:40 pm.</h2>
             <div className="mt-10 border-t border-rule lg:mt-0">
               {faqs.map((f) => (
                 <details key={f.q} className="group border-b border-rule py-5">
-                  <summary className="flex cursor-pointer list-none items-baseline justify-between gap-4 font-display text-xl text-ink [&::-webkit-details-marker]:hidden">
+                  <summary className="flex cursor-pointer list-none items-baseline justify-between gap-4 rounded-sm font-display text-xl text-ink [&::-webkit-details-marker]:hidden">
                     {f.q}
                     <span className="font-body text-base text-ink-muted group-open:hidden" aria-hidden>
                       Show
@@ -199,20 +209,18 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ---------- Closing ---------- */}
-        <section className="border-t-2 border-ink">
-          <div className="mx-auto grid max-w-[75rem] gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_1.2fr] lg:items-center lg:gap-20 lg:px-10 lg:py-28">
-            <Plate image={plates.closing} inks="blue-yellow" aspect="4 / 5" sizes="(min-width: 1024px) 40vw, 100vw" />
-            <div>
-              <h2 className="max-w-[14ch] font-display text-5xl text-ink lg:text-6xl">Start with your website and one document.</h2>
-              <p className="mt-6 max-w-[44ch] text-lg text-ink-muted">See three grants you could win this month.</p>
-              <div className="mt-8">
-                <Button asChild size="lg">
-                  <Link href="/sign-up">See your first matches</Link>
-                </Button>
-              </div>
+        {/* ---------- Closing: it ends in a meadow ---------- */}
+        <section className="relative">
+          <div className="mx-auto max-w-[75rem] px-4 pb-10 pt-24 sm:px-6 lg:px-10 lg:pt-32">
+            <h2 className="max-w-[16ch] font-display text-4xl text-ink sm:text-5xl lg:text-6xl">Start with your website and one document.</h2>
+            <p className="mt-6 max-w-[44ch] text-lg text-ink-muted">See three grants you could win this month.</p>
+            <div className="mt-8">
+              <Button asChild size="lg">
+                <Link href="/sign-up">See your first matches</Link>
+              </Button>
             </div>
           </div>
+          <Meadow seed="closing" clumps={52} mobileMax={5} className="h-52 sm:h-64" flowers={meadowFlowers(9, "closing").map((f, i) => ({ key: `${f.slug}-${i}`, flower: f }))} />
         </section>
       </main>
       <SiteFooter />
@@ -220,14 +228,22 @@ export default function LandingPage() {
   );
 }
 
-function Step({ n, title, body, children, flip }: { n: string; title: string; body: string; children: React.ReactNode; flip?: boolean }) {
+/** A single strip of crayon grass between two sections, in place of a rule. */
+function GrassLine({ seed }: { seed: string }) {
+  return <Meadow seed={seed} flowers={[]} strip clumps={96} className="h-10 sm:h-12" />;
+}
+
+function Step({ n, art, title, body, children, flip }: { n: string; art?: DrawingAsset; title: string; body: string; children: React.ReactNode; flip?: boolean }) {
   return (
-    <li className={`grid items-start gap-8 lg:grid-cols-[2fr_3fr] lg:gap-16 ${flip ? "lg:[&>*:first-child]:order-2 lg:grid-cols-[3fr_2fr]" : ""}`}>
+    <li className={`grid items-start gap-8 lg:grid-cols-[2fr_3fr] lg:gap-16 ${flip ? "lg:grid-cols-[3fr_2fr] lg:[&>*:first-child]:order-2" : ""}`}>
       <div>
-        <span className="font-display text-6xl leading-none text-ink tnum" aria-hidden>
-          {n}
-        </span>
-        <h3 className="mt-5 max-w-[20ch] font-display text-3xl text-ink">{title}</h3>
+        <div className="flex items-end gap-4">
+          <span className="font-display text-6xl leading-none text-ink tnum" aria-hidden>
+            {n}
+          </span>
+          {art ? <Drawing asset={art} className="h-20 w-auto sm:h-24" /> : null}
+        </div>
+        <h3 className="mt-6 max-w-[20ch] font-display text-3xl text-ink">{title}</h3>
         <p className="mt-4 max-w-[48ch] text-lg text-ink-muted">{body}</p>
       </div>
       <div className="min-w-0">{children}</div>

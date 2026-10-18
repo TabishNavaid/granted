@@ -70,10 +70,10 @@ export function CalendarView({ initial, applications, reminderDays }: { initial:
                 </Button>
               </div>
             </div>
-            <div className="mt-4 border-t-2 border-ink border-l border-rule" role="grid" aria-label={`${format(month, "MMMM yyyy")} calendar`}>
+            <div className="mt-4 border-t border-rule border-l border-rule" role="grid" aria-label={`${format(month, "MMMM yyyy")} calendar`}>
               <div className="grid grid-cols-7" role="row">
                 {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-                  <div key={d} role="columnheader" className="border-b border-ink bg-paper-tint px-2 py-1.5 text-xs font-semibold text-ink">
+                  <div key={d} role="columnheader" className="border-b border-rule bg-paper-tint px-2 py-1.5 text-xs font-semibold text-ink">
                     {d}
                   </div>
                 ))}
@@ -100,13 +100,13 @@ export function CalendarView({ initial, applications, reminderDays }: { initial:
                       <span className={cn("text-xs tnum", isToday(d) && "font-semibold text-ink underline decoration-2 underline-offset-4")}>{format(d, "d")}</span>
                       <span className="flex w-full flex-col gap-0.5">
                         {list.slice(0, 3).map((e) => (
-                          <span key={e.id} className={cn("hidden truncate text-xs sm:block", e.done ? "text-ink-muted line-through" : e.kind === "deadline" ? "font-semibold text-burgundy" : "text-ink")}>
+                          <span key={e.id} className={cn("hidden truncate text-xs sm:block", e.done ? "text-ink-muted line-through" : e.kind === "deadline" ? "font-semibold text-alert" : "text-ink")}>
                             {e.title}
                           </span>
                         ))}
                         <span className="flex gap-1 sm:hidden">
                           {list.slice(0, 4).map((e) => (
-                            <span key={e.id} className={cn("size-1.5", e.kind === "deadline" ? "bg-burgundy" : "bg-ink")} aria-hidden />
+                            <span key={e.id} className={cn("size-1.5", e.kind === "deadline" ? "bg-alert" : "bg-ink")} aria-hidden />
                           ))}
                         </span>
                         {list.length > 3 ? <span className="hidden text-xs text-ink-muted sm:block">{list.length - 3} more</span> : null}
@@ -152,7 +152,7 @@ export function CalendarView({ initial, applications, reminderDays }: { initial:
       )}
       <p className="mt-8 text-sm text-ink-muted">
         Change reminder timing in{" "}
-        <Link href="/settings?tab=notifications" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-pink">
+        <Link href="/settings?tab=notifications" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-corn">
           Settings
         </Link>
         .
@@ -181,7 +181,7 @@ function DayList({ events, appTitle, onToggle, showDate, emptyText }: { events: 
             {e.kind !== "deadline" ? (
               <Checkbox id={`ev-${e.id}`} checked={e.done} onCheckedChange={(c) => onToggle(e, c === true)} aria-label={`Mark ${e.title} done`} className="mt-1" />
             ) : (
-              <span className="ml-1.5 mr-1.5 mt-2.5 size-2 shrink-0 bg-burgundy" aria-hidden />
+              <span className="ml-1.5 mr-1.5 mt-2.5 size-2 shrink-0 bg-alert" aria-hidden />
             )}
             <div className="min-w-0 flex-1">
               <label htmlFor={e.kind !== "deadline" ? `ev-${e.id}` : undefined} className={cn("block text-base font-semibold text-ink", e.done && "text-ink-muted line-through")}>
@@ -194,7 +194,7 @@ function DayList({ events, appTitle, onToggle, showDate, emptyText }: { events: 
                 <MilestoneBadge kind={e.kind} />
                 {showDate ? <span>{formatDate(e.date, "EEE, MMM d")}</span> : null}
                 {!e.done ? (
-                  <span className={cn(passed && "font-semibold text-burgundy")}>{soon ? <mark className="highlight">{relativeLabel(d)}</mark> : relativeLabel(d)}</span>
+                  <span className={cn(passed && "font-semibold text-alert")}>{soon ? <mark className="circled">{relativeLabel(d)}</mark> : relativeLabel(d)}</span>
                 ) : null}
               </div>
             </div>

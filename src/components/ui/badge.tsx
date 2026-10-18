@@ -3,9 +3,9 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 /**
- * A tag: sentence case text inside a square rule. Used only where a status
- * is a fact (a stage, a milestone kind). Three inks carry every state:
- * blue for neutral and done, yellow for waiting on you, burgundy for wrong or late.
+ * A tag: sentence case text inside a thin rule. Used only where a status is
+ * a fact (a stage, a milestone kind). Ink for neutral and done, a crayon
+ * circle for waiting on you, poppy red for wrong or late, grass for won.
  */
 const badgeVariants = cva("tag", {
   variants: {
@@ -15,9 +15,9 @@ const badgeVariants = cva("tag", {
       info: "",
       accent: "tag-ink",
       success: "tag-ink",
-      warning: "tag-yellow",
-      danger: "tag-burgundy",
-      pink: "tag-pink",
+      warning: "circled border-transparent font-semibold",
+      danger: "tag-alert",
+      bloom: "tag-bloom",
     },
   },
   defaultVariants: { variant: "neutral" },

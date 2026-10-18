@@ -40,7 +40,7 @@ function buildDocument(app: ApplicationView, sections: Section[]) {
 <body><h1>${app.opportunity.title}</h1><p>${app.funder.name} for Riverbend Youth Collective</p>${body}</body></html>`;
 }
 
-const fileOptionClasses = "flex flex-col gap-1 border border-ink p-4 text-left transition-colors hover:bg-paper-tint disabled:opacity-60";
+const fileOptionClasses = "flex flex-col gap-1 rounded-md border border-rule-strong p-4 text-left transition-colors hover:bg-paper-tint disabled:opacity-60";
 
 export function ExportDialog({ open, onOpenChange, app, sections }: { open: boolean; onOpenChange: (o: boolean) => void; app: ApplicationView; sections: Section[] }) {
   const { toast } = useToast();

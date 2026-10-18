@@ -15,7 +15,7 @@ const funderTypeLabel = {
   family_fund: "Family fund",
 };
 
-/** One funder, as a row on a printed list. Rules between rows, no card. */
+/** One funder, as a row on a list. Hairlines between rows, no card. */
 export function OpportunityCard({ match, className }: { match: MatchView; className?: string }) {
   const { opportunity, funder } = match;
   const dl = deadlineLabel(opportunity.deadline);
@@ -34,7 +34,7 @@ export function OpportunityCard({ match, className }: { match: MatchView; classN
           <span>{funderTypeLabel[funder.type]}</span>
         </p>
         <h3 id={`opp-${match.id}`} className="mt-1.5 font-display text-2xl leading-tight text-ink">
-          <Link href={`/opportunities/${opportunity.id}`} className="hover:underline hover:decoration-pink hover:decoration-2 hover:underline-offset-4">
+          <Link href={`/opportunities/${opportunity.id}`} className="hover:underline hover:decoration-corn hover:decoration-2 hover:underline-offset-4">
             {opportunity.title}
           </Link>
         </h3>
@@ -49,12 +49,12 @@ export function OpportunityCard({ match, className }: { match: MatchView; classN
             <dt className="text-xs text-ink-muted">Deadline</dt>
             <dd className="font-semibold text-ink">
               {opportunity.deadline ? formatDate(opportunity.deadline) : "Rolling"}
-              {opportunity.deadline ? <span className={cn("ml-1.5 font-normal", dl.tone === "danger" ? "text-burgundy" : "text-ink-muted")}>{dl.text}</span> : null}
+              {opportunity.deadline ? <span className={cn("ml-1.5 font-normal", dl.tone === "danger" ? "text-alert" : "text-ink-muted")}>{dl.text}</span> : null}
             </dd>
           </div>
           <div className="col-span-2 sm:col-span-1">
             <dt className="text-xs text-ink-muted">Eligibility</dt>
-            <dd className={cn("font-semibold", failed.length ? "text-burgundy" : "text-ink")}>{failed.length ? `${failed.length} check${failed.length === 1 ? "" : "s"} to confirm` : "You qualify"}</dd>
+            <dd className={cn("font-semibold", failed.length ? "text-alert" : "text-ink")}>{failed.length ? `${failed.length} check${failed.length === 1 ? "" : "s"} to confirm` : "You qualify"}</dd>
           </div>
         </dl>
 

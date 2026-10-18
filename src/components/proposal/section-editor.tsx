@@ -240,7 +240,7 @@ export function SectionEditor({ section, facts, onChange, onCitationClick, onGap
         {limit ? (
           <>
             <Progress value={pct} tone={over ? "danger" : pct > 90 ? "warning" : "accent"} className="w-32" aria-label="Word count against limit" />
-            <span className={cn("tnum", over && "font-semibold text-burgundy")}>
+            <span className={cn("tnum", over && "font-semibold text-alert")}>
               {words} of {limit} words{over ? `, ${words - limit} over` : ""}
             </span>
           </>

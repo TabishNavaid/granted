@@ -100,7 +100,7 @@ export function ProfileStep({ org, facts, documents }: { org: Organization; fact
           </span>
         </div>
       </div>
-      <aside className="border-l-2 border-ink pl-5 text-base text-ink-muted lg:self-start">
+      <aside className="border-l-[3px] border-rule-strong pl-5 text-base text-ink-muted lg:self-start">
         <h2 className="font-display text-xl text-ink">Why confirm</h2>
         <p className="mt-3">Only facts you've confirmed can show up in a draft. If a number looks off, uncheck it now and fix it later on your profile page.</p>
         <p className="mt-3">Anything older than a year will ask you again, so a proposal never goes out with a stale number.</p>

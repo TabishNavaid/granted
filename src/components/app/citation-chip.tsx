@@ -20,7 +20,7 @@ interface CitationChipProps {
 }
 
 /**
- * A citation: a small printed footnote tag. Open it to read the exact passage
+ * A citation: a small footnote tag. Open it to read the exact passage
  * the claim came from.
  */
 export function CitationChip({ label, excerpt, sourceTitle, url, page, verifiedAt, size = "sm", className }: CitationChipProps) {
@@ -37,11 +37,11 @@ export function CitationChip({ label, excerpt, sourceTitle, url, page, verifiedA
             {sourceTitle ?? label}
             {page ? `, page ${page}` : null}
           </p>
-          {excerpt ? <blockquote className="border-l-2 border-ink pl-3 text-base italic leading-relaxed text-ink">“{excerpt}”</blockquote> : <p className="text-ink-muted">Source passage will appear here.</p>}
+          {excerpt ? <blockquote className="border-l-[3px] border-rule-strong pl-3 text-base italic leading-relaxed text-ink">“{excerpt}”</blockquote> : <p className="text-ink-muted">Source passage will appear here.</p>}
           <div className="mt-3 flex items-center justify-between gap-2 text-xs text-ink-muted">
             {verifiedAt ? <span title={formatDate(verifiedAt)}>Checked {relativeTime(verifiedAt)}</span> : <span />}
             {url ? (
-              <a href={url} target="_blank" rel="noreferrer" className="font-semibold text-ink underline decoration-[1px] underline-offset-2 hover:decoration-pink">
+              <a href={url} target="_blank" rel="noreferrer" className="font-semibold text-ink underline decoration-[1px] underline-offset-2 hover:decoration-corn">
                 Open the source
               </a>
             ) : null}
@@ -62,7 +62,7 @@ export function VerifiedSource({ url, verifiedAt, className, label }: { url: str
   }
   return (
     <p className={cn("text-xs text-ink-muted", className)}>
-      <a href={url} target="_blank" rel="noreferrer" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-pink">
+      <a href={url} target="_blank" rel="noreferrer" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-corn">
         {label ?? host}
       </a>
       , checked <time dateTime={verifiedAt}>{relativeTime(verifiedAt)}</time>

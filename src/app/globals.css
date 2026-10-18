@@ -1,70 +1,58 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 /* ------------------------------------------------------------------
-   Public Works. Real riso inks on white paper. Every color is a flat
-   ink with a job: blue is the voice, yellow is what waits on you, pink
-   is the stamp, burgundy is the only warning. Night print is the same
-   job list on deep blue paper with white and yellow ink. See BRAND.md.
+   The meadow. White paper, one deep crayon-blue ink for every word, and
+   five crayons kept for drawings, the waiting circle, and celebration.
+   No gradients anywhere. See BRAND.md.
    ------------------------------------------------------------------ */
 
 :root {
   color-scheme: light;
 
   --paper: #ffffff;
-  --paper-tint: #eef2f8;
-  --paper-hover: #e4eaf4;
+  --paper-tint: #f5f6fb;
+  --paper-hover: #eceef7;
 
-  --ink: #3d5588;
-  --ink-muted: #566b9a;
-  --ink-deep: #1c2b4d;
+  /* Deep crayon blue. 11.2:1 on white. */
+  --ink: #24318a;
+  /* 6.2:1 on white, 5.7:1 on paper tint. */
+  --ink-muted: #525c9c;
+  --ink-deep: #1a2470;
 
-  --rule: #c9d3e6;
-  --rule-strong: #8fa0c4;
+  --rule: #dde0ef;
+  /* Control borders: 3.7:1 on white. */
+  --rule-strong: #7a82b8;
 
-  --pink: #ff48b0;
-  --yellow: #ffe800;
-  --burgundy: #914e72;
+  /* The crayon box. Each crayon has a fill and the darker shade it is outlined in. */
+  --grass: #8db55a;
+  --grass-line: #5e8a33;
+  --corn: #7493e6;
+  --corn-line: #2b3fa8;
+  --petal: #e9a3d3;
+  --petal-line: #b5639c;
+  --poppy: #e25b5b;
+  --poppy-line: #b23a3a;
+  --marigold: #f2a33a;
+  --marigold-line: #c9781a;
 
-  --focus: #ff48b0;
+  /* The only warning color: poppy outline, 5.9:1 on white. */
+  --alert: var(--poppy-line);
+  /* Focus: cornflower outline, 8.8:1 on white. */
+  --focus: var(--corn-line);
 
-  --primary: var(--ink-deep);
+  --primary: var(--ink);
+  --primary-hover: var(--ink-deep);
   --primary-fg: #ffffff;
-  --on-yellow: #1c2b4d;
 
-  --shadow-print: 6px 6px 0 var(--ink-deep);
-  --shadow-print-sm: 4px 4px 0 var(--ink-deep);
+  --lift: 0 1px 0 var(--rule), 0 10px 28px -14px rgb(36 49 138 / 0.28);
 
-  --grain-opacity: 0.04;
-}
-
-.dark {
-  color-scheme: dark;
-
-  --paper: #1b2b4b;
-  --paper-tint: #16243f;
-  --paper-hover: #243760;
-
-  --ink: #ffffff;
-  --ink-muted: #b6c2dc;
-  --ink-deep: #ffffff;
-
-  --rule: #3a4f7a;
-  --rule-strong: #6b82b0;
-
-  --burgundy: #f58ab0;
-
-  --focus: #ffe800;
-
-  --primary: var(--yellow);
-  --primary-fg: #1b2b4b;
-  --on-yellow: #1b2b4b;
-
-  --shadow-print: 6px 6px 0 var(--rule-strong);
-  --shadow-print-sm: 4px 4px 0 var(--rule-strong);
-
-  --grain-opacity: 0.07;
+  /*
+   * The waiting circle, in two hands. A marigold crayon loop (outline shade,
+   * 3.4:1 on white) that overshoots where it closes, with wax grain knocked
+   * out of the stroke. The strokes do not scale with the box.
+   */
+  --circle-a: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 60' preserveAspectRatio='none'%3E%3Cfilter id='w' x='-5%25' y='-10%25' width='110%25' height='120%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 1.7'/%3E%3CfeComposite in='SourceGraphic' operator='in'/%3E%3C/filter%3E%3Cg filter='url(%23w)' fill='none' stroke='%23c9781a' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath vector-effect='non-scaling-stroke' stroke-width='3' d='M74 6C48 2 14 8 6 26c-6 15 14 27 46 29 32 2 62-6 64-24C118 14 92 4 60 6c-14 1-27 4-36 9'/%3E%3Cpath vector-effect='non-scaling-stroke' stroke-width='1.3' opacity='.7' d='M72 8C46 5 16 11 9 27c-4 12 15 24 44 25 30 1 58-7 60-22'/%3E%3C/g%3E%3C/svg%3E");
+  --circle-b: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 60' preserveAspectRatio='none'%3E%3Cfilter id='w' x='-5%25' y='-10%25' width='110%25' height='120%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='2' seed='9'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 1.7'/%3E%3CfeComposite in='SourceGraphic' operator='in'/%3E%3C/filter%3E%3Cg filter='url(%23w)' fill='none' stroke='%23c9781a' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath vector-effect='non-scaling-stroke' stroke-width='3' d='M40 9c26-6 66-5 74 13 6 15-20 30-56 31C24 54 3 44 5 29 7 15 31 6 62 5c16 0 30 3 40 9'/%3E%3Cpath vector-effect='non-scaling-stroke' stroke-width='1.3' opacity='.7' d='M42 11c26-4 62-2 69 13 4 12-22 26-54 26'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 @theme inline {
@@ -82,17 +70,25 @@
   --color-ink-deep: var(--ink-deep);
   --color-rule: var(--rule);
   --color-rule-strong: var(--rule-strong);
-  --color-pink: var(--pink);
-  --color-yellow: var(--yellow);
-  --color-burgundy: var(--burgundy);
+  --color-grass: var(--grass);
+  --color-grass-line: var(--grass-line);
+  --color-corn: var(--corn);
+  --color-corn-line: var(--corn-line);
+  --color-petal: var(--petal);
+  --color-petal-line: var(--petal-line);
+  --color-poppy: var(--poppy);
+  --color-poppy-line: var(--poppy-line);
+  --color-marigold: var(--marigold);
+  --color-marigold-line: var(--marigold-line);
+  --color-alert: var(--alert);
   --color-focus: var(--focus);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
   --color-primary-fg: var(--primary-fg);
-  --color-on-yellow: var(--on-yellow);
 
-  --font-display: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
-  --font-body: var(--font-serif), Georgia, "Times New Roman", serif;
-  --font-sans: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-shantell), "Trebuchet MS", sans-serif;
+  --font-body: var(--font-atkinson), "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-atkinson), "Helvetica Neue", Arial, sans-serif;
 
   --text-*: initial;
   --text-xs: 0.8125rem;
@@ -104,49 +100,68 @@
   --text-lg: 1.25rem;
   --text-lg--line-height: 1.8rem;
   --text-xl: 1.375rem;
-  --text-xl--line-height: 1.7rem;
+  --text-xl--line-height: 1.75rem;
   --text-2xl: 1.75rem;
-  --text-2xl--line-height: 2rem;
+  --text-2xl--line-height: 2.1rem;
   --text-3xl: 2.25rem;
-  --text-3xl--line-height: 2.4rem;
+  --text-3xl--line-height: 2.55rem;
   --text-4xl: 3rem;
-  --text-4xl--line-height: 3rem;
-  --text-5xl: 4rem;
-  --text-5xl--line-height: 3.9rem;
-  --text-6xl: 5.5rem;
-  --text-6xl--line-height: 5rem;
-  --text-h1: clamp(2.25rem, 1.5rem + 3vw, 3.5rem);
-  --text-h1--line-height: 1;
-  --text-display: clamp(3rem, 1rem + 8vw, 7.5rem);
-  --text-display--line-height: 0.92;
+  --text-4xl--line-height: 3.25rem;
+  --text-5xl: 3.75rem;
+  --text-5xl--line-height: 4rem;
+  --text-6xl: 4.75rem;
+  --text-6xl--line-height: 4.9rem;
+  --text-h1: clamp(2.25rem, 1.6rem + 2.6vw, 3.25rem);
+  --text-h1--line-height: 1.08;
+  --text-display: clamp(2.9rem, 1.2rem + 6.4vw, 6.5rem);
+  --text-display--line-height: 1;
 
   --radius-*: initial;
-  --radius-stamp: 10px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
   --radius-round: 9999px;
 
   --shadow-*: initial;
-  --shadow-print: var(--shadow-print);
-  --shadow-print-sm: var(--shadow-print-sm);
+  --shadow-lift: var(--lift);
 
-  --ease-thump: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-grow: cubic-bezier(0.25, 0.9, 0.3, 1);
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  --animate-stamp: stamp-in 0.38s var(--ease-thump) both;
-  --animate-file-away: file-away 0.4s ease-in both;
+  --animate-stem: stem-grow 0.6s var(--ease-grow) var(--bloom-delay, 0ms) both;
+  --animate-head: head-open 0.55s var(--ease-pop) calc(var(--bloom-delay, 0ms) + 0.45s) both;
+  --animate-rise: rise 0.7s var(--ease-grow) var(--bloom-delay, 0ms) both;
+  --animate-sun: sun-up 0.9s var(--ease-grow) var(--bloom-delay, 0ms) both;
+  --animate-leave: leave 0.42s ease-in both;
   --animate-sheet-in: sheet-in 0.16s ease-out both;
   --animate-fade-in: fade-in 0.16s ease-out both;
 }
 
-/* The one orchestrated moment: the stamp thumps onto the sheet. */
-@keyframes stamp-in {
-  0% { opacity: 0; transform: rotate(var(--stamp-rot, -8deg)) scale(1.6); }
-  55% { opacity: 1; transform: rotate(var(--stamp-rot, -8deg)) scale(0.94); }
-  78% { transform: rotate(var(--stamp-rot, -8deg)) scale(1.03); }
-  100% { opacity: 1; transform: rotate(var(--stamp-rot, -8deg)) scale(1); }
+/* ---------- The one orchestrated moment: a flower grows on what you approved ---------- */
+
+/* The stem rises out of the bottom edge... */
+@keyframes stem-grow {
+  from { clip-path: inset(100% 0 0 0); }
+  to { clip-path: inset(var(--head, 0%) 0 0 0); }
 }
-/* After the stamp, the sheet is filed: it drops a few pixels and goes. */
-@keyframes file-away {
+/* ...then the head opens at the top of it. */
+@keyframes head-open {
+  0% { opacity: 0; transform: scale(0.15) rotate(-28deg); }
+  60% { opacity: 1; transform: scale(1.1) rotate(5deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+/* A whole drawing (grass, the sun) coming up from the ground line. */
+@keyframes rise {
+  from { clip-path: inset(100% 0 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes sun-up {
+  from { opacity: 0; transform: translateY(18%) rotate(-10deg) scale(0.8); }
+  to { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+}
+@keyframes leave {
   from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(10px); }
+  to { opacity: 0; transform: translateY(8px); }
 }
 @keyframes sheet-in {
   from { opacity: 0; transform: translateY(4px); }
@@ -165,38 +180,37 @@
     font-family: var(--font-body);
     text-rendering: optimizeLegibility;
     font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
   }
   body {
     position: relative;
     background: var(--paper);
     color: var(--ink);
     font-size: 1.0625rem;
-    line-height: 1.55;
+    line-height: 1.6;
   }
-  /* Paper grain: a fixed, non-interactive noise layer so flat inks read as print. */
+  /* Paper grain: barely there, so white reads as drawing paper and not as a screen. */
   body::before {
     content: "";
     position: fixed;
     inset: 0;
     z-index: 9999;
     pointer-events: none;
-    opacity: var(--grain-opacity);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.15 0 0 0 0 0.2 0 0 0 0 0.35 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-size: 240px 240px;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.22 0 0 0 0 0.35 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 220px 220px;
     mix-blend-mode: multiply;
   }
-  .dark body::before {
-    mix-blend-mode: screen;
-  }
   ::selection {
-    background: var(--yellow);
-    color: var(--on-yellow);
+    background: var(--petal);
+    color: var(--ink-deep);
   }
   h1, h2, h3, .font-display {
     font-family: var(--font-display);
-    font-weight: 800;
-    letter-spacing: -0.01em;
-    line-height: 1.05;
+    font-weight: 700;
+    font-variation-settings: "INFM" 45, "BNCE" 12;
+    letter-spacing: -0.015em;
+    line-height: 1.12;
   }
   h1 {
     text-wrap: balance;
@@ -221,40 +235,62 @@
 }
 
 @layer components {
-  /* A sheet of paper: white, one ink rule, square corners. */
+  /* A sheet of paper: white, one hairline, softly rounded like a real page corner. */
   .sheet {
     background: var(--paper);
-    border: 1px solid var(--ink);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-md);
   }
-  /* A sheet lying on top of the page: the one hard shadow in the system. */
+  /* A sheet lying on top of the page: dialogs, menus, the hero Inbox. */
   .sheet-raised {
     background: var(--paper);
-    border: 1.5px solid var(--ink-deep);
-    box-shadow: var(--shadow-print);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--lift);
   }
   .sheet-raised-sm {
     background: var(--paper);
-    border: 1.5px solid var(--ink-deep);
-    box-shadow: var(--shadow-print-sm);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-md);
+    box-shadow: var(--lift);
   }
 
-  /* The highlighter: yellow, slightly uneven ends, only for what waits on the user. */
-  .highlight {
-    background: var(--yellow);
-    color: var(--on-yellow);
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
-    padding: 0.04em 0.28em;
-    margin: 0 -0.12em;
+  /*
+   * What is waiting on the user gets circled, the way you would circle it on
+   * paper. The loop sits just outside the text and never moves the layout.
+   * Use it instead of badges and dots.
+   */
+  .circled,
+  .gap-chip {
+    position: relative;
+    display: inline-block;
+    background: transparent;
+    color: inherit;
+    padding: 0 0.12em;
+    isolation: isolate;
+  }
+  .circled::after,
+  .gap-chip::after {
+    content: "";
+    position: absolute;
+    inset: -0.32em -0.5em -0.28em -0.46em;
+    z-index: -1;
+    pointer-events: none;
+    background: no-repeat center / 100% 100% var(--circle-a);
+  }
+  .circled-b::after {
+    inset: -0.3em -0.46em -0.32em -0.52em;
+    background-image: var(--circle-b);
   }
 
-  /* A small square tag for a status that is a fact. */
+  /* A small tag for a status that is a fact: a stage, a kind of date. */
   .tag {
     display: inline-flex;
     align-items: center;
     gap: 0.35em;
     border: 1px solid var(--rule-strong);
-    padding: 0.05rem 0.45rem;
+    border-radius: var(--radius-sm);
+    padding: 0.05rem 0.5rem;
     font-size: 0.8125rem;
     line-height: 1.25rem;
     color: var(--ink);
@@ -263,86 +299,12 @@
   .tag-ink {
     border-color: var(--ink);
   }
-  .tag-burgundy {
-    border-color: var(--burgundy);
-    color: var(--burgundy);
+  .tag-alert {
+    border-color: var(--alert);
+    color: var(--alert);
   }
-  .tag-yellow {
-    border-color: var(--yellow);
-    background: var(--yellow);
-    color: var(--on-yellow);
-  }
-
-  .tag-pink {
-    border-color: var(--pink);
-  }
-
-  /* The rubber stamp: pink ink, roughened edge, multiplied over the sheet. */
-  .stamp {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 0.4em 0.9em 0.45em;
-    border: 0.19em solid var(--pink);
-    border-radius: var(--radius-stamp);
-    color: var(--pink);
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-stretch: 112%;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    line-height: 1;
-    white-space: nowrap;
-    pointer-events: none;
-    mix-blend-mode: multiply;
-    filter: url(#stamp-ink);
-    transform: rotate(var(--stamp-rot, -8deg));
-  }
-  .dark .stamp {
-    mix-blend-mode: screen;
-  }
-  .stamp-word {
-    font-size: 1.25em;
-  }
-  .stamp-line {
-    margin-top: 0.3em;
-    font-size: 0.5em;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-  }
-
-  /* The wordmark: the name printed in two inks, slightly out of register. */
-  .wordmark {
-    position: relative;
-    display: inline-block;
-    font-family: var(--font-display);
-    font-weight: 900;
-    font-stretch: 125%;
-    letter-spacing: -0.035em;
-    line-height: 1;
-    white-space: nowrap;
-  }
-  .wordmark-under {
-    position: absolute;
-    left: -0.055em;
-    top: 0.055em;
-    color: var(--pink);
-  }
-  .wordmark-over {
-    position: relative;
-    color: var(--ink);
-    mix-blend-mode: multiply;
-  }
-  .dark .wordmark-over {
-    mix-blend-mode: normal;
-  }
-
-  /* Halftone dots, multiplied over a duotone plate. */
-  .halftone {
-    background-image: radial-gradient(circle, rgb(0 0 0 / 0.55) 0.55px, transparent 0.9px);
-    background-size: 3px 3px;
-    mix-blend-mode: multiply;
+  .tag-bloom {
+    border-color: var(--grass-line);
   }
 
   /* Prose and the proposal editor. */
@@ -353,17 +315,17 @@
     outline: none;
     min-height: 16rem;
     font-size: 1.0625rem;
-    line-height: 1.7;
+    line-height: 1.75;
   }
   .prose-editor .tiptap p { margin: 0 0 1em; }
-  .prose-editor .tiptap h2 { font-size: 1.375rem; margin: 1.5em 0 0.5em; line-height: 1.2; }
+  .prose-editor .tiptap h2 { font-size: 1.375rem; margin: 1.5em 0 0.5em; line-height: 1.25; }
   .prose-editor .tiptap h3 { font-size: 1.125rem; margin: 1.25em 0 0.4em; line-height: 1.3; }
   .prose-editor .tiptap ul, .prose-editor .tiptap ol { padding-left: 1.4em; margin: 0 0 1em; }
   .prose-editor .tiptap ul { list-style: disc; }
   .prose-editor .tiptap ol { list-style: decimal; }
   .prose-editor .tiptap li { margin: 0.2em 0; }
   .prose-editor .tiptap strong { font-weight: 700; }
-  .prose-editor .tiptap blockquote { border-left: 2px solid var(--ink); padding-left: 1em; color: var(--ink-muted); margin: 0 0 1em; }
+  .prose-editor .tiptap blockquote { border-left: 3px solid var(--rule-strong); padding-left: 1em; color: var(--ink-muted); margin: 0 0 1em; }
   .prose-editor .tiptap p.is-editor-empty:first-child::before {
     content: attr(data-placeholder);
     color: var(--ink-muted);
@@ -371,15 +333,15 @@
     height: 0;
     pointer-events: none;
   }
-  /* A citation: a small printed footnote tag. */
-  .cite-chip,
-  .prose-editor .tiptap .cite-chip {
+  /* A citation: a small footnote tag. */
+  .cite-chip {
     display: inline-flex;
     align-items: center;
     vertical-align: baseline;
     margin: 0 0.15em;
-    padding: 0 0.4em;
+    padding: 0 0.45em;
     border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-sm);
     background: var(--paper-tint);
     color: var(--ink);
     font-family: var(--font-body);
@@ -390,28 +352,22 @@
     user-select: none;
     transition: border-color 0.15s;
   }
-  .prose-editor .tiptap .cite-chip:hover,
-  .prose-editor .tiptap .cite-chip.ProseMirror-selectednode {
+  .cite-chip:hover,
+  .cite-chip.ProseMirror-selectednode {
     border-color: var(--ink);
   }
-  /* A gap: something waiting on the user, so it is highlighted. */
-  .gap-chip,
-  .prose-editor .tiptap .gap-chip {
-    display: inline;
-    margin: 0 0.1em;
-    padding: 0.04em 0.3em;
-    background: var(--yellow);
-    color: var(--on-yellow);
-    font-weight: 600;
+  /* A gap in the draft is waiting on the user, so it is circled too. */
+  .gap-chip {
+    margin: 0 0.5em;
+    font-weight: 700;
     cursor: pointer;
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
