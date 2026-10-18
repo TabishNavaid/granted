@@ -157,13 +157,13 @@ export function InboxItemCard({ item, ctx, leaving, onApprove, onReject }: Inbox
             <DialogTitle>{item.type === "missing_facts" ? "Skip these questions?" : "Decline this item?"}</DialogTitle>
             <DialogDescription>
               {item.type === "missing_facts"
-                ? "The proposal keeps its placeholders until you answer."
-                : "A short reason helps the agents do better next time. It is optional."}
+                ? "No problem. The draft keeps its placeholders until you get a minute."
+                : "A short reason helps us do better next time. Totally optional."}
             </DialogDescription>
           </DialogHeader>
           {item.type !== "missing_facts" ? (
             <Field id={`reason-${item.id}`} label="Reason" optional>
-              <Textarea value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Not a fit because..." className="min-h-20" />
+              <Textarea value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Not for us because..." className="min-h-20" />
             </Field>
           ) : null}
           <DialogFooter>
@@ -395,7 +395,7 @@ function EmailEditDialog({
       <DialogContent size="lg">
         <DialogHeader>
           <DialogTitle>Edit email</DialogTitle>
-          <DialogDescription>Your edits are saved to the draft. Send it from your own email when you are ready.</DialogDescription>
+          <DialogDescription>We'll save your edits to the draft. Send it from your own email whenever you're ready.</DialogDescription>
         </DialogHeader>
         <Field id="email-subject" label="Subject">
           <Input value={subject} onChange={(e) => setSubject(e.target.value)} />

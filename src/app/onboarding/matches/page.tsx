@@ -13,7 +13,7 @@ export default async function OnboardingMatchesPage() {
     <div>
       <h1 className="font-display text-3xl text-fg sm:text-4xl">Three places to start.</h1>
       <p className="mt-3 max-w-xl text-base text-fg-muted">
-        We screened 412 opportunities and kept the ones you can actually apply for. Here are the strongest fits. The rest are waiting in Opportunities, and new ones arrive every Monday.
+        We looked at 412 opportunities and kept only the ones you can actually apply for. These three are the strongest fits. The rest are waiting in Opportunities, and new ones arrive every Monday.
       </p>
       <ul className="mt-8 flex flex-col gap-4">
         {matches.map((m) => (
@@ -28,7 +28,7 @@ export default async function OnboardingMatchesPage() {
             Go to your Inbox <ArrowRight aria-hidden />
           </Link>
         </Button>
-        <p className="text-sm text-fg-subtle">Your October plan is waiting there.</p>
+        <p className="text-sm text-fg-subtle">Your October plan is already waiting there.</p>
       </div>
     </div>
   );

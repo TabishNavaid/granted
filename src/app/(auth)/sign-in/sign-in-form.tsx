@@ -19,7 +19,7 @@ export function SignInForm() {
   return (
     <div>
       <h1 className="font-display text-3xl text-fg">Welcome back</h1>
-      <p className="mt-2 text-base text-fg-muted">Sign in to see what is waiting in your Inbox.</p>
+      <p className="mt-2 text-base text-fg-muted">Sign in and see what's waiting in your Inbox.</p>
       <form
         className="mt-8 flex flex-col gap-5"
         onSubmit={async (e) => {

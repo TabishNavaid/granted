@@ -31,7 +31,7 @@ export function ActivityView({ runs, documents }: { runs: AgentRun[]; documents:
     <PageContainer>
       <PageHeader
         title="Activity"
-        description={`What each agent did, which tools it called, and every source it used. ${runs.length} runs this month, about $${cost.toFixed(2)} in model costs.`}
+        description={`Everything we did on your behalf, step by step, with every source we read. ${runs.length} runs this month, about $${cost.toFixed(2)} in model costs.`}
       />
       <Tabs value={agent} onValueChange={(v) => setAgent(v as typeof agent)} className="mt-6">
         <TabsList variant="pill" aria-label="Filter by agent">
@@ -45,7 +45,7 @@ export function ActivityView({ runs, documents }: { runs: AgentRun[]; documents:
       </Tabs>
 
       {list.length === 0 ? (
-        <EmptyState className="mt-6" title="No runs yet" description="This agent has not run for your organization." />
+        <EmptyState className="mt-6" title="Nothing here yet" description="This agent hasn't had a reason to run for you yet." />
       ) : (
         <ol className="mt-6 flex flex-col gap-3">
           {list.map((run) => {
@@ -95,7 +95,7 @@ export function ActivityView({ runs, documents }: { runs: AgentRun[]; documents:
                     <div>
                       <h3 className="text-xs font-semibold uppercase tracking-wider text-fg-subtle">Sources used</h3>
                       {run.sourcesUsed.length === 0 ? (
-                        <p className="mt-2 text-sm text-fg-subtle">No sources were read.</p>
+                        <p className="mt-2 text-sm text-fg-subtle">We didn't need to read anything for this one.</p>
                       ) : (
                         <ul className="mt-2 flex flex-col gap-1.5">
                           {run.sourcesUsed.map((src, i) => (
@@ -135,7 +135,7 @@ export function ActivityView({ runs, documents }: { runs: AgentRun[]; documents:
                                 In your Inbox
                               </Link>
                             ) : (
-                              "No approval needed"
+                              "Nothing for you to do"
                             )}
                           </dd>
                         </div>

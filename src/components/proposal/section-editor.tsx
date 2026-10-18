@@ -62,7 +62,7 @@ export function SectionEditor({ section, facts, onChange, onCitationClick, onGap
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({ heading: { levels: [2, 3] }, codeBlock: false, code: false, horizontalRule: false, link: false }),
-      Placeholder.configure({ placeholder: "Start writing, or ask the agent to draft this section from your facts." }),
+      Placeholder.configure({ placeholder: "Start writing, or ask us to draft this section from your facts." }),
       CharacterCount,
       Citation,
       Gap,
@@ -132,7 +132,7 @@ export function SectionEditor({ section, facts, onChange, onCitationClick, onGap
     setBusy(null);
     toast({
       title: action === "tone" ? "Tone adjusted" : action === "shorten" ? "Shortened" : action === "expand" ? "Expanded" : "Rewritten",
-      description: `${result.note} Citations were kept.`,
+      description: `${result.note} Every citation stayed put.`,
       action: { label: "Undo", onClick: () => editor.chain().focus().undo().run() },
     });
   };
@@ -248,7 +248,7 @@ export function SectionEditor({ section, facts, onChange, onCitationClick, onGap
         ) : (
           <span className="tnum">{words} words</span>
         )}
-        <span className="ml-auto hidden sm:inline">Click a chip to see its source. Saved automatically.</span>
+        <span className="ml-auto hidden sm:inline">Click a chip to see where it came from. We save as you go.</span>
       </div>
     </div>
   );

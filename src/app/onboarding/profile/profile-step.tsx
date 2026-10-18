@@ -26,7 +26,7 @@ export function ProfileStep({ org, facts, documents }: { org: Organization; fact
     <div className="grid gap-10 lg:grid-cols-[1fr_18rem]">
       <div>
         <h1 className="font-display text-3xl text-fg sm:text-4xl">Does this look right?</h1>
-        <p className="mt-3 max-w-xl text-base text-fg-muted">This is what the agents will say about you. Uncheck anything that is wrong and we will leave it out.</p>
+        <p className="mt-3 max-w-xl text-base text-fg-muted">This is what we'll say about you. Uncheck anything that's off and we'll leave it out.</p>
 
         <section className="mt-8 rounded-lg border border-border bg-surface p-5" aria-labelledby="prof-title">
           <div className="flex items-start justify-between gap-3">
@@ -73,7 +73,7 @@ export function ProfileStep({ org, facts, documents }: { org: Organization; fact
           <h2 id="facts-title" className="font-display text-xl text-fg">
             Facts we found
           </h2>
-          <p className="mt-1 text-sm text-fg-muted">Each one links to the page it came from. Click a chip to read the passage.</p>
+          <p className="mt-1 text-sm text-fg-muted">Each one links to the page it came from. Click a chip to read the exact passage.</p>
           <ul className="mt-4 divide-y divide-border rounded-lg border border-border bg-surface">
             {facts.map((f) => {
               const d = docOf(f.sourceDocumentId);
@@ -101,15 +101,15 @@ export function ProfileStep({ org, facts, documents }: { org: Organization; fact
               router.push("/onboarding/matches");
             }}
           >
-            {loading ? "Finding matches" : "Looks right, find my matches"} {!loading ? <ArrowRight aria-hidden /> : null}
+            {loading ? "Finding your matches" : "Looks right, find my matches"} {!loading ? <ArrowRight aria-hidden /> : null}
           </Button>
           <span className="text-sm text-fg-subtle">{keptCount} of {facts.length} facts kept</span>
         </div>
       </div>
       <aside className="rounded-lg border border-border bg-surface p-5 text-sm text-fg-muted lg:self-start">
         <p className="font-medium text-fg">Why confirm</p>
-        <p className="mt-2">Only confirmed facts can appear in a draft. If a number is off, uncheck it now and fix it later on your profile page.</p>
-        <p className="mt-3">Facts older than a year will ask to be re-confirmed so proposals never go out with stale numbers.</p>
+        <p className="mt-2">Only facts you've confirmed can show up in a draft. If a number looks off, uncheck it now and fix it later on your profile page.</p>
+        <p className="mt-3">Anything older than a year will ask you again, so a proposal never goes out with a stale number.</p>
       </aside>
     </div>
   );

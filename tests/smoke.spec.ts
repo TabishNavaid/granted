@@ -5,7 +5,7 @@ const routes: { path: string; heading: RegExp }[] = [
   { path: "/", heading: /closer than it feels/i },
   { path: "/sign-in", heading: /welcome back/i },
   { path: "/sign-up", heading: /create your workspace/i },
-  { path: "/onboarding", heading: /read up on you/i },
+  { path: "/onboarding", heading: /who you are/i },
   { path: "/onboarding/documents", heading: /one to three documents/i },
   { path: "/onboarding/interview", heading: /a few questions/i },
   { path: "/onboarding/profile", heading: /look right/i },

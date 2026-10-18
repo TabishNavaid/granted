@@ -51,7 +51,7 @@ export function CalendarView({ initial, applications, reminderDays }: { initial:
     <PageContainer width="wide">
       <PageHeader
         title="Calendar"
-        description={`Deadlines and the milestones planned backward from each one. Email reminders go out ${reminderDays} days before each milestone.`}
+        description={`Every deadline, with the milestones we planned backward from it. We'll email you ${reminderDays} days before each one.`}
         actions={
           <Tabs value={mode} onValueChange={(v) => setMode(v as typeof mode)}>
             <TabsList variant="pill" aria-label="Calendar view">
@@ -135,7 +135,7 @@ export function CalendarView({ initial, applications, reminderDays }: { initial:
           </div>
           <aside className="min-w-0 lg:sticky lg:top-6 lg:self-start">
             <h3 className="font-display text-lg text-fg">{selected ? format(selected, "EEEE, MMMM d") : "Next up"}</h3>
-            <DayList events={selected ? byDay(selected) : upcoming.slice(0, 6)} appTitle={appTitle} onToggle={toggle} emptyText={selected ? "Nothing planned this day." : "No upcoming milestones."} />
+            <DayList events={selected ? byDay(selected) : upcoming.slice(0, 6)} appTitle={appTitle} onToggle={toggle} emptyText={selected ? "Nothing planned this day. Enjoy it." : "Nothing coming up."} />
             {selected ? (
               <Button variant="link" size="sm" className="mt-2" onClick={() => setSelected(null)}>
                 Show next up
@@ -146,7 +146,7 @@ export function CalendarView({ initial, applications, reminderDays }: { initial:
       ) : (
         <div className="mt-6 flex flex-col gap-8">
           {Object.keys(grouped).length === 0 ? (
-            <EmptyState title="Nothing scheduled" description="Milestones appear here once you approve a schedule in your Inbox." />
+            <EmptyState title="Nothing on the calendar yet" description="Approve a schedule in your Inbox and the milestones show up here." />
           ) : (
             Object.entries(grouped).map(([label, list]) => (
               <section key={label} aria-labelledby={`m-${label}`}>

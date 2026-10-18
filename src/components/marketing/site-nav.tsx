@@ -34,7 +34,7 @@ export function SiteFooter() {
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6 md:flex-row md:items-start md:justify-between">
         <div>
           <Logo size="sm" />
-          <p className="mt-3 max-w-xs text-sm text-fg-muted">A funding team that walks beside small nonprofits. Built with early users in Ohio, Texas, New Mexico, and North Carolina.</p>
+          <p className="mt-3 max-w-xs text-sm text-fg-muted">A funding team that walks beside small nonprofits. We're building it with early users in Ohio, Texas, New Mexico, and North Carolina, and we'd love to hear from you.</p>
         </div>
         <nav aria-label="Footer" className="grid grid-cols-2 gap-x-12 gap-y-2.5 text-sm text-fg-muted sm:grid-cols-3">
           <a href="#how" className="hover:text-fg">How it works</a>
@@ -47,7 +47,7 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-border">
         <p className="mx-auto max-w-6xl px-4 py-4 text-xs text-fg-subtle sm:px-6">
-          {PRODUCT_NAME} is a working name. Stories on this page are illustrative. Nothing is submitted, sent, or posted without your approval.
+          {PRODUCT_NAME} is a working name. The stories on this page are illustrative. Nothing gets submitted, sent, or posted without you.
         </p>
       </div>
     </footer>

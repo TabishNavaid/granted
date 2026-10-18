@@ -38,7 +38,7 @@ export function OpportunitiesView({ matches }: { matches: MatchView[] }) {
     <PageContainer>
       <PageHeader
         title="Opportunities"
-        description={`${matches.length} matches that pass your eligibility filters, ranked by fit. Last scan ${formatDate(lastScan)}. The next one runs Monday.`}
+        description={`${matches.length} funders you can actually apply to, ranked by fit. We last looked on ${formatDate(lastScan)} and we'll look again Monday.`}
       />
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Tabs value={scope} onValueChange={(v) => setScope(v as Scope)}>
@@ -73,7 +73,7 @@ export function OpportunitiesView({ matches }: { matches: MatchView[] }) {
           className="mt-6"
           icon={<Compass />}
           title="No matches here"
-          description="Try another filter. New matches arrive every Monday and land in your Inbox."
+          description="Try another filter. New matches show up every Monday and we'll put them in your Inbox."
         />
       ) : (
         <ul className="mt-6 flex flex-col gap-4">
@@ -86,7 +86,7 @@ export function OpportunitiesView({ matches }: { matches: MatchView[] }) {
       )}
 
       <p className="mt-8 text-sm text-fg-subtle">
-        We only show funders from verified sources. Anything you cannot apply for is filtered out before it reaches this page.
+        Every funder here comes from a page we checked ourselves. Anything you can't apply for never makes it to this list.
       </p>
     </PageContainer>
   );

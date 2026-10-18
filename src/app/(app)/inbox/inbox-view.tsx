@@ -105,7 +105,7 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
     const next = await services.inbox.reject(item.id, reason);
     withLeave(item.id, "dismiss", () => update(next));
     announce(`Declined: ${item.title}`);
-    toast({ title: "Declined", description: "The agents remember why.", tone: "info", action: { label: "Undo", onClick: () => undo(item.id) } });
+    toast({ title: "Declined", description: "We'll remember why.", tone: "info", action: { label: "Undo", onClick: () => undo(item.id) } });
   };
 
   const planDecision = async (opportunityId: string, decision: PlanItem["decision"]) => {
@@ -122,7 +122,7 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
     announce("Plan sealed.");
     toast({
       title: "Plan sealed",
-      description: "The agents start on the kept applications. Drafts land here.",
+      description: "We're on it. Drafts will show up here as they're ready.",
       action: {
         label: "Undo",
         onClick: async () => {
@@ -141,7 +141,7 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
     });
     toast({
       title: "Plan skipped",
-      description: "A new one arrives on the 1st.",
+      description: "No pressure. A fresh one arrives on the 1st.",
       tone: "info",
       action: {
         label: "Undo",
@@ -156,7 +156,7 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
   const totalPending = pending.length + (plan ? 1 : 0);
   const summary =
     totalPending === 0
-      ? "Nothing waiting on you. The lantern is out, in a good way."
+      ? "Nothing's waiting on you. The lantern is out, in the good way."
       : [plan ? "your plan for the month" : null, decide.length ? `${decide.length} to read and approve` : null, answer.length ? `${answer.length} with quick questions` : null, glance.length ? `${glance.length} to glance at` : null]
           .filter(Boolean)
           .join(", ")
@@ -172,7 +172,7 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
             {greeting()}, {firstName}.
           </h1>
           <p className="mt-2 max-w-xl text-base text-fg-muted">
-            {totalPending === 0 ? summary : `Waiting on you: ${summary}`}
+            {totalPending === 0 ? summary : `Here's what's waiting on you: ${summary}`}
           </p>
         </div>
         <LanternGlyph size={64} lit={totalPending > 0} className="hidden shrink-0 text-fg-muted sm:block" />
@@ -205,8 +205,8 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
           title={filter === "all" ? "You are all caught up" : `No ${active.label.toLowerCase()} waiting`}
           description={
             filter === "all"
-              ? "New drafts, matches, and schedules land here as the agents finish them. Nothing is sent or submitted without you. Go outside."
-              : "Try another filter, or check back after the next agent run."
+              ? "New drafts, matches, and schedules will land here as we finish them. Nothing gets sent or submitted without you. Go outside for a bit."
+              : "Try another filter, or check back after Monday's scan."
           }
           action={
             filter !== "all" ? (
@@ -227,7 +227,7 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
       ) : (
         <div className="flex flex-col gap-10">
           {decide.length ? (
-            <Group title="Read and approve" hint="The agents wrote these. Take a few minutes with each.">
+            <Group title="Read and approve" hint="We wrote these for you. Take a few minutes with each one.">
               {decide.map((item) => (
                 <li key={item.id}>
                   <InboxItemCard item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
@@ -236,7 +236,7 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
             </Group>
           ) : null}
           {answer.length ? (
-            <Group title="Quick answers" hint="Facts the drafts could not find. A minute each.">
+            <Group title="Quick answers" hint="Things we couldn't find in your documents. A minute each, honestly.">
               {answer.map((item) => (
                 <li key={item.id}>
                   <InboxItemCard item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
@@ -245,7 +245,7 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
             </Group>
           ) : null}
           {glance.length ? (
-            <Group title="At a glance" hint="Approve from the row, or open one to see more." compact>
+            <Group title="At a glance" hint="Say yes from the row, or open one if you want the details." compact>
               {glance.map((item) => (
                 <li key={item.id}>
                   <CompactInboxRow item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
@@ -268,7 +268,7 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
         </div>
         {showResolved ? (
           resolved.length === 0 ? (
-            <p className="mt-4 text-sm text-fg-subtle">Nothing sealed yet.</p>
+            <p className="mt-4 text-sm text-fg-subtle">Nothing sealed yet. Your first approval goes here.</p>
           ) : (
             <ul className="mt-4 flex flex-col gap-2">
               {resolved.map((item) => (
@@ -281,7 +281,7 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
         ) : (
           <p className="mt-2 flex items-center gap-1.5 text-sm text-fg-subtle">
             <Sparkles className="size-3.5" aria-hidden />
-            Everything you approved or declined stays here, with the time and your name.
+            Everything you've approved or declined stays here, with the time and your name on it.
           </p>
         )}
       </section>
@@ -325,15 +325,15 @@ function approvedTitle(item: InboxItem) {
 function approvedDescription(item: InboxItem) {
   switch (item.type) {
     case "proposal_draft":
-      return "Moved to Review on your pipeline.";
+      return "It's in Review on your pipeline now.";
     case "email_draft":
-      return "Copy it into your email and send when you are ready.";
+      return "Copy it into your email and send it whenever you're ready.";
     case "missing_facts":
-      return "The draft now cites you as the source.";
+      return "The draft now cites you as the source. Nice."
     case "profile_update":
-      return "Every draft from now on uses the new number.";
+      return "Every draft from here on uses the new number.";
     case "milestones":
-      return "Reminders go out before each one.";
+      return "We'll remind you before each one.";
     default:
       return item.title;
   }

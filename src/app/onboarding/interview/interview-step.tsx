@@ -10,9 +10,9 @@ import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
 const questions = [
-  { id: "budget", text: "Thanks, Dana. Your 990 shows about $342,000 in expenses last year. Is that still roughly your budget this year?", why: "Funders filter by budget size, so this one matters." },
-  { id: "geo", text: "Your site mentions Belmont and Stivers. Which neighborhoods or ZIP codes do most of your students come from?", why: "Many funders restrict by county, city, or ZIP." },
-  { id: "proud", text: "Last one. What is one result from the past year you are proudest of? A number is great, a story is fine too.", why: "It becomes the opening of your need statement." },
+  { id: "budget", text: "Thanks, Dana. Your 990 says about $342,000 in expenses last year. Is that still roughly where you are this year?", why: "Funders filter by budget size, so this one really matters." },
+  { id: "geo", text: "Your site mentions Belmont and Stivers. Which neighborhoods or ZIP codes do most of your students come from? Rough is fine.", why: "Many funders restrict by county, city, or ZIP." },
+  { id: "proud", text: "Last one, and it's the good one. What's a result from the past year you're proudest of? A number is great. A story is just as good.", why: "It becomes the opening of your need statement." },
 ];
 
 interface Msg {
@@ -25,7 +25,7 @@ interface Msg {
 export function InterviewStep() {
   const router = useRouter();
   const [messages, setMessages] = React.useState<Msg[]>([
-    { id: "intro", from: "agent", text: "I read riverbendyouth.org and the documents you added. Three quick questions to fill the gaps, then you can check everything." },
+    { id: "intro", from: "agent", text: "Hi, I'm the one who read riverbendyouth.org and the documents you added. I've got three quick questions to fill in the gaps, and then you can check everything." },
     { id: questions[0].id, from: "agent", text: questions[0].text, why: questions[0].why },
   ]);
   const [step, setStep] = React.useState(0);
@@ -52,7 +52,7 @@ export function InterviewStep() {
         const q = questions[nextStep];
         setMessages((m) => [...m, { id: q.id, from: "agent", text: q.text, why: q.why }]);
       } else {
-        setMessages((m) => [...m, { id: "done", from: "agent", text: "That is everything. I put your profile and facts together on the next page. Please check them, especially the numbers." }]);
+        setMessages((m) => [...m, { id: "done", from: "agent", text: "That's everything. I put your profile and facts together on the next page. Have a look, especially at the numbers. You know them better than I do." }]);
       }
     }, 900);
   };
@@ -61,7 +61,7 @@ export function InterviewStep() {
     <div className="grid gap-10 lg:grid-cols-[1fr_18rem]">
       <div>
         <h1 className="font-display text-3xl text-fg sm:text-4xl">A few questions.</h1>
-        <p className="mt-3 max-w-xl text-base text-fg-muted">Short answers are fine. You can change anything later.</p>
+        <p className="mt-3 max-w-xl text-base text-fg-muted">Short answers are fine. You can change anything later, really.</p>
         <div className="mt-8 rounded-lg border border-border bg-surface">
           <div role="log" aria-live="polite" aria-label="Interview" className="flex max-h-[28rem] min-h-[20rem] flex-col gap-4 overflow-y-auto p-4 sm:p-5">
             {messages.map((m) => (

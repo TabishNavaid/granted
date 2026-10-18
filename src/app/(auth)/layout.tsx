@@ -24,8 +24,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <SealedLetter size={56} className="text-night-fg" />
           <ul className="flex flex-col gap-1 text-sm text-night-fg/90">
             <li>Every fact links to the document it came from.</li>
-            <li>Nothing is sent or submitted without your approval.</li>
-            <li>Your data is never used to train models.</li>
+            <li>Nothing gets sent or submitted without you.</li>
+            <li>Your data never trains a model.</li>
           </ul>
         </div>
       </aside>

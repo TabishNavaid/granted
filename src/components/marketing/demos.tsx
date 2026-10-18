@@ -47,7 +47,7 @@ export function HeroInbox({ compact = false }: { compact?: boolean }) {
   const { toast } = useToast();
   const [plan, setPlan] = React.useState(seed.monthlyPlan);
   const [gone, setGone] = React.useState<string[]>([]);
-  const demoOnly = () => toast({ title: "This one is the demo", description: "Make your own workspace and the approvals are real.", tone: "info" });
+  const demoOnly = () => toast({ title: "This one's just the demo", description: "Make your own workspace and every approval is the real thing.", tone: "info" });
   return (
     <div className="flex flex-col gap-5">
       <PlanCard
@@ -67,11 +67,11 @@ export function HeroInbox({ compact = false }: { compact?: boolean }) {
                 ctx={demoCtx}
                 onApprove={() => {
                   setGone((g) => [...g, item.id]);
-                  toast({ title: "Sealed and filed", description: "In your own workspace this moves the draft to Review.", action: { label: "Undo", onClick: () => setGone((g) => g.filter((x) => x !== item.id)) } });
+                  toast({ title: "Sealed and filed", description: "In your own workspace, this moves the draft to Review.", action: { label: "Undo", onClick: () => setGone((g) => g.filter((x) => x !== item.id)) } });
                 }}
                 onReject={() => {
                   setGone((g) => [...g, item.id]);
-                  toast({ title: "Declined", description: "The agents remember why.", tone: "info", action: { label: "Undo", onClick: () => setGone((g) => g.filter((x) => x !== item.id)) } });
+                  toast({ title: "Declined", description: "We'll remember why, so you don't see it again.", tone: "info", action: { label: "Undo", onClick: () => setGone((g) => g.filter((x) => x !== item.id)) } });
                 }}
               />
             ))}
@@ -107,7 +107,7 @@ export function MatchArrivesDemo() {
             </li>
           ))}
         </ul>
-        <p className={cn("mt-3 text-xs text-fg-subtle transition-opacity duration-500", step >= 4 ? "opacity-100" : "opacity-0")}>Source checked this morning: meridianfamilyfdn.org</p>
+        <p className={cn("mt-3 text-xs text-fg-subtle transition-opacity duration-500", step >= 4 ? "opacity-100" : "opacity-0")}>We checked meridianfamilyfdn.org this morning. Still open.</p>
       </div>
     </DemoFrame>
   );
@@ -145,7 +145,7 @@ export function DraftFillsDemo() {
           )}
           {step < draftLine.length ? <span className="ml-0.5 inline-block h-[1em] w-0.5 translate-y-0.5 animate-pulse bg-accent" aria-hidden /> : null}
         </p>
-        <p className="mt-3 text-xs text-fg-subtle">Every claim carries a receipt. The one it could not find became a question for you.</p>
+        <p className="mt-3 text-xs text-fg-subtle">Every claim carries a receipt. The one we couldn't find became a question for you.</p>
       </div>
     </DemoFrame>
   );
@@ -161,7 +161,7 @@ export function ApproveSealsDemo() {
         <div className={cn("rounded-xl border border-border bg-surface-raised p-4 shadow-sm transition-all duration-700", step >= 2 && "scale-95 opacity-0")} style={{ transformOrigin: "center" }}>
           <p className="text-xs text-fg-subtle">Outreach agent · 2 sources</p>
           <p className="mt-1 font-display text-lg leading-snug text-fg">Thank-you note to Hollis &amp; Marsh</p>
-          <p className="mt-1 text-sm text-fg-muted">Short, warm, and it mentions the January update they asked for.</p>
+          <p className="mt-1 text-sm text-fg-muted">Short and warm, and it remembers the January update they asked for.</p>
           <div className="mt-4 flex items-center gap-2">
             <span className={cn("inline-flex h-9 items-center gap-2 rounded-full bg-accent px-4 text-sm font-semibold text-accent-fg transition-transform", step === 1 && "scale-95 brightness-95")}>
               <Check className="size-4" aria-hidden /> Approve email
@@ -174,7 +174,7 @@ export function ApproveSealsDemo() {
         <div className={cn("absolute inset-0 flex flex-col items-center justify-center gap-2 transition-all duration-500", step >= 2 ? "scale-100 opacity-100" : "scale-75 opacity-0")}>
           <SealedLetter size={96} className="text-fg" />
           <p className="text-sm font-semibold text-fg">Sealed and filed</p>
-          <p className="text-xs text-fg-subtle">Copy it into your email whenever you like.</p>
+          <p className="text-xs text-fg-subtle">Copy it into your email whenever you're ready.</p>
         </div>
       </div>
     </DemoFrame>
@@ -215,7 +215,7 @@ export function QuestionsDemo() {
       <div className="rounded-xl border border-border bg-surface-raised p-4 shadow-sm">
         <p className="text-xs text-fg-subtle">Statement of need</p>
         <p className="mt-1 text-sm font-semibold text-fg">How many students are on the Belmont waitlist right now?</p>
-        <p className="mt-1 text-xs text-fg-subtle">The 2025 report does not say. The agent will not guess.</p>
+        <p className="mt-1 text-xs text-fg-subtle">The 2025 report doesn't say, and we won't guess.</p>
         {saved ? (
           <p className="mt-3 flex items-center gap-2 rounded-lg bg-success-soft px-3 py-2 text-sm text-success-soft-fg animate-fade-in">
             <Check className="size-4" aria-hidden /> Saved. The draft now cites you as the source.
@@ -266,7 +266,7 @@ export function CalendarDemo() {
             );
           })}
         </div>
-        <p className="mt-3 text-xs text-fg-subtle">Due Friday, 5pm Eastern. Of course it is. So the draft is due the Friday before.</p>
+        <p className="mt-3 text-xs text-fg-subtle">Due Friday, 5pm Eastern. Of course it is. So we put the draft on the Friday before.</p>
       </div>
     </DemoFrame>
   );

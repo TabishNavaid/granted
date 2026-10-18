@@ -19,7 +19,7 @@ export function ComingSoon({ title, description, bullets }: { title: string; des
             </li>
           ))}
         </ul>
-        <p className="mt-5 text-sm text-fg-muted">This is on the Growth plan roadmap. Nothing to set up now.</p>
+        <p className="mt-5 text-sm text-fg-muted">It's coming with the Growth plan. Nothing for you to set up now, we'll let you know.</p>
         <Button asChild variant="secondary" className="mt-5">
           <Link href="/inbox">Back to Inbox</Link>
         </Button>

@@ -7,7 +7,7 @@ export default function ConnectionsPage() {
   return (
     <ComingSoon
       title="Connections"
-      description="Find the people on your board and in your network who already know your funders."
+      description="Your board already knows people. Soon we'll help you find out who."
       bullets={[
         "Map program officers, trustees, and staff at each funder from public sources.",
         "Upload your board list and see who overlaps with a funder's board.",

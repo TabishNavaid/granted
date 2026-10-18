@@ -22,8 +22,8 @@ export function StartForm() {
   return (
     <div className="grid gap-10 lg:grid-cols-[1fr_18rem]">
       <div>
-        <h1 className="font-display text-3xl text-fg sm:text-4xl">Let us read up on you.</h1>
-        <p className="mt-3 max-w-xl text-base text-fg-muted">We start with your website and your EIN. From those we pull your mission, programs, and public 990 data. You confirm everything before it is used.</p>
+        <h1 className="font-display text-3xl text-fg sm:text-4xl">Let's start with who you are.</h1>
+        <p className="mt-3 max-w-xl text-base text-fg-muted">Give us your website and your EIN. From those we'll pull your mission, your programs, and your public 990 data. You get to check all of it before we use a word.</p>
         <form
           className="mt-8 flex max-w-md flex-col gap-5"
           onSubmit={async (e) => {
@@ -41,12 +41,12 @@ export function StartForm() {
           <Field id="website" label="Website" error={errors.url}>
             <Input inputMode="url" autoComplete="url" placeholder="riverbendyouth.org" value={url} onChange={(e) => setUrl(e.target.value)} />
           </Field>
-          <Field id="ein" label="EIN" hint="Your employer identification number. It is on your IRS determination letter." error={errors.ein}>
+          <Field id="ein" label="EIN" hint="Your employer identification number. It's on your IRS determination letter, usually near the top." error={errors.ein}>
             <Input inputMode="numeric" placeholder="47-3382911" value={ein} onChange={(e) => setEin(formatEin(e.target.value))} className="tnum" />
           </Field>
           <div className="flex items-center gap-3 pt-2">
             <Button type="submit" size="lg" loading={loading}>
-              {loading ? "Reading your site" : "Continue"} {!loading ? <ArrowRight aria-hidden /> : null}
+              {loading ? "Reading your site" : "Let's go"} {!loading ? <ArrowRight aria-hidden /> : null}
             </Button>
           </div>
         </form>
@@ -59,7 +59,7 @@ export function StartForm() {
           <li>Your public website: mission, programs, staff.</li>
           <li>Your IRS 990 from public filings: budget, year founded, board size.</li>
         </ul>
-        <p className="mt-4">About two minutes. Nothing is published or shared.</p>
+        <p className="mt-4">About two minutes. Nothing gets published or shared with anyone.</p>
       </aside>
     </div>
   );

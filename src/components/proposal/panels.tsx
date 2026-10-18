@@ -49,7 +49,7 @@ export function Checklist({
             {done} of {requirements.length}
           </span>
         </div>
-        <p className="mt-1 text-xs text-fg-subtle">Parsed from the funder&apos;s guidelines.</p>
+        <p className="mt-1 text-xs text-fg-subtle">Pulled from the funder&apos;s guidelines.</p>
       </div>
       <div>
         <p className="mb-1.5 text-xs font-medium text-fg-muted">Sections</p>
@@ -136,7 +136,7 @@ export function QuestionsPanel({
   return (
     <div className="flex flex-col gap-4">
       <p className="text-sm text-fg-muted">
-        {open.length === 0 ? "Every question is answered. The draft cites you as the source." : `The agent found ${open.length} fact${open.length === 1 ? "" : "s"} it could not source. It left a placeholder instead of guessing.`}
+        {open.length === 0 ? "Every question is answered. The draft cites you as the source. Thank you." : `We couldn't find ${open.length} fact${open.length === 1 ? "" : "s"} in your documents, so we left a marked gap instead of guessing.`}
       </p>
       {open.map((q, i) => (
         <QuestionCard key={q.id} q={q} index={i} sectionTitle={sectionTitle(q.sectionId)} highlighted={highlightId === q.id} onAnswer={onAnswer} onSkip={onSkip} />
@@ -209,7 +209,7 @@ export function CompliancePanel({ checks, onRerun, running, onJump }: { checks: 
       <div className={cn("flex items-start gap-3 rounded-md p-3 text-sm", ready ? "bg-success-soft text-success-soft-fg" : "bg-danger-soft text-danger-soft-fg")}>
         {ready ? <Check className="mt-0.5 size-4 shrink-0" aria-hidden /> : <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />}
         <div>
-          <p className="font-medium">{ready ? "Ready to submit" : `${fails.length} thing${fails.length === 1 ? "" : "s"} to fix before submitting`}</p>
+          <p className="font-medium">{ready ? "Ready to submit" : `${fails.length} thing${fails.length === 1 ? "" : "s"} to sort out before you submit`}</p>
           <p className="mt-0.5 text-xs opacity-90">
             {passes.length} passed · {warns.length} to review · {fails.length} failed
           </p>
@@ -266,7 +266,7 @@ export function SourcesPanel({ facts, documents, sections, highlightFactId }: { 
   return (
     <div className="flex flex-col gap-4">
       <p className="text-sm text-fg-muted">
-        Every number in this draft comes from one of your documents. {usedFacts.length} facts cited from {docsUsed.length} document{docsUsed.length === 1 ? "" : "s"}.
+        Every number in this draft comes from one of your own documents. {usedFacts.length} facts cited from {docsUsed.length} document{docsUsed.length === 1 ? "" : "s"}, and you can check each one.
       </p>
       <div className="flex flex-wrap gap-1.5">
         {docsUsed.map((id) => {

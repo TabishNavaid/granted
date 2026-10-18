@@ -46,7 +46,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
   const confirm = async (f: Fact) => {
     const next = await services.knowledge.confirmFact(f.id);
     setFacts((l) => l.map((x) => (x.id === f.id ? next : x)));
-    toast({ title: "Confirmed", description: `${f.label} is current as of today.` });
+    toast({ title: "Confirmed", description: `${f.label} is good as of today. Thanks for checking.` });
   };
 
   const addFiles = async (files: FileList | File[]) => {
@@ -55,7 +55,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
       setDocs((l) => [d, ...l]);
       setTimeout(async () => setDocs(await services.knowledge.listDocuments()), 3000);
     }
-    toast({ title: "Uploading", description: "The Profile agent will read it and suggest any new facts in your Inbox.", tone: "info" });
+    toast({ title: "Uploading", description: "We'll read it and put any new facts in your Inbox for you to check.", tone: "info" });
   };
 
   const factColumns: Column<Fact>[] = [
@@ -92,7 +92,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
     <PageContainer width="wide">
       <PageHeader
         title="Profile and knowledge"
-        description="Everything the agents know about you. Every number has a source, and nothing goes into a proposal that is not on this page."
+        description="Everything we know about you, in one place. Every number has a source, and nothing goes into a proposal that isn't on this page."
       />
       <Tabs value={tab} onValueChange={setTab} className="mt-6">
         <TabsList aria-label="Knowledge base sections">
@@ -172,13 +172,13 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
 
         <TabsContent value="facts">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-fg-muted">Numbers the agents are allowed to use. Facts older than a year ask to be re-confirmed.</p>
+            <p className="text-sm text-fg-muted">The numbers we're allowed to use. Anything older than a year will ask you if it's still true.</p>
           </div>
           <DataTable columns={factColumns} rows={[...facts].sort((a, b) => (a.status === "confirmed" ? 1 : 0) - (b.status === "confirmed" ? 1 : 0))} rowKey={(f) => f.id} caption="Organization facts and their sources" />
         </TabsContent>
 
         <TabsContent value="boilerplate">
-          <p className="mb-4 text-sm text-fg-muted">Reusable paragraphs written from your documents. Each edit saves a new version.</p>
+          <p className="mb-4 text-sm text-fg-muted">Paragraphs you'll use again and again, written from your own documents. Every edit saves a new version, so nothing is ever lost.</p>
           <ul className="grid gap-4 md:grid-cols-2">
             {bps.map((b) => (
               <li key={b.id} className="flex flex-col rounded-lg border border-border bg-surface p-5">
@@ -221,7 +221,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
           >
             <UploadCloud className="size-6 text-accent" aria-hidden />
             <p className="mt-3 font-medium text-fg">Drop a document here</p>
-            <p className="mt-1 max-w-sm text-sm text-fg-muted">Annual reports, past proposals, 990s, budgets. PDF, Word, or Excel up to 25 MB. We read them and pull out facts with page numbers.</p>
+            <p className="mt-1 max-w-sm text-sm text-fg-muted">Annual reports, old proposals, 990s, budgets. PDF, Word, or Excel up to 25 MB. We read them and pull out the facts, page numbers and all.</p>
             <input ref={fileRef} type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx" className="sr-only" id="doc-upload" onChange={(e) => e.target.files && addFiles(e.target.files)} />
             <Button variant="secondary" className="mt-4" onClick={() => fileRef.current?.click()}>
               <FileUp aria-hidden /> Choose files
@@ -263,7 +263,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit profile</DialogTitle>
-            <DialogDescription>Changes here are used in every future draft.</DialogDescription>
+            <DialogDescription>Whatever you change here shows up in every draft from now on.</DialogDescription>
           </DialogHeader>
           <form
             className="flex flex-col gap-4"
@@ -304,7 +304,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
                 const next = await services.knowledge.updateFact(editingFact.id, { value: String(fd.get("value")), status: "confirmed", lastConfirmedAt: new Date().toISOString(), sourceExcerpt: `Updated by Dana Okafor on ${formatDate(new Date().toISOString())}` });
                 setFacts((l) => l.map((f) => (f.id === next.id ? next : f)));
                 setEditingFact(null);
-                toast({ title: "Fact updated", description: "You are now listed as the source." });
+                toast({ title: "Fact updated", description: "You're the source now." });
               }}
             >
               <DialogHeader>

@@ -45,7 +45,7 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
     { key: "amount", header: "Amount", align: "right", cell: (i) => formatMoney(i.amount) },
     { key: "status", header: "Status", cell: (i) => <Badge variant={i.status === "paid" ? "success" : i.status === "open" ? "warning" : "danger"}>{i.status === "paid" ? "Paid" : i.status === "open" ? "Open" : "Failed"}</Badge> },
     { key: "pdf", header: <span className="sr-only">Download</span>, align: "right", cell: () => (
-      <Button variant="ghost" size="sm" onClick={() => toast({ title: "Invoice PDFs come from Stripe", description: "Available once billing is connected.", tone: "info" })}>
+      <Button variant="ghost" size="sm" onClick={() => toast({ title: "Invoices come from Stripe", description: "They'll be here once billing is hooked up.", tone: "info" })}>
         <Download aria-hidden /> PDF
       </Button>
     ) },
@@ -91,8 +91,8 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
           </form>
           <div className="mt-10 max-w-lg rounded-lg border border-danger/30 p-5">
             <h2 className="font-display text-lg text-fg">Delete workspace</h2>
-            <p className="mt-1 text-sm text-fg-muted">Removes your profile, documents, and drafts for everyone on the team. We will ask you to confirm by email.</p>
-            <Button variant="danger-ghost" className="mt-3" onClick={() => toast({ title: "Check your email", description: "We sent a confirmation link. Nothing is deleted until you click it.", tone: "warning" })}>
+            <p className="mt-1 text-sm text-fg-muted">This removes your profile, documents, and drafts for everyone on the team. We'll ask you to confirm by email first, because that's a big button.</p>
+            <Button variant="danger-ghost" className="mt-3" onClick={() => toast({ title: "Check your email", description: "We sent you a confirmation link. Nothing gets deleted until you click it.", tone: "warning" })}>
               Delete workspace
             </Button>
           </div>
@@ -142,7 +142,7 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
               <UserPlus aria-hidden /> Invite
             </Button>
           </form>
-          <p className="mt-3 text-xs text-fg-subtle">Reviewers can approve items in the Inbox but cannot edit drafts. Board members usually want this role.</p>
+          <p className="mt-3 text-xs text-fg-subtle">Reviewers can approve things in the Inbox but can't edit drafts. Board members usually want exactly this.</p>
         </TabsContent>
 
         <TabsContent value="notifications">
@@ -212,7 +212,7 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
                         onClick={async () => {
                           const next = await services.billing.changePlan(p.tier);
                           setSub(next);
-                          toast({ title: `Switched to ${p.name}`, description: "Stripe checkout opens here once billing is connected." });
+                          toast({ title: `Switched to ${p.name}`, description: "Stripe checkout will open here once billing is hooked up." });
                         }}
                       >
                         {current ? "Your plan" : p.tier === "free" ? "Downgrade" : "Choose " + p.name}
@@ -221,7 +221,7 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
                   );
                 })}
               </div>
-              <p className="mt-3 text-xs text-fg-subtle">Prices are placeholders while we test with early users. Success-fee plans are on hold pending funder rules.</p>
+              <p className="mt-3 text-xs text-fg-subtle">Prices are placeholders while we test with early users. Success-fee plans are on hold until we're sure funders allow them.</p>
               <h2 className="mt-10 font-display text-xl text-fg">Invoices</h2>
               <DataTable className="mt-3" columns={invoiceColumns} rows={invoices} rowKey={(i) => i.id} caption="Invoices" dense />
             </div>
@@ -250,7 +250,7 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
                 <p className="mt-2 flex items-center gap-2 text-sm text-fg">
                   <CreditCard className="size-4 text-fg-subtle" aria-hidden /> Visa ending 4242
                 </p>
-                <Button variant="link" size="sm" className="mt-1" onClick={() => toast({ title: "Managed in Stripe", description: "The billing portal opens here once connected.", tone: "info" })}>
+                <Button variant="link" size="sm" className="mt-1" onClick={() => toast({ title: "Managed in Stripe", description: "The billing portal will open here once it's hooked up.", tone: "info" })}>
                   Update card
                 </Button>
               </div>

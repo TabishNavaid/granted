@@ -68,7 +68,7 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
   const answer = async (id: string, value: string) => {
     await services.applications.answerMissingFact(id, value);
     const next = await reload();
-    toast({ title: "Answer saved", description: "The placeholder is now a cited fact from you." });
+    toast({ title: "Answer saved", description: "The gap is filled, and it cites you as the source." });
     setHighlightGap(null);
     void next;
   };
@@ -82,7 +82,7 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
     await new Promise((r) => setTimeout(r, 900));
     await reload();
     setChecking(false);
-    toast({ title: "Checks updated", description: "Word counts and required items were re-checked." });
+    toast({ title: "Checks updated", description: "We looked over the word counts and required items again." });
   };
 
   const approveSection = async () => {
@@ -102,7 +102,7 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
     setDrafting(true);
     await runProposalAgent({ orgId: app.orgId, applicationId: app.id, askAmount: app.askAmount });
     setDrafting(false);
-    toast({ title: "Draft requested", description: "The Proposal agent is working. The draft will land in your Inbox for review.", tone: "info" });
+    toast({ title: "Draft requested", description: "We're on it. The draft will land in your Inbox when it's ready for you.", tone: "info" });
   };
 
   const onCitationClick = (factId: string) => {
@@ -138,10 +138,10 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
             <div className="min-w-0 flex-1">
               <h2 className="font-display text-xl text-fg">No draft yet</h2>
               <p className="mt-1 text-sm text-fg-muted">
-                The Proposal agent will read the guidelines, build a checklist, and draft every section from your facts. Anything it cannot source becomes a question for you. The finished draft arrives in your Inbox.
+                We'll read the guidelines, build the checklist, and write every section from your facts. Anything we can't source becomes a question for you instead of a guess. The finished draft arrives in your Inbox.
               </p>
               <Button className="mt-4" onClick={draftNow} loading={drafting}>
-                <Sparkles aria-hidden /> Draft with the Proposal agent
+                <Sparkles aria-hidden /> Write the first draft
               </Button>
             </div>
           </div>
@@ -268,7 +268,7 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
               </div>
               <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border bg-surface px-5 py-3 sm:px-10">
                 <p className="text-xs text-fg-subtle">
-                  {active.status === "approved" ? "You approved this section." : active.status === "needs_facts" ? "This section has placeholders waiting on your answers." : "Review this section, then mark it approved."}
+                  {active.status === "approved" ? "You've approved this section." : active.status === "needs_facts" ? "A few gaps here are waiting on your answers." : "Read it over, then mark it approved when it sounds like you."}
                 </p>
                 <Button variant={active.status === "approved" ? "secondary" : "soft"} size="sm" onClick={approveSection}>
                   <Check aria-hidden /> {active.status === "approved" ? "Approved" : "Mark section approved"}

@@ -58,7 +58,7 @@ export function ExportDialog({ open, onOpenChange, app, sections }: { open: bool
     a.click();
     URL.revokeObjectURL(url);
     setBusy(null);
-    toast({ title: "Word file downloaded", description: "Open it in Word or Google Docs. Placeholders are marked NEED." });
+    toast({ title: "Word file downloaded", description: "Open it in Word or Google Docs. Anything still missing is marked NEED so it can't slip past you." });
   };
   const print = async () => {
     setBusy("pdf");
@@ -77,7 +77,7 @@ export function ExportDialog({ open, onOpenChange, app, sections }: { open: bool
       setCopied(id);
       setTimeout(() => setCopied(null), 1500);
     } catch {
-      toast({ title: "Could not copy", description: "Select the text and copy it manually.", tone: "warning" });
+      toast({ title: "Could not copy", description: "Select the text and copy it by hand. Sorry about that.", tone: "warning" });
     }
   };
 
@@ -86,7 +86,7 @@ export function ExportDialog({ open, onOpenChange, app, sections }: { open: bool
       <DialogContent size="lg">
         <DialogHeader>
           <DialogTitle>Export proposal</DialogTitle>
-          <DialogDescription>Citation chips are removed on export. Unanswered questions appear as NEED placeholders so nothing is invented.</DialogDescription>
+          <DialogDescription>We take the citation chips out on export. Anything you haven't answered shows up as a NEED placeholder, so nothing gets invented on the way out the door.</DialogDescription>
         </DialogHeader>
         <Tabs defaultValue="files">
           <TabsList>
@@ -102,7 +102,7 @@ export function ExportDialog({ open, onOpenChange, app, sections }: { open: bool
             >
               <FileText className="size-5 text-accent" aria-hidden />
               <span className="font-medium text-fg">Word document</span>
-              <span className="text-sm text-fg-muted">Best for funders who want an attachment. Opens in Word and Google Docs.</span>
+              <span className="text-sm text-fg-muted">For funders who want an attachment. Opens in Word and Google Docs.</span>
               <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-accent">
                 <Download className="size-3.5" aria-hidden /> {busy === "docx" ? "Preparing..." : "Download .doc"}
               </span>
@@ -122,7 +122,7 @@ export function ExportDialog({ open, onOpenChange, app, sections }: { open: bool
             </button>
           </TabsContent>
           <TabsContent value="fields">
-            <p className="mb-3 text-sm text-fg-muted">For online portals with one box per question. Copy each section into the matching field.</p>
+            <p className="mb-3 text-sm text-fg-muted">For the portals with one box per question. Copy each section into its field and you're done.</p>
             <ul className="flex max-h-80 flex-col gap-2 overflow-y-auto pr-1">
               {sections.map((s) => {
                 const text = toPlainText(s.bodyHtml);

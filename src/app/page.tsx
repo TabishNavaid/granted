@@ -10,7 +10,7 @@ import { PRODUCT_NAME } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: `${PRODUCT_NAME}: your next grant is closer than it feels`,
-  description: `${PRODUCT_NAME} finds the grants you can win, drafts the proposals from your own documents, and keeps the deadlines. You open one Inbox and approve.`,
+  description: `${PRODUCT_NAME} finds grants you can actually win, writes the first draft from your own documents, and keeps the deadlines so you don't have to. You open one Inbox and say yes or no.`,
 };
 
 const stories = [
@@ -27,10 +27,10 @@ const tiers = [
 ];
 
 const faqs = [
-  { q: "Will funders know an AI helped?", a: "Some ask for disclosure, and we track those policies and tell you when one applies. Every draft is written from your own documents and edited by you, so you are the author." },
-  { q: "Can it invent a funder or a number?", a: "No. Funders come only from verified sources with a link and a last-checked date. If a fact is not in your documents, the draft shows a placeholder and asks you." },
-  { q: "Does it submit for me?", a: "Never. It drafts, you review, you submit on the funder's portal. Same for email: nothing is sent from your account." },
-  { q: "What about our data?", a: "Your documents are private to your workspace and never used to train models. Delete everything in one click, any time." },
+  { q: "Will funders know an AI helped?", a: "Some funders ask you to say so, and we keep track of which ones and nudge you when it applies. Every draft comes from your own documents and gets your edits, so you're the author. We're the first-draft friend." },
+  { q: "Can it invent a funder or a number?", a: "No, and we built it that way on purpose. Every funder comes from a real page we checked, with the link and the date. If a fact isn't in your documents, the draft leaves a marked gap and asks you instead of guessing." },
+  { q: "Does it submit for me?", a: "Never. We draft, you read, you click submit on the funder's portal. Same with email: we write it, you send it from your own address. The last step is always yours." },
+  { q: "What about our data?", a: "They stay in your workspace and nobody trains a model on them. If you ever want to leave, one click deletes everything. No phone call required." },
 ];
 
 export default function LandingPage() {
@@ -51,7 +51,7 @@ export default function LandingPage() {
             <p className="text-sm font-semibold text-glow">For nonprofits with four staff and forty tabs open</p>
             <h1 className="mt-4 font-display text-4xl leading-[1.05] sm:text-5xl lg:text-6xl">Your next grant is closer than it feels.</h1>
             <p className="mt-5 max-w-xl text-lg text-night-fg/85">
-              {PRODUCT_NAME} finds the funders you can win, writes the first draft from your own documents, and keeps the deadlines. You open one Inbox and approve.
+              {PRODUCT_NAME} finds the funders you can actually win, writes the first draft from your own documents, and keeps the deadlines so you don't have to. You open one Inbox and say yes or no.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Button asChild size="lg" variant="glow">
@@ -59,7 +59,7 @@ export default function LandingPage() {
                   See your first matches <ArrowRight aria-hidden />
                 </Link>
               </Button>
-              <span className="text-sm text-night-fg/75">Twenty minutes. No card. Nothing sent without you.</span>
+              <span className="text-sm text-night-fg/75">About twenty minutes. No card. Nothing goes anywhere without you.</span>
             </div>
           </div>
           <div className="relative mt-14 lg:mt-16">
@@ -89,19 +89,19 @@ export default function LandingPage() {
           <ul className="flex flex-col gap-6 text-lg text-fg">
             <li className="relative pl-6">
               <LanternGlyph size={18} className="absolute left-0 top-1.5 text-fg-subtle" glow={false} />
-              It is 9:40 pm. The deadline is Friday, 5 pm Eastern. Of course it is.
+              It's 9:40 pm. The deadline is Friday, 5 pm Eastern. Of course it is.
             </li>
             <li className="relative pl-6">
               <LanternGlyph size={18} className="absolute left-0 top-1.5 text-fg-subtle" glow={false} />
-              Forty tabs are open. Three of those funders stopped giving in 2023 and their websites never mentioned it.
+              You've got forty tabs open. Three of those funders quietly stopped giving in 2023, and their websites never got the memo.
               <MarginNote className="mt-1 block" arrow="left">we check the page first</MarginNote>
             </li>
             <li className="relative pl-6">
               <LanternGlyph size={18} className="absolute left-0 top-1.5 text-fg-subtle" glow={false} />
-              The proposal is good. You wrote it alone, again, between payroll and a parent on the phone.
+              The proposal is good. You wrote it alone, again, somewhere between payroll and a parent on the phone.
             </li>
             <li className="mt-2 border-t border-border pt-6 text-base text-fg-muted">
-              You should not have to do this by yourself. {PRODUCT_NAME} walks the path with you and lights the next step. The work still gets your eyes. It just stops needing your nights.
+              You shouldn't have to do this by yourself. {PRODUCT_NAME} walks the path with you and lights the next step. The work still gets your eyes. It just stops needing your nights.
             </li>
           </ul>
         </div>
@@ -112,16 +112,16 @@ export default function LandingPage() {
         <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-28">
           <div className="max-w-2xl">
             <p className="text-sm font-semibold text-accent">How it works</p>
-            <h2 className="mt-3 font-display text-3xl text-fg sm:text-4xl">Three things happen. You only do the last one.</h2>
+            <h2 className="mt-3 font-display text-3xl text-fg sm:text-4xl">Three things happen. You only have to do the last one.</h2>
           </div>
           <ol className="mt-12 flex flex-col gap-16">
-            <Step n="1" title="A match arrives, with reasons" body="Every Monday the Discovery agent reads the funder's own page, checks your eligibility against your profile, and explains the fit in plain words. Anything you cannot apply for never reaches you.">
+            <Step n="1" title="A match arrives, with reasons" body="Every Monday we read each funder's own page, check it against your profile, and tell you in plain words why it fits. If you can't apply, you'll never see it. Your Monday has enough in it already.">
               <MatchArrivesDemo />
             </Step>
-            <Step n="2" title="The first draft writes itself from your own numbers" body="The Proposal agent turns the guidelines into a checklist, then drafts every section from your annual report, your 990, and your past proposals. Each claim links to the page it came from." flip>
+            <Step n="2" title="The first draft writes itself from your own numbers" body="We turn the guidelines into a checklist, then write every section from your annual report, your 990, and the proposals you've already written. Every claim links back to the page it came from, so you never have to wonder." flip>
               <DraftFillsDemo />
             </Step>
-            <Step n="3" title="You read it. You approve. It seals." body="Edit in place, answer the questions it could not, and approve. Approved drafts become sealed letters in your records. Nothing is submitted or sent until you do it yourself.">
+            <Step n="3" title="You read it. You approve. It seals." body="Edit anything, answer the few questions we couldn't, and approve. Anything you approve gets sealed and filed in your records. Nothing is submitted or sent until you do it yourself, and we mean that.">
               <ApproveSealsDemo />
             </Step>
           </ol>
@@ -132,19 +132,19 @@ export default function LandingPage() {
       <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-28">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold text-accent">What is in the lantern</p>
-          <h2 className="mt-3 font-display text-3xl text-fg sm:text-4xl">Small things that make the difference at 9:40 pm.</h2>
+          <h2 className="mt-3 font-display text-3xl text-fg sm:text-4xl">The small things that matter at 9:40 pm.</h2>
         </div>
         <div className="mt-12 grid gap-10 md:grid-cols-2 lg:gap-x-14">
-          <Feature title="Every number has a receipt" body="Click any figure in a draft and read the exact passage it came from, with the page number. Facts older than a year ask to be confirmed before they go anywhere.">
+          <Feature title="Every number has a receipt" body="Click any number in a draft and read the exact passage it came from, page number included. Anything older than a year taps you on the shoulder before it goes anywhere.">
             <SourcesDemo />
           </Feature>
-          <Feature title="When it does not know, it asks" body="A missing fact becomes a question in the margin, never a plausible guess. Your answer becomes a cited fact for every draft after this one.">
+          <Feature title="When it does not know, it asks" body="When we can't find a fact, we leave a question in the margin instead of a plausible guess. Answer it once and it's a cited fact in every draft from then on.">
             <QuestionsDemo />
           </Feature>
-          <Feature title="Deadlines planned backward" body="Draft due, budget sign-off, board review, submit. Each one lands on your calendar with a reminder, so the deadline is the last thing that happens, not the first.">
+          <Feature title="Deadlines planned backward" body="Draft due, budget sign-off, board review, submit. Each one lands on your calendar with a reminder, so the deadline is the last thing that happens instead of the first thing you notice.">
             <CalendarDemo />
           </Feature>
-          <Feature title="Warm introductions, coming next" body="Your board already knows people. Soon the Connections agent will find the overlap with a funder's board and draft the intro for your board member to send.">
+          <Feature title="Warm introductions, coming next" body="Your board already knows people. Soon we'll spot the overlap with a funder's board and draft the intro for your board member to send. Public sources only, and they hit send, not us.">
             <IntroDemo />
           </Feature>
         </div>
@@ -159,13 +159,13 @@ export default function LandingPage() {
           <div>
             <p className="text-sm font-semibold text-glow">Trust</p>
             <h2 className="mt-3 font-display text-3xl sm:text-4xl">Nothing leaves without you.</h2>
-            <p className="mt-4 max-w-xl text-lg text-night-fg/85">Funders can spot a made-up number from across the room. So can you. {PRODUCT_NAME} is built so that neither of you ever has to.</p>
+            <p className="mt-4 max-w-xl text-lg text-night-fg/85">Funders can spot a made-up number from across the room. So can you. We built {PRODUCT_NAME} so neither of you ever has to.</p>
             <ul className="mt-8 flex flex-col gap-4 text-base">
               {[
-                "Funders come only from a verified page, with the date we last checked it. The model never names one from memory.",
-                "Every claim in a proposal links to your own document. A missing fact becomes a question, not a guess.",
-                "Nothing is sent, posted, or submitted by the agents. You copy the email. You click submit on the portal.",
-                "The activity log shows every tool each agent called and every source it read. Nothing happens off stage.",
+                "Every funder comes from a real page we checked, with the date we checked it. Nothing gets named from memory.",
+                "Every claim in a proposal links to one of your own documents. A missing fact becomes a question for you, never a guess.",
+                "We never send, post, or submit anything. You copy the email. You click submit on the portal. That's the deal.",
+                "The activity log shows every step we took and every source we read. Nothing happens off stage.",
               ].map((t) => (
                 <li key={t} className="flex gap-3">
                   <Check className="mt-1.5 size-4 shrink-0 text-glow" aria-hidden />
@@ -179,7 +179,7 @@ export default function LandingPage() {
               <SealedLetter size={72} className="text-night-fg" />
               <div>
                 <p className="font-display text-xl">The seal means you read it.</p>
-                <p className="text-sm text-night-muted">Approved items are sealed and filed, with your name and the time.</p>
+                <p className="text-sm text-night-muted">Everything you approve is sealed and filed, with your name and the time. Your records, your word.</p>
               </div>
             </div>
             <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-night-fg/15 pt-6 text-sm">
@@ -209,7 +209,7 @@ export default function LandingPage() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="max-w-2xl">
             <p className="text-sm font-semibold text-accent">Stories</p>
-            <h2 className="mt-3 font-display text-3xl text-fg sm:text-4xl">Four organizations that stopped working weekends.</h2>
+            <h2 className="mt-3 font-display text-3xl text-fg sm:text-4xl">Four organizations that got their weekends back.</h2>
           </div>
           <Badge variant="outline">Illustrative stories for the demo</Badge>
         </div>
@@ -241,7 +241,7 @@ export default function LandingPage() {
         <div className="max-w-2xl">
           <p className="text-sm font-semibold text-accent">Pricing</p>
           <h2 className="mt-3 font-display text-3xl text-fg sm:text-4xl">Priced for the organizations the big tools price out.</h2>
-          <p className="mt-3 text-lg text-fg-muted">A grant writer costs $2,000 a month. The big databases start at $299. We start at free, and stay cheap on purpose.</p>
+          <p className="mt-3 text-lg text-fg-muted">A grant writer runs $2,000 a month. The big databases start at $299. We start at free and stay cheap on purpose, because we know what your budget looks like.</p>
         </div>
         <ul className="mt-12 grid gap-5 md:grid-cols-3">
           {tiers.map((t) => (
@@ -271,14 +271,14 @@ export default function LandingPage() {
           ))}
         </ul>
         <p className="mt-5 text-sm text-fg-muted">
-          If $29 is hard this month, write to us. We have never said no. <MarginNote arrow="none" className="ml-1">really</MarginNote>
+          If $29 is hard this month, just write to us. We haven't said no yet. <MarginNote arrow="none" className="ml-1">really</MarginNote>
         </p>
       </section>
 
       {/* ---------- FAQ ---------- */}
       <section id="faq" className="border-t border-border bg-surface">
         <div className="mx-auto max-w-3xl px-4 py-20 sm:px-6 lg:py-24">
-          <h2 className="font-display text-3xl text-fg sm:text-4xl">Questions executive directors ask us.</h2>
+          <h2 className="font-display text-3xl text-fg sm:text-4xl">Things executive directors ask us, usually at 9:40 pm.</h2>
           <div className="mt-8 divide-y divide-border">
             {faqs.map((f) => (
               <details key={f.q} className="group py-4">
@@ -301,13 +301,13 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-3xl flex-col items-center px-4 py-24 text-center sm:px-6 lg:py-32">
           <LanternGlyph size={56} className="text-night-fg" />
           <h2 className="mt-6 font-display text-4xl sm:text-5xl">The path is lit. Take one step.</h2>
-          <p className="mt-4 max-w-md text-lg text-night-fg/85">Paste your website. Upload one document. See three grants you could win this month.</p>
+          <p className="mt-4 max-w-md text-lg text-night-fg/85">Paste your website. Upload one document. See three grants you could win this month. We'll be right here.</p>
           <Button asChild size="lg" variant="glow" className="mt-8">
             <Link href="/sign-up">
               See your first matches <ArrowRight aria-hidden />
             </Link>
           </Button>
-          <p className="mt-4 text-sm text-night-fg/70">Twenty minutes. Free. You keep your nights.</p>
+          <p className="mt-4 text-sm text-night-fg/70">About twenty minutes. Free. You keep your nights.</p>
         </div>
       </section>
       <SiteFooter />

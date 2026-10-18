@@ -18,7 +18,7 @@ export function SignUpForm() {
   return (
     <div>
       <h1 className="font-display text-3xl text-fg">Create your workspace</h1>
-      <p className="mt-2 text-base text-fg-muted">Free to start. Your first matches take about twenty minutes.</p>
+      <p className="mt-2 text-base text-fg-muted">Free to start. You'll have your first matches in about twenty minutes.</p>
       <form
         className="mt-8 flex flex-col gap-5"
         onSubmit={async (e) => {
@@ -46,7 +46,7 @@ export function SignUpForm() {
         <Button type="submit" size="lg" loading={loading}>
           Create workspace
         </Button>
-        <p className="text-xs text-fg-subtle">By continuing you agree to the terms and privacy policy. We never train models on your data.</p>
+        <p className="text-xs text-fg-subtle">By continuing you agree to the terms and privacy policy. We never train models on your data, full stop.</p>
       </form>
       <p className="mt-8 text-sm text-fg-muted">
         Already have an account?{" "}

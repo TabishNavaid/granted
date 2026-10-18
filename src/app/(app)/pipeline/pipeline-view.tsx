@@ -102,7 +102,7 @@ export function PipelineView({ initial, members }: { initial: ApplicationView[];
           })}
         </ol>
       </div>
-      <p className="text-xs text-fg-subtle">Drag a card, or use its menu to move it. Marking Submitted schedules a follow-up reminder.</p>
+      <p className="text-xs text-fg-subtle">Drag a card, or use its menu. When you mark one Submitted, we'll set a follow-up reminder so it doesn't drift.</p>
 
       {outcomeFor ? (
         <OutcomeDialog
@@ -113,7 +113,7 @@ export function PipelineView({ initial, members }: { initial: ApplicationView[];
             setApps((list) => list.map((a) => (a.id === next.id ? next : a)));
             setOutcomeFor(null);
             if (result === "won") setWon(next);
-            else toast({ title: "Logged", description: "The planner uses this to pick better matches next time." });
+            else toast({ title: "Logged", description: "Thank you for logging it. It helps us pick better matches next time." });
           }}
         />
       ) : null}
@@ -126,10 +126,10 @@ export function PipelineView({ initial, members }: { initial: ApplicationView[];
               <DialogDescription className="text-base">
                 {won.outcome?.awardAmount ? <span className="font-display text-2xl text-fg tnum">{formatMoney(won.outcome.awardAmount)}</span> : null}
                 {won.outcome?.awardAmount ? <br /> : null}
-                from {won.funder.name}. Somebody read what you wrote and said yes.
+                from {won.funder.name}. Somebody read what you wrote and said yes. Take a breath.
               </DialogDescription>
             </DialogHeader>
-            <p className="text-sm text-fg-muted">The Outreach agent is drafting the thank-you. It lands in your Inbox, and the January update goes on your calendar.</p>
+            <p className="text-sm text-fg-muted">We're drafting the thank-you note now. It'll land in your Inbox, and the January update is already on your calendar.</p>
             <DialogFooter className="sm:justify-center">
               <Button onClick={() => setWon(null)}>Back to the board</Button>
             </DialogFooter>
@@ -228,7 +228,7 @@ function OutcomeDialog({ app, onClose, onSave }: { app: ApplicationView; onClose
         <DialogHeader>
           <DialogTitle>Log the outcome</DialogTitle>
           <DialogDescription>
-            {app.funder.name}: {app.opportunity.title}. Outcomes teach the planner which funders are worth your time.
+            {app.funder.name}: {app.opportunity.title}. Whatever happened, logging it helps us learn which funders are worth your time.
           </DialogDescription>
         </DialogHeader>
         <Field id="outcome-result" label="Result">
@@ -250,7 +250,7 @@ function OutcomeDialog({ app, onClose, onSave }: { app: ApplicationView; onClose
           </Field>
         ) : null}
         <Field id="outcome-feedback" label="What the funder said" optional>
-          <Textarea value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Any feedback, even a sentence." className="min-h-20" />
+          <Textarea value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Anything they said, even one sentence." className="min-h-20" />
         </Field>
         <DialogFooter>
           <Button variant="ghost" onClick={onClose}>

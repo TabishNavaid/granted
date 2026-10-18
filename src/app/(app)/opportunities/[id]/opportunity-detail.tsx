@@ -35,7 +35,7 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
   const start = async () => {
     setStarting(true);
     const app = await services.opportunities.startApplication(opportunity.id);
-    toast({ title: "Application started", description: "The Proposal agent is reading the guidelines. The draft will land in your Inbox." });
+    toast({ title: "On it", description: "We're reading the guidelines now. The draft will land in your Inbox when it's ready." });
     router.push(`/applications/${app.id}`);
   };
   const save = async () => {
@@ -47,7 +47,7 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
   const dismiss = async () => {
     if (!match) return;
     await services.opportunities.setMatchStatus(match.id, "dismissed");
-    toast({ title: "Hidden from your matches", description: "We will not suggest this one again.", tone: "info" });
+    toast({ title: "Tucked away", description: "We won't suggest this one again.", tone: "info" });
     router.push("/opportunities");
   };
 
@@ -249,7 +249,7 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
               ) : (
                 <>
                   <p className="text-sm text-fg-muted">
-                    The Proposal agent reads the guidelines, builds a checklist, and drafts every section from your own facts. You review before anything is submitted.
+                    We'll read the guidelines, build the checklist, and write every section from your own facts. You read it over before anything goes anywhere.
                   </p>
                   <Button onClick={start} loading={starting} className="mt-1">
                     Start application <ArrowRight aria-hidden />
@@ -269,7 +269,7 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
               )}
             </CardContent>
           </Card>
-          <p className="mt-3 px-1 text-xs text-fg-subtle">Nothing is sent to the funder from here. You submit on their portal when you are ready.</p>
+          <p className="mt-3 px-1 text-xs text-fg-subtle">Nothing goes to the funder from here. You submit on their portal when you're ready.</p>
         </aside>
       </div>
     </PageContainer>
