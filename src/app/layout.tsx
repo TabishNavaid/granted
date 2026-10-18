@@ -12,7 +12,7 @@ const display = Newsreader({ subsets: ["latin"], axes: ["opsz"], style: ["normal
 const body = Atkinson_Hyperlegible_Next({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-atkinson", display: "swap", adjustFontFallback: false, fallback: ["Helvetica Neue", "Arial", "sans-serif"] });
 
 export const metadata: Metadata = {
-  title: { default: PRODUCT_NAME, template: `%s – ${PRODUCT_NAME}` },
+  title: { default: PRODUCT_NAME, template: `%s | ${PRODUCT_NAME}` },
   description: PRODUCT_DESCRIPTION,
 };
 

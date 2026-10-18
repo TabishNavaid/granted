@@ -43,10 +43,11 @@ const trust = [
 
 /** A section heading with, at most, one small watercolor plant beside it. Used on three sections, not all of them. */
 function SectionHeading({ plant, className, children }: { plant?: string; className?: string; children: React.ReactNode }) {
+  // The plant stands on the heading's baseline, right beside the last word, never out in the gutter.
   return (
-    <div className="flex items-end justify-between gap-6">
+    <div className="flex items-end gap-5">
       <h2 className={`font-display text-4xl text-ink lg:text-5xl ${className ?? ""}`}>{children}</h2>
-      {plant ? <Drawing asset={drawing(plant)} className="hidden h-24 w-auto shrink-0 opacity-90 sm:block lg:h-28" /> : null}
+      {plant ? <Drawing asset={drawing(plant)} className="hidden h-20 w-auto shrink-0 self-end opacity-90 sm:block lg:h-24" style={{ marginBottom: "0.1em" }} /> : null}
     </div>
   );
 }

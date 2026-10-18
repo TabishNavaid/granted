@@ -69,7 +69,7 @@ function NavBody({ orgName, userName, pendingCount, onNavigate }: SidebarProps &
             <p className="truncate text-xs text-ink-muted">{orgName}</p>
           </div>
         </div>
-        <div className="mt-4 flex flex-col gap-2">
+        <div className="mt-5 flex flex-col gap-2 border-t border-rule pt-4">
           <Link href="/" className="inline-flex min-h-6 w-fit items-center text-sm text-ink-muted underline-offset-4 hover:text-ink hover:underline">
             Sign out
           </Link>

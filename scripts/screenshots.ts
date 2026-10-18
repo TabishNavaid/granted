@@ -1,8 +1,9 @@
 /**
  * Generates the landing page screenshots from the real app running on demo
- * data. Start the dev server first (PORT=3100 npm run dev) or pass BASE_URL.
+ * data. Capture from a production build so no dev tooling lands in the shots:
  *
- *   npx tsx scripts/screenshots.ts
+ *   npm run build && PORT=3100 npm run start   (in one terminal)
+ *   npx tsx scripts/screenshots.ts             (in another)
  */
 import { chromium } from "@playwright/test";
 import sharp from "sharp";
@@ -27,6 +28,8 @@ async function main() {
   const browser = await chromium.launch();
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2, colorScheme: "light", reducedMotion: "reduce" });
   const page = await context.newPage();
+  // The first-visit tour would dim the Inbox under its dialog.
+  await page.addInitScript(() => localStorage.setItem("inbox_tour_seen", "1"));
   for (const s of shots) {
     await page.goto(`${base}${s.path}`, { waitUntil: "networkidle" });
     await page.waitForTimeout(600);
