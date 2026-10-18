@@ -2,14 +2,12 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Check, Clock3, X } from "lucide-react";
 import type { MonthlyPlan, MatchView, PlanItem } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { formatMoney, formatShortDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { FitScore } from "./fit-score";
-import { LanternMark } from "./logo";
+import { InkStamp, stampDate } from "@/components/brand/stamp";
 
 interface PlanCardProps {
   plan: MonthlyPlan;
@@ -22,97 +20,89 @@ interface PlanCardProps {
 
 const effortLabel = { low: "About 2 hours", medium: "About 5 hours", high: "A day or more" };
 
+/** The month's plan as a printed form: numbered rows in priority order, a total, one primary button. */
 export function PlanCard({ plan, matches, onDecision, onApprove, onSkip, leaving }: PlanCardProps) {
   const byOpportunity = React.useMemo(() => Object.fromEntries(Object.values(matches).map((m) => [m.opportunityId, m])), [matches]);
   const kept = plan.items.filter((i) => i.decision === "keep");
   const total = kept.reduce((s, i) => s + i.expectedAward, 0);
   const monthName = new Date(plan.month + "-02").toLocaleDateString("en-US", { month: "long", year: "numeric" });
   return (
-    <section
-      aria-labelledby="plan-title"
-      className={cn(
-        "overflow-hidden rounded-2xl border border-border bg-surface-raised shadow-sm",
-        leaving && "animate-seal",
-      )}
-    >
-      <div className="wash-paper border-b border-border px-5 py-4 sm:px-6">
-        <p className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-glow-text">
-          <LanternMark className="size-3.5" /> This month
-        </p>
-        <h2 id="plan-title" className="mt-1 font-display text-2xl text-fg">
-          Your plan for {monthName}
+    <section aria-labelledby="plan-title" className={cn("sheet relative", leaving && "animate-file-away [animation-delay:750ms]")}>
+      {leaving ? (
+        <div className="pointer-events-none absolute right-4 top-4 z-10 sm:right-8">
+          <InkStamp label="Approved" line={stampDate()} animate size="lg" rotate={-7} />
+        </div>
+      ) : null}
+      <div className="border-b border-ink px-5 py-5 sm:px-7">
+        <p className="text-sm font-semibold text-ink">Your plan for the month</p>
+        <h2 id="plan-title" className="mt-1 font-display text-3xl text-ink">
+          {monthName}
         </h2>
-        <p className="mt-1.5 max-w-2xl text-sm text-fg-muted">{plan.summary}</p>
+        <p className="mt-2 max-w-[65ch] text-base text-ink-muted">{plan.summary}</p>
       </div>
-      <ol className="divide-y divide-border">
+      <ol className="divide-y divide-rule">
         {plan.items.map((item, i) => {
           const m = byOpportunity[item.opportunityId];
           if (!m) return null;
           const skipped = item.decision === "skip";
           return (
-            <li key={item.opportunityId} className={cn("flex gap-4 px-5 py-4 sm:px-6", skipped && "opacity-60")}>
-              <span className="mt-1 hidden size-7 shrink-0 items-center justify-center rounded-full bg-night font-display text-sm text-night-fg sm:flex" aria-hidden>
+            <li key={item.opportunityId} className={cn("grid gap-4 px-5 py-5 sm:grid-cols-[2rem_1fr_auto] sm:px-7", skipped && "opacity-60")}>
+              <span className="font-display text-2xl leading-none text-ink tnum" aria-hidden>
                 {i + 1}
               </span>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
-                  <div className="min-w-0">
-                    <Link href={`/opportunities/${m.opportunityId}`} className={cn("font-medium text-fg hover:underline", skipped && "line-through")}>
-                      {m.opportunity.title}
-                    </Link>
-                    <p className="text-sm text-fg-muted">{m.funder.name}</p>
+              <div className="min-w-0">
+                <Link href={`/opportunities/${m.opportunityId}`} className={cn("font-display text-xl leading-tight text-ink hover:underline hover:decoration-pink hover:decoration-2 hover:underline-offset-4", skipped && "line-through")}>
+                  {m.opportunity.title}
+                </Link>
+                <p className="text-base text-ink-muted">{m.funder.name}</p>
+                <p className="mt-2 max-w-[60ch] text-base text-ink">{item.why}</p>
+                <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-muted">
+                  <div className="flex gap-1.5">
+                    <dt>Your time</dt>
+                    <dd className="font-semibold text-ink">{effortLabel[item.effort]}</dd>
                   </div>
-                  <FitScore score={m.fitScore} size="sm" />
-                </div>
-                <p className="mt-2 text-sm text-fg-muted">{item.why}</p>
-                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-fg-subtle">
-                  <span className="inline-flex items-center gap-1">
-                    <Clock3 className="size-3.5" aria-hidden />
-                    {effortLabel[item.effort]}
-                  </span>
-                  <span>Expected {formatMoney(item.expectedAward, { compact: true })}</span>
-                  {m.opportunity.deadline ? <span>Due {formatShortDate(m.opportunity.deadline)}</span> : <Badge variant="neutral">Rolling</Badge>}
-                  <div className="ml-auto flex items-center gap-1">
-                    <button
-                      type="button"
-                      aria-pressed={!skipped}
-                      onClick={() => onDecision(item.opportunityId, "keep")}
-                      className={cn(
-                        "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
-                        !skipped ? "border-success bg-success-soft text-success-soft-fg" : "border-border text-fg-subtle hover:text-fg",
-                      )}
-                    >
-                      <Check className="size-3" aria-hidden /> Keep
-                    </button>
-                    <button
-                      type="button"
-                      aria-pressed={skipped}
-                      onClick={() => onDecision(item.opportunityId, "skip")}
-                      className={cn(
-                        "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
-                        skipped ? "border-border-strong bg-surface-sunken text-fg" : "border-border text-fg-subtle hover:text-fg",
-                      )}
-                    >
-                      <X className="size-3" aria-hidden /> Skip
-                    </button>
+                  <div className="flex gap-1.5">
+                    <dt>Expected</dt>
+                    <dd className="font-semibold text-ink tnum">{formatMoney(item.expectedAward, { compact: true })}</dd>
                   </div>
+                  <div className="flex gap-1.5">
+                    <dt>Due</dt>
+                    <dd className="font-semibold text-ink">{m.opportunity.deadline ? formatShortDate(m.opportunity.deadline) : "Rolling"}</dd>
+                  </div>
+                </dl>
+                <div className="mt-3 flex items-center gap-2 text-sm">
+                  <button
+                    type="button"
+                    aria-pressed={!skipped}
+                    onClick={() => onDecision(item.opportunityId, "keep")}
+                    className={cn("border px-2.5 py-1 font-semibold transition-colors", !skipped ? "border-ink bg-ink text-paper" : "border-rule-strong text-ink-muted hover:border-ink hover:text-ink")}
+                  >
+                    Keep
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={skipped}
+                    onClick={() => onDecision(item.opportunityId, "skip")}
+                    className={cn("border px-2.5 py-1 font-semibold transition-colors", skipped ? "border-ink bg-ink text-paper" : "border-rule-strong text-ink-muted hover:border-ink hover:text-ink")}
+                  >
+                    Skip
+                  </button>
                 </div>
               </div>
+              <FitScore score={m.fitScore} size="sm" className="sm:justify-self-end" />
             </li>
           );
         })}
       </ol>
-      <div className="flex flex-col gap-3 border-t border-border bg-surface px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <p className="text-sm text-fg-muted">
-          <span className="font-medium text-fg">{kept.length} application{kept.length === 1 ? "" : "s"}</span> kept, up to{" "}
-          <span className="font-medium text-fg tnum">{formatMoney(total)}</span> in reach.
+      <div className="flex flex-col gap-4 border-t border-ink px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
+        <p className="text-base text-ink">
+          <span className="font-semibold">{kept.length} application{kept.length === 1 ? "" : "s"}</span> kept, up to <span className="font-semibold tnum">{formatMoney(total)}</span> in reach.
         </p>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-5">
           <Button variant="ghost" onClick={onSkip}>
             Skip this month
           </Button>
           <Button onClick={onApprove} disabled={kept.length === 0}>
-            <Check aria-hidden />
             Approve plan
           </Button>
         </div>

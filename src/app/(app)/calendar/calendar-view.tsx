@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, isSameDay, isSameMonth, isToday, parseISO, startOfMonth, startOfWeek, subMonths } from "date-fns";
-import { Bell, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { ApplicationView, CalendarEvent, MilestoneKind } from "@/lib/types";
 import { services } from "@/lib/services";
 import { milestoneMeta } from "@/lib/agents/meta";
@@ -15,15 +15,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { MilestoneBadge } from "@/components/app/badges";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/ui/empty-state";
-
-const kindColor: Record<MilestoneKind, string> = {
-  deadline: "bg-danger",
-  draft_due: "bg-accent",
-  board_review: "bg-info",
-  budget_signoff: "bg-warning",
-  submit: "bg-success",
-  follow_up: "bg-fg-subtle",
-};
 
 export function CalendarView({ initial, applications, reminderDays }: { initial: CalendarEvent[]; applications: ApplicationView[]; reminderDays: number }) {
   const [events, setEvents] = React.useState(initial);
@@ -63,10 +54,10 @@ export function CalendarView({ initial, applications, reminderDays }: { initial:
       />
 
       {mode === "month" ? (
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_18rem]">
+        <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_18rem]">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 className="font-display text-2xl text-fg">{format(month, "MMMM yyyy")}</h2>
+              <h2 className="font-display text-2xl text-ink">{format(month, "MMMM yyyy")}</h2>
               <div className="flex items-center gap-1">
                 <Button variant="ghost" size="sm" onClick={() => setMonth(startOfMonth(new Date()))}>
                   Today
@@ -79,10 +70,10 @@ export function CalendarView({ initial, applications, reminderDays }: { initial:
                 </Button>
               </div>
             </div>
-            <div className="mt-4 overflow-hidden rounded-lg border border-border bg-surface" role="grid" aria-label={`${format(month, "MMMM yyyy")} calendar`}>
-              <div className="grid grid-cols-7 border-b border-border bg-surface-sunken/60" role="row">
+            <div className="mt-4 border-t-2 border-ink border-l border-rule" role="grid" aria-label={`${format(month, "MMMM yyyy")} calendar`}>
+              <div className="grid grid-cols-7" role="row">
                 {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-                  <div key={d} role="columnheader" className="px-2 py-1.5 text-center text-2xs font-medium uppercase tracking-wide text-fg-subtle">
+                  <div key={d} role="columnheader" className="border-b border-ink bg-paper-tint px-2 py-1.5 text-xs font-semibold text-ink">
                     {d}
                   </div>
                 ))}
@@ -101,56 +92,56 @@ export function CalendarView({ initial, applications, reminderDays }: { initial:
                       aria-label={`${format(d, "EEEE, MMMM d")}${list.length ? `, ${list.length} item${list.length === 1 ? "" : "s"}` : ""}`}
                       onClick={() => setSelected(d)}
                       className={cn(
-                        "flex min-h-[4.5rem] flex-col items-start gap-1 border-b border-r border-border p-1.5 text-left transition-colors hover:bg-surface-hover sm:min-h-[6rem]",
-                        !inMonth && "bg-surface-sunken/40 text-fg-subtle",
-                        sel && "bg-accent-soft/50",
+                        "flex min-h-[4.5rem] flex-col items-start gap-1 border-b border-r border-rule p-1.5 text-left transition-colors hover:bg-paper-hover sm:min-h-[6rem]",
+                        !inMonth && "bg-paper-tint text-ink-muted",
+                        sel && "bg-paper-tint",
                       )}
                     >
-                      <span className={cn("inline-flex size-6 items-center justify-center rounded-full text-xs tnum", isToday(d) && "bg-accent font-semibold text-accent-fg")}>{format(d, "d")}</span>
+                      <span className={cn("text-xs tnum", isToday(d) && "font-semibold text-ink underline decoration-2 underline-offset-4")}>{format(d, "d")}</span>
                       <span className="flex w-full flex-col gap-0.5">
                         {list.slice(0, 3).map((e) => (
-                          <span key={e.id} className={cn("hidden truncate rounded px-1 text-2xs leading-4 sm:block", e.done ? "text-fg-subtle line-through" : "text-fg", e.kind === "deadline" ? "bg-danger-soft text-danger-soft-fg" : "bg-surface-sunken")}>
+                          <span key={e.id} className={cn("hidden truncate text-xs sm:block", e.done ? "text-ink-muted line-through" : e.kind === "deadline" ? "font-semibold text-burgundy" : "text-ink")}>
                             {e.title}
                           </span>
                         ))}
-                        <span className="flex gap-0.5 sm:hidden">
+                        <span className="flex gap-1 sm:hidden">
                           {list.slice(0, 4).map((e) => (
-                            <span key={e.id} className={cn("size-1.5 rounded-full", kindColor[e.kind])} aria-hidden />
+                            <span key={e.id} className={cn("size-1.5", e.kind === "deadline" ? "bg-burgundy" : "bg-ink")} aria-hidden />
                           ))}
                         </span>
-                        {list.length > 3 ? <span className="hidden text-2xs text-fg-subtle sm:block">+{list.length - 3} more</span> : null}
+                        {list.length > 3 ? <span className="hidden text-xs text-ink-muted sm:block">{list.length - 3} more</span> : null}
                       </span>
                     </button>
                   );
                 })}
               </div>
             </div>
-            <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-fg-subtle" aria-label="Legend">
+            <ul className="mt-4 flex flex-wrap gap-2" aria-label="Legend">
               {(Object.keys(milestoneMeta) as MilestoneKind[]).map((k) => (
-                <li key={k} className="inline-flex items-center gap-1.5">
-                  <span className={cn("size-2 rounded-full", kindColor[k])} aria-hidden /> {milestoneMeta[k].label}
+                <li key={k}>
+                  <MilestoneBadge kind={k} />
                 </li>
               ))}
             </ul>
           </div>
           <aside className="min-w-0 lg:sticky lg:top-6 lg:self-start">
-            <h3 className="font-display text-lg text-fg">{selected ? format(selected, "EEEE, MMMM d") : "Next up"}</h3>
+            <h3 className="font-display text-xl text-ink">{selected ? format(selected, "EEEE, MMMM d") : "Next up"}</h3>
             <DayList events={selected ? byDay(selected) : upcoming.slice(0, 6)} appTitle={appTitle} onToggle={toggle} emptyText={selected ? "Nothing planned this day. Enjoy it." : "Nothing coming up."} />
             {selected ? (
-              <Button variant="link" size="sm" className="mt-2" onClick={() => setSelected(null)}>
+              <Button variant="link" size="sm" className="mt-3" onClick={() => setSelected(null)}>
                 Show next up
               </Button>
             ) : null}
           </aside>
         </div>
       ) : (
-        <div className="mt-6 flex flex-col gap-8">
+        <div className="mt-8 flex flex-col gap-10">
           {Object.keys(grouped).length === 0 ? (
             <EmptyState title="Nothing on the calendar yet" description="Approve a schedule in your Inbox and the milestones show up here." />
           ) : (
             Object.entries(grouped).map(([label, list]) => (
               <section key={label} aria-labelledby={`m-${label}`}>
-                <h2 id={`m-${label}`} className="font-display text-2xl text-fg">
+                <h2 id={`m-${label}`} className="font-display text-2xl text-ink">
                   {label}
                 </h2>
                 <DayList events={list} appTitle={appTitle} onToggle={toggle} showDate emptyText="" />
@@ -159,37 +150,52 @@ export function CalendarView({ initial, applications, reminderDays }: { initial:
           )}
         </div>
       )}
-      <p className="mt-6 flex items-center gap-1.5 text-xs text-fg-subtle">
-        <Bell className="size-3.5" aria-hidden /> Change reminder timing in Settings.
+      <p className="mt-8 text-sm text-ink-muted">
+        Change reminder timing in{" "}
+        <Link href="/settings?tab=notifications" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-pink">
+          Settings
+        </Link>
+        .
       </p>
     </PageContainer>
   );
 }
 
+function relativeLabel(d: number) {
+  if (d === 0) return "Today";
+  if (d === 1) return "Tomorrow";
+  if (d < 0) return `${-d} days ago`;
+  return `In ${d} days`;
+}
+
 function DayList({ events, appTitle, onToggle, showDate, emptyText }: { events: CalendarEvent[]; appTitle: (id: string) => string; onToggle: (e: CalendarEvent, done: boolean) => void; showDate?: boolean; emptyText: string }) {
-  if (events.length === 0) return <p className="mt-3 text-sm text-fg-subtle">{emptyText}</p>;
+  if (events.length === 0) return <p className="mt-3 text-base text-ink-muted">{emptyText}</p>;
   return (
-    <ul className="mt-3 flex flex-col gap-2">
+    <ul className="mt-3 border-t border-rule">
       {events.map((e) => {
         const d = daysUntil(e.date);
+        const soon = !e.done && d >= 0 && d <= 7;
+        const passed = !e.done && d < 0;
         return (
-          <li key={e.id} className={cn("flex items-start gap-3 rounded-md border border-border bg-surface p-3", e.done && "opacity-60")}>
+          <li key={e.id} className="flex items-start gap-3 border-b border-rule py-3">
             {e.kind !== "deadline" ? (
-              <Checkbox id={`ev-${e.id}`} checked={e.done} onCheckedChange={(c) => onToggle(e, c === true)} aria-label={`Mark ${e.title} done`} className="mt-0.5" />
+              <Checkbox id={`ev-${e.id}`} checked={e.done} onCheckedChange={(c) => onToggle(e, c === true)} aria-label={`Mark ${e.title} done`} className="mt-1" />
             ) : (
-              <span className="mt-1.5 size-2.5 shrink-0 rounded-full bg-danger" aria-hidden />
+              <span className="ml-1.5 mr-1.5 mt-2.5 size-2 shrink-0 bg-burgundy" aria-hidden />
             )}
             <div className="min-w-0 flex-1">
-              <label htmlFor={e.kind !== "deadline" ? `ev-${e.id}` : undefined} className={cn("block text-sm font-medium text-fg", e.done && "line-through")}>
+              <label htmlFor={e.kind !== "deadline" ? `ev-${e.id}` : undefined} className={cn("block text-base font-semibold text-ink", e.done && "text-ink-muted line-through")}>
                 {e.title}
               </label>
-              <Link href={`/applications/${e.applicationId}`} className="block truncate text-xs text-fg-muted hover:underline">
+              <Link href={`/applications/${e.applicationId}`} className="block truncate text-sm text-ink-muted underline-offset-2 hover:text-ink hover:underline">
                 {e.funderName}: {appTitle(e.applicationId)}
               </Link>
-              <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-fg-subtle">
+              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink-muted">
                 <MilestoneBadge kind={e.kind} />
                 {showDate ? <span>{formatDate(e.date, "EEE, MMM d")}</span> : null}
-                {!e.done ? <span className={cn(d <= 3 && "text-danger", d > 3 && d <= 10 && "text-warning")}>{d === 0 ? "Today" : d === 1 ? "Tomorrow" : d < 0 ? `${-d} days ago` : `In ${d} days`}</span> : null}
+                {!e.done ? (
+                  <span className={cn(passed && "font-semibold text-burgundy")}>{soon ? <mark className="highlight">{relativeLabel(d)}</mark> : relativeLabel(d)}</span>
+                ) : null}
               </div>
             </div>
           </li>

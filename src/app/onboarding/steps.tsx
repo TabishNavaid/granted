@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const steps = [
@@ -12,41 +11,35 @@ const steps = [
   { href: "/onboarding/matches", label: "First matches" },
 ];
 
+/** Setup progress as a printed line: a number and a word per step, the current one underlined in ink. */
 export function OnboardingSteps() {
   const pathname = usePathname();
   const current = Math.max(0, steps.findIndex((s) => s.href === pathname));
   return (
     <nav aria-label="Setup progress">
-      <ol className="flex items-center gap-2 sm:gap-3">
+      <ol className="hidden items-baseline gap-6 border-b border-rule pb-3 md:flex">
         {steps.map((s, i) => {
           const done = i < current;
           const active = i === current;
           return (
-            <li key={s.href} className={cn("flex min-w-0 items-center gap-2 sm:gap-3", i < steps.length - 1 ? "flex-1 basis-0" : "shrink-0")}>
-              <span
-                className={cn(
-                  "inline-flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
-                  done && "bg-accent text-accent-fg",
-                  active && "bg-accent-soft text-accent-soft-fg ring-2 ring-accent",
-                  !done && !active && "bg-surface-sunken text-fg-subtle",
-                )}
-                aria-hidden
-              >
-                {done ? <Check className="size-3.5" /> : i + 1}
+            <li
+              key={s.href}
+              aria-current={active ? "step" : undefined}
+              className={cn("flex items-baseline gap-2 text-base", active ? "-mb-[13px] border-b-2 border-ink pb-3 font-semibold text-ink" : "text-ink-muted")}
+            >
+              <span className="font-display text-lg tnum" aria-hidden>
+                {i + 1}
               </span>
-              <span className={cn("hidden truncate text-sm md:inline", active ? "font-medium text-fg" : "text-fg-subtle")} aria-current={active ? "step" : undefined}>
-                {s.label}
-              </span>
+              <span aria-hidden>{s.label}</span>
               <span className="sr-only">
                 {s.label}, {done ? "complete" : active ? "current step" : "not started"}
               </span>
-              {i < steps.length - 1 ? <span className={cn("h-px flex-1", done ? "bg-accent" : "bg-border")} aria-hidden /> : null}
             </li>
           );
         })}
       </ol>
-      <p className="mt-2 text-sm text-fg-muted md:hidden">
-        Step {current + 1} of {steps.length}: {steps[current].label}
+      <p className="border-b border-rule pb-3 text-base text-ink md:hidden">
+        Step {current + 1} of {steps.length}: <span className="font-semibold">{steps[current].label}</span>
       </p>
     </nav>
   );

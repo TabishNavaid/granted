@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { Compass } from "lucide-react";
 import type { MatchView } from "@/lib/types";
 import { PageContainer, PageHeader } from "@/components/app/page-header";
 import { OpportunityCard } from "@/components/app/opportunity-card";
@@ -40,23 +39,23 @@ export function OpportunitiesView({ matches }: { matches: MatchView[] }) {
         title="Opportunities"
         description={`${matches.length} funders you can actually apply to, ranked by fit. We last looked on ${formatDate(lastScan)} and we'll look again Monday.`}
       />
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <Tabs value={scope} onValueChange={(v) => setScope(v as Scope)}>
           <TabsList variant="pill" aria-label="Filter matches">
             <TabsTrigger value="all">All</TabsTrigger>
             <TabsTrigger value="new">
-              New {newCount ? <span className="text-xs text-fg-subtle tnum">{newCount}</span> : null}
+              New {newCount ? <span className="text-sm text-ink-muted tnum">{newCount}</span> : null}
             </TabsTrigger>
             <TabsTrigger value="eligible">Fully eligible</TabsTrigger>
             <TabsTrigger value="pipeline">In pipeline</TabsTrigger>
           </TabsList>
         </Tabs>
-        <div className="flex items-center gap-2">
-          <Label htmlFor="sort" className="text-fg-subtle">
+        <div className="flex items-center gap-3">
+          <Label htmlFor="sort" className="shrink-0 text-sm font-normal text-ink-muted">
             Sort by
           </Label>
           <Select value={sort} onValueChange={(v) => setSort(v as Sort)}>
-            <SelectTrigger id="sort" className="h-9 w-40">
+            <SelectTrigger id="sort" className="h-10 w-44">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -69,14 +68,9 @@ export function OpportunitiesView({ matches }: { matches: MatchView[] }) {
       </div>
 
       {sorted.length === 0 ? (
-        <EmptyState
-          className="mt-6"
-          icon={<Compass />}
-          title="No matches here"
-          description="Try another filter. New matches show up every Monday and we'll put them in your Inbox."
-        />
+        <EmptyState className="mt-6" title="No matches here" description="Try another filter. New matches show up every Monday and we'll put them in your Inbox." />
       ) : (
-        <ul className="mt-6 flex flex-col gap-4">
+        <ul className="mt-6 border-b border-rule">
           {sorted.map((m) => (
             <li key={m.id}>
               <OpportunityCard match={m} />
@@ -85,9 +79,6 @@ export function OpportunitiesView({ matches }: { matches: MatchView[] }) {
         </ul>
       )}
 
-      <p className="mt-8 text-sm text-fg-subtle">
-        Every funder here comes from a page we checked ourselves. Anything you can't apply for never makes it to this list.
-      </p>
     </PageContainer>
   );
 }

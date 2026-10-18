@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { Copy, Download, FileText, Printer } from "lucide-react";
 import type { ApplicationView, Section } from "@/lib/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -38,8 +37,10 @@ function buildDocument(app: ApplicationView, sections: Section[]) {
     .join("\n");
   return `<!doctype html><html><head><meta charset="utf-8"><title>${app.opportunity.title}</title>
 <style>body{font-family:Georgia,serif;font-size:11.5pt;line-height:1.5;max-width:7in;margin:1in auto;color:#111}h1{font-size:18pt;margin-bottom:0}h2{font-size:13pt;margin-top:1.4em}p{margin:0 0 .8em}</style></head>
-<body><h1>${app.opportunity.title}</h1><p>${app.funder.name} · Riverbend Youth Collective</p>${body}</body></html>`;
+<body><h1>${app.opportunity.title}</h1><p>${app.funder.name} for Riverbend Youth Collective</p>${body}</body></html>`;
 }
+
+const fileOptionClasses = "flex flex-col gap-1 border border-ink p-4 text-left transition-colors hover:bg-paper-tint disabled:opacity-60";
 
 export function ExportDialog({ open, onOpenChange, app, sections }: { open: boolean; onOpenChange: (o: boolean) => void; app: ApplicationView; sections: Section[] }) {
   const { toast } = useToast();
@@ -58,7 +59,7 @@ export function ExportDialog({ open, onOpenChange, app, sections }: { open: bool
     a.click();
     URL.revokeObjectURL(url);
     setBusy(null);
-    toast({ title: "Word file downloaded", description: "Open it in Word or Google Docs. Anything still missing is marked NEED so it can't slip past you." });
+    toast({ title: "Word file downloaded", description: "Open it in Word or Google Docs. Anything still missing is marked NEED so it cannot slip past you." });
   };
   const print = async () => {
     setBusy("pdf");
@@ -86,54 +87,38 @@ export function ExportDialog({ open, onOpenChange, app, sections }: { open: bool
       <DialogContent size="lg">
         <DialogHeader>
           <DialogTitle>Export proposal</DialogTitle>
-          <DialogDescription>We take the citation chips out on export. Anything you haven't answered shows up as a NEED placeholder, so nothing gets invented on the way out the door.</DialogDescription>
+          <DialogDescription>We take the citation chips out on export. Anything you have not answered shows up as a NEED placeholder, so nothing gets invented on the way out the door.</DialogDescription>
         </DialogHeader>
         <Tabs defaultValue="files">
-          <TabsList>
+          <TabsList variant="line">
             <TabsTrigger value="files">Files</TabsTrigger>
             <TabsTrigger value="fields">Copy per field</TabsTrigger>
           </TabsList>
-          <TabsContent value="files" className="grid gap-3 sm:grid-cols-2">
-            <button
-              type="button"
-              onClick={download}
-              disabled={busy !== null}
-              className="flex flex-col items-start gap-2 rounded-lg border border-border bg-surface p-4 text-left transition-colors hover:border-border-strong hover:bg-surface-hover disabled:opacity-60"
-            >
-              <FileText className="size-5 text-accent" aria-hidden />
-              <span className="font-medium text-fg">Word document</span>
-              <span className="text-sm text-fg-muted">For funders who want an attachment. Opens in Word and Google Docs.</span>
-              <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-accent">
-                <Download className="size-3.5" aria-hidden /> {busy === "docx" ? "Preparing..." : "Download .doc"}
-              </span>
+          <TabsContent value="files" className="grid gap-4 sm:grid-cols-2">
+            <button type="button" onClick={download} disabled={busy !== null} className={fileOptionClasses}>
+              <span className="font-display text-lg text-ink">Word document</span>
+              <span className="text-sm text-ink-muted">For funders who want an attachment. Opens in Word and Google Docs.</span>
+              <span className="mt-1 text-sm font-semibold text-ink underline decoration-[1.5px] underline-offset-4">{busy === "docx" ? "Preparing" : "Download .doc"}</span>
             </button>
-            <button
-              type="button"
-              onClick={print}
-              disabled={busy !== null}
-              className="flex flex-col items-start gap-2 rounded-lg border border-border bg-surface p-4 text-left transition-colors hover:border-border-strong hover:bg-surface-hover disabled:opacity-60"
-            >
-              <Printer className="size-5 text-accent" aria-hidden />
-              <span className="font-medium text-fg">PDF</span>
-              <span className="text-sm text-fg-muted">Opens a print view. Choose Save as PDF in the print dialog.</span>
-              <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-accent">
-                <Download className="size-3.5" aria-hidden /> Print to PDF
-              </span>
+            <button type="button" onClick={print} disabled={busy !== null} className={fileOptionClasses}>
+              <span className="font-display text-lg text-ink">PDF</span>
+              <span className="text-sm text-ink-muted">Opens a print view. Choose Save as PDF in the print dialog.</span>
+              <span className="mt-1 text-sm font-semibold text-ink underline decoration-[1.5px] underline-offset-4">Print to PDF</span>
             </button>
           </TabsContent>
           <TabsContent value="fields">
-            <p className="mb-3 text-sm text-fg-muted">For the portals with one box per question. Copy each section into its field and you're done.</p>
-            <ul className="flex max-h-80 flex-col gap-2 overflow-y-auto pr-1">
+            <p className="mb-3 text-sm text-ink-muted">For the portals with one box per question. Copy each section into its field and you are done.</p>
+            <ul className="max-h-80 overflow-y-auto border-t border-rule pr-1">
               {sections.map((s) => {
                 const text = toPlainText(s.bodyHtml);
                 return (
-                  <li key={s.id} className="flex items-center gap-3 rounded-md border border-border bg-surface px-3 py-2">
+                  <li key={s.id} className="flex items-center gap-3 border-b border-rule py-2">
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-fg">{s.title}</p>
-                      <p className="truncate text-xs text-fg-subtle">{text ? text.slice(0, 90) : "Not written yet"}</p>
+                      <p className="text-sm font-semibold text-ink">{s.title}</p>
+                      <p className="truncate text-xs text-ink-muted">{text ? text.slice(0, 90) : "Not written yet"}</p>
                     </div>
                     <Button variant="secondary" size="sm" onClick={() => copy(s.id, text)} disabled={!text}>
-                      <Copy aria-hidden /> {copied === s.id ? "Copied" : "Copy"}
+                      {copied === s.id ? "Copied" : "Copy"}
                     </Button>
                   </li>
                 );

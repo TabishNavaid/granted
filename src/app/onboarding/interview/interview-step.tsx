@@ -2,11 +2,11 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/input";
-import { AgentMark } from "@/components/app/badges";
 import { Avatar } from "@/components/ui/avatar";
+import { PRODUCT_NAME } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
 const questions = [
@@ -17,16 +17,18 @@ const questions = [
 
 interface Msg {
   id: string;
-  from: "agent" | "you";
+  from: "product" | "you";
   text: string;
   why?: string;
 }
 
+const topics = ["Budget", "Geography", "A result you are proud of"];
+
 export function InterviewStep() {
   const router = useRouter();
   const [messages, setMessages] = React.useState<Msg[]>([
-    { id: "intro", from: "agent", text: "Hi, I'm the one who read riverbendyouth.org and the documents you added. I've got three quick questions to fill in the gaps, and then you can check everything." },
-    { id: questions[0].id, from: "agent", text: questions[0].text, why: questions[0].why },
+    { id: "intro", from: "product", text: "Hi, I'm the one who read riverbendyouth.org and the documents you added. I've got three quick questions to fill in the gaps, and then you can check everything." },
+    { id: questions[0].id, from: "product", text: questions[0].text, why: questions[0].why },
   ]);
   const [step, setStep] = React.useState(0);
   const [draft, setDraft] = React.useState("");
@@ -50,9 +52,9 @@ export function InterviewStep() {
       setTyping(false);
       if (nextStep < questions.length) {
         const q = questions[nextStep];
-        setMessages((m) => [...m, { id: q.id, from: "agent", text: q.text, why: q.why }]);
+        setMessages((m) => [...m, { id: q.id, from: "product", text: q.text, why: q.why }]);
       } else {
-        setMessages((m) => [...m, { id: "done", from: "agent", text: "That's everything. I put your profile and facts together on the next page. Have a look, especially at the numbers. You know them better than I do." }]);
+        setMessages((m) => [...m, { id: "done", from: "product", text: "That's everything. I put your profile and facts together on the next page. Have a look, especially at the numbers. You know them better than I do." }]);
       }
     }, 900);
   };
@@ -60,25 +62,34 @@ export function InterviewStep() {
   return (
     <div className="grid gap-10 lg:grid-cols-[1fr_18rem]">
       <div>
-        <h1 className="font-display text-3xl text-fg sm:text-4xl">A few questions.</h1>
-        <p className="mt-3 max-w-xl text-base text-fg-muted">Short answers are fine. You can change anything later, really.</p>
-        <div className="mt-8 rounded-lg border border-border bg-surface">
-          <div role="log" aria-live="polite" aria-label="Interview" className="flex max-h-[28rem] min-h-[20rem] flex-col gap-4 overflow-y-auto p-4 sm:p-5">
-            {messages.map((m) => (
-              <div key={m.id} className={cn("flex gap-3", m.from === "you" && "flex-row-reverse")}>
-                {m.from === "agent" ? <AgentMark agent="profile" size="sm" className="mt-0.5" /> : <Avatar name="Dana Okafor" size="sm" className="mt-0.5" />}
-                <div className={cn("max-w-[85%] rounded-lg px-3.5 py-2.5 text-sm leading-relaxed", m.from === "agent" ? "bg-surface-sunken text-fg" : "bg-accent text-accent-fg")}>
-                  <p>{m.text}</p>
-                  {m.why ? <p className="mt-1.5 text-xs text-fg-subtle">Why we ask: {m.why}</p> : null}
+        <h1 className="font-display text-h1 text-ink">A few questions.</h1>
+        <p className="mt-4 max-w-[60ch] text-lg text-ink-muted">Short answers are fine. You can change anything later, really.</p>
+        <div className="sheet mt-8">
+          <div role="log" aria-live="polite" aria-label="Interview" className="flex max-h-[28rem] min-h-[20rem] flex-col gap-5 overflow-y-auto p-4 sm:p-5">
+            {messages.map((m) =>
+              m.from === "product" ? (
+                <div key={m.id} className="flex max-w-[85%] flex-col gap-1">
+                  <span className="text-xs font-semibold text-ink">{PRODUCT_NAME}</span>
+                  <div className="border border-rule bg-paper-tint px-4 py-3 text-base text-ink">
+                    <p>{m.text}</p>
+                    {m.why ? <p className="mt-2 text-sm text-ink-muted">Why we ask: {m.why}</p> : null}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ) : (
+                <div key={m.id} className="flex flex-row-reverse items-start gap-3">
+                  <Avatar name="Dana Okafor" size="sm" className="mt-0.5" />
+                  <div className="max-w-[85%] bg-ink px-4 py-3 text-base text-paper">
+                    <p>{m.text}</p>
+                  </div>
+                </div>
+              ),
+            )}
             {typing ? (
-              <div className="flex gap-3">
-                <AgentMark agent="profile" size="sm" />
-                <div className="flex items-center gap-1 rounded-lg bg-surface-sunken px-3.5 py-3" aria-label="Agent is typing">
+              <div className="flex max-w-[85%] flex-col gap-1">
+                <span className="text-xs font-semibold text-ink">{PRODUCT_NAME}</span>
+                <div className="flex w-fit items-center gap-1.5 border border-rule bg-paper-tint px-4 py-4" aria-label={`${PRODUCT_NAME} is typing`}>
                   {[0, 1, 2].map((i) => (
-                    <span key={i} className="size-1.5 animate-pulse rounded-full bg-fg-subtle" style={{ animationDelay: `${i * 150}ms` }} />
+                    <span key={i} className="size-1.5 animate-pulse bg-ink" style={{ animationDelay: `${i * 150}ms` }} />
                   ))}
                 </div>
               </div>
@@ -86,7 +97,7 @@ export function InterviewStep() {
             <div ref={endRef} />
           </div>
           <form
-            className="flex items-end gap-2 border-t border-border p-3"
+            className="flex items-end gap-2 border-t border-ink p-3"
             onSubmit={(e) => {
               e.preventDefault();
               send();
@@ -105,7 +116,7 @@ export function InterviewStep() {
                   send();
                 }
               }}
-              placeholder={done ? "All done" : "Type your answer. Enter to send, Shift+Enter for a new line."}
+              placeholder={done ? "All done" : "Type your answer"}
               disabled={done}
               className="min-h-11 flex-1 resize-none"
               rows={1}
@@ -117,7 +128,7 @@ export function InterviewStep() {
         </div>
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <Button size="lg" onClick={() => router.push("/onboarding/profile")} disabled={!done}>
-            Check my profile <ArrowRight aria-hidden />
+            Check my profile
           </Button>
           {!done ? (
             <Button variant="ghost" size="lg" onClick={() => router.push("/onboarding/profile")}>
@@ -126,18 +137,25 @@ export function InterviewStep() {
           ) : null}
         </div>
       </div>
-      <aside className="rounded-lg border border-border bg-surface p-5 text-sm text-fg-muted lg:self-start">
-        <p className="font-medium text-fg">Progress</p>
-        <ol className="mt-3 flex flex-col gap-2">
-          {questions.map((q, i) => (
-            <li key={q.id} className="flex items-center gap-2">
-              <span className={cn("size-2 rounded-full", i < step ? "bg-accent" : i === step ? "bg-warning" : "bg-border-strong")} aria-hidden />
-              <span className={cn(i < step && "line-through")}>
-                {i === 0 ? "Budget" : i === 1 ? "Geography" : "A result you are proud of"}
-              </span>
-              <span className="sr-only">{i < step ? ", answered" : i === step ? ", current" : ", not yet"}</span>
-            </li>
-          ))}
+      <aside className="border-l-2 border-ink pl-5 text-base text-ink-muted lg:self-start">
+        <h2 className="font-display text-xl text-ink">Progress</h2>
+        <ol className="mt-3 flex flex-col divide-y divide-rule border-y border-rule">
+          {questions.map((q, i) => {
+            const state = i < step ? "answered" : i === step ? "now" : "next";
+            return (
+              <li key={q.id} className="flex items-baseline justify-between gap-4 py-2">
+                <span className={cn(state === "answered" && "line-through", state === "now" && "font-semibold text-ink")}>{topics[i]}</span>
+                {state === "answered" ? <span className="text-sm text-ink-muted">Answered</span> : null}
+                {state === "now" ? (
+                  <span className="text-sm font-semibold">
+                    <mark className="highlight">Now</mark>
+                  </span>
+                ) : null}
+                {state === "next" ? <span className="text-sm text-ink-muted">Next</span> : null}
+                <span className="sr-only">{i < step ? ", answered" : i === step ? ", current" : ", not yet"}</span>
+              </li>
+            );
+          })}
         </ol>
       </aside>
     </div>

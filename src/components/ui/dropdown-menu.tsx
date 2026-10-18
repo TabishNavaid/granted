@@ -18,10 +18,7 @@ const DropdownMenuContent = React.forwardRef<
     <DropdownMenuPrimitive.Content
       ref={ref}
       sideOffset={sideOffset}
-      className={cn(
-        "z-50 min-w-[10rem] overflow-hidden rounded-md border border-border bg-surface-raised p-1 text-fg shadow-md animate-fade-in",
-        className,
-      )}
+      className={cn("sheet-raised-sm z-50 min-w-[10rem] overflow-hidden p-1 text-ink animate-sheet-in", className)}
       {...props}
     />
   </DropdownMenuPrimitive.Portal>
@@ -29,17 +26,13 @@ const DropdownMenuContent = React.forwardRef<
 DropdownMenuContent.displayName = "DropdownMenuContent";
 
 const itemClasses =
-  "relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-2 text-sm outline-none transition-colors data-[highlighted]:bg-surface-hover data-[disabled]:opacity-50 [&_svg]:size-4 [&_svg]:text-fg-subtle";
+  "relative flex cursor-default select-none items-center gap-2 px-2.5 py-2 text-sm outline-none transition-colors data-[highlighted]:bg-paper-tint data-[disabled]:opacity-50 [&_svg]:size-4 [&_svg]:text-ink-muted";
 
 const DropdownMenuItem = React.forwardRef<
   React.ComponentRef<typeof DropdownMenuPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item> & { destructive?: boolean }
 >(({ className, destructive, ...props }, ref) => (
-  <DropdownMenuPrimitive.Item
-    ref={ref}
-    className={cn(itemClasses, destructive && "text-danger data-[highlighted]:bg-danger-soft [&_svg]:text-danger", className)}
-    {...props}
-  />
+  <DropdownMenuPrimitive.Item ref={ref} className={cn(itemClasses, destructive && "text-burgundy [&_svg]:text-burgundy", className)} {...props} />
 ));
 DropdownMenuItem.displayName = "DropdownMenuItem";
 
@@ -50,7 +43,7 @@ const DropdownMenuRadioItem = React.forwardRef<
   <DropdownMenuPrimitive.RadioItem ref={ref} className={cn(itemClasses, "pl-8", className)} {...props}>
     <span className="absolute left-2 flex size-4 items-center justify-center">
       <DropdownMenuPrimitive.ItemIndicator>
-        <Check className="size-4 !text-accent" aria-hidden />
+        <Check className="size-4 !text-ink" aria-hidden />
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
     {children}
@@ -59,10 +52,11 @@ const DropdownMenuRadioItem = React.forwardRef<
 DropdownMenuRadioItem.displayName = "DropdownMenuRadioItem";
 
 const DropdownMenuLabel = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Label>) => (
-  <DropdownMenuPrimitive.Label className={cn("px-2 py-1.5 text-xs font-medium text-fg-subtle", className)} {...props} />
+  <DropdownMenuPrimitive.Label className={cn("px-2.5 py-1.5 text-xs text-ink-muted", className)} {...props} />
 );
+
 const DropdownMenuSeparator = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Separator>) => (
-  <DropdownMenuPrimitive.Separator className={cn("-mx-1 my-1 h-px bg-border", className)} {...props} />
+  <DropdownMenuPrimitive.Separator className={cn("-mx-1 my-1 h-px bg-rule", className)} {...props} />
 );
 
 export {
@@ -72,7 +66,7 @@ export {
   DropdownMenuItem,
   DropdownMenuRadioItem,
   DropdownMenuRadioGroup,
+  DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuGroup,
 };

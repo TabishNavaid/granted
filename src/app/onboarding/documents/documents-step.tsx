@@ -3,9 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, FileText, FileUp, Trash2, UploadCloud } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
@@ -34,8 +33,8 @@ export function DocumentsStep() {
   return (
     <div className="grid gap-10 lg:grid-cols-[1fr_18rem]">
       <div>
-        <h1 className="font-display text-3xl text-fg sm:text-4xl">Add one to three documents.</h1>
-        <p className="mt-3 max-w-xl text-base text-fg-muted">An annual report, an old proposal, or a 990 gives us real numbers to cite. It's optional, but honestly, the drafts are much better with them.</p>
+        <h1 className="font-display text-h1 text-ink">Add one to three documents.</h1>
+        <p className="mt-4 max-w-[60ch] text-lg text-ink-muted">An annual report, an old proposal, or a 990 gives us real numbers to cite. It's optional, but honestly, the drafts are much better with them.</p>
         <div
           onDragOver={(e) => {
             e.preventDefault();
@@ -47,31 +46,31 @@ export function DocumentsStep() {
             setDragOver(false);
             if (e.dataTransfer.files.length) add(e.dataTransfer.files);
           }}
-          className={cn("mt-8 flex flex-col items-center justify-center rounded-lg border-2 border-dashed px-6 py-12 text-center transition-colors", dragOver ? "border-accent bg-accent-soft/40" : "border-border-strong bg-surface")}
+          className={cn("mt-8 flex flex-col items-center justify-center border-2 border-dashed border-ink px-6 py-12 text-center transition-colors", dragOver ? "bg-paper-tint" : "bg-paper")}
         >
-          <UploadCloud className="size-7 text-accent" aria-hidden />
-          <p className="mt-3 font-medium text-fg">Drop files here</p>
-          <p className="mt-1 text-sm text-fg-muted">PDF, Word, or Excel up to 25 MB each</p>
+          <p className="font-display text-xl text-ink">Drop files here</p>
+          <p className="mt-1 text-sm text-ink-muted">PDF, Word, or Excel up to 25 MB each</p>
           <input ref={inputRef} type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx" className="sr-only" id="onb-upload" onChange={(e) => e.target.files && add(e.target.files)} aria-label="Choose documents" />
-          <Button type="button" variant="secondary" className="mt-4" onClick={() => inputRef.current?.click()}>
-            <FileUp aria-hidden /> Choose files
+          <Button type="button" variant="secondary" className="mt-5" onClick={() => inputRef.current?.click()}>
+            Choose files
           </Button>
         </div>
         {files.length ? (
-          <ul className="mt-5 divide-y divide-border rounded-lg border border-border bg-surface" aria-live="polite">
+          <ul className="mt-6 border-t border-rule" aria-live="polite">
             {files.map((f) => (
-              <li key={f.id} className="flex items-center gap-3 px-4 py-3">
-                <FileText className="size-4 shrink-0 text-fg-subtle" aria-hidden />
+              <li key={f.id} className="flex items-center gap-4 border-b border-rule py-3">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-fg">{f.name}</p>
-                  <p className="text-xs text-fg-subtle">{(f.size / 1_000_000).toFixed(1)} MB</p>
+                  <p className="truncate text-base font-semibold text-ink">{f.name}</p>
+                  <p className="flex flex-wrap gap-x-4 text-sm text-ink-muted">
+                    <span className="tnum">{(f.size / 1_000_000).toFixed(1)} MB</span>
+                  </p>
                 </div>
                 {f.status === "reading" ? (
-                  <span className="flex items-center gap-2 text-xs text-fg-muted">
+                  <span className="flex items-center gap-2 text-sm text-ink-muted">
                     <Skeleton className="h-2 w-14" /> Reading
                   </span>
                 ) : (
-                  <Badge variant="success">{f.facts} facts found</Badge>
+                  <span className="text-sm font-semibold text-ink tnum">{f.facts} facts found</span>
                 )}
                 <Button variant="ghost" size="icon-sm" aria-label={`Remove ${f.name}`} onClick={() => setFiles((cur) => cur.filter((x) => x.id !== f.id))}>
                   <Trash2 />
@@ -82,16 +81,16 @@ export function DocumentsStep() {
         ) : null}
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <Button size="lg" onClick={() => router.push("/onboarding/interview")} disabled={files.some((f) => f.status === "reading")}>
-            Continue <ArrowRight aria-hidden />
+            Continue
           </Button>
           <Button asChild variant="ghost" size="lg">
             <Link href="/onboarding/interview">Skip for now</Link>
           </Button>
         </div>
       </div>
-      <aside className="rounded-lg border border-border bg-surface p-5 text-sm text-fg-muted lg:self-start">
-        <p className="font-medium text-fg">Most useful</p>
-        <ol className="mt-3 flex list-decimal flex-col gap-2 pl-4">
+      <aside className="border-l-2 border-ink pl-5 text-base text-ink-muted lg:self-start">
+        <h2 className="font-display text-xl text-ink">Most useful</h2>
+        <ol className="mt-3 flex list-decimal flex-col gap-2 pl-5 marker:font-display marker:text-ink">
           <li>Your most recent annual report</li>
           <li>A proposal you were proud of, won or not</li>
           <li>Last year&apos;s Form 990</li>

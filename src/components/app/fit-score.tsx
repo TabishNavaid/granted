@@ -13,53 +13,21 @@ interface FitScoreProps {
   className?: string;
 }
 
-/** Ring indicator. The arc length is the score; the color says what it means. */
+/** A printed score: the number large, its meaning under it, and a five-block meter in ink. */
 export function FitScore({ score, size = "md", showLabel = true, className }: FitScoreProps) {
-  const { label, tone } = fitLabel(score);
-  const px = size === "sm" ? 40 : size === "md" ? 56 : 80;
-  const stroke = size === "sm" ? 3.5 : size === "md" ? 4.5 : 6;
-  const r = (px - stroke) / 2;
-  const c = 2 * Math.PI * r;
-  const dash = (score / 100) * c;
-  const color = tone === "strong" ? "text-fit-strong" : tone === "good" ? "text-fit-good" : "text-fit-fair";
+  const { label } = fitLabel(score);
+  const filled = Math.round(score / 20);
   return (
-    <div className={cn("flex items-center gap-3", className)}>
-      <div
-        className={cn("relative shrink-0", color)}
-        role="img"
-        aria-label={`Fit score ${score} out of 100, ${label.toLowerCase()}`}
-        style={{ width: px, height: px }}
-      >
-        <svg width={px} height={px} viewBox={`0 0 ${px} ${px}`} aria-hidden className="-rotate-90">
-          <circle cx={px / 2} cy={px / 2} r={r} fill="none" stroke="currentColor" strokeOpacity={0.18} strokeWidth={stroke} />
-          <circle
-            cx={px / 2}
-            cy={px / 2}
-            r={r}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={stroke}
-            strokeLinecap="round"
-            strokeDasharray={`${dash} ${c - dash}`}
-            className="transition-[stroke-dasharray] duration-700 [transition-timing-function:var(--ease-out-soft)]"
-          />
-        </svg>
-        <span
-          className={cn(
-            "absolute inset-0 flex items-center justify-center font-display tnum text-fg",
-            size === "sm" ? "text-sm" : size === "md" ? "text-lg" : "text-2xl",
-          )}
-          aria-hidden
-        >
-          {score}
-        </span>
-      </div>
-      {showLabel ? (
-        <div className="leading-tight">
-          <p className={cn("font-medium text-fg", size === "sm" ? "text-sm" : "text-base")}>{label}</p>
-          {size !== "sm" ? <p className="text-xs text-fg-subtle">out of 100</p> : null}
-        </div>
-      ) : null}
+    <div className={cn("inline-flex flex-col", className)} role="img" aria-label={`Fit score ${score} out of 100, ${label.toLowerCase()}`}>
+      <span className={cn("font-display font-extrabold leading-none text-ink tnum", size === "sm" ? "text-2xl" : size === "md" ? "text-4xl" : "text-6xl")} aria-hidden>
+        {score}
+      </span>
+      <span className={cn("mt-1.5 flex gap-[3px]", size === "lg" && "mt-2.5")} aria-hidden>
+        {Array.from({ length: 5 }).map((_, i) => (
+          <span key={i} className={cn("block border border-ink", size === "sm" ? "h-1.5 w-3" : size === "md" ? "h-2 w-4" : "h-2.5 w-6", i < filled && "bg-ink")} />
+        ))}
+      </span>
+      {showLabel ? <span className={cn("mt-1 font-semibold text-ink", size === "sm" ? "text-xs" : "text-sm")} aria-hidden>{label}</span> : null}
     </div>
   );
 }

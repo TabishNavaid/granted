@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, FileText, FileUp, History, Pencil, Trash2, UploadCloud } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import type { Boilerplate, Document, Fact, Organization } from "@/lib/types";
 import { services } from "@/lib/services";
 import { cn } from "@/lib/utils";
@@ -61,24 +61,24 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
   const factColumns: Column<Fact>[] = [
     { key: "label", header: "Fact", cell: (f) => (
       <div>
-        <p className="font-medium text-fg">{f.label}</p>
-        <p className="text-xs text-fg-subtle sm:hidden">{f.value}</p>
+        <p className="font-semibold text-ink">{f.label}</p>
+        <p className="text-xs text-ink-muted sm:hidden">{f.value}</p>
       </div>
     ) },
-    { key: "value", header: "Value", hideBelow: "sm", cell: (f) => <span className="font-display text-base text-fg">{f.value}</span> },
+    { key: "value", header: "Value", hideBelow: "sm", cell: (f) => <span className="font-display text-base text-ink">{f.value}</span> },
     { key: "source", header: "Source", hideBelow: "md", cell: (f) => {
       const d = docById(f.sourceDocumentId);
       return <CitationChip label={d ? `${d.title}${f.sourcePage ? `, p.${f.sourcePage}` : ""}` : "You"} sourceTitle={d?.title} excerpt={f.sourceExcerpt} page={f.sourcePage} verifiedAt={f.lastConfirmedAt} />;
     } },
     { key: "status", header: "Status", cell: (f) => (
-      f.status === "confirmed" ? <span className="text-xs text-fg-subtle">Confirmed {formatDate(f.lastConfirmedAt, "MMM yyyy")}</span>
-      : <Badge variant="warning">{f.status === "stale" ? "Over a year old" : "Needs review"}</Badge>
+      f.status === "confirmed" ? <span className="text-sm text-ink-muted">Confirmed {formatDate(f.lastConfirmedAt, "MMM yyyy")}</span>
+      : <Badge variant="warning">{f.status === "stale" ? "Over a year old" : "Check this"}</Badge>
     ) },
     { key: "actions", header: <span className="sr-only">Actions</span>, align: "right", cell: (f) => (
       <div className="flex justify-end gap-1">
         {f.status !== "confirmed" ? (
-          <Button variant="soft" size="sm" onClick={() => confirm(f)}>
-            <Check aria-hidden /> Still true
+          <Button variant="secondary" size="sm" onClick={() => confirm(f)}>
+            Still true
           </Button>
         ) : null}
         <Button variant="ghost" size="icon-sm" aria-label={`Edit ${f.label}`} onClick={() => setEditingFact(f)}>
@@ -92,58 +92,71 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
     <PageContainer width="wide">
       <PageHeader
         title="Profile and knowledge"
-        description="Everything we know about you, in one place. Every number has a source, and nothing goes into a proposal that isn't on this page."
+        description="Everything we know about you, in one place. Every number has a source, and nothing goes into a proposal that is not on this page."
       />
       <Tabs value={tab} onValueChange={setTab} className="mt-6">
-        <TabsList aria-label="Knowledge base sections">
+        <TabsList variant="line" aria-label="Knowledge base sections">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="facts">
-            Facts {needsReview ? <Badge variant="warning" className="px-1.5 py-0 tnum">{needsReview}</Badge> : null}
+            Facts {needsReview ? <mark className="highlight text-sm font-semibold tnum">{needsReview}</mark> : null}
           </TabsTrigger>
           <TabsTrigger value="boilerplate">Boilerplate</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
-          <div className="grid gap-6 lg:grid-cols-[1fr_18rem]">
-            <div className="rounded-lg border border-border bg-surface p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h2 className="font-display text-2xl text-fg">{org.name}</h2>
-                  <p className="mt-1 text-sm text-fg-muted">
-                    EIN {org.ein} · {org.city}, {org.state} · Founded {org.foundedYear}
-                  </p>
-                </div>
+          <div className="grid gap-10 lg:grid-cols-[1fr_18rem]">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <h2 className="font-display text-3xl text-ink">{org.name}</h2>
                 <Button variant="secondary" size="sm" onClick={() => setEditing(true)}>
-                  <Pencil aria-hidden /> Edit
+                  Edit
                 </Button>
               </div>
-              <p className="mt-5 font-display text-lg leading-relaxed text-fg">{org.mission}</p>
-              <dl className="mt-6 grid gap-5 sm:grid-cols-2">
+              <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-muted">
+                <div className="flex gap-1.5">
+                  <dt>EIN</dt>
+                  <dd className="font-semibold text-ink tnum">{org.ein}</dd>
+                </div>
+                <div className="flex gap-1.5">
+                  <dt>City</dt>
+                  <dd className="font-semibold text-ink">
+                    {org.city}, {org.state}
+                  </dd>
+                </div>
+                <div className="flex gap-1.5">
+                  <dt>Founded</dt>
+                  <dd className="font-semibold text-ink tnum">{org.foundedYear}</dd>
+                </div>
+              </dl>
+              <p className="mt-6 max-w-[65ch] text-xl leading-relaxed text-ink">{org.mission}</p>
+              <dl className="mt-8 flex flex-col gap-5 border-t border-rule pt-6">
                 <div>
-                  <dt className="text-xs font-medium uppercase tracking-wide text-fg-subtle">Causes</dt>
-                  <dd className="mt-2 flex flex-wrap gap-1.5">{org.causes.map((c) => <Badge key={c} variant="neutral">{c}</Badge>)}</dd>
+                  <dt className="text-sm font-semibold text-ink">Causes</dt>
+                  <dd className="mt-1 text-base text-ink">{org.causes.join(", ")}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-medium uppercase tracking-wide text-fg-subtle">Who we serve</dt>
-                  <dd className="mt-2 flex flex-wrap gap-1.5">{org.populations.map((c) => <Badge key={c} variant="neutral">{c}</Badge>)}</dd>
+                  <dt className="text-sm font-semibold text-ink">Who we serve</dt>
+                  <dd className="mt-1 text-base text-ink">{org.populations.join(", ")}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-medium uppercase tracking-wide text-fg-subtle">Service area</dt>
-                  <dd className="mt-1 text-sm text-fg">{org.serviceArea}</dd>
+                  <dt className="text-sm font-semibold text-ink">Service area</dt>
+                  <dd className="mt-1 text-base text-ink">{org.serviceArea}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-medium uppercase tracking-wide text-fg-subtle">Website</dt>
-                  <dd className="mt-1 text-sm">
-                    <a href={org.websiteUrl} className="text-accent underline-offset-2 hover:underline" target="_blank" rel="noreferrer">{org.websiteUrl.replace(/^https?:\/\//, "")}</a>
+                  <dt className="text-sm font-semibold text-ink">Website</dt>
+                  <dd className="mt-1 text-base">
+                    <a href={org.websiteUrl} className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-pink" target="_blank" rel="noreferrer">
+                      {org.websiteUrl.replace(/^https?:\/\//, "")}
+                    </a>
                   </dd>
                 </div>
               </dl>
             </div>
-            <div className="flex flex-col gap-4">
-              <div className="rounded-lg border border-border bg-surface p-5">
-                <p className="text-xs font-medium uppercase tracking-wide text-fg-subtle">At a glance</p>
-                <dl className="mt-3 grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-10">
+              <div className="border-t-2 border-ink pt-4">
+                <h2 className="font-display text-xl text-ink">At a glance</h2>
+                <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-5">
                   {[
                     ["Budget", `$${(org.annualBudget / 1000).toFixed(0)}K`],
                     ["Staff", String(org.staffCount)],
@@ -151,19 +164,31 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
                     ["Fiscal year end", org.fiscalYearEnd],
                   ].map(([k, v]) => (
                     <div key={k}>
-                      <dt className="text-xs text-fg-subtle">{k}</dt>
-                      <dd className="font-display text-xl text-fg">{v}</dd>
+                      <dt className="text-sm text-ink-muted">{k}</dt>
+                      <dd className="mt-1 font-display text-3xl text-ink tnum">{v}</dd>
                     </div>
                   ))}
                 </dl>
               </div>
-              <div className="rounded-lg border border-border bg-surface p-5">
-                <p className="text-xs font-medium uppercase tracking-wide text-fg-subtle">Knowledge base</p>
-                <ul className="mt-3 flex flex-col gap-2 text-sm">
-                  <li className="flex justify-between"><span className="text-fg-muted">Facts with sources</span><span className="font-medium text-fg tnum">{facts.length}</span></li>
-                  <li className="flex justify-between"><span className="text-fg-muted">Boilerplate pieces</span><span className="font-medium text-fg tnum">{bps.length}</span></li>
-                  <li className="flex justify-between"><span className="text-fg-muted">Documents</span><span className="font-medium text-fg tnum">{docs.length}</span></li>
-                  <li className="flex justify-between"><span className="text-fg-muted">Need your review</span><span className={cn("font-medium tnum", needsReview ? "text-warning" : "text-fg")}>{needsReview}</span></li>
+              <div className="border-t-2 border-ink pt-4">
+                <h2 className="font-display text-xl text-ink">Knowledge base</h2>
+                <ul className="mt-3 border-t border-rule text-sm">
+                  <li className="flex justify-between gap-4 border-b border-rule py-2">
+                    <span className="text-ink-muted">Facts with sources</span>
+                    <span className="font-semibold text-ink tnum">{facts.length}</span>
+                  </li>
+                  <li className="flex justify-between gap-4 border-b border-rule py-2">
+                    <span className="text-ink-muted">Boilerplate pieces</span>
+                    <span className="font-semibold text-ink tnum">{bps.length}</span>
+                  </li>
+                  <li className="flex justify-between gap-4 border-b border-rule py-2">
+                    <span className="text-ink-muted">Documents</span>
+                    <span className="font-semibold text-ink tnum">{docs.length}</span>
+                  </li>
+                  <li className="flex justify-between gap-4 border-b border-rule py-2">
+                    <span className="text-ink-muted">Need your review</span>
+                    {needsReview ? <mark className="highlight font-semibold tnum">{needsReview}</mark> : <span className="font-semibold text-ink tnum">0</span>}
+                  </li>
                 </ul>
               </div>
             </div>
@@ -171,35 +196,37 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
         </TabsContent>
 
         <TabsContent value="facts">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-fg-muted">The numbers we're allowed to use. Anything older than a year will ask you if it's still true.</p>
-          </div>
+          <p className="mb-4 max-w-[65ch] text-base text-ink-muted">The numbers we are allowed to use. Anything older than a year will ask you if it is still true.</p>
           <DataTable columns={factColumns} rows={[...facts].sort((a, b) => (a.status === "confirmed" ? 1 : 0) - (b.status === "confirmed" ? 1 : 0))} rowKey={(f) => f.id} caption="Organization facts and their sources" />
         </TabsContent>
 
         <TabsContent value="boilerplate">
-          <p className="mb-4 text-sm text-fg-muted">Paragraphs you'll use again and again, written from your own documents. Every edit saves a new version, so nothing is ever lost.</p>
-          <ul className="grid gap-4 md:grid-cols-2">
+          <p className="mb-4 max-w-[65ch] text-base text-ink-muted">Paragraphs you will use again and again, written from your own documents. Every edit saves a new version, so nothing is lost.</p>
+          <ul className="border-t border-rule">
             {bps.map((b) => (
-              <li key={b.id} className="flex flex-col rounded-lg border border-border bg-surface p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="font-display text-lg text-fg">{b.title}</h3>
-                    <p className="text-xs text-fg-subtle">
-                      Version {b.version} · {b.wordCount} words · updated {relativeTime(b.updatedAt)}
+              <li key={b.id} className="border-b border-rule py-5">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="font-display text-xl text-ink">{b.title}</h3>
+                    <p className="mt-1 flex flex-wrap gap-x-4 text-sm text-ink-muted">
+                      <span className="tnum">Version {b.version}</span>
+                      <span className="tnum">{b.wordCount} words</span>
+                      <span>Updated {relativeTime(b.updatedAt)}</span>
                     </p>
                   </div>
                   <Button variant="ghost" size="sm" onClick={() => setEditingBp(b)}>
-                    <Pencil aria-hidden /> Edit
+                    Edit
                   </Button>
                 </div>
-                <p className="mt-3 line-clamp-4 text-sm leading-relaxed text-fg-muted">{b.body}</p>
-                <div className="mt-4 flex flex-wrap gap-1.5">
-                  {b.sourceDocumentIds.map((id) => {
-                    const d = docById(id);
-                    return d ? <CitationChip key={id} label={d.title} sourceTitle={d.title} /> : null;
-                  })}
-                </div>
+                <p className="mt-3 line-clamp-4 max-w-[65ch] text-base text-ink">{b.body}</p>
+                {b.sourceDocumentIds.length ? (
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {b.sourceDocumentIds.map((id) => {
+                      const d = docById(id);
+                      return d ? <CitationChip key={id} label={d.title} sourceTitle={d.title} /> : null;
+                    })}
+                  </div>
+                ) : null}
               </li>
             ))}
           </ul>
@@ -217,38 +244,39 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
               setDragOver(false);
               if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
             }}
-            className={cn("flex flex-col items-center justify-center rounded-lg border-2 border-dashed px-6 py-10 text-center transition-colors", dragOver ? "border-accent bg-accent-soft/40" : "border-border-strong bg-surface")}
+            className={cn("flex flex-col items-center justify-center border-2 border-dashed px-6 py-10 text-center transition-colors", dragOver ? "border-ink-deep bg-paper-tint" : "border-ink bg-paper")}
           >
-            <UploadCloud className="size-6 text-accent" aria-hidden />
-            <p className="mt-3 font-medium text-fg">Drop a document here</p>
-            <p className="mt-1 max-w-sm text-sm text-fg-muted">Annual reports, old proposals, 990s, budgets. PDF, Word, or Excel up to 25 MB. We read them and pull out the facts, page numbers and all.</p>
+            <p className="font-display text-xl text-ink">Drop a document here</p>
+            <p className="mt-2 max-w-[48ch] text-base text-ink-muted">Annual reports, old proposals, 990s, budgets. PDF, Word, or Excel up to 25 MB. We read them and pull out the facts, page numbers and all.</p>
             <input ref={fileRef} type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx" className="sr-only" id="doc-upload" onChange={(e) => e.target.files && addFiles(e.target.files)} />
-            <Button variant="secondary" className="mt-4" onClick={() => fileRef.current?.click()}>
-              <FileUp aria-hidden /> Choose files
+            <Button variant="secondary" className="mt-5" onClick={() => fileRef.current?.click()}>
+              Choose files
             </Button>
           </div>
-          <ul className="mt-6 divide-y divide-border rounded-lg border border-border bg-surface">
+          <ul className="mt-8 border-t border-rule">
             {docs.map((d) => (
-              <li key={d.id} className="flex items-center gap-4 px-4 py-3">
-                <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-surface-sunken text-fg-muted" aria-hidden>
-                  <FileText className="size-4" />
-                </span>
+              <li key={d.id} className="flex items-center gap-4 border-b border-rule py-3">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-fg">{d.title}</p>
-                  <p className="truncate text-xs text-fg-subtle">
-                    {docTypeLabel[d.type]} · {(d.sizeBytes / 1_000_000).toFixed(1)} MB{d.pageCount ? ` · ${d.pageCount} pages` : ""} · uploaded {formatDate(d.uploadedAt)}
+                  <p className="truncate text-base font-semibold text-ink">{d.title}</p>
+                  <p className="flex flex-wrap gap-x-4 text-sm text-ink-muted">
+                    <span>{docTypeLabel[d.type]}</span>
+                    <span className="tnum">{(d.sizeBytes / 1_000_000).toFixed(1)} MB</span>
+                    {d.pageCount ? <span className="tnum">{d.pageCount} pages</span> : null}
+                    <span>Uploaded {formatDate(d.uploadedAt)}</span>
                   </p>
                 </div>
                 {d.status === "ready" ? (
-                  <Badge variant="success">{d.factCount} fact{d.factCount === 1 ? "" : "s"}</Badge>
+                  <span className="shrink-0 text-sm text-ink tnum">
+                    {d.factCount} fact{d.factCount === 1 ? "" : "s"}
+                  </span>
                 ) : d.status === "extracting" ? (
-                  <span className="flex items-center gap-2 text-xs text-fg-muted">
+                  <span className="flex shrink-0 items-center gap-2 text-sm text-ink-muted">
                     <Skeleton className="h-2 w-16" /> Reading
                   </span>
                 ) : d.status === "failed" ? (
-                  <Badge variant="danger">Could not read</Badge>
+                  <span className="shrink-0 text-sm font-semibold text-burgundy">Could not read</span>
                 ) : (
-                  <Badge variant="neutral">Uploaded</Badge>
+                  <span className="shrink-0 text-sm text-ink-muted">Uploaded</span>
                 )}
                 <Button variant="ghost" size="icon-sm" aria-label={`Remove ${d.title}`} onClick={async () => { await services.knowledge.removeDocument(d.id); setDocs((l) => l.filter((x) => x.id !== d.id)); }}>
                   <Trash2 />
@@ -339,12 +367,12 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
             >
               <DialogHeader>
                 <DialogTitle>{editingBp.title}</DialogTitle>
-                <DialogDescription className="flex items-center gap-1.5">
-                  <History className="size-3.5" aria-hidden /> Version {editingBp.version}. Saving creates version {editingBp.version + 1}; older versions are kept.
+                <DialogDescription>
+                  Version {editingBp.version}. Saving creates version {editingBp.version + 1}; older versions are kept.
                 </DialogDescription>
               </DialogHeader>
               <Field id="bp-body" label="Text" hint={`${wordCount(editingBp.body)} words`}>
-                <Textarea name="body" defaultValue={editingBp.body} className="min-h-64 font-display text-base" />
+                <Textarea name="body" defaultValue={editingBp.body} className="min-h-64" />
               </Field>
               <DialogFooter>
                 <Button type="button" variant="ghost" onClick={() => setEditingBp(null)}>Cancel</Button>

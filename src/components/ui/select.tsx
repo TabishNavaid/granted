@@ -16,12 +16,12 @@ const SelectTrigger = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
-    className={cn(inputClasses, "items-center justify-between gap-2 text-left data-[placeholder]:text-fg-subtle [&>span]:truncate", className)}
+    className={cn(inputClasses, "items-center justify-between gap-2 text-left data-[placeholder]:text-ink-muted [&>span]:truncate", className)}
     {...props}
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <ChevronDown className="size-4 shrink-0 text-fg-subtle" aria-hidden />
+      <ChevronDown className="size-4 shrink-0 text-ink" aria-hidden />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ));
@@ -37,7 +37,7 @@ const SelectContent = React.forwardRef<
       position={position}
       sideOffset={4}
       className={cn(
-        "relative z-50 max-h-80 min-w-[8rem] overflow-hidden rounded-md border border-border bg-surface-raised text-fg shadow-md animate-fade-in",
+        "sheet-raised-sm relative z-50 max-h-80 min-w-[8rem] overflow-hidden text-ink animate-sheet-in",
         position === "popper" && "w-[var(--radix-select-trigger-width)]",
         className,
       )}
@@ -55,15 +55,12 @@ const SelectItem = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Item
     ref={ref}
-    className={cn(
-      "relative flex w-full cursor-default select-none items-center rounded-sm py-2 pl-8 pr-2 text-sm outline-none data-[highlighted]:bg-surface-hover data-[disabled]:opacity-50",
-      className,
-    )}
+    className={cn("relative flex w-full cursor-default select-none items-center py-2 pl-8 pr-2 text-sm outline-none data-[highlighted]:bg-paper-tint data-[disabled]:opacity-50", className)}
     {...props}
   >
     <span className="absolute left-2 flex size-4 items-center justify-center">
       <SelectPrimitive.ItemIndicator>
-        <Check className="size-4 text-accent" aria-hidden />
+        <Check className="size-4 text-ink" aria-hidden />
       </SelectPrimitive.ItemIndicator>
     </span>
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>

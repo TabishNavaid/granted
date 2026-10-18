@@ -1,17 +1,17 @@
 "use client";
 
-import { LanternGlyph } from "@/components/brand/illustrations";
+import { Wordmark } from "@/components/app/logo";
 import { Button } from "@/components/ui/button";
 
 export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
-      <LanternGlyph size={80} lit={false} className="text-fg-subtle" />
-      <h1 className="mt-6 font-display text-3xl text-fg">The lantern went out for a second.</h1>
-      <p className="mt-2 max-w-sm text-base text-fg-muted">Nothing you did caused this, and nothing was lost. Try again, and if it keeps happening, write to us.</p>
-      {error.digest ? <p className="mt-2 text-xs text-fg-subtle">Reference {error.digest}</p> : null}
-      <Button className="mt-6" onClick={reset}>
-        Light it again
+    <main className="flex min-h-screen max-w-3xl flex-col items-start justify-center px-6 sm:px-12">
+      <Wordmark size="md" />
+      <h1 className="mt-10 font-display text-h1 text-ink">Something went wrong on our side.</h1>
+      <p className="mt-4 max-w-[60ch] text-lg text-ink-muted">Nothing you did caused this and nothing was lost. Try again, and if it keeps happening, write to us.</p>
+      {error.digest ? <p className="mt-3 text-sm text-ink-muted">Reference {error.digest}</p> : null}
+      <Button className="mt-8" onClick={reset}>
+        Try again
       </Button>
     </main>
   );

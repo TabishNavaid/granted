@@ -24,23 +24,19 @@ interface DataTableProps<T> {
 
 const hideMap = { sm: "hidden sm:table-cell", md: "hidden md:table-cell", lg: "hidden lg:table-cell" };
 
+/** A printed table: a heavy rule on top, hairlines between rows, no frame. */
 export function DataTable<T>({ columns, rows, rowKey, caption, emptyMessage = "Nothing here yet.", onRowClick, className, dense }: DataTableProps<T>) {
   return (
-    <div className={cn("relative w-full overflow-x-auto rounded-lg border border-border bg-surface", className)}>
+    <div className={cn("relative w-full overflow-x-auto border-t-2 border-ink", className)}>
       <table className="w-full border-collapse text-sm">
         {caption ? <caption className="sr-only">{caption}</caption> : null}
         <thead>
-          <tr className="border-b border-border bg-surface-sunken/60">
+          <tr className="border-b border-ink bg-paper-tint">
             {columns.map((c) => (
               <th
                 key={c.key}
                 scope="col"
-                className={cn(
-                  "px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wide text-fg-subtle",
-                  c.align === "right" && "text-right",
-                  c.hideBelow && hideMap[c.hideBelow],
-                  c.className,
-                )}
+                className={cn("px-3 py-2 text-left text-xs font-semibold text-ink", c.align === "right" && "text-right", c.hideBelow && hideMap[c.hideBelow], c.className)}
               >
                 {c.header}
               </th>
@@ -50,7 +46,7 @@ export function DataTable<T>({ columns, rows, rowKey, caption, emptyMessage = "N
         <tbody>
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} className="px-4 py-10 text-center text-fg-muted">
+              <td colSpan={columns.length} className="px-3 py-10 text-center text-ink-muted">
                 {emptyMessage}
               </td>
             </tr>
@@ -59,21 +55,12 @@ export function DataTable<T>({ columns, rows, rowKey, caption, emptyMessage = "N
               <tr
                 key={rowKey(row)}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
-                className={cn(
-                  "border-b border-border last:border-b-0",
-                  onRowClick && "cursor-pointer transition-colors hover:bg-surface-hover",
-                )}
+                className={cn("border-b border-rule", onRowClick && "cursor-pointer transition-colors hover:bg-paper-tint")}
               >
                 {columns.map((c) => (
                   <td
                     key={c.key}
-                    className={cn(
-                      "px-4 align-middle text-fg",
-                      dense ? "py-2" : "py-3",
-                      c.align === "right" && "text-right tnum",
-                      c.hideBelow && hideMap[c.hideBelow],
-                      c.className,
-                    )}
+                    className={cn("px-3 align-middle text-ink", dense ? "py-2" : "py-3", c.align === "right" && "text-right tnum", c.hideBelow && hideMap[c.hideBelow], c.className)}
                   >
                     {c.cell(row)}
                   </td>

@@ -4,27 +4,30 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+/**
+ * Buttons are printed, not molded: square corners, poster type, one ink.
+ * Primary is the deepest ink on the page (yellow in night print). Buttons
+ * say exactly what happens and never carry an arrow.
+ */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[background-color,color,border-color,box-shadow,transform] duration-150 select-none disabled:opacity-50 disabled:pointer-events-none active:translate-y-px [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap font-display font-bold transition-colors duration-100 select-none disabled:opacity-50 disabled:pointer-events-none active:translate-y-px [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        primary: "bg-accent text-accent-fg hover:bg-accent-hover shadow-xs",
-        glow: "bg-glow text-glow-fg border border-glow-fg/20 hover:shadow-glow",
-        night: "bg-night text-night-fg hover:bg-night-raised shadow-xs",
-        secondary: "bg-surface-raised text-fg border border-border-strong hover:bg-surface-hover shadow-xs",
-        ghost: "text-fg-muted hover:bg-surface-hover hover:text-fg",
-        soft: "bg-accent-soft text-accent-soft-fg hover:bg-accent-soft/80",
-        danger: "bg-danger text-danger-fg hover:opacity-90 shadow-xs",
-        "danger-ghost": "text-danger hover:bg-danger-soft",
-        link: "text-accent underline-offset-4 hover:underline h-auto px-0",
+        primary: "border-[1.5px] border-primary bg-primary text-primary-fg hover:border-ink hover:bg-ink dark:hover:border-white dark:hover:bg-white",
+        secondary: "border-[1.5px] border-ink bg-paper text-ink hover:bg-paper-tint",
+        soft: "border-[1.5px] border-ink bg-paper text-ink hover:bg-paper-tint",
+        ghost: "text-ink underline-offset-4 decoration-[1.5px] hover:underline",
+        danger: "border-[1.5px] border-burgundy bg-burgundy text-white hover:opacity-90 dark:text-paper",
+        "danger-ghost": "text-burgundy underline-offset-4 decoration-[1.5px] hover:underline",
+        link: "h-auto px-0 font-body font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-pink",
       },
       size: {
-        sm: "h-8 px-3 text-sm [&_svg]:size-3.5",
+        sm: "h-9 px-3 text-sm [&_svg]:size-4",
         md: "h-10 px-4 text-sm [&_svg]:size-4",
         lg: "h-12 px-6 text-base [&_svg]:size-5",
-        icon: "size-9 [&_svg]:size-4",
-        "icon-sm": "size-8 [&_svg]:size-4",
+        icon: "size-10 [&_svg]:size-4",
+        "icon-sm": "size-9 [&_svg]:size-4",
       },
     },
     defaultVariants: { variant: "primary", size: "md" },

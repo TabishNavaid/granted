@@ -2,10 +2,8 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Pencil } from "lucide-react";
 import type { Document, Fact, Organization } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input, Textarea } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
@@ -25,16 +23,16 @@ export function ProfileStep({ org, facts, documents }: { org: Organization; fact
   return (
     <div className="grid gap-10 lg:grid-cols-[1fr_18rem]">
       <div>
-        <h1 className="font-display text-3xl text-fg sm:text-4xl">Does this look right?</h1>
-        <p className="mt-3 max-w-xl text-base text-fg-muted">This is what we'll say about you. Uncheck anything that's off and we'll leave it out.</p>
+        <h1 className="font-display text-h1 text-ink">Does this look right?</h1>
+        <p className="mt-4 max-w-[60ch] text-lg text-ink-muted">This is what we'll say about you. Uncheck anything that's off and we'll leave it out.</p>
 
-        <section className="mt-8 rounded-lg border border-border bg-surface p-5" aria-labelledby="prof-title">
+        <section className="sheet mt-8 p-5" aria-labelledby="prof-title">
           <div className="flex items-start justify-between gap-3">
-            <h2 id="prof-title" className="font-display text-xl text-fg">
+            <h2 id="prof-title" className="font-display text-2xl text-ink">
               {org.name}
             </h2>
             <Button variant="ghost" size="sm" onClick={() => setEditing((e) => !e)} aria-expanded={editing}>
-              <Pencil aria-hidden /> {editing ? "Done" : "Edit"}
+              {editing ? "Done" : "Edit"}
             </Button>
           </div>
           {editing ? (
@@ -48,50 +46,44 @@ export function ProfileStep({ org, facts, documents }: { org: Organization; fact
             </div>
           ) : (
             <>
-              <p className="mt-3 font-display text-lg leading-relaxed text-fg">{mission}</p>
-              <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+              <p className="mt-3 max-w-[60ch] text-xl leading-relaxed text-ink">{mission}</p>
+              <dl className="mt-5 grid gap-x-4 gap-y-3 border-t border-rule pt-4 text-base sm:grid-cols-2">
                 <div>
-                  <dt className="text-xs text-fg-subtle">Service area</dt>
-                  <dd className="text-fg">{area}</dd>
+                  <dt className="text-sm text-ink-muted">Service area</dt>
+                  <dd className="text-ink">{area}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-fg-subtle">Causes</dt>
-                  <dd className="mt-1 flex flex-wrap gap-1">
-                    {org.causes.map((c) => (
-                      <Badge key={c} variant="neutral">
-                        {c}
-                      </Badge>
-                    ))}
-                  </dd>
+                  <dt className="text-sm text-ink-muted">Causes</dt>
+                  <dd className="text-ink">{org.causes.join(", ")}</dd>
                 </div>
               </dl>
             </>
           )}
         </section>
 
-        <section className="mt-6" aria-labelledby="facts-title">
-          <h2 id="facts-title" className="font-display text-xl text-fg">
+        <section className="mt-10" aria-labelledby="facts-title">
+          <h2 id="facts-title" className="font-display text-2xl text-ink">
             Facts we found
           </h2>
-          <p className="mt-1 text-sm text-fg-muted">Each one links to the page it came from. Click a chip to read the exact passage.</p>
-          <ul className="mt-4 divide-y divide-border rounded-lg border border-border bg-surface">
+          <p className="mt-1 text-base text-ink-muted">Each one links to the page it came from. Open a citation to read the exact passage.</p>
+          <ul className="mt-4 border-t border-rule">
             {facts.map((f) => {
               const d = docOf(f.sourceDocumentId);
               return (
-                <li key={f.id} className={cn("flex items-start gap-3 px-4 py-3", !kept[f.id] && "opacity-50")}>
-                  <Checkbox id={`keep-${f.id}`} checked={kept[f.id]} onCheckedChange={(c) => setKept((k) => ({ ...k, [f.id]: c === true }))} className="mt-1" />
+                <li key={f.id} className={cn("flex items-start gap-4 border-b border-rule py-3", !kept[f.id] && "opacity-50")}>
+                  <Checkbox id={`keep-${f.id}`} checked={kept[f.id]} onCheckedChange={(c) => setKept((k) => ({ ...k, [f.id]: c === true }))} className="mt-1.5" />
                   <label htmlFor={`keep-${f.id}`} className="min-w-0 flex-1 cursor-pointer">
-                    <span className="block text-sm text-fg-muted">{f.label}</span>
-                    <span className={cn("block font-display text-lg text-fg", !kept[f.id] && "line-through")}>{f.value}</span>
+                    <span className="block text-sm text-ink-muted">{f.label}</span>
+                    <span className={cn("block font-display text-xl text-ink", !kept[f.id] && "line-through")}>{f.value}</span>
                   </label>
-                  <CitationChip label={d ? `${d.title}${f.sourcePage ? `, p.${f.sourcePage}` : ""}` : "Website"} sourceTitle={d?.title} excerpt={f.sourceExcerpt} page={f.sourcePage} />
+                  <CitationChip label={d ? `${d.title}${f.sourcePage ? `, p.${f.sourcePage}` : ""}` : "Website"} sourceTitle={d?.title} excerpt={f.sourceExcerpt} page={f.sourcePage} className="mt-1.5" />
                 </li>
               );
             })}
           </ul>
         </section>
 
-        <div className="mt-8 flex flex-wrap items-center gap-3">
+        <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
           <Button
             size="lg"
             loading={loading}
@@ -101,14 +93,16 @@ export function ProfileStep({ org, facts, documents }: { org: Organization; fact
               router.push("/onboarding/matches");
             }}
           >
-            {loading ? "Finding your matches" : "Looks right, find my matches"} {!loading ? <ArrowRight aria-hidden /> : null}
+            {loading ? "Finding your matches" : "Looks right, find my matches"}
           </Button>
-          <span className="text-sm text-fg-subtle">{keptCount} of {facts.length} facts kept</span>
+          <span className="text-base text-ink-muted tnum">
+            {keptCount} of {facts.length} facts kept
+          </span>
         </div>
       </div>
-      <aside className="rounded-lg border border-border bg-surface p-5 text-sm text-fg-muted lg:self-start">
-        <p className="font-medium text-fg">Why confirm</p>
-        <p className="mt-2">Only facts you've confirmed can show up in a draft. If a number looks off, uncheck it now and fix it later on your profile page.</p>
+      <aside className="border-l-2 border-ink pl-5 text-base text-ink-muted lg:self-start">
+        <h2 className="font-display text-xl text-ink">Why confirm</h2>
+        <p className="mt-3">Only facts you've confirmed can show up in a draft. If a number looks off, uncheck it now and fix it later on your profile page.</p>
         <p className="mt-3">Anything older than a year will ask you again, so a proposal never goes out with a stale number.</p>
       </aside>
     </div>

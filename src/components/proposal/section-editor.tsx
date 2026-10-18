@@ -5,7 +5,7 @@ import { EditorContent, useEditor, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import CharacterCount from "@tiptap/extension-character-count";
-import { Bold, Italic, List, ListOrdered, Heading3, Undo2, Redo2, Wand2, Quote, Scissors, Expand as ExpandIcon, ChevronDown } from "lucide-react";
+import { Bold, Italic, List, ListOrdered, Heading3, Undo2, Redo2, Quote, ChevronDown } from "lucide-react";
 import { Citation, Gap } from "./extensions";
 import { reviseText, type ReviseTone } from "@/lib/agents";
 import type { Fact, Section } from "@/lib/types";
@@ -37,8 +37,8 @@ function ToolbarButton({ label, active, onClick, children, disabled }: { label: 
           onMouseDown={(e) => e.preventDefault()}
           onClick={onClick}
           className={cn(
-            "inline-flex size-8 items-center justify-center rounded-md text-fg-muted transition-colors hover:bg-surface-hover hover:text-fg disabled:opacity-40 [&_svg]:size-4",
-            active && "bg-accent-soft text-accent-soft-fg",
+            "inline-flex size-9 items-center justify-center text-ink transition-colors hover:bg-paper-tint disabled:opacity-40 [&_svg]:size-4",
+            active && "bg-ink text-paper hover:bg-ink",
           )}
         >
           {children}
@@ -122,7 +122,7 @@ export function SectionEditor({ section, facts, onChange, onCitationClick, onGap
     if (!editor) return;
     const { from, to, empty } = editor.state.selection;
     const scopeHtml = empty ? editor.getHTML() : editor.state.doc.textBetween(from, to, " ");
-    setBusy(action === "tone" ? `Changing tone to ${tone}` : action === "shorten" ? "Shortening" : action === "expand" ? "Expanding" : "Rewriting");
+    setBusy(action === "tone" ? `Changing the tone to ${tone}` : action === "shorten" ? "Shortening" : action === "expand" ? "Expanding" : "Rewriting");
     const result = await reviseText({ html: empty ? scopeHtml : `<p>${scopeHtml}</p>`, action, tone, wordLimit: section.wordLimit });
     if (empty) {
       editor.chain().focus().setContent(result.html, { emitUpdate: true }).run();
@@ -147,7 +147,7 @@ export function SectionEditor({ section, facts, onChange, onCitationClick, onGap
 
   return (
     <div className="flex flex-1 flex-col">
-      <div role="toolbar" aria-label="Formatting and AI actions" className="sticky top-0 z-10 flex flex-wrap items-center gap-1 border-b border-border bg-surface/95 px-3 py-2 backdrop-blur">
+      <div role="toolbar" aria-label="Formatting and revision" className="sticky top-0 z-10 flex flex-wrap items-center gap-1 border-b border-rule bg-paper px-3 py-2">
         <ToolbarButton label="Bold" active={editor?.isActive("bold")} onClick={() => editor?.chain().focus().toggleBold().run()}>
           <Bold />
         </ToolbarButton>
@@ -177,8 +177,8 @@ export function SectionEditor({ section, facts, onChange, onCitationClick, onGap
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="gap-1.5">
-              <Quote className="size-3.5" aria-hidden /> Cite a fact <ChevronDown className="size-3" aria-hidden />
+            <Button variant="ghost" size="sm">
+              Cite a fact
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="max-h-80 w-72 overflow-y-auto">
@@ -187,7 +187,7 @@ export function SectionEditor({ section, facts, onChange, onCitationClick, onGap
               <DropdownMenuItem key={f.id} onSelect={() => insertCitation(f)}>
                 <span className="flex min-w-0 flex-col">
                   <span className="truncate">{f.label}</span>
-                  <span className="truncate text-xs text-fg-subtle">{f.value}</span>
+                  <span className="truncate text-xs text-ink-muted">{f.value}</span>
                 </span>
               </DropdownMenuItem>
             ))}
@@ -195,24 +195,24 @@ export function SectionEditor({ section, facts, onChange, onCitationClick, onGap
         </DropdownMenu>
 
         <div className="ml-auto flex flex-wrap items-center gap-1">
-          <span className="mr-1 hidden text-xs font-semibold text-fg-subtle sm:inline">Ask the agent to</span>
-          <Button variant="soft" size="sm" onClick={() => runAi("rewrite")} disabled={!!busy}>
-            <Wand2 aria-hidden /> Rewrite
+          <span className="mr-1 hidden text-sm text-ink-muted sm:inline">Revise:</span>
+          <Button variant="secondary" size="sm" onClick={() => runAi("rewrite")} disabled={!!busy}>
+            Rewrite
           </Button>
-          <Button variant="soft" size="sm" onClick={() => runAi("shorten")} disabled={!!busy}>
-            <Scissors aria-hidden /> Shorten
+          <Button variant="secondary" size="sm" onClick={() => runAi("shorten")} disabled={!!busy}>
+            Shorten
           </Button>
-          <Button variant="soft" size="sm" onClick={() => runAi("expand")} disabled={!!busy}>
-            <ExpandIcon aria-hidden /> Expand
+          <Button variant="secondary" size="sm" onClick={() => runAi("expand")} disabled={!!busy}>
+            Expand
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="soft" size="sm" disabled={!!busy}>
+              <Button variant="secondary" size="sm" disabled={!!busy}>
                 Tone <ChevronDown className="size-3" aria-hidden />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Change tone of {editor?.state.selection.empty ? "this section" : "selection"}</DropdownMenuLabel>
+              <DropdownMenuLabel>Change the tone of {editor?.state.selection.empty ? "this section" : "the selection"}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {(["plain", "warm", "formal", "confident"] as ReviseTone[]).map((t) => (
                 <DropdownMenuItem key={t} onSelect={() => runAi("tone", t)} className="capitalize">
@@ -226,29 +226,27 @@ export function SectionEditor({ section, facts, onChange, onCitationClick, onGap
 
       <div className="relative flex-1 px-5 py-6 sm:px-10 sm:py-8">
         {busy ? (
-          <div className="absolute inset-x-5 top-4 z-10 flex items-center gap-2 rounded-md border border-border bg-surface-raised px-3 py-2 text-sm text-fg shadow-md sm:inset-x-10" role="status">
-            <span className="size-2 animate-pulse rounded-full bg-accent" aria-hidden />
-            {busy}...
+          <div className="sheet-raised-sm absolute inset-x-5 top-4 z-10 px-3 py-2 text-sm text-ink sm:inset-x-10" role="status">
+            {busy}
           </div>
         ) : null}
-        <div className={cn("prose-editor mx-auto rounded-2xl border border-border bg-surface-raised px-6 py-7 shadow-sm transition-opacity sm:px-10 sm:py-9", busy && "opacity-50")}>
-          <h2 className="mb-4 font-display text-2xl text-fg">{section.title}</h2>
+        <div className={cn("prose-editor sheet mx-auto px-6 py-7 transition-opacity sm:px-10 sm:py-9", busy && "opacity-50")}>
+          <h2 className="mb-4 font-display text-2xl text-ink">{section.title}</h2>
           <EditorContent editor={editor} />
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 border-t border-border bg-surface px-5 py-2 text-xs text-fg-subtle sm:px-10">
+      <div className="flex flex-wrap items-center gap-3 border-t border-rule bg-paper px-5 py-2 text-xs text-ink-muted sm:px-10">
         {limit ? (
           <>
-            <Progress value={pct} tone={over ? "danger" : pct > 90 ? "warning" : "accent"} className="h-1.5 w-32" aria-label="Word count against limit" />
-            <span className={cn("tnum", over && "font-medium text-danger")}>
-              {words} / {limit} words{over ? `, ${words - limit} over` : ""}
+            <Progress value={pct} tone={over ? "danger" : pct > 90 ? "warning" : "accent"} className="w-32" aria-label="Word count against limit" />
+            <span className={cn("tnum", over && "font-semibold text-burgundy")}>
+              {words} of {limit} words{over ? `, ${words - limit} over` : ""}
             </span>
           </>
         ) : (
           <span className="tnum">{words} words</span>
         )}
-        <span className="ml-auto hidden sm:inline">Click a chip to see where it came from. We save as you go.</span>
       </div>
     </div>
   );

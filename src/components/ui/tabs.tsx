@@ -4,6 +4,11 @@ import * as React from "react";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import { cn } from "@/lib/utils";
 
+/**
+ * Tabs are a row of plain words. The current one is bold with an ink rule
+ * under it. "line" sits on a page rule; "pill" is the same thing without the
+ * rule, for filters that live inside a section.
+ */
 const Tabs = React.forwardRef<React.ComponentRef<typeof TabsPrimitive.Root>, React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root>>(
   ({ className, ...props }, ref) => <TabsPrimitive.Root ref={ref} className={cn("min-w-0 max-w-full", className)} {...props} />,
 );
@@ -15,12 +20,7 @@ const TabsList = React.forwardRef<
 >(({ className, variant = "line", ...props }, ref) => (
   <TabsPrimitive.List
     ref={ref}
-    className={cn(
-      "flex max-w-full items-center gap-1 overflow-x-auto",
-      variant === "line" && "border-b border-border",
-      variant === "pill" && "w-fit rounded-md bg-surface-sunken p-1",
-      className,
-    )}
+    className={cn("flex max-w-full items-end gap-5 overflow-x-auto", variant === "line" && "border-b border-rule", className)}
     data-variant={variant}
     {...props}
   />
@@ -34,11 +34,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "group/tab relative inline-flex items-center gap-2 whitespace-nowrap text-sm font-medium text-fg-muted transition-colors hover:text-fg disabled:opacity-50",
-      // line variant
-      "[[data-variant=line]_&]:-mb-px [[data-variant=line]_&]:border-b-2 [[data-variant=line]_&]:border-transparent [[data-variant=line]_&]:px-3 [[data-variant=line]_&]:py-2.5 [[data-variant=line]_&]:data-[state=active]:border-accent [[data-variant=line]_&]:data-[state=active]:text-fg",
-      // pill variant
-      "[[data-variant=pill]_&]:rounded-sm [[data-variant=pill]_&]:px-3 [[data-variant=pill]_&]:py-1.5 [[data-variant=pill]_&]:data-[state=active]:bg-surface-raised [[data-variant=pill]_&]:data-[state=active]:text-fg [[data-variant=pill]_&]:data-[state=active]:shadow-xs",
+      "group/tab relative -mb-px inline-flex items-center gap-1.5 whitespace-nowrap border-b-2 border-transparent pb-2 text-base text-ink-muted transition-colors hover:text-ink disabled:opacity-50 data-[state=active]:border-ink data-[state=active]:font-semibold data-[state=active]:text-ink",
       className,
     )}
     {...props}
@@ -50,7 +46,7 @@ const TabsContent = React.forwardRef<
   React.ComponentRef<typeof TabsPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
 >(({ className, ...props }, ref) => (
-  <TabsPrimitive.Content ref={ref} className={cn("mt-4 outline-none focus-visible:outline-2", className)} {...props} />
+  <TabsPrimitive.Content ref={ref} className={cn("mt-6 outline-none", className)} {...props} />
 ));
 TabsContent.displayName = "TabsContent";
 

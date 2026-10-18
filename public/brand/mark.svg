@@ -1,4 +1,5 @@
-<!-- Placeholder for the hand-drawn lantern mark. Replace this file; nothing else needs to change. Keep a square viewBox. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <circle cx="16" cy="16" r="6" fill="#f2ab3a"/>
+<!-- The monogram: the product's first letter printed in two inks, out of register. Update the letter if the name in src/lib/brand.ts changes. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <text x="30" y="51" text-anchor="middle" font-family="'Archivo Black','Arial Black',Arial,Helvetica,sans-serif" font-weight="900" font-size="52" fill="#ff48b0">F</text>
+  <text x="33" y="48" text-anchor="middle" font-family="'Archivo Black','Arial Black',Arial,Helvetica,sans-serif" font-weight="900" font-size="52" fill="#3d5588" style="mix-blend-mode:multiply">F</text>
 </svg>

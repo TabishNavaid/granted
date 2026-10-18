@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { Sparkles } from "lucide-react";
 import type { EmailDraft, InboxItem, MonthlyPlan, PlanItem } from "@/lib/types";
 import { services } from "@/lib/services";
 import { useToast } from "@/components/ui/toast";
@@ -9,29 +8,22 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { PageContainer } from "@/components/app/page-header";
-import { CompactInboxRow, InboxItemCard, type InboxContext, type Leaving } from "@/components/app/inbox-item";
+import { CompactInboxRow, InboxItemCard, STAMP_HOLD_MS, type InboxContext, type Leaving } from "@/components/app/inbox-item";
 import { PlanCard } from "@/components/app/plan-card";
-import { LanternMark } from "@/components/app/logo";
-import { LanternGlyph, SealedLetter } from "@/components/brand/illustrations";
-import { cn } from "@/lib/utils";
+import { stampWord } from "@/lib/agents/meta";
 
 type Filter = "all" | "proposal" | "email" | "matches" | "schedule" | "profile";
 const filters: { value: Filter; label: string; types: InboxItem["type"][] }[] = [
   { value: "all", label: "All", types: [] },
-  { value: "proposal", label: "Proposals", types: ["proposal_draft", "missing_facts"] },
+  { value: "proposal", label: "Drafts", types: ["proposal_draft", "missing_facts"] },
   { value: "email", label: "Emails", types: ["email_draft"] },
-  { value: "matches", label: "Matches", types: ["new_matches"] },
-  { value: "schedule", label: "Schedule", types: ["milestones"] },
-  { value: "profile", label: "Profile", types: ["profile_update"] },
+  { value: "matches", label: "Funders", types: ["new_matches"] },
+  { value: "schedule", label: "Schedules", types: ["milestones"] },
+  { value: "profile", label: "Facts", types: ["profile_update"] },
 ];
 
 const decideTypes: InboxItem["type"][] = ["proposal_draft", "email_draft"];
 const answerTypes: InboxItem["type"][] = ["missing_facts"];
-
-function greeting() {
-  const h = new Date().getHours();
-  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-}
 
 interface Props {
   items: InboxItem[];
@@ -76,7 +68,7 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
           return n;
         });
       },
-      how === "seal" ? 950 : 500,
+      how === "seal" ? STAMP_HOLD_MS : 420,
     );
   };
 
@@ -97,7 +89,7 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
     }
     const next = await services.inbox.approve(item.id);
     withLeave(item.id, "seal", () => update(next));
-    announce(`Sealed: ${item.title}`);
+    announce(`${stampWord[item.type]}: ${item.title}`);
     toast({ title: approvedTitle(item), description: approvedDescription(item), action: { label: "Undo", onClick: () => undo(item.id) } });
   };
 
@@ -105,7 +97,7 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
     const next = await services.inbox.reject(item.id, reason);
     withLeave(item.id, "dismiss", () => update(next));
     announce(`Declined: ${item.title}`);
-    toast({ title: "Declined", description: "We'll remember why.", tone: "info", action: { label: "Undo", onClick: () => undo(item.id) } });
+    toast({ title: "Declined", description: "Filed with your reason.", tone: "info", action: { label: "Undo", onClick: () => undo(item.id) } });
   };
 
   const planDecision = async (opportunityId: string, decision: PlanItem["decision"]) => {
@@ -119,10 +111,10 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
       update(next);
       setPlan(null);
     });
-    announce("Plan sealed.");
+    announce("Plan approved.");
     toast({
-      title: "Plan sealed",
-      description: "We're on it. Drafts will show up here as they're ready.",
+      title: "Plan approved",
+      description: "Drafts will show up here as they are ready.",
       action: {
         label: "Undo",
         onClick: async () => {
@@ -141,7 +133,7 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
     });
     toast({
       title: "Plan skipped",
-      description: "No pressure. A fresh one arrives on the 1st.",
+      description: "A fresh one arrives on the 1st.",
       tone: "info",
       action: {
         label: "Undo",
@@ -156,7 +148,7 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
   const totalPending = pending.length + (plan ? 1 : 0);
   const summary =
     totalPending === 0
-      ? "Nothing's waiting on you. The lantern is out, in the good way."
+      ? "Nothing is waiting on you."
       : [plan ? "your plan for the month" : null, decide.length ? `${decide.length} to read and approve` : null, answer.length ? `${answer.length} with quick questions` : null, glance.length ? `${glance.length} to glance at` : null]
           .filter(Boolean)
           .join(", ")
@@ -165,35 +157,30 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
   return (
     <PageContainer>
       <div ref={liveRef} aria-live="polite" className="sr-only" />
-      <header className="mb-8 flex items-start justify-between gap-6">
-        <div>
-          <p className="text-sm font-semibold text-fg-subtle">{new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</p>
-          <h1 className="mt-1 font-display text-3xl text-fg sm:text-4xl">
-            {greeting()}, {firstName}.
-          </h1>
-          <p className="mt-2 max-w-xl text-base text-fg-muted">
-            {totalPending === 0 ? summary : `Here's what's waiting on you: ${summary}`}
+      <header className="border-b-2 border-ink pb-6">
+        <p className="text-base text-ink-muted">{new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</p>
+        <h1 className="mt-1 font-display text-h1 text-ink">{totalPending === 0 ? `Nothing waiting on you, ${firstName}.` : "Waiting on you"}</h1>
+        {totalPending > 0 ? (
+          <p className="mt-3 max-w-[60ch] text-lg text-ink-muted">
+            {firstName}, here is {summary}
           </p>
-        </div>
-        <LanternGlyph size={64} lit={totalPending > 0} className="hidden shrink-0 text-fg-muted sm:block" />
+        ) : null}
       </header>
 
       {plan && planItemId ? (
-        <div className="mb-10">
+        <div className="mt-8">
           <PlanCard plan={plan} matches={ctx.matches} onDecision={planDecision} onApprove={approvePlan} onSkip={skipPlan} leaving={!!leaving[planItemId]} />
         </div>
       ) : null}
 
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="flex items-center gap-2 font-display text-2xl text-fg">
-          <LanternMark className="size-5 text-glow-text" /> Waiting for you
-        </h2>
+      <div className="mt-10 flex flex-wrap items-end justify-between gap-4">
+        <h2 className="font-display text-3xl text-ink">Read and decide</h2>
         <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
           <TabsList variant="pill" aria-label="Filter inbox">
             {filters.map((f) => (
               <TabsTrigger key={f.value} value={f.value}>
                 {f.label}
-                {counts[f.value] > 0 ? <span className="text-xs text-fg-subtle tnum">{counts[f.value]}</span> : null}
+                {counts[f.value] > 0 ? <span className="text-sm text-ink-muted tnum">{counts[f.value]}</span> : null}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -202,12 +189,9 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
 
       {visible.length === 0 ? (
         <EmptyState
-          title={filter === "all" ? "You are all caught up" : `No ${active.label.toLowerCase()} waiting`}
-          description={
-            filter === "all"
-              ? "New drafts, matches, and schedules will land here as we finish them. Nothing gets sent or submitted without you. Go outside for a bit."
-              : "Try another filter, or check back after Monday's scan."
-          }
+          className="mt-6"
+          title={filter === "all" ? "You are caught up" : `No ${active.label.toLowerCase()} waiting`}
+          description={filter === "all" ? "New drafts, funders, and schedules land here as they are ready. Nothing is sent or submitted without you." : "Try another filter, or check back after Monday's search."}
           action={
             filter !== "all" ? (
               <Button variant="secondary" onClick={() => setFilter("all")}>
@@ -217,7 +201,7 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
           }
         />
       ) : filter !== "all" ? (
-        <ul className="flex flex-col gap-4">
+        <ul className="mt-4 border-t border-rule">
           {visible.map((item) => (
             <li key={item.id}>
               <InboxItemCard item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
@@ -225,9 +209,9 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
           ))}
         </ul>
       ) : (
-        <div className="flex flex-col gap-10">
+        <div className="mt-4 flex flex-col gap-12">
           {decide.length ? (
-            <Group title="Read and approve" hint="We wrote these for you. Take a few minutes with each one.">
+            <Group title="Read and approve" hint="Written for you. Take a few minutes with each one.">
               {decide.map((item) => (
                 <li key={item.id}>
                   <InboxItemCard item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
@@ -236,7 +220,7 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
             </Group>
           ) : null}
           {answer.length ? (
-            <Group title="Quick answers" hint="Things we couldn't find in your documents. A minute each, honestly.">
+            <Group title="Quick answers" hint="Facts that are not in your documents. About a minute each.">
               {answer.map((item) => (
                 <li key={item.id}>
                   <InboxItemCard item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
@@ -245,7 +229,7 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
             </Group>
           ) : null}
           {glance.length ? (
-            <Group title="At a glance" hint="Say yes from the row, or open one if you want the details." compact>
+            <Group title="At a glance" hint="Say yes from the row, or open one for the details.">
               {glance.map((item) => (
                 <li key={item.id}>
                   <CompactInboxRow item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
@@ -256,11 +240,10 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
         </div>
       )}
 
-      <section aria-labelledby="resolved-title" className="mt-14">
-        <div className="flex items-center justify-between gap-3">
-          <h2 id="resolved-title" className="flex items-center gap-2 font-display text-xl text-fg-muted">
-            <SealedLetter size={26} className="text-fg-subtle" /> Sealed and filed
-            <span className="text-sm text-fg-subtle tnum">{resolved.length}</span>
+      <section aria-labelledby="resolved-title" className="mt-16 border-t-2 border-ink pt-6">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 id="resolved-title" className="font-display text-2xl text-ink">
+            Stamped and filed <span className="ml-1 text-base text-ink-muted tnum">{resolved.length}</span>
           </h2>
           <Button variant="ghost" size="sm" onClick={() => setShowResolved((s) => !s)} aria-expanded={showResolved}>
             {showResolved ? "Hide" : "Show"}
@@ -268,9 +251,9 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
         </div>
         {showResolved ? (
           resolved.length === 0 ? (
-            <p className="mt-4 text-sm text-fg-subtle">Nothing sealed yet. Your first approval goes here.</p>
+            <p className="mt-4 text-base text-ink-muted">Nothing filed yet. Your first approval goes here.</p>
           ) : (
-            <ul className="mt-4 flex flex-col gap-2">
+            <ul className="mt-4 border-t border-rule">
               {resolved.map((item) => (
                 <li key={item.id}>
                   <CompactInboxRow item={item} ctx={ctx} onApprove={approve} onReject={reject} />
@@ -278,28 +261,23 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
               ))}
             </ul>
           )
-        ) : (
-          <p className="mt-2 flex items-center gap-1.5 text-sm text-fg-subtle">
-            <Sparkles className="size-3.5" aria-hidden />
-            Everything you've approved or declined stays here, with the time and your name on it.
-          </p>
-        )}
+        ) : null}
       </section>
     </PageContainer>
   );
 }
 
-function Group({ title, hint, compact, children }: { title: string; hint: string; compact?: boolean; children: React.ReactNode }) {
+function Group({ title, hint, children }: { title: string; hint: string; children: React.ReactNode }) {
   const id = title.toLowerCase().replace(/\s+/g, "-");
   return (
     <section aria-labelledby={id}>
-      <div className="mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h3 id={id} className="text-sm font-bold uppercase tracking-wider text-fg-subtle">
+      <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+        <h3 id={id} className="font-display text-xl text-ink">
           {title}
         </h3>
-        <p className="text-sm text-fg-subtle">{hint}</p>
+        <p className="text-sm text-ink-muted">{hint}</p>
       </div>
-      <ul className={cn("flex flex-col", compact ? "gap-2" : "gap-4")}>{children}</ul>
+      <ul className="mt-3 border-t border-rule">{children}</ul>
     </section>
   );
 }
@@ -307,11 +285,11 @@ function Group({ title, hint, compact, children }: { title: string; hint: string
 function approvedTitle(item: InboxItem) {
   switch (item.type) {
     case "proposal_draft":
-      return "Draft sealed";
+      return "Draft approved";
     case "email_draft":
-      return "Email sealed";
+      return "Email approved";
     case "new_matches":
-      return "Matches saved";
+      return "Funders saved";
     case "milestones":
       return "On your calendar";
     case "missing_facts":
@@ -319,21 +297,21 @@ function approvedTitle(item: InboxItem) {
     case "profile_update":
       return "Fact updated";
     default:
-      return "Sealed";
+      return "Approved";
   }
 }
 function approvedDescription(item: InboxItem) {
   switch (item.type) {
     case "proposal_draft":
-      return "It's in Review on your pipeline now.";
+      return "It is in Review on your pipeline now.";
     case "email_draft":
-      return "Copy it into your email and send it whenever you're ready.";
+      return "Copy it into your email and send it when you are ready.";
     case "missing_facts":
-      return "The draft now cites you as the source. Nice."
+      return "The draft now cites you as the source.";
     case "profile_update":
       return "Every draft from here on uses the new number.";
     case "milestones":
-      return "We'll remind you before each one.";
+      return "You will get a reminder before each one.";
     default:
       return item.title;
   }

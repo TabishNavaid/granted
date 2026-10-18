@@ -2,22 +2,27 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ChevronDown, Database, ExternalLink, FileText, Globe } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import type { AgentName, AgentRun, Document } from "@/lib/types";
 import { agentMeta } from "@/lib/agents/meta";
 import { cn } from "@/lib/utils";
 import { formatDate, relativeTime } from "@/lib/format";
 import { PageContainer, PageHeader } from "@/components/app/page-header";
-import { AgentMark } from "@/components/app/badges";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/ui/empty-state";
 
-const statusBadge: Record<AgentRun["status"], { label: string; tone: "neutral" | "info" | "success" | "danger" }> = {
-  queued: { label: "Queued", tone: "neutral" },
-  running: { label: "Running", tone: "info" },
-  succeeded: { label: "Done", tone: "success" },
-  failed: { label: "Failed", tone: "danger" },
+/** The status of a run, said in a word. Blue for done and neutral, bold while it runs, burgundy when it failed. */
+const statusWord: Record<AgentRun["status"], { label: string; className: string }> = {
+  queued: { label: "Queued", className: "text-ink-muted" },
+  running: { label: "Running now", className: "font-semibold text-ink" },
+  succeeded: { label: "Done", className: "text-ink-muted" },
+  failed: { label: "Failed", className: "font-semibold text-burgundy" },
+};
+
+const triggerText: Record<AgentRun["trigger"], string> = {
+  schedule: "Scheduled",
+  user: "You asked",
+  event: "After an upload or change",
 };
 
 export function ActivityView({ runs, documents }: { runs: AgentRun[]; documents: Document[] }) {
@@ -31,7 +36,11 @@ export function ActivityView({ runs, documents }: { runs: AgentRun[]; documents:
     <PageContainer>
       <PageHeader
         title="Activity"
-        description={`Everything we did on your behalf, step by step, with every source we read. ${runs.length} runs this month, about $${cost.toFixed(2)} in model costs.`}
+        description={
+          <>
+            Everything we did on your behalf, step by step, with every source we read. <span className="tnum">{runs.length}</span> runs this month. About <span className="tnum">${cost.toFixed(2)}</span> in model costs.
+          </>
+        }
       />
       <Tabs value={agent} onValueChange={(v) => setAgent(v as typeof agent)} className="mt-6">
         <TabsList variant="pill" aria-label="Filter by agent">
@@ -45,93 +54,88 @@ export function ActivityView({ runs, documents }: { runs: AgentRun[]; documents:
       </Tabs>
 
       {list.length === 0 ? (
-        <EmptyState className="mt-6" title="Nothing here yet" description="This agent hasn't had a reason to run for you yet." />
+        <EmptyState className="mt-6" title="Nothing here yet" description="Nothing has run for you under this filter yet." />
       ) : (
-        <ol className="mt-6 flex flex-col gap-3">
+        <ol className="mt-6 border-t border-rule">
           {list.map((run) => {
             const expanded = open === run.id;
-            const s = statusBadge[run.status];
+            const s = statusWord[run.status];
             const duration = run.finishedAt ? Math.round((new Date(run.finishedAt).getTime() - new Date(run.startedAt).getTime()) / 1000) : null;
             return (
-              <li key={run.id} className="rounded-lg border border-border bg-surface">
+              <li key={run.id} className="border-b border-rule">
                 <button
                   type="button"
                   aria-expanded={expanded}
                   aria-controls={`run-${run.id}`}
                   onClick={() => setOpen(expanded ? null : run.id)}
-                  className="flex w-full items-start gap-4 p-4 text-left sm:p-5"
+                  className="flex w-full items-start gap-4 py-5 text-left"
                 >
-                  <AgentMark agent={run.agent} className={cn(run.status === "running" && "animate-pulse")} />
                   <div className="min-w-0 flex-1">
-                    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-fg-subtle">
-                      <span className="font-medium text-fg-muted">{agentMeta[run.agent].label}</span>
-                      <span aria-hidden>·</span>
-                      <time dateTime={run.startedAt} title={formatDate(run.startedAt, "MMM d, yyyy h:mm a")}>{relativeTime(run.startedAt)}</time>
-                      <span aria-hidden>·</span>
-                      <span>{run.trigger === "schedule" ? "Scheduled" : run.trigger === "user" ? "You asked" : "Triggered by an upload or change"}</span>
+                    <p className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm text-ink-muted">
+                      <span className="font-semibold text-ink">{agentMeta[run.agent].label}</span>
+                      <time dateTime={run.startedAt} title={formatDate(run.startedAt, "MMM d, yyyy h:mm a")}>
+                        {relativeTime(run.startedAt)}
+                      </time>
+                      <span>{triggerText[run.trigger]}</span>
                     </p>
-                    <h2 className="mt-1 font-display text-lg leading-snug text-fg">{run.title}</h2>
-                    <p className="mt-0.5 text-sm text-fg-muted">{run.outputSummary}</p>
+                    <h2 className="mt-1.5 font-display text-xl text-ink">{run.title}</h2>
+                    <p className="mt-1 max-w-[65ch] text-base text-ink-muted">{run.outputSummary}</p>
                   </div>
-                  <div className="flex shrink-0 flex-col items-end gap-2">
-                    <Badge variant={s.tone}>{s.label}</Badge>
-                    <ChevronDown className={cn("size-4 text-fg-subtle transition-transform", expanded && "rotate-180")} aria-hidden />
+                  <div className="flex shrink-0 items-center gap-3 pt-0.5 text-sm">
+                    <span className={s.className}>{s.label}</span>
+                    <ChevronDown className={cn("size-4 text-ink transition-transform", expanded && "rotate-180")} aria-hidden />
                   </div>
                 </button>
                 {expanded ? (
-                  <div id={`run-${run.id}`} className="grid gap-6 border-t border-border p-4 sm:p-5 md:grid-cols-2">
+                  <div id={`run-${run.id}`} className="grid gap-8 border-t border-rule py-5 md:grid-cols-2">
                     <div>
-                      <h3 className="text-xs font-semibold uppercase tracking-wider text-fg-subtle">Tools called</h3>
-                      <ol className="mt-2 flex flex-col gap-1.5">
+                      <h3 className="text-sm font-semibold text-ink">Steps</h3>
+                      <ol className="mt-2 border-t border-rule">
                         {run.toolsCalled.map((t, i) => (
-                          <li key={i} className="flex items-start gap-2 text-sm">
-                            <code className="shrink-0 rounded bg-surface-sunken px-1.5 py-0.5 font-mono text-xs text-fg">{t.name}</code>
-                            <span className="min-w-0 flex-1 text-fg-muted">{t.summary}</span>
-                            <span className="shrink-0 text-xs text-fg-subtle tnum">{t.durationMs >= 1000 ? `${(t.durationMs / 1000).toFixed(1)}s` : `${t.durationMs}ms`}</span>
+                          <li key={i} className="flex items-baseline gap-4 border-b border-rule py-2 text-sm">
+                            <span className="min-w-0 flex-1 text-ink">{t.summary}</span>
+                            <span className="shrink-0 text-ink-muted tnum">{t.durationMs >= 1000 ? `${(t.durationMs / 1000).toFixed(1)}s` : `${t.durationMs}ms`}</span>
                           </li>
                         ))}
                       </ol>
                     </div>
                     <div>
-                      <h3 className="text-xs font-semibold uppercase tracking-wider text-fg-subtle">Sources used</h3>
+                      <h3 className="text-sm font-semibold text-ink">Sources read</h3>
                       {run.sourcesUsed.length === 0 ? (
-                        <p className="mt-2 text-sm text-fg-subtle">We didn't need to read anything for this one.</p>
+                        <p className="mt-2 text-sm text-ink-muted">We did not need to read anything for this one.</p>
                       ) : (
-                        <ul className="mt-2 flex flex-col gap-1.5">
+                        <ul className="mt-2 border-t border-rule">
                           {run.sourcesUsed.map((src, i) => (
-                            <li key={i} className="flex items-center gap-2 text-sm">
-                              <span className="text-fg-subtle" aria-hidden>
-                                {src.kind === "web" ? <Globe className="size-3.5" /> : src.kind === "document" ? <FileText className="size-3.5" /> : <Database className="size-3.5" />}
-                              </span>
+                            <li key={i} className="border-b border-rule py-2 text-sm">
                               {src.url ? (
-                                <a href={src.url} target="_blank" rel="noreferrer" className="inline-flex min-w-0 items-center gap-1 text-fg underline-offset-2 hover:underline">
-                                  <span className="truncate">{src.label}</span> <ExternalLink className="size-3 shrink-0 text-fg-subtle" aria-hidden />
+                                <a href={src.url} target="_blank" rel="noreferrer" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-pink">
+                                  {src.label}
                                 </a>
                               ) : src.documentId ? (
-                                <Link href="/profile?tab=documents" className="truncate text-fg underline-offset-2 hover:underline">
+                                <Link href="/profile?tab=documents" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-pink">
                                   {docTitle(src.documentId) ?? src.label}
                                 </Link>
                               ) : (
-                                <span className="text-fg">{src.label}</span>
+                                <span className="text-ink">{src.label}</span>
                               )}
                             </li>
                           ))}
                         </ul>
                       )}
-                      <dl className="mt-4 grid grid-cols-3 gap-2 text-xs">
+                      <dl className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm">
                         <div>
-                          <dt className="text-fg-subtle">Cost</dt>
-                          <dd className="font-medium text-fg tnum">${run.costUsd.toFixed(2)}</dd>
+                          <dt className="text-ink-muted">Cost</dt>
+                          <dd className="font-semibold text-ink tnum">${run.costUsd.toFixed(2)}</dd>
                         </div>
                         <div>
-                          <dt className="text-fg-subtle">Duration</dt>
-                          <dd className="font-medium text-fg tnum">{duration == null ? "Running" : `${duration}s`}</dd>
+                          <dt className="text-ink-muted">Took</dt>
+                          <dd className="font-semibold text-ink tnum">{duration == null ? "Still running" : `${duration}s`}</dd>
                         </div>
                         <div>
-                          <dt className="text-fg-subtle">Result</dt>
-                          <dd className="font-medium text-fg">
+                          <dt className="text-ink-muted">Result</dt>
+                          <dd className="font-semibold text-ink">
                             {run.inboxItemId ? (
-                              <Link href="/inbox" className="text-accent underline-offset-2 hover:underline">
+                              <Link href="/inbox" className="underline decoration-[1.5px] underline-offset-4 hover:decoration-pink">
                                 In your Inbox
                               </Link>
                             ) : (

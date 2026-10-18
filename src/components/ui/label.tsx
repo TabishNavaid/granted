@@ -8,11 +8,7 @@ const Label = React.forwardRef<
   React.ComponentRef<typeof LabelPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
 >(({ className, ...props }, ref) => (
-  <LabelPrimitive.Root
-    ref={ref}
-    className={cn("text-sm font-medium text-fg leading-none peer-disabled:opacity-60", className)}
-    {...props}
-  />
+  <LabelPrimitive.Root ref={ref} className={cn("text-base font-semibold leading-snug text-ink peer-disabled:opacity-60", className)} {...props} />
 ));
 Label.displayName = "Label";
 
@@ -40,16 +36,16 @@ function Field({ id, label, hint, error, optional, children, className }: FieldP
     <div className={cn("flex flex-col gap-1.5", className)}>
       <div className="flex items-baseline justify-between gap-2">
         <Label htmlFor={id}>{label}</Label>
-        {optional ? <span className="text-xs text-fg-subtle">Optional</span> : null}
+        {optional ? <span className="text-sm text-ink-muted">Optional</span> : null}
       </div>
       {control}
       {hint && !error ? (
-        <p id={hintId} className="text-sm text-fg-muted">
+        <p id={hintId} className="text-sm text-ink-muted">
           {hint}
         </p>
       ) : null}
       {error ? (
-        <p id={errorId} role="alert" className="text-sm text-danger">
+        <p id={errorId} role="alert" className="text-sm font-semibold text-burgundy">
           {error}
         </p>
       ) : null}

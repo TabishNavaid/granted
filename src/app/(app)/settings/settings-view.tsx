@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { Check, CreditCard, Download, UserPlus } from "lucide-react";
 import type { Invoice, Member, NotificationSettings, Organization, PlanTier, Subscription } from "@/lib/types";
 import { services } from "@/lib/services";
 import { cn } from "@/lib/utils";
@@ -9,7 +8,6 @@ import { formatDate, formatMoney } from "@/lib/format";
 import { PageContainer, PageHeader } from "@/components/app/page-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Field, Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -23,8 +21,13 @@ import { ThemeToggle } from "@/components/app/theme-toggle";
 const plans: { tier: PlanTier; name: string; price: string; who: string; includes: string[] }[] = [
   { tier: "free", name: "Free", price: "$0", who: "Try it out", includes: ["Profile and knowledge base", "5 matches a month", "1 drafted letter of inquiry"] },
   { tier: "starter", name: "Starter", price: "$29", who: "Orgs under $250K", includes: ["Unlimited matches", "3 full proposals a month", "Calendar and reminders", "Outreach drafts"] },
-  { tier: "growth", name: "Growth", price: "$79", who: "Orgs $250K to $1M", includes: ["Everything in Starter", "Unlimited proposals", "Connections and Social agents (coming)", "3 seats"] },
+  { tier: "growth", name: "Growth", price: "$79", who: "Orgs $250K to $1M", includes: ["Everything in Starter", "Unlimited proposals", "Connections and Social (coming)", "3 seats"] },
 ];
+
+/** "owner" becomes "Owner". */
+function sentenceCase(s: string) {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
 
 export function SettingsView({ org, members: initialMembers, subscription: initialSub, invoices, notifications: initialNotif, initialTab }: { org: Organization; members: Member[]; subscription: Subscription; invoices: Invoice[]; notifications: NotificationSettings; initialTab?: string }) {
   const { toast } = useToast();
@@ -43,10 +46,14 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
   const invoiceColumns: Column<Invoice>[] = [
     { key: "date", header: "Date", cell: (i) => formatDate(i.date) },
     { key: "amount", header: "Amount", align: "right", cell: (i) => formatMoney(i.amount) },
-    { key: "status", header: "Status", cell: (i) => <Badge variant={i.status === "paid" ? "success" : i.status === "open" ? "warning" : "danger"}>{i.status === "paid" ? "Paid" : i.status === "open" ? "Open" : "Failed"}</Badge> },
+    { key: "status", header: "Status", cell: (i) => (
+      i.status === "paid" ? <span className="text-ink-muted">Paid</span>
+      : i.status === "open" ? <span className="font-semibold text-ink">Open</span>
+      : <span className="font-semibold text-burgundy">Failed</span>
+    ) },
     { key: "pdf", header: <span className="sr-only">Download</span>, align: "right", cell: () => (
       <Button variant="ghost" size="sm" onClick={() => toast({ title: "Invoices come from Stripe", description: "They'll be here once billing is hooked up.", tone: "info" })}>
-        <Download aria-hidden /> PDF
+        Download PDF
       </Button>
     ) },
   ];
@@ -55,7 +62,7 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
     <PageContainer>
       <PageHeader title="Settings" description="Workspace, team, notifications, and billing." />
       <Tabs value={tab} onValueChange={setTab} className="mt-6">
-        <TabsList aria-label="Settings sections">
+        <TabsList variant="line" aria-label="Settings sections">
           <TabsTrigger value="workspace">Workspace</TabsTrigger>
           <TabsTrigger value="team">Team</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
@@ -89,31 +96,31 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
               <Button type="submit">Save changes</Button>
             </div>
           </form>
-          <div className="mt-10 max-w-lg rounded-lg border border-danger/30 p-5">
-            <h2 className="font-display text-lg text-fg">Delete workspace</h2>
-            <p className="mt-1 text-sm text-fg-muted">This removes your profile, documents, and drafts for everyone on the team. We'll ask you to confirm by email first, because that's a big button.</p>
-            <Button variant="danger-ghost" className="mt-3" onClick={() => toast({ title: "Check your email", description: "We sent you a confirmation link. Nothing gets deleted until you click it.", tone: "warning" })}>
+          <div className="mt-12 max-w-lg border-l-2 border-burgundy pl-5">
+            <h2 className="font-display text-xl text-ink">Delete workspace</h2>
+            <p className="mt-2 text-base text-ink-muted">This removes your profile, documents, and drafts for everyone on the team. We will ask you to confirm by email first.</p>
+            <Button variant="danger-ghost" className="mt-3 -ml-4" onClick={() => toast({ title: "Check your email", description: "We sent you a confirmation link. Nothing gets deleted until you click it.", tone: "warning" })}>
               Delete workspace
             </Button>
           </div>
         </TabsContent>
 
         <TabsContent value="team">
-          <ul className="divide-y divide-border rounded-lg border border-border bg-surface">
+          <ul className="border-t border-rule">
             {members.map((m) => (
-              <li key={m.id} className="flex items-center gap-3 px-4 py-3">
+              <li key={m.id} className="flex items-center gap-3 border-b border-rule py-3">
                 <Avatar name={m.fullName || m.email} size="sm" />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-fg">{m.fullName || m.email}</p>
-                  {m.fullName ? <p className="truncate text-xs text-fg-subtle">{m.email}</p> : null}
+                  <p className="truncate text-base font-semibold text-ink">{m.fullName || m.email}</p>
+                  {m.fullName ? <p className="truncate text-sm text-ink-muted">{m.email}</p> : null}
                 </div>
-                {m.status === "invited" ? <Badge variant="neutral">Invited</Badge> : null}
-                <Badge variant="outline" className="capitalize">{m.role}</Badge>
+                {m.status === "invited" ? <span className="shrink-0 text-sm text-ink-muted">Invited</span> : null}
+                <span className="shrink-0 text-sm text-ink">{sentenceCase(m.role)}</span>
               </li>
             ))}
           </ul>
           <form
-            className="mt-6 flex max-w-xl flex-col gap-3 sm:flex-row sm:items-end"
+            className="mt-8 flex max-w-xl flex-col gap-3 sm:flex-row sm:items-end"
             onSubmit={async (e) => {
               e.preventDefault();
               if (!inviteEmail.includes("@")) return;
@@ -138,35 +145,35 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
                 </SelectContent>
               </Select>
             </div>
-            <Button type="submit" variant="secondary">
-              <UserPlus aria-hidden /> Invite
+            <Button type="submit" variant="secondary" className="h-11">
+              Send invite
             </Button>
           </form>
-          <p className="mt-3 text-xs text-fg-subtle">Reviewers can approve things in the Inbox but can't edit drafts. Board members usually want exactly this.</p>
+          <p className="mt-3 max-w-[60ch] text-sm text-ink-muted">Reviewers can approve things in the Inbox but cannot edit drafts. Board members usually want exactly this.</p>
         </TabsContent>
 
         <TabsContent value="notifications">
-          <div className="flex max-w-lg flex-col divide-y divide-border rounded-lg border border-border bg-surface">
+          <div className="max-w-lg border-t border-rule">
             {[
               { key: "weeklyDigest" as const, label: "Weekly match digest", desc: "An email every Monday with new matches and what changed." },
               { key: "milestoneReminders" as const, label: "Milestone reminders", desc: "An email before each milestone on your calendar." },
               { key: "inboxAlerts" as const, label: "Inbox alerts", desc: "An email when a draft or plan is waiting for you." },
             ].map((row) => (
-              <div key={row.key} className="flex items-center justify-between gap-4 p-4">
+              <div key={row.key} className="flex items-center justify-between gap-4 border-b border-rule py-4">
                 <div>
                   <Label htmlFor={`n-${row.key}`}>{row.label}</Label>
-                  <p className="mt-0.5 text-sm text-fg-muted">{row.desc}</p>
+                  <p className="mt-0.5 text-sm text-ink-muted">{row.desc}</p>
                 </div>
                 <Switch id={`n-${row.key}`} checked={notif[row.key]} onCheckedChange={(c) => updateNotif({ [row.key]: c })} />
               </div>
             ))}
-            <div className="flex items-center justify-between gap-4 p-4">
+            <div className="flex items-center justify-between gap-4 border-b border-rule py-4">
               <div>
                 <Label htmlFor="n-days">Remind me</Label>
-                <p className="mt-0.5 text-sm text-fg-muted">How many days before each milestone.</p>
+                <p className="mt-0.5 text-sm text-ink-muted">How many days before each milestone.</p>
               </div>
               <Select value={String(notif.reminderDaysBefore)} onValueChange={(v) => updateNotif({ reminderDaysBefore: Number(v) })}>
-                <SelectTrigger id="n-days" className="w-32">
+                <SelectTrigger id="n-days" className="w-36">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -182,75 +189,73 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
         </TabsContent>
 
         <TabsContent value="billing">
-          <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-            <div>
-              <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-10 lg:grid-cols-[1fr_18rem]">
+            <div className="min-w-0">
+              <ul className="border-t-2 border-ink">
                 {plans.map((p) => {
                   const current = sub.plan === p.tier;
                   return (
-                    <div key={p.tier} className={cn("flex flex-col rounded-lg border bg-surface p-5", current ? "border-accent ring-1 ring-accent" : "border-border")}>
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-display text-xl text-fg">{p.name}</h3>
-                        {current ? <Badge variant="accent">Current</Badge> : null}
+                    <li key={p.tier} className="grid gap-4 border-b border-rule py-5 sm:grid-cols-[8rem_1fr_auto]">
+                      <div>
+                        <h3 className="font-display text-2xl text-ink">{p.name}</h3>
+                        <p className="mt-1 font-display text-3xl text-ink tnum">
+                          {p.price}
+                          <span className="ml-1 font-body text-sm font-normal text-ink-muted">/month</span>
+                        </p>
                       </div>
-                      <p className="mt-1 text-xs text-fg-subtle">{p.who}</p>
-                      <p className="mt-3 font-display text-3xl text-fg">
-                        {p.price}
-                        <span className="text-sm text-fg-subtle"> /month</span>
-                      </p>
-                      <ul className="mt-4 flex flex-1 flex-col gap-1.5 text-sm text-fg-muted">
-                        {p.includes.map((i) => (
-                          <li key={i} className="flex gap-2">
-                            <Check className="mt-1 size-3.5 shrink-0 text-success" aria-hidden /> {i}
-                          </li>
-                        ))}
-                      </ul>
-                      <Button
-                        variant={current ? "secondary" : "primary"}
-                        className="mt-5"
-                        disabled={current}
-                        onClick={async () => {
-                          const next = await services.billing.changePlan(p.tier);
-                          setSub(next);
-                          toast({ title: `Switched to ${p.name}`, description: "Stripe checkout will open here once billing is hooked up." });
-                        }}
-                      >
-                        {current ? "Your plan" : p.tier === "free" ? "Downgrade" : "Choose " + p.name}
-                      </Button>
-                    </div>
+                      <div className="min-w-0">
+                        <p className="text-sm text-ink-muted">{p.who}</p>
+                        <p className="mt-1 max-w-[50ch] text-base text-ink">{p.includes.join(", ")}.</p>
+                      </div>
+                      <div className="sm:justify-self-end sm:pt-1">
+                        {current ? (
+                          <span className="font-semibold text-ink">Your plan</span>
+                        ) : (
+                          <Button
+                            variant={p.tier === "free" ? "secondary" : "primary"}
+                            size="sm"
+                            onClick={async () => {
+                              const next = await services.billing.changePlan(p.tier);
+                              setSub(next);
+                              toast({ title: `Switched to ${p.name}`, description: "Stripe checkout will open here once billing is hooked up." });
+                            }}
+                          >
+                            {p.tier === "free" ? "Downgrade" : "Choose " + p.name}
+                          </Button>
+                        )}
+                      </div>
+                    </li>
                   );
                 })}
-              </div>
-              <p className="mt-3 text-xs text-fg-subtle">Prices are placeholders while we test with early users. Success-fee plans are on hold until we're sure funders allow them.</p>
-              <h2 className="mt-10 font-display text-xl text-fg">Invoices</h2>
-              <DataTable className="mt-3" columns={invoiceColumns} rows={invoices} rowKey={(i) => i.id} caption="Invoices" dense />
+              </ul>
+              <p className="mt-3 max-w-[65ch] text-sm text-ink-muted">Prices are placeholders while we test with early users. Success-fee plans are on hold until we are sure funders allow them.</p>
+              <h2 className="mt-12 font-display text-2xl text-ink">Invoices</h2>
+              <DataTable className="mt-4" columns={invoiceColumns} rows={invoices} rowKey={(i) => i.id} caption="Invoices" dense />
             </div>
-            <aside className="flex flex-col gap-4">
-              <div className="rounded-lg border border-border bg-surface p-5">
-                <p className="text-xs font-medium uppercase tracking-wide text-fg-subtle">This month</p>
-                <div className="mt-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-fg">Full proposals</span>
-                    <span className="text-fg-muted tnum">
+            <aside className="flex flex-col gap-10">
+              <div className="border-t-2 border-ink pt-4">
+                <h2 className="font-display text-xl text-ink">This month</h2>
+                <div className="mt-4">
+                  <div className="flex justify-between gap-4 text-sm">
+                    <span className="text-ink">Full proposals</span>
+                    <span className="text-ink-muted tnum">
                       {sub.usage.proposalsThisMonth} of {sub.usage.proposalLimit ?? "unlimited"}
                     </span>
                   </div>
                   {sub.usage.proposalLimit ? <Progress value={(sub.usage.proposalsThisMonth / sub.usage.proposalLimit) * 100} className="mt-2" aria-label="Proposals used" /> : null}
                 </div>
-                <div className="mt-4 flex justify-between text-sm">
-                  <span className="text-fg">Matches</span>
-                  <span className="text-fg-muted tnum">
+                <div className="mt-4 flex justify-between gap-4 text-sm">
+                  <span className="text-ink">Matches</span>
+                  <span className="text-ink-muted tnum">
                     {sub.usage.matchesThisMonth} of {sub.usage.matchLimit ?? "unlimited"}
                   </span>
                 </div>
-                <p className="mt-4 text-xs text-fg-subtle">Renews {formatDate(sub.currentPeriodEnd)}.</p>
+                <p className="mt-4 text-sm text-ink-muted">Renews {formatDate(sub.currentPeriodEnd)}.</p>
               </div>
-              <div className="rounded-lg border border-border bg-surface p-5">
-                <p className="text-xs font-medium uppercase tracking-wide text-fg-subtle">Payment method</p>
-                <p className="mt-2 flex items-center gap-2 text-sm text-fg">
-                  <CreditCard className="size-4 text-fg-subtle" aria-hidden /> Visa ending 4242
-                </p>
-                <Button variant="link" size="sm" className="mt-1" onClick={() => toast({ title: "Managed in Stripe", description: "The billing portal will open here once it's hooked up.", tone: "info" })}>
+              <div className="border-t-2 border-ink pt-4">
+                <h2 className="font-display text-xl text-ink">Payment method</h2>
+                <p className="mt-3 text-base text-ink">Visa ending 4242</p>
+                <Button variant="link" size="sm" className={cn("mt-2")} onClick={() => toast({ title: "Managed in Stripe", description: "The billing portal will open here once it's hooked up.", tone: "info" })}>
                   Update card
                 </Button>
               </div>

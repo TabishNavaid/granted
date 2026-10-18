@@ -1,31 +1,57 @@
-import type { AgentName, ApplicationStage, MilestoneKind } from "@/lib/types";
+import type { AgentName, ApplicationStage, InboxItemType, MilestoneKind } from "@/lib/types";
 
+/**
+ * How each part of the system is named for the user. The user never sees
+ * "agent": they see the thing they care about.
+ */
 export const agentMeta: Record<AgentName, { label: string; shortLabel: string; description: string }> = {
-  profile: { label: "Profile agent", shortLabel: "Profile", description: "Reads your website and documents, and keeps your facts fresh." },
-  discovery: { label: "Discovery agent", shortLabel: "Discovery", description: "Looks at funders every week and tells you which ones fit." },
-  planner: { label: "Planner", shortLabel: "Planner", description: "Suggests what to go for each month." },
-  proposal: { label: "Proposal agent", shortLabel: "Proposal", description: "Reads the guidelines and writes every section from your own facts." },
-  outreach: { label: "Outreach agent", shortLabel: "Outreach", description: "Writes funder emails for you to send." },
-  calendar: { label: "Calendar agent", shortLabel: "Calendar", description: "Works backward from each deadline so nothing sneaks up on you." },
+  profile: { label: "Your profile", shortLabel: "Profile", description: "Reads your website and documents and keeps your facts current." },
+  discovery: { label: "Funder search", shortLabel: "Funders", description: "Looks at funders every week and tells you which ones fit." },
+  planner: { label: "Monthly plan", shortLabel: "Plan", description: "Suggests what to go for each month." },
+  proposal: { label: "Proposal drafts", shortLabel: "Drafts", description: "Reads the guidelines and writes every section from your own facts." },
+  outreach: { label: "Funder emails", shortLabel: "Emails", description: "Writes funder emails for you to send." },
+  calendar: { label: "Deadlines", shortLabel: "Deadlines", description: "Works backward from each deadline so nothing sneaks up on you." },
 };
 
-export const stageMeta: Record<ApplicationStage, { label: string; tone: "neutral" | "info" | "accent" | "warning" | "success" | "danger" }> = {
+/** What an Inbox item is, in the user's words. */
+export const inboxKindLabel: Record<InboxItemType, string> = {
+  monthly_plan: "Your plan for the month",
+  proposal_draft: "Draft ready for you",
+  email_draft: "Email ready to send",
+  new_matches: "New funders found",
+  milestones: "Schedule to approve",
+  missing_facts: "Questions for you",
+  profile_update: "A fact to check",
+};
+
+/** What the stamp says when an item of this kind is approved. */
+export const stampWord: Record<InboxItemType, string> = {
+  monthly_plan: "Approved",
+  proposal_draft: "Approved",
+  email_draft: "Approved",
+  new_matches: "Saved",
+  milestones: "Scheduled",
+  missing_facts: "Answered",
+  profile_update: "Updated",
+};
+
+export const stageMeta: Record<ApplicationStage, { label: string; tone: "neutral" | "info" | "accent" | "warning" | "success" | "danger" | "pink" }> = {
   discovered: { label: "Discovered", tone: "neutral" },
-  researching: { label: "Researching", tone: "info" },
+  researching: { label: "Researching", tone: "neutral" },
   drafting: { label: "Drafting", tone: "accent" },
   review: { label: "Review", tone: "warning" },
-  submitted: { label: "Submitted", tone: "info" },
-  won: { label: "Won", tone: "success" },
+  submitted: { label: "Submitted", tone: "accent" },
+  won: { label: "Won", tone: "pink" },
   lost: { label: "Lost", tone: "danger" },
 };
 
 export const stageOrder: ApplicationStage[] = ["discovered", "researching", "drafting", "review", "submitted", "won", "lost"];
 
-export const milestoneMeta: Record<MilestoneKind, { label: string; tone: "neutral" | "info" | "accent" | "warning" | "success" | "danger" }> = {
+export const milestoneMeta: Record<MilestoneKind, { label: string; tone: "neutral" | "info" | "accent" | "warning" | "success" | "danger" | "pink" }> = {
   deadline: { label: "Deadline", tone: "danger" },
   draft_due: { label: "Draft due", tone: "accent" },
-  board_review: { label: "Board review", tone: "info" },
-  budget_signoff: { label: "Budget sign-off", tone: "warning" },
-  submit: { label: "Submit", tone: "success" },
+  board_review: { label: "Board review", tone: "neutral" },
+  budget_signoff: { label: "Budget sign-off", tone: "neutral" },
+  submit: { label: "Submit", tone: "accent" },
   follow_up: { label: "Follow up", tone: "neutral" },
 };

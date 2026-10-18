@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
 
+const linkClass = "font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-pink";
+
 export function SignUpForm() {
   const router = useRouter();
   const [loading, setLoading] = React.useState(false);
@@ -17,8 +19,8 @@ export function SignUpForm() {
 
   return (
     <div>
-      <h1 className="font-display text-3xl text-fg">Create your workspace</h1>
-      <p className="mt-2 text-base text-fg-muted">Free to start. You'll have your first matches in about twenty minutes.</p>
+      <h1 className="font-display text-3xl text-ink">Create your workspace</h1>
+      <p className="mt-3 text-lg text-ink-muted">Free to start. You'll have your first matches in about twenty minutes.</p>
       <form
         className="mt-8 flex flex-col gap-5"
         onSubmit={async (e) => {
@@ -46,11 +48,11 @@ export function SignUpForm() {
         <Button type="submit" size="lg" loading={loading}>
           Create workspace
         </Button>
-        <p className="text-xs text-fg-subtle">By continuing you agree to the terms and privacy policy. We never train models on your data, full stop.</p>
+        <p className="text-sm text-ink-muted">By continuing you agree to the terms and privacy policy. We never train models on your data.</p>
       </form>
-      <p className="mt-8 text-sm text-fg-muted">
+      <p className="mt-8 text-base text-ink-muted">
         Already have an account?{" "}
-        <Link href="/sign-in" className="font-medium text-accent underline-offset-2 hover:underline">
+        <Link href="/sign-in" className={linkClass}>
           Sign in
         </Link>
       </p>

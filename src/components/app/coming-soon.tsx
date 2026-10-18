@@ -1,30 +1,27 @@
 import Link from "next/link";
 import { PageContainer, PageHeader } from "./page-header";
 import { Button } from "@/components/ui/button";
-import { LanternGlyph } from "@/components/brand/illustrations";
 
 export function ComingSoon({ title, description, bullets }: { title: string; description: string; bullets: string[] }) {
   return (
     <PageContainer width="narrow">
-      <PageHeader eyebrow="Not lit yet" title={title} description={description} />
-      <div className="wash-paper mt-8 flex flex-col gap-6 rounded-2xl border border-border p-6 sm:flex-row sm:items-start">
-        <LanternGlyph size={72} lit={false} className="shrink-0 text-fg-subtle" />
-        <div>
-        <p className="text-sm font-medium text-fg">What it will do</p>
-        <ul className="mt-3 flex flex-col gap-2 text-sm text-fg-muted">
+      <PageHeader title={title} description={description} />
+      <section className="mt-8" aria-labelledby="soon-title">
+        <h2 id="soon-title" className="font-display text-2xl text-ink">
+          What it will do
+        </h2>
+        <ul className="mt-4 flex flex-col divide-y divide-rule border-y border-rule text-base text-ink">
           {bullets.map((b) => (
-            <li key={b} className="flex gap-2.5">
-              <span aria-hidden className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" />
+            <li key={b} className="py-3">
               {b}
             </li>
           ))}
         </ul>
-        <p className="mt-5 text-sm text-fg-muted">It's coming with the Growth plan. Nothing for you to set up now, we'll let you know.</p>
-        <Button asChild variant="secondary" className="mt-5">
-          <Link href="/inbox">Back to Inbox</Link>
+        <p className="mt-5 max-w-[60ch] text-base text-ink-muted">It comes with the Growth plan. Nothing for you to set up now. We will tell you when it is ready.</p>
+        <Button asChild variant="secondary" className="mt-6">
+          <Link href="/inbox">Back to your Inbox</Link>
         </Button>
-        </div>
-      </div>
+      </section>
     </PageContainer>
   );
 }

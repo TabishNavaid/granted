@@ -2,23 +2,20 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowRight, Check, ChevronDown, Copy, Pencil, X } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import type { EmailDraft, Fact, InboxItem, MatchView, Milestone, MissingFact, Document } from "@/lib/types";
-import { agentMeta } from "@/lib/agents/meta";
+import { inboxKindLabel, stampWord } from "@/lib/agents/meta";
 import { cn } from "@/lib/utils";
 import { formatDate, formatShortDate, relativeTime, formatRange } from "@/lib/format";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Input, Textarea } from "@/components/ui/input";
 import { Label, Field } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AgentMark } from "./badges";
+import { InkStamp, stampDate } from "@/components/brand/stamp";
 import { FitScore } from "./fit-score";
 import { MilestoneBadge } from "./badges";
 import { CitationChip } from "./citation-chip";
-import { LanternMark } from "./logo";
-import { SealedLetter } from "@/components/brand/illustrations";
 
 export interface InboxContext {
   matches: Record<string, MatchView>;
@@ -43,6 +40,9 @@ const approveLabels: Record<InboxItem["type"], string> = {
 
 export type Leaving = false | "seal" | "dismiss";
 
+/** How long the stamp needs before the sheet is filed away, in ms. */
+export const STAMP_HOLD_MS = 1150;
+
 interface InboxItemCardProps {
   item: InboxItem;
   ctx: InboxContext;
@@ -50,9 +50,16 @@ interface InboxItemCardProps {
   onApprove: (item: InboxItem, extra?: { answers?: Record<string, string>; email?: Pick<EmailDraft, "subject" | "body"> }) => void;
   onReject: (item: InboxItem, reason: string | null) => void;
   onEdited?: (item: InboxItem) => void;
+  /** Whether the sheet is filed away after the stamp lands. The landing page keeps it on the page. */
+  fileAway?: boolean;
 }
 
-export function InboxItemCard({ item, ctx, leaving, onApprove, onReject }: InboxItemCardProps) {
+/**
+ * One item waiting on the user, printed as a form on the page: what it is,
+ * when it arrived, the title highlighted while it waits, a preview, and the
+ * actions. Approving thumps a pink stamp onto it before it is filed.
+ */
+export function InboxItemCard({ item, ctx, leaving, onApprove, onReject, fileAway = true }: InboxItemCardProps) {
   const [rejectOpen, setRejectOpen] = React.useState(false);
   const [reason, setReason] = React.useState("");
   const [answers, setAnswers] = React.useState<Record<string, string>>({});
@@ -60,6 +67,7 @@ export function InboxItemCard({ item, ctx, leaving, onApprove, onReject }: Inbox
   const [emailOpen, setEmailOpen] = React.useState(false);
   const headingId = `inbox-${item.id}-title`;
   const resolved = item.status !== "pending";
+  const stamped = leaving === "seal" || item.status === "approved" || item.status === "edited";
 
   const editTarget = editHref(item);
   const canApprove = item.type !== "missing_facts" || Object.values(answers).some((a) => a.trim());
@@ -68,102 +76,82 @@ export function InboxItemCard({ item, ctx, leaving, onApprove, onReject }: Inbox
     <article
       aria-labelledby={headingId}
       className={cn(
-        "group relative overflow-hidden rounded-2xl border border-border bg-surface-raised shadow-xs transition-[box-shadow,border-color]",
-        !resolved && "hover:border-border-strong hover:shadow-sm",
-        resolved && "opacity-85",
-        leaving === "seal" && "animate-seal",
-        leaving === "dismiss" && "animate-collapse-out",
+        "relative border-b border-rule py-6",
+        leaving === "seal" && fileAway && "animate-file-away [animation-delay:750ms]",
+        leaving === "dismiss" && fileAway && "animate-file-away",
       )}
     >
-      {leaving === "seal" ? (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-surface-raised/90 animate-fade-in [animation-delay:200ms]" aria-hidden>
-          <SealedLetter size={88} className="text-fg" />
-          <p className="text-sm font-semibold text-fg">Sealed and filed</p>
+      {leaving === "seal" || (resolved && stamped) ? (
+        <div className="pointer-events-none absolute right-2 top-3 z-10 sm:right-8 sm:top-6">
+          <InkStamp
+            label={item.status === "edited" ? "Approved" : stampWord[item.type]}
+            line={stampDate(leaving === "seal" ? null : item.resolvedAt)}
+            animate={leaving === "seal"}
+            size="lg"
+            rotate={-9}
+            className="text-[1rem] sm:text-[1.6rem]"
+          />
         </div>
       ) : null}
-      <div className="flex gap-4 p-5">
-        <AgentMark agent={item.agent} className="mt-0.5 hidden sm:inline-flex" />
-        <div className="min-w-0 flex-1">
-          <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-fg-subtle">
-            <span className="font-semibold text-fg-muted">{agentMeta[item.agent].label}</span>
-            <span aria-hidden>·</span>
-            <time dateTime={item.createdAt}>{relativeTime(item.createdAt)}</time>
-            {item.sourceCount > 0 ? (
-              <>
-                <span aria-hidden>·</span>
-                <span>
-                  {item.sourceCount} source{item.sourceCount === 1 ? "" : "s"}
-                </span>
-              </>
-            ) : null}
-            {resolved ? (
-              <Badge variant={item.status === "approved" ? "success" : item.status === "rejected" ? "neutral" : "info"} className="ml-auto">
-                {item.status === "approved" ? "Sealed" : item.status === "rejected" ? "Declined" : "Edited and sealed"}
-              </Badge>
-            ) : (
-              <span className="ml-auto inline-flex items-center gap-1 text-glow-text" title="Waiting on you">
-                <LanternMark className="size-3.5" />
-                <span className="sr-only">Waiting on you</span>
-              </span>
-            )}
-          </p>
-          <h3 id={headingId} className="mt-1.5 font-display text-xl leading-snug text-fg">
-            {item.title}
-          </h3>
-          <p className="mt-1.5 text-sm text-fg-muted">{item.summary}</p>
 
-          <div className="mt-4">
-            <ItemPreview item={item} ctx={ctx} answers={answers} setAnswers={setAnswers} emailOverride={emailEdit} />
-          </div>
-
-          {item.rejectionReason ? (
-            <p className="mt-3 rounded-md bg-surface-sunken px-3 py-2 text-sm text-fg-muted">
-              <span className="font-medium text-fg">Why: </span>
-              {item.rejectionReason}
-            </p>
-          ) : null}
-
-          {!resolved ? (
-            <div className="mt-5 flex flex-wrap items-center gap-2">
-              <Button onClick={() => onApprove(item, { answers, email: emailEdit ?? undefined })} disabled={!canApprove}>
-                <Check aria-hidden />
-                {approveLabels[item.type]}
-              </Button>
-              {item.type === "email_draft" ? (
-                <Button variant="secondary" onClick={() => setEmailOpen(true)}>
-                  <Pencil aria-hidden />
-                  Edit
-                </Button>
-              ) : editTarget ? (
-                <Button variant="secondary" asChild>
-                  <Link href={editTarget.href}>
-                    {editTarget.label}
-                    <ArrowRight aria-hidden />
-                  </Link>
-                </Button>
-              ) : null}
-              <Button variant="ghost" className="sm:ml-auto" onClick={() => setRejectOpen(true)}>
-                <X aria-hidden />
-                {item.type === "missing_facts" ? "Skip for now" : "Decline"}
-              </Button>
-            </div>
-          ) : null}
-        </div>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-sm">
+        <span className="font-semibold text-ink">{inboxKindLabel[item.type]}</span>
+        <span className="flex flex-wrap gap-x-4 text-ink-muted">
+          <time dateTime={item.createdAt}>{relativeTime(item.createdAt)}</time>
+          {item.sourceCount > 0 ? <span>Built from {item.sourceCount} source{item.sourceCount === 1 ? "" : "s"}</span> : null}
+        </span>
       </div>
+
+      <h3 id={headingId} className="mt-2 max-w-[30ch] font-display text-2xl leading-tight text-ink sm:text-[1.75rem]">
+        {resolved || leaving ? item.title : <mark className="highlight">{item.title}</mark>}
+      </h3>
+      <p className="mt-2 max-w-[65ch] text-base text-ink-muted">{item.summary}</p>
+
+      <div className="mt-5">
+        <ItemPreview item={item} ctx={ctx} answers={answers} setAnswers={setAnswers} emailOverride={emailEdit} />
+      </div>
+
+      {item.rejectionReason ? (
+        <p className="mt-4 max-w-[65ch] border-l-2 border-ink pl-3 text-sm text-ink-muted">
+          <span className="font-semibold text-ink">Why you declined: </span>
+          {item.rejectionReason}
+        </p>
+      ) : null}
+
+      {!resolved ? (
+        <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
+          <Button onClick={() => onApprove(item, { answers, email: emailEdit ?? undefined })} disabled={!canApprove}>
+            {approveLabels[item.type]}
+          </Button>
+          {item.type === "email_draft" ? (
+            <Button variant="ghost" onClick={() => setEmailOpen(true)}>
+              Edit the email
+            </Button>
+          ) : editTarget ? (
+            <Button variant="ghost" asChild>
+              <Link href={editTarget.href}>{editTarget.label}</Link>
+            </Button>
+          ) : null}
+          <Button variant="ghost" className="sm:ml-auto" onClick={() => setRejectOpen(true)}>
+            {item.type === "missing_facts" ? "Skip for now" : "Decline"}
+          </Button>
+        </div>
+      ) : (
+        <p className="mt-5 flex flex-wrap gap-x-3 text-sm text-ink-muted">
+          <span className="font-semibold text-ink">{stamped ? (item.status === "edited" ? "Approved with edits" : stampWord[item.type]) : "Declined"}</span>
+          {item.resolvedAt ? <span>{formatDate(item.resolvedAt, "EEEE, MMMM d")}</span> : null}
+        </p>
+      )}
 
       <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
         <DialogContent size="sm">
           <DialogHeader>
-            <DialogTitle>{item.type === "missing_facts" ? "Skip these questions?" : "Decline this item?"}</DialogTitle>
-            <DialogDescription>
-              {item.type === "missing_facts"
-                ? "No problem. The draft keeps its placeholders until you get a minute."
-                : "A short reason helps us do better next time. Totally optional."}
-            </DialogDescription>
+            <DialogTitle>{item.type === "missing_facts" ? "Skip these questions?" : "Decline this?"}</DialogTitle>
+            <DialogDescription>{item.type === "missing_facts" ? "The draft keeps its marked gaps until you get a minute." : "A short reason helps the next one fit better. It is optional."}</DialogDescription>
           </DialogHeader>
           {item.type !== "missing_facts" ? (
             <Field id={`reason-${item.id}`} label="Reason" optional>
-              <Textarea value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Not for us because..." className="min-h-20" />
+              <Textarea value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Not for us because" className="min-h-20" />
             </Field>
           ) : null}
           <DialogFooter>
@@ -203,15 +191,15 @@ function editHref(item: InboxItem): { href: string; label: string } | null {
   const p = item.payload;
   switch (p.type) {
     case "proposal_draft":
-      return { href: `/applications/${p.applicationId}`, label: "Open workspace" };
+      return { href: `/applications/${p.applicationId}`, label: "Open the draft" };
     case "missing_facts":
-      return { href: `/applications/${p.applicationId}`, label: "Answer in workspace" };
+      return { href: `/applications/${p.applicationId}`, label: "Answer in the draft" };
     case "new_matches":
-      return { href: "/opportunities", label: "See all matches" };
+      return { href: "/opportunities", label: "See all funders" };
     case "milestones":
-      return { href: "/calendar", label: "Open calendar" };
+      return { href: "/calendar", label: "Open the calendar" };
     case "profile_update":
-      return { href: "/profile?tab=facts", label: "Open facts" };
+      return { href: "/profile?tab=facts", label: "Open your facts" };
     case "monthly_plan":
       return null;
     default:
@@ -237,19 +225,28 @@ function ItemPreview({
     case "proposal_draft": {
       const drafted = p.sectionCount - 1;
       return (
-        <div className="rounded-md border border-border bg-surface-raised p-4">
-          <div className="flex items-center justify-between gap-3 text-sm">
-            <span className="font-medium text-fg">
+        <div className="max-w-xl">
+          <div className="flex items-baseline justify-between gap-3 text-sm">
+            <span className="font-semibold text-ink">
               {drafted} of {p.sectionCount} sections drafted
             </span>
-            <span className="text-fg-subtle tnum">{Math.round((drafted / p.sectionCount) * 100)}%</span>
+            <span className="text-ink-muted tnum">{Math.round((drafted / p.sectionCount) * 100)}%</span>
           </div>
           <Progress value={(drafted / p.sectionCount) * 100} className="mt-2" aria-label="Draft progress" />
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Badge variant="accent">18 citations</Badge>
-            <Badge variant="warning">{p.openQuestions} open questions</Badge>
-            <Badge variant="neutral">3 documents used</Badge>
-          </div>
+          <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-muted">
+            <div className="flex gap-1.5">
+              <dt>Citations</dt>
+              <dd className="font-semibold text-ink tnum">18</dd>
+            </div>
+            <div className="flex gap-1.5">
+              <dt>Open questions</dt>
+              <dd className="font-semibold text-ink tnum">{p.openQuestions}</dd>
+            </div>
+            <div className="flex gap-1.5">
+              <dt>Documents used</dt>
+              <dd className="font-semibold text-ink tnum">3</dd>
+            </div>
+          </dl>
         </div>
       );
     }
@@ -259,19 +256,21 @@ function ItemPreview({
     }
     case "new_matches":
       return (
-        <ul className="divide-y divide-border rounded-md border border-border bg-surface-raised">
+        <ul className="max-w-2xl divide-y divide-rule border-y border-rule">
           {p.matchIds.map((id) => {
             const m = ctx.matches[id];
             if (!m) return null;
             return (
-              <li key={id} className="flex items-center gap-3 p-3">
+              <li key={id} className="flex items-center gap-4 py-3">
                 <FitScore score={m.fitScore} size="sm" showLabel={false} />
                 <div className="min-w-0 flex-1">
-                  <Link href={`/opportunities/${m.opportunityId}`} className="block truncate text-sm font-medium text-fg hover:underline">
+                  <Link href={`/opportunities/${m.opportunityId}`} className="block truncate text-base font-semibold text-ink hover:underline hover:decoration-pink hover:decoration-2 hover:underline-offset-4">
                     {m.opportunity.title}
                   </Link>
-                  <p className="truncate text-xs text-fg-subtle">
-                    {m.funder.name} · {formatRange(m.opportunity.amountMin, m.opportunity.amountMax)} · {m.opportunity.deadline ? `Due ${formatShortDate(m.opportunity.deadline)}` : "Rolling"}
+                  <p className="flex flex-wrap gap-x-4 text-sm text-ink-muted">
+                    <span className="truncate">{m.funder.name}</span>
+                    <span className="tnum">{formatRange(m.opportunity.amountMin, m.opportunity.amountMax)}</span>
+                    <span>{m.opportunity.deadline ? `Due ${formatShortDate(m.opportunity.deadline)}` : "Rolling"}</span>
                   </p>
                 </div>
               </li>
@@ -281,14 +280,14 @@ function ItemPreview({
       );
     case "milestones":
       return (
-        <ol className="divide-y divide-border rounded-md border border-border bg-surface-raised">
+        <ol className="max-w-2xl divide-y divide-rule border-y border-rule">
           {p.milestoneIds.map((id) => {
             const m = ctx.milestones[id];
             if (!m) return null;
             return (
-              <li key={id} className="flex items-center gap-3 p-3 text-sm">
-                <span className="w-14 shrink-0 text-xs font-medium text-fg-subtle tnum">{formatShortDate(m.dueDate)}</span>
-                <span className="flex-1 text-fg">{m.title}</span>
+              <li key={id} className="flex items-center gap-4 py-2.5 text-base">
+                <span className="w-16 shrink-0 text-sm font-semibold text-ink tnum">{formatShortDate(m.dueDate)}</span>
+                <span className="flex-1 text-ink">{m.title}</span>
                 <MilestoneBadge kind={m.kind} />
               </li>
             );
@@ -297,47 +296,46 @@ function ItemPreview({
       );
     case "missing_facts":
       return (
-        <div className="flex flex-col gap-4 rounded-md border border-border bg-surface-raised p-4">
+        <ol className="flex max-w-xl flex-col gap-5">
           {p.missingFactIds.map((id, i) => {
             const q = ctx.missingFacts[id];
             if (!q) return null;
             return (
-              <div key={id} className="flex flex-col gap-1.5">
-                <Label htmlFor={`ans-${id}`} className="leading-snug">
-                  {i + 1}. {q.question}
-                </Label>
-                <p className="text-xs text-fg-subtle">{q.whyItMatters}</p>
-                <Input
-                  id={`ans-${id}`}
-                  value={answers[id] ?? ""}
-                  onChange={(e) => setAnswers((a) => ({ ...a, [id]: e.target.value }))}
-                  placeholder="Your answer"
-                  className="max-w-sm"
-                />
-              </div>
+              <li key={id} className="flex gap-3">
+                <span className="w-5 shrink-0 pt-0.5 text-sm font-semibold text-ink tnum" aria-hidden>
+                  {i + 1}.
+                </span>
+                <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                  <Label htmlFor={`ans-${id}`} className="leading-snug">
+                    {q.question}
+                  </Label>
+                  <p className="text-sm text-ink-muted">{q.whyItMatters}</p>
+                  <Input id={`ans-${id}`} value={answers[id] ?? ""} onChange={(e) => setAnswers((a) => ({ ...a, [id]: e.target.value }))} placeholder="Your answer" className="max-w-sm" />
+                </div>
+              </li>
             );
           })}
-        </div>
+        </ol>
       );
     case "profile_update": {
       const f = ctx.facts[p.factId];
       const doc = ctx.documents[p.sourceDocumentId];
       if (!f) return null;
       return (
-        <div className="grid gap-3 rounded-md border border-border bg-surface-raised p-4 sm:grid-cols-2">
+        <dl className="grid max-w-xl gap-6 border-y border-rule py-4 sm:grid-cols-2">
           <div>
-            <p className="text-xs font-medium text-fg-subtle">Current</p>
-            <p className="mt-1 font-display text-2xl text-fg-muted line-through decoration-border-strong">{f.value}</p>
-            <p className="mt-1 text-xs text-fg-subtle">{f.label}</p>
+            <dt className="text-sm text-ink-muted">On your profile now</dt>
+            <dd className="mt-1 font-display text-3xl text-ink-muted line-through decoration-ink decoration-2">{f.value}</dd>
+            <dd className="mt-1 text-sm text-ink-muted">{f.label}</dd>
           </div>
           <div>
-            <p className="text-xs font-medium text-fg-subtle">Proposed</p>
-            <p className="mt-1 font-display text-2xl text-fg">{p.proposedValue}</p>
-            <div className="mt-1.5">
+            <dt className="text-sm text-ink-muted">Proposed</dt>
+            <dd className="mt-1 font-display text-3xl text-ink">{p.proposedValue}</dd>
+            <dd className="mt-1.5">
               <CitationChip label={doc?.title ?? "Uploaded document"} sourceTitle={doc?.title} excerpt="Average attendance across all sites, 2025-26: 89%" />
-            </div>
+            </dd>
           </div>
-        </div>
+        </dl>
       );
     }
     default:
@@ -345,6 +343,7 @@ function ItemPreview({
   }
 }
 
+/** The email as a letter: who it goes to, the subject, and the first lines. */
 export function EmailPreview({ draft, funderName }: { draft: EmailDraft; funderName?: string }) {
   const [copied, setCopied] = React.useState(false);
   const copy = async () => {
@@ -357,20 +356,21 @@ export function EmailPreview({ draft, funderName }: { draft: EmailDraft; funderN
     }
   };
   return (
-    <div className="rounded-md border border-border bg-surface-raised">
-      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-border px-4 py-2.5 text-sm">
-        <span className="text-fg-subtle">To</span>
-        <span className="text-fg">{funderName ?? "Funder"}</span>
-        <span className="ml-auto text-xs text-fg-subtle">You send it. We never send email for you.</span>
-      </div>
-      <div className="px-4 py-3">
-        <p className="text-sm font-medium text-fg">{draft.subject}</p>
-        <pre className="mt-2 line-clamp-4 whitespace-pre-wrap font-sans text-sm leading-relaxed text-fg-muted">{draft.body}</pre>
-      </div>
-      <div className="flex justify-end border-t border-border px-2 py-1.5">
+    <div className="max-w-2xl border-y border-rule">
+      <dl className="flex flex-wrap gap-x-6 gap-y-1 border-b border-rule py-2.5 text-sm">
+        <div className="flex gap-1.5">
+          <dt className="text-ink-muted">To</dt>
+          <dd className="font-semibold text-ink">{funderName ?? "Funder"}</dd>
+        </div>
+        <div className="flex gap-1.5">
+          <dt className="text-ink-muted">Subject</dt>
+          <dd className="font-semibold text-ink">{draft.subject}</dd>
+        </div>
+      </dl>
+      <pre className="line-clamp-4 whitespace-pre-wrap py-3 font-body text-base leading-relaxed text-ink">{draft.body}</pre>
+      <div className="flex justify-end border-t border-rule py-1.5">
         <Button variant="ghost" size="sm" onClick={copy}>
-          <Copy aria-hidden />
-          {copied ? "Copied" : "Copy email"}
+          {copied ? "Copied" : "Copy the email"}
         </Button>
       </div>
     </div>
@@ -394,14 +394,14 @@ function EmailEditDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="lg">
         <DialogHeader>
-          <DialogTitle>Edit email</DialogTitle>
-          <DialogDescription>We'll save your edits to the draft. Send it from your own email whenever you're ready.</DialogDescription>
+          <DialogTitle>Edit the email</DialogTitle>
+          <DialogDescription>Your edits are saved to the draft. You send it from your own email when it reads right.</DialogDescription>
         </DialogHeader>
         <Field id="email-subject" label="Subject">
           <Input value={subject} onChange={(e) => setSubject(e.target.value)} />
         </Field>
         <Field id="email-body" label="Message">
-          <Textarea value={body} onChange={(e) => setBody(e.target.value)} className="min-h-72 font-sans" />
+          <Textarea value={body} onChange={(e) => setBody(e.target.value)} className="min-h-72" />
         </Field>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
@@ -418,16 +418,16 @@ export function formatResolved(item: InboxItem) {
   return item.resolvedAt ? formatDate(item.resolvedAt) : "";
 }
 
-/** A one-line row that opens into the full card. For items you can decide at a glance. */
+/** A one-line row that opens into the full item. For things you can decide at a glance. */
 export function CompactInboxRow({ item, ctx, leaving, onApprove, onReject, defaultOpen = false }: InboxItemCardProps & { defaultOpen?: boolean }) {
   const [open, setOpen] = React.useState(defaultOpen);
   const resolved = item.status !== "pending";
   const panelId = `row-${item.id}`;
   if (open) {
     return (
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col">
         <InboxItemCard item={item} ctx={ctx} leaving={leaving} onApprove={onApprove} onReject={onReject} />
-        <button type="button" onClick={() => setOpen(false)} className="self-start text-xs font-semibold text-fg-subtle underline-offset-2 hover:text-fg hover:underline">
+        <button type="button" onClick={() => setOpen(false)} className="self-start py-2 text-sm font-semibold text-ink-muted underline-offset-4 hover:text-ink hover:underline">
           Collapse
         </button>
       </div>
@@ -436,25 +436,29 @@ export function CompactInboxRow({ item, ctx, leaving, onApprove, onReject, defau
   return (
     <div
       className={cn(
-        "flex items-center gap-3 rounded-xl border border-border bg-surface px-3 py-2.5 transition-colors hover:border-border-strong",
-        resolved && "opacity-85",
-        leaving === "seal" && "animate-seal",
-        leaving === "dismiss" && "animate-collapse-out",
+        "relative flex items-center gap-4 border-b border-rule py-3",
+        leaving === "seal" && "animate-file-away [animation-delay:750ms]",
+        leaving === "dismiss" && "animate-file-away",
       )}
     >
-      <AgentMark agent={item.agent} size="sm" />
+      {leaving === "seal" ? (
+        <div className="pointer-events-none absolute right-10 top-0 z-10">
+          <InkStamp label={stampWord[item.type]} line={stampDate()} animate size="sm" rotate={-7} />
+        </div>
+      ) : null}
       <button type="button" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen(true)} className="min-w-0 flex-1 text-left">
-        <span className="block truncate text-sm font-semibold text-fg">{item.title}</span>
-        <span className="block truncate text-xs text-fg-subtle">{item.summary}</span>
+        <span className="block text-sm text-ink-muted">{inboxKindLabel[item.type]}</span>
+        <span className="block truncate text-base font-semibold text-ink">{resolved || leaving ? item.title : <mark className="highlight">{item.title}</mark>}</span>
       </button>
       {resolved ? (
-        <span className="inline-flex items-center gap-1.5 text-xs text-fg-subtle">
-          {item.status === "approved" ? <SealedLetter size={22} className="text-fg-subtle" /> : null}
-          {item.status === "approved" ? "Sealed" : item.status === "rejected" ? "Declined" : "Edited"}
-        </span>
+        item.status === "rejected" ? (
+          <span className="text-sm text-ink-muted">Declined</span>
+        ) : (
+          <InkStamp label={item.status === "edited" ? "Approved" : stampWord[item.type]} size="sm" rotate={-4} />
+        )
       ) : (
-        <Button size="sm" variant="soft" className="hidden sm:inline-flex" onClick={() => onApprove(item)}>
-          <Check aria-hidden /> {approveLabels[item.type]}
+        <Button size="sm" variant="secondary" className="hidden sm:inline-flex" onClick={() => onApprove(item)}>
+          {approveLabels[item.type]}
         </Button>
       )}
       <Button variant="ghost" size="icon-sm" aria-label={`Open ${item.title}`} aria-expanded={open} aria-controls={panelId} onClick={() => setOpen(true)}>

@@ -1,7 +1,8 @@
 import { cn } from "@/lib/utils";
 
+/** A loading placeholder: a block of paper tint. It does not shimmer. */
 export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("skeleton rounded-md", className)} aria-hidden {...props} />;
+  return <div className={cn("bg-paper-tint", className)} aria-hidden {...props} />;
 }
 
 export function SkeletonText({ lines = 3, className }: { lines?: number; className?: string }) {
@@ -16,14 +17,9 @@ export function SkeletonText({ lines = 3, className }: { lines?: number; classNa
 
 export function SkeletonCard() {
   return (
-    <div className="rounded-lg border border-border bg-surface p-5" aria-hidden>
-      <div className="flex items-start gap-4">
-        <Skeleton className="size-10 rounded-full" />
-        <div className="flex-1">
-          <Skeleton className="mb-2 h-4 w-1/2" />
-          <SkeletonText lines={2} />
-        </div>
-      </div>
+    <div className="border-b border-rule py-5" aria-hidden>
+      <Skeleton className="mb-3 h-4 w-1/2" />
+      <SkeletonText lines={2} />
     </div>
   );
 }

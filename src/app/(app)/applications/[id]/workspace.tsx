@@ -3,14 +3,13 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, CalendarDays, Check, ChevronDown, Download, PanelLeft, PanelRight, Sparkles } from "lucide-react";
+import { ChevronDown, PanelLeft, PanelRight } from "lucide-react";
 import type { ApplicationStage, Member, ProposalWorkspace } from "@/lib/types";
 import { services } from "@/lib/services";
 import { runProposalAgent } from "@/lib/agents";
 import { cn } from "@/lib/utils";
 import { deadlineLabel, formatDate, formatMoney } from "@/lib/format";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
@@ -18,6 +17,7 @@ import { Skeleton, SkeletonText } from "@/components/ui/skeleton";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { StageBadge } from "@/components/app/badges";
 import { PageContainer } from "@/components/app/page-header";
+import { InkStamp } from "@/components/brand/stamp";
 import { SectionEditor } from "@/components/proposal/section-editor";
 import { Checklist, CompliancePanel, QuestionsPanel, SourcesPanel } from "@/components/proposal/panels";
 import { ExportDialog } from "@/components/proposal/export-dialog";
@@ -102,7 +102,7 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
     setDrafting(true);
     await runProposalAgent({ orgId: app.orgId, applicationId: app.id, askAmount: app.askAmount });
     setDrafting(false);
-    toast({ title: "Draft requested", description: "We're on it. The draft will land in your Inbox when it's ready for you.", tone: "info" });
+    toast({ title: "Draft requested", description: "The draft will land in your Inbox when it is ready for you.", tone: "info" });
   };
 
   const onCitationClick = (factId: string) => {
@@ -119,38 +119,31 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
   if (ws.sections.length === 0) {
     return (
       <PageContainer>
-        <Link href="/pipeline" className="inline-flex items-center gap-1.5 text-sm text-fg-muted hover:text-fg">
-          <ArrowLeft className="size-4" aria-hidden /> Pipeline
+        <Link href="/pipeline" className="text-sm text-ink-muted underline-offset-4 hover:text-ink hover:underline">
+          Pipeline
         </Link>
-        <header className="mt-4">
-          <p className="text-sm font-medium text-fg-muted">{app.funder.name}</p>
-          <h1 className="mt-1 font-display text-3xl text-fg sm:text-4xl">{app.opportunity.title}</h1>
-          <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-fg-muted">
+        <header className="mt-4 border-b-2 border-ink pb-6">
+          <p className="text-base text-ink-muted">{app.funder.name}</p>
+          <h1 className="mt-1 font-display text-h1 text-ink">{app.opportunity.title}</h1>
+          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-ink-muted">
             <StageBadge stage={app.stage} />
             {app.opportunity.deadline ? <span>Due {formatDate(app.opportunity.deadline)}</span> : null}
           </div>
         </header>
-        <div className="mt-8 rounded-lg border border-border bg-surface p-6">
-          <div className="flex items-start gap-4">
-            <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-soft-fg">
-              <Sparkles className="size-5" aria-hidden />
-            </span>
-            <div className="min-w-0 flex-1">
-              <h2 className="font-display text-xl text-fg">No draft yet</h2>
-              <p className="mt-1 text-sm text-fg-muted">
-                We'll read the guidelines, build the checklist, and write every section from your facts. Anything we can't source becomes a question for you instead of a guess. The finished draft arrives in your Inbox.
-              </p>
-              <Button className="mt-4" onClick={draftNow} loading={drafting}>
-                <Sparkles aria-hidden /> Write the first draft
-              </Button>
-            </div>
-          </div>
-          <div className="mt-6 grid gap-4 opacity-60 sm:grid-cols-3" aria-hidden>
-            <div className="rounded-md border border-border p-4">
+        <div className="mt-10 border-t-2 border-ink pt-6">
+          <h2 className="font-display text-2xl text-ink">No draft yet</h2>
+          <p className="mt-2 max-w-[65ch] text-base text-ink-muted">
+            We will read the guidelines, build the checklist, and write every section from your facts. Anything we cannot source becomes a question for you instead of a guess. The finished draft arrives in your Inbox.
+          </p>
+          <Button className="mt-5" onClick={draftNow} loading={drafting}>
+            Write the first draft
+          </Button>
+          <div className="mt-10 grid gap-8 opacity-60 sm:grid-cols-3" aria-hidden>
+            <div className="border-t border-rule pt-4">
               <Skeleton className="mb-3 h-3 w-24" />
               <SkeletonText lines={4} />
             </div>
-            <div className="rounded-md border border-border p-4 sm:col-span-2">
+            <div className="border-t border-rule pt-4 sm:col-span-2">
               <Skeleton className="mb-3 h-4 w-40" />
               <SkeletonText lines={6} />
             </div>
@@ -162,40 +155,28 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="border-b border-border bg-surface px-4 py-3 sm:px-6">
+      <header className="border-b-2 border-ink bg-paper px-4 py-3 sm:px-6">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <Link href="/pipeline" className="inline-flex items-center gap-1 text-sm text-fg-muted hover:text-fg">
-            <ArrowLeft className="size-4" aria-hidden /> <span className="hidden sm:inline">Pipeline</span>
+          <Link href="/pipeline" className="text-sm text-ink-muted underline-offset-4 hover:text-ink hover:underline">
+            Pipeline
           </Link>
           <div className="order-last min-w-0 basis-full sm:order-none sm:flex-1 sm:basis-auto">
-            <h1 className="truncate font-display text-xl text-fg">{app.opportunity.title}</h1>
-            <p className="flex flex-wrap items-center gap-x-2 text-xs text-fg-subtle">
+            <h1 className="truncate font-display text-xl text-ink">{app.opportunity.title}</h1>
+            <p className="flex flex-wrap items-center gap-x-4 text-sm text-ink-muted">
               <span>{app.funder.name}</span>
-              {app.askAmount ? (
-                <>
-                  <span aria-hidden>·</span>
-                  <span className="tnum">Asking {formatMoney(app.askAmount)}</span>
-                </>
-              ) : null}
+              {app.askAmount ? <span className="tnum">Asking {formatMoney(app.askAmount)}</span> : null}
               {app.opportunity.deadline ? (
                 <>
-                  <span aria-hidden>·</span>
-                  <span className={cn(dl.tone === "danger" && "text-danger", dl.tone === "warning" && "text-warning")}>
-                    Due {formatDate(app.opportunity.deadline)}, {dl.text.toLowerCase()}
-                  </span>
+                  <span>Due {formatDate(app.opportunity.deadline, "MMM d")}</span>
+                  <span className={cn(dl.tone === "danger" && "font-semibold text-burgundy")}>{dl.text}</span>
                 </>
               ) : null}
-              {owner ? (
-                <>
-                  <span aria-hidden>·</span>
-                  <span>{owner.fullName}</span>
-                </>
-              ) : null}
+              {owner ? <span>{owner.fullName}</span> : null}
             </p>
           </div>
           <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
-            <span className="hidden text-xs text-fg-subtle sm:inline" aria-live="polite">
-              {saved === "saving" ? "Saving..." : saved === "saved" ? "Saved" : ""}
+            <span className="hidden text-sm text-ink-muted sm:inline" aria-live="polite">
+              {saved === "saving" ? "Saving" : saved === "saved" ? "Saved" : ""}
             </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -214,12 +195,10 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
               </DropdownMenuContent>
             </DropdownMenu>
             <Button variant="secondary" size="sm" asChild className="hidden sm:inline-flex">
-              <Link href="/calendar">
-                <CalendarDays aria-hidden /> <span>Milestones</span>
-              </Link>
+              <Link href="/calendar">Milestones</Link>
             </Button>
             <Button size="sm" onClick={() => setExportOpen(true)}>
-              <Download aria-hidden /> Export
+              Export
             </Button>
           </div>
         </div>
@@ -244,11 +223,11 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
 
       <div className="flex flex-1 flex-col lg:flex-row">
         <aside
-          className={cn("hidden shrink-0 border-r border-border bg-surface lg:block", leftOpen ? "w-64" : "w-12")}
+          className={cn("hidden shrink-0 border-r border-rule bg-paper lg:block", leftOpen ? "w-64" : "w-12")}
           aria-label="Checklist"
         >
           <div className="flex items-center justify-between px-2 py-2">
-            {leftOpen ? <span className="px-2 text-xs font-medium text-fg-subtle">Requirements</span> : null}
+            {leftOpen ? <span className="px-2 text-sm font-semibold text-ink">Requirements</span> : null}
             <Button variant="ghost" size="icon-sm" aria-label={leftOpen ? "Collapse checklist" : "Expand checklist"} aria-expanded={leftOpen} onClick={() => setLeftOpen((o) => !o)}>
               <PanelLeft />
             </Button>
@@ -260,45 +239,52 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
           ) : null}
         </aside>
 
-        <section className="flex min-w-0 flex-1 flex-col bg-surface-sunken/50" aria-label="Editor">
+        <section className="flex min-w-0 flex-1 flex-col bg-paper" aria-label="Editor">
           {active ? (
             <>
               <div className="flex flex-1 flex-col">
                 <SectionEditor key={active.id} section={active} facts={ws.facts} onChange={onChange} onCitationClick={onCitationClick} onGapClick={onGapClick} />
               </div>
-              <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border bg-surface px-5 py-3 sm:px-10">
-                <p className="text-xs text-fg-subtle">
-                  {active.status === "approved" ? "You've approved this section." : active.status === "needs_facts" ? "A few gaps here are waiting on your answers." : "Read it over, then mark it approved when it sounds like you."}
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-rule bg-paper px-5 py-3 sm:px-10">
+                <p className="text-sm text-ink-muted">
+                  {active.status === "approved" ? "You approved this section." : active.status === "needs_facts" ? "A few gaps here are waiting on your answers." : "Read it over, then approve it when it sounds like you."}
                 </p>
-                <Button variant={active.status === "approved" ? "secondary" : "soft"} size="sm" onClick={approveSection}>
-                  <Check aria-hidden /> {active.status === "approved" ? "Approved" : "Mark section approved"}
-                </Button>
+                {active.status === "approved" ? (
+                  <div className="flex items-center gap-4">
+                    <InkStamp label="Approved" size="sm" rotate={-5} />
+                    <Button variant="ghost" size="sm" onClick={approveSection}>
+                      Undo approval
+                    </Button>
+                  </div>
+                ) : (
+                  <Button variant="secondary" size="sm" onClick={approveSection}>
+                    Approve this section
+                  </Button>
+                )}
               </div>
             </>
           ) : null}
         </section>
 
-        <aside className={cn("border-t border-border bg-surface lg:border-l lg:border-t-0", rightOpen ? "lg:w-80" : "lg:w-12")} aria-label="Questions, checks, and sources">
+        <aside className={cn("border-t border-rule bg-paper lg:border-l lg:border-t-0", rightOpen ? "lg:w-80" : "lg:w-12")} aria-label="Questions, checks, and sources">
           <div className="hidden items-center justify-between px-2 py-2 lg:flex">
-            {rightOpen ? <span className="px-2 text-xs font-medium text-fg-subtle">Review</span> : null}
+            {rightOpen ? <span className="px-2 text-sm font-semibold text-ink">Review</span> : null}
             <Button variant="ghost" size="icon-sm" aria-label={rightOpen ? "Collapse review panel" : "Expand review panel"} aria-expanded={rightOpen} onClick={() => setRightOpen((o) => !o)}>
               <PanelRight />
             </Button>
           </div>
           <div className={cn("px-4 pb-8 lg:px-4", !rightOpen && "lg:hidden")}>
             <Tabs value={panel} onValueChange={(v) => setPanel(v as typeof panel)}>
-              <TabsList className="-mx-1" aria-label="Review panels">
-                <TabsTrigger value="questions" className="!px-2.5">
+              <TabsList variant="line" aria-label="Review panels">
+                <TabsTrigger value="questions">
                   Questions
-                  {openQuestions ? <Badge variant="warning" className="px-1.5 py-0 tnum">{openQuestions}</Badge> : null}
+                  {openQuestions ? <mark className="highlight text-sm font-semibold tnum">{openQuestions}</mark> : null}
                 </TabsTrigger>
-                <TabsTrigger value="checks" className="!px-2.5">
+                <TabsTrigger value="checks">
                   Checks
-                  {fails ? <Badge variant="danger" className="px-1.5 py-0 tnum">{fails}</Badge> : null}
+                  {fails ? <span className="text-sm font-semibold text-burgundy tnum">{fails}</span> : null}
                 </TabsTrigger>
-                <TabsTrigger value="sources" className="!px-2.5">
-                  Sources
-                </TabsTrigger>
+                <TabsTrigger value="sources">Sources</TabsTrigger>
               </TabsList>
               <TabsContent value="questions">
                 <QuestionsPanel questions={ws.missingFacts} sections={ws.sections} highlightId={highlightGap} onAnswer={answer} onSkip={skip} />

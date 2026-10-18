@@ -1,25 +1,32 @@
 import Link from "next/link";
 import { Logo } from "@/components/app/logo";
 import { Button } from "@/components/ui/button";
-import { PRODUCT_NAME } from "@/lib/brand";
+import { PRODUCT_NAME, PRODUCT_TAGLINE } from "@/lib/brand";
 
-export function SiteNav({ tone = "ink" }: { tone?: "ink" | "paper" }) {
-  const paper = tone === "paper";
+const links = [
+  { href: "#how", label: "How it works" },
+  { href: "#trust", label: "Trust" },
+  { href: "#pricing", label: "Pricing" },
+  { href: "#questions", label: "Questions" },
+];
+
+export function SiteNav() {
   return (
-    <header className={paper ? "absolute inset-x-0 top-0 z-30" : "sticky top-0 z-30 border-b border-border/70 bg-bg/90 backdrop-blur"}>
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Logo tone={tone} />
-        <nav aria-label="Site" className={`hidden items-center gap-7 text-sm font-semibold md:flex ${paper ? "text-night-fg/85" : "text-fg-muted"}`}>
-          <a href="#how" className="hover:underline underline-offset-4">How it works</a>
-          <a href="#trust" className="hover:underline underline-offset-4">Trust</a>
-          <a href="#stories" className="hover:underline underline-offset-4">Stories</a>
-          <a href="#pricing" className="hover:underline underline-offset-4">Pricing</a>
+    <header className="sticky top-0 z-30 border-b-2 border-ink bg-paper">
+      <div className="mx-auto flex h-16 max-w-[75rem] items-center justify-between gap-6 px-4 sm:px-6 lg:px-10">
+        <Logo />
+        <nav aria-label="Site" className="hidden items-center gap-7 text-base text-ink md:flex">
+          {links.map((l) => (
+            <a key={l.href} href={l.href} className="underline-offset-4 decoration-2 hover:underline hover:decoration-pink">
+              {l.label}
+            </a>
+          ))}
         </nav>
-        <div className="flex items-center gap-2">
-          <Button asChild variant="ghost" size="sm" className={paper ? "text-night-fg hover:bg-night-fg/10 hover:text-night-fg" : ""}>
-            <Link href="/sign-in">Sign in</Link>
-          </Button>
-          <Button asChild variant={paper ? "glow" : "primary"} size="sm">
+        <div className="flex items-center gap-5">
+          <Link href="/sign-in" className="text-base text-ink underline-offset-4 decoration-2 hover:underline hover:decoration-pink">
+            Sign in
+          </Link>
+          <Button asChild>
             <Link href="/sign-up">Start free</Link>
           </Button>
         </div>
@@ -30,24 +37,24 @@ export function SiteNav({ tone = "ink" }: { tone?: "ink" | "paper" }) {
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border bg-surface">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6 md:flex-row md:items-start md:justify-between">
+    <footer className="border-t-2 border-ink">
+      <div className="mx-auto grid max-w-[75rem] gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1fr_auto] lg:px-10">
         <div>
           <Logo size="sm" />
-          <p className="mt-3 max-w-xs text-sm text-fg-muted">A funding team that walks beside small nonprofits. We're building it with early users in Ohio, Texas, New Mexico, and North Carolina, and we'd love to hear from you.</p>
+          <p className="mt-4 max-w-[40ch] text-base text-ink-muted">{PRODUCT_TAGLINE} Built with early users in Ohio, Texas, New Mexico, and North Carolina.</p>
         </div>
-        <nav aria-label="Footer" className="grid grid-cols-2 gap-x-12 gap-y-2.5 text-sm text-fg-muted sm:grid-cols-3">
-          <a href="#how" className="hover:text-fg">How it works</a>
-          <a href="#pricing" className="hover:text-fg">Pricing</a>
-          <a href="#faq" className="hover:text-fg">Questions</a>
-          <Link href="/design" className="hover:text-fg">Design system</Link>
-          <Link href="/sign-in" className="hover:text-fg">Sign in</Link>
-          <a href="mailto:hello@example.org" className="hover:text-fg">Say hello</a>
+        <nav aria-label="Footer" className="grid grid-cols-2 gap-x-12 gap-y-3 text-base text-ink sm:grid-cols-3">
+          <a href="#how" className="underline-offset-4 hover:underline">How it works</a>
+          <a href="#pricing" className="underline-offset-4 hover:underline">Pricing</a>
+          <a href="#questions" className="underline-offset-4 hover:underline">Questions</a>
+          <Link href="/design" className="underline-offset-4 hover:underline">Design system</Link>
+          <Link href="/art-review" className="underline-offset-4 hover:underline">Image credits</Link>
+          <Link href="/sign-in" className="underline-offset-4 hover:underline">Sign in</Link>
         </nav>
       </div>
-      <div className="border-t border-border">
-        <p className="mx-auto max-w-6xl px-4 py-4 text-xs text-fg-subtle sm:px-6">
-          {PRODUCT_NAME} is a working name. The stories on this page are illustrative. Nothing gets submitted, sent, or posted without you.
+      <div className="border-t border-rule">
+        <p className="mx-auto max-w-[75rem] px-4 py-5 text-sm text-ink-muted sm:px-6 lg:px-10">
+          {PRODUCT_NAME} is a working name. The stories on this page are illustrative.
         </p>
       </div>
     </footer>

@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
+const linkClass = "font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-pink";
+
 export function SignInForm() {
   const router = useRouter();
   const [loading, setLoading] = React.useState(false);
@@ -18,8 +20,8 @@ export function SignInForm() {
 
   return (
     <div>
-      <h1 className="font-display text-3xl text-fg">Welcome back</h1>
-      <p className="mt-2 text-base text-fg-muted">Sign in and see what's waiting in your Inbox.</p>
+      <h1 className="font-display text-3xl text-ink">Welcome back</h1>
+      <p className="mt-3 text-lg text-ink-muted">Sign in and see what's waiting in your Inbox.</p>
       <form
         className="mt-8 flex flex-col gap-5"
         onSubmit={async (e) => {
@@ -39,7 +41,7 @@ export function SignInForm() {
           <Input type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
         </Field>
         <div className="flex items-center justify-between text-sm">
-          <Link href="#" className="text-fg-muted underline-offset-2 hover:text-fg hover:underline">
+          <Link href="#" className={linkClass}>
             Forgot your password?
           </Link>
         </div>
@@ -47,15 +49,15 @@ export function SignInForm() {
           Sign in
         </Button>
       </form>
-      <div className="my-6 flex items-center gap-3 text-xs text-fg-subtle">
+      <div className="my-6 flex items-center gap-3 text-sm text-ink-muted">
         <Separator className="flex-1" /> or <Separator className="flex-1" />
       </div>
       <Button variant="secondary" size="lg" className="w-full" onClick={() => router.push("/inbox")}>
         Continue with Google
       </Button>
-      <p className="mt-8 text-sm text-fg-muted">
+      <p className="mt-8 text-base text-ink-muted">
         New here?{" "}
-        <Link href="/sign-up" className="font-medium text-accent underline-offset-2 hover:underline">
+        <Link href="/sign-up" className={linkClass}>
           Create your workspace
         </Link>
       </p>

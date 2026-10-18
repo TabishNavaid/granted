@@ -28,13 +28,13 @@ The smoke test opens every route and checks for console errors. It starts the de
 | --- | --- |
 | `src/app` | Routes. `(app)` is the signed-in product, `(auth)` is sign in and sign up, `onboarding` is the setup flow, `design` is the token and component gallery. |
 | `src/components/ui` | Base components built on the tokens: button, input, select, card, badge, tabs, dialog, toast, empty state, skeleton, data table, and so on. |
-| `src/components/app` | Product components: Inbox item, fit score, citation chip, verified source, stage and agent badges, sidebar. |
+| `src/components/app` | Product components: Inbox item, plan form, fit score, citation chip, verified source, stage and milestone tags, sidebar, wordmark. |
 | `src/components/proposal` | The proposal workspace: TipTap editor with citation and gap nodes, checklist, panels, export. |
 | `src/lib/types` | Domain types mirroring the Postgres schema. |
 | `src/lib/mock` | Fictional organization, funders, and agent output. |
 | `src/lib/services` | The data layer the UI calls. `contracts.ts` is the interface, `mock.ts` the in-memory adapter, `server.ts` the single switch for Supabase. |
 | `src/lib/agents` | Claude tool schemas, agent input and output types, and stub implementations. |
 | `supabase/migrations` | Postgres schema with RLS, pgvector, and storage policies. |
-| `src/app/globals.css` | Every design token, dawn (light) and night (dark). |
-| `src/components/brand` | Hand-drawn SVG scenes and glyphs: dawn scene, lantern, sealed letter, seedling, sunrise, margin notes, photo slots. |
-| `src/components/marketing` | Landing page nav and the live demo components. |
+| `src/app/globals.css` | Every design token: day print (light) and night print (dark). See BRAND.md. |
+| `src/components/brand` | The stamp, the duotone plate, the won poster, and the SVG filters they use. Image catalog in `src/lib/images.ts`, credits in `CREDITS.md`. |
+| `src/components/marketing` | Landing page nav and the hero Inbox, which is the real Inbox component on a printed sheet. |
