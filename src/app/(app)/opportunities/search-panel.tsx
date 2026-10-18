@@ -168,7 +168,7 @@ export function SearchPanel({ saved: initial }: { saved: SavedSearch[] }) {
                   {results.hitCount} on Grants.gov, {results.candidates.length} still open to nonprofits
                 </span>
                 {!results.savedId ? (
-                  <button type="button" onClick={save} className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-corn">
+                  <button type="button" onClick={save} className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
                     Save this search
                   </button>
                 ) : null}
@@ -185,7 +185,7 @@ export function SearchPanel({ saved: initial }: { saved: SavedSearch[] }) {
                         <span className="flex flex-wrap gap-x-4 text-sm text-ink-muted">
                           <span>{c.agency}</span>
                           <span>{c.status === "forecasted" ? "Forecasted" : c.closeDate ? `Closes ${formatDate(c.closeDate)}` : "No close date"}</span>
-                          <a href={c.url} target="_blank" rel="noreferrer" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-corn">
+                          <a href={c.url} target="_blank" rel="noreferrer" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-ink">
                             Grants.gov
                           </a>
                         </span>

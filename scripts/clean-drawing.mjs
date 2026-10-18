@@ -1,22 +1,23 @@
 #!/usr/bin/env node
 /**
- * clean-drawing: turns a crayon drawing photographed or scanned on white
+ * clean-drawing: turns a drawing or watercolor photographed or scanned on
  * paper into a cut-out that sits on any page.
  *
  * For every entry in scripts/drawings.json it:
  *   1. downloads the original from its source into .cache/drawings (once),
- *   2. crops to the entry's box, if it has one,
+ *   2. crops to the entry's box, if it has one, and erases what is written
+ *      on the sheet (a painter's pencil label, a signature),
  *   3. flattens the paper: estimates the paper's own color and shading across
  *      the sheet and divides it out, so the paper reads as pure white,
- *   4. removes the white: "color to alpha" against white, so every grain of
- *      paper showing through the wax becomes transparent and the crayon
- *      keeps its texture instead of being cut out with a hard edge,
+ *   4. removes the white: "color to alpha" against white, so thin washes and
+ *      the paper showing through them become transparent and the painting
+ *      keeps its softness instead of being cut out with a hard edge,
  *   5. drops stray marks that belong to the rest of the sheet (a ground line,
  *      pencil, a neighbor's color), by hue or by grayness,
- *   6. recolors toward the palette where an entry asks: each crayon color to a
- *      palette fill and the dark outline to the darker shade of that fill, so
- *      a red flower outlined in black becomes a pink one outlined in magenta
- *      with every grain and wobble intact,
+ *   6. recolors toward the palette where an entry asks (each color to a
+ *      palette fill, a dark outline to the darker shade of that fill), or
+ *      just softens hue, saturation, and lightness so the set sits calmly
+ *      next to the interface,
  *   7. trims to the drawing, resizes to twice its CSS size, and
  *   8. writes an optimized PNG and WebP to public/drawings/.
  *
@@ -25,7 +26,7 @@
  * files can never drift apart.
  *
  *   npm run drawings              # process everything
- *   npm run drawings -- sun cloud # only these slugs
+ *   npm run drawings -- lupine    # only these slugs
  */
 import { mkdir, readFile, writeFile, access } from "node:fs/promises";
 import path from "node:path";
@@ -156,8 +157,15 @@ async function paperMap(input, width, height) {
 async function clean(entry) {
   const src = await fetchSource(entry);
   let img = sharp(src).rotate().flatten({ background: "#ffffff" });
-  if (entry.crop) {
-    const [left, top, width, height] = entry.crop;
+  const meta = await sharp(src).metadata();
+  // A crop is either pixels [left, top, width, height] or fractions of the sheet [x0, y0, x1, y1].
+  let box = entry.crop ?? null;
+  if (entry.cropFrac) {
+    const [x0, y0, x1, y1] = entry.cropFrac;
+    box = [Math.round(x0 * meta.width), Math.round(y0 * meta.height), Math.round((x1 - x0) * meta.width), Math.round((y1 - y0) * meta.height)];
+  }
+  if (box) {
+    const [left, top, width, height] = box;
     img = img.extract({ left, top, width, height });
   }
   const { data, info } = await img.removeAlpha().raw().toBuffer({ resolveWithObject: true });
@@ -165,7 +173,7 @@ async function clean(entry) {
   const paper = await paperMap(await sharp(data, { raw: { width, height, channels: 3 } }).png().toBuffer(), width, height);
 
   const cutoff = entry.cutoff ?? 0.1; // how faint a mark has to be before it counts as paper
-  const gain = entry.gain ?? 1; // >1 makes thin wax read a little stronger
+  const gain = entry.gain ?? 1; // >1 makes thin pigment read a little stronger
   const t = entry.tone ?? {};
   const drops = entry.drop ?? [];
   const recolor = entry.recolor;
@@ -242,7 +250,57 @@ async function clean(entry) {
       if (y > maxY) maxY = y;
     }
   }
+  // Erase what is written on the sheet (the painter's pencil label, a signature, a catalog number).
+  // Rectangles are fractions of the whole sheet.
+  if (entry.erase?.length) {
+    const ox = box ? box[0] : 0;
+    const oy = box ? box[1] : 0;
+    minX = width;
+    minY = height;
+    maxX = -1;
+    maxY = -1;
+    const rects = entry.erase.map(([x0, y0, x1, y1]) => [x0 * meta.width - ox, y0 * meta.height - oy, x1 * meta.width - ox, y1 * meta.height - oy]);
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const o = (y * width + x) * 4;
+        if (rects.some(([a0, b0, a1, b1]) => x >= a0 && x < a1 && y >= b0 && y < b1)) rgba[o + 3] = 0;
+        if (rgba[o + 3] > 30) {
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+  }
   if (maxX < 0) throw new Error(`${entry.slug}: nothing left after removing the paper`);
+
+  // Tighten the box to rows and columns that really hold paint, so a stray
+  // speck or the edge of the scan does not hold the trim open.
+  {
+    const rows = new Uint32Array(height);
+    const cols = new Uint32Array(width);
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        if (rgba[(y * width + x) * 4 + 3] > 70) {
+          rows[y]++;
+          cols[x]++;
+        }
+      }
+    }
+    const minRow = Math.max(3, Math.round(width * 0.004));
+    const minCol = Math.max(3, Math.round(height * 0.004));
+    const first = (arr, min) => arr.findIndex((v) => v >= min);
+    const last = (arr, min) => arr.length - 1 - [...arr].reverse().findIndex((v) => v >= min);
+    const y0 = first(rows, minRow);
+    const x0 = first(cols, minCol);
+    if (y0 >= 0 && x0 >= 0) {
+      minY = Math.max(minY, y0);
+      maxY = Math.min(maxY, last(rows, minRow));
+      minX = Math.max(minX, x0);
+      maxX = Math.min(maxX, last(cols, minCol));
+    }
+  }
 
   // trim, with a little air so grain at the edge is not clipped
   const pad = Math.round(Math.max(maxX - minX, maxY - minY) * 0.02) + 2;
@@ -304,9 +362,9 @@ function creditsMd(entries) {
   const sources = [...new Map(entries.map((e) => [e.credit.sourceUrl, e])).values()];
   return `# Drawing credits
 
-Every drawing in the product is a real crayon, oil pastel, or colored pencil drawing found online. Each license was confirmed on the drawing's own source page before it was used. All of them allow commercial use without permission. None of the reference images used to set the direction are shipped.
+Every drawing in the product is a watercolor by Mary Vaux Walcott (1860 to 1940), held by the Smithsonian American Art Museum and released as CC0 through Smithsonian Open Access. Each record was checked before use: the museum page marks the image \"Free to use\" with the CC0 badge, and the Smithsonian Open Access API lists its usage as CC0. CC0 allows commercial use without permission or attribution; the credit below is given anyway. None of the reference images used to set the direction are shipped.
 
-The files here are produced by \`scripts/clean-drawing.mjs\` from \`scripts/drawings.json\`: the paper is removed to transparency, the drawing is trimmed, lightly color-matched to the palette where noted, and saved at 2x as PNG and WebP. Several files can come from one source sheet. You can see every drawing with its credit at \`/drawings-review\`.
+The files here are produced by \`scripts/clean-drawing.mjs\` from \`scripts/drawings.json\`: the paper is removed to transparency, the painter's pencil label is erased, color is softened slightly so the paintings sit calmly next to the interface, and each is trimmed and saved at 2x as PNG and WebP. Two files can come from one sheet. You can see every drawing with its credit at \`/drawings-review\`.
 
 | File | What it is | Source title | Author | Source page | License |
 | --- | --- | --- | --- | --- | --- |
@@ -322,13 +380,13 @@ ${(config.considered ?? []).map((c) => `- ${c}`).join("\n")}
 
 ## Would swap if better ones turn up
 
-- A real crayon cloud and a real crayon seedling in the same loose, waxy hand. The set has neither; the error page uses the sprout and nothing uses a cloud.
-- Larger originals. Pixabay serves these at 1280px without an account, so the grass clumps are at 1x rather than 2x and look slightly soft in the biggest meadows.
-- A second flower sheet by the same child, so the meadow has more than two shapes.
+- A grass or sedge plate in the same hand, to sit low between the flowers. Death camas and wild hyacinth stand in for grass today.
+- A cleaner single-stem flower for the approval bloom. The poppy is cut from a sheet with crossing stems, so its stem ends in a straight edge.
+- The Smithsonian holds more than 700 of Walcott's plates; any of them can be added the same way.
 
 ## Adding or swapping a drawing
 
-1. Find it on Openverse (filtered to CC0 or public domain), Wikimedia Commons (public domain or CC0 only), Pixabay, Unsplash, or Pexels. Open its source page and confirm the license allows commercial use. No watermarks, no stock sites, no unclear licenses.
+1. Prefer another Mary Vaux Walcott plate from the Smithsonian American Art Museum so the set stays in one hand. Otherwise use CC0, public domain, or the Pixabay Content License, confirmed on the source page. No watermarks, no stock sites, no unclear licenses, nothing marked AI generated.
 2. Add an entry to \`scripts/drawings.json\` with the download URL, an optional crop box, and the credit exactly as the source page states it.
 3. Run \`npm run drawings\`. This file and \`src/lib/drawings.manifest.ts\` are rewritten.
 4. Check it next to the rest at \`/drawings-review\` against the test in \`docs/design-references.md\`.

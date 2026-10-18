@@ -1,13 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Atkinson_Hyperlegible_Next, Shantell_Sans } from "next/font/google";
+import { Atkinson_Hyperlegible_Next, Newsreader } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { ToastProvider } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { PRODUCT_DESCRIPTION, PRODUCT_NAME } from "@/lib/brand";
 import "./globals.css";
 
-// Headlines: a marker-drawn sans with an informality axis, so it sits next to crayon drawings and still reads at any size.
-const display = Shantell_Sans({ subsets: ["latin"], axes: ["INFM", "BNCE"], variable: "--font-shantell", display: "swap" });
+// Headlines: a text serif with an optical size axis, so it is crisp and composed at display sizes.
+const display = Newsreader({ subsets: ["latin"], axes: ["opsz"], style: ["normal", "italic"], variable: "--font-newsreader", display: "swap" });
 // Body and interface: a calm text face built for people who read with effort, so budgets and deadlines stay clear.
 const body = Atkinson_Hyperlegible_Next({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-atkinson", display: "swap", adjustFontFallback: false, fallback: ["Helvetica Neue", "Arial", "sans-serif"] });
 

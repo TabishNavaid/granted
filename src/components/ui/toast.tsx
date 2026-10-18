@@ -4,8 +4,6 @@ import * as React from "react";
 import * as ToastPrimitive from "@radix-ui/react-toast";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { flowerFor } from "@/lib/drawings";
-import { Bloom } from "@/components/drawings/bloom";
 
 type ToastTone = "success" | "warning" | "info";
 
@@ -25,7 +23,7 @@ const ToastContext = React.createContext<{ toast: (opts: ToastOptions) => void }
 
 let counter = 0;
 
-/** A small sheet at the corner of the page. A little flower means something was approved. */
+/** A small sheet at the corner of the page. A red edge means something went wrong. */
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = React.useState<ToastRecord[]>([]);
   const toast = React.useCallback((opts: ToastOptions) => {
@@ -51,13 +49,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               "data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)]",
             )}
           >
-            {t.tone === "success" ? <Bloom flower={flowerFor(`toast-${t.id}`)} className="-my-1 h-12 shrink-0" /> : null}
             <div className="flex min-w-0 flex-1 flex-col gap-0.5">
               <ToastPrimitive.Title className="text-base font-bold text-ink">{t.title}</ToastPrimitive.Title>
               {t.description ? <ToastPrimitive.Description className="text-sm text-ink-muted">{t.description}</ToastPrimitive.Description> : null}
               {t.action ? (
                 <ToastPrimitive.Action altText={t.action.label} asChild>
-                  <button type="button" onClick={t.action.onClick} className="mt-1 w-fit text-sm font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-corn">
+                  <button type="button" onClick={t.action.onClick} className="mt-1 w-fit text-sm font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
                     {t.action.label}
                   </button>
                 </ToastPrimitive.Action>

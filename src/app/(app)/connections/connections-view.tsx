@@ -411,7 +411,7 @@ function ContactDetail({ contact, applications, onClose, onChange, onRemoved }: 
             <dt className="text-sm font-semibold text-ink">Email</dt>
             <dd className="mt-0.5 text-base text-ink">
               {contact.email ? (
-                <a href={`mailto:${contact.email}`} className="underline decoration-[1.5px] underline-offset-4 hover:decoration-corn">
+                <a href={`mailto:${contact.email}`} className="underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
                   {contact.email}
                 </a>
               ) : (

@@ -217,7 +217,7 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
             </div>
             <p className="mt-3 text-sm text-ink-muted">
               Email reminders and the weekly digest go out only once email delivery is connected on the{" "}
-              <a href="/settings/integrations" className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-corn">
+              <a href="/settings/integrations" className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
                 Integrations page
               </a>
               .

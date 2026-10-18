@@ -56,9 +56,9 @@ function Preview({ body, className }: { body: string; className?: string }) {
     <p className={cn("whitespace-pre-wrap text-base text-ink", className)}>
       {parts.map((part, i) =>
         /^\[confirm:[^\]]*\]$/.test(part) ? (
-          <mark key={i} className="circled">
+          <span key={i} className="count">
             {part}
-          </mark>
+          </span>
         ) : (
           <React.Fragment key={i}>{part}</React.Fragment>
         ),
@@ -310,7 +310,7 @@ function EmailRow({
             <div className="flex gap-1.5">
               <dt className="text-ink-muted">To confirm</dt>
               <dd className="text-ink">
-                <mark className="circled tnum">{confirmCount}</mark>
+                <span className="count tnum">{confirmCount}</span>
               </dd>
             </div>
           ) : null}

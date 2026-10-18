@@ -131,7 +131,7 @@ export function MatchesStep({ initial, total, demo }: { initial: MatchView[] | n
           {matches.length ? "Skip for now, show me around" : "Go to my Inbox"}
         </Button>
         {count > 3 ? (
-          <Link href="/opportunities" className="text-base font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-corn">
+          <Link href="/opportunities" className="text-base font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
             See all {count}
           </Link>
         ) : null}

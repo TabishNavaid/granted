@@ -35,19 +35,19 @@ export const doneWord: Record<InboxItemType, string> = {
   profile_update: "Updated",
 };
 
-export const stageMeta: Record<ApplicationStage, { label: string; tone: "neutral" | "info" | "accent" | "warning" | "success" | "danger" | "bloom" }> = {
+export const stageMeta: Record<ApplicationStage, { label: string; tone: "neutral" | "info" | "accent" | "warning" | "success" | "danger" | "won" }> = {
   discovered: { label: "Discovered", tone: "neutral" },
   researching: { label: "Researching", tone: "neutral" },
   drafting: { label: "Drafting", tone: "accent" },
   review: { label: "Review", tone: "warning" },
   submitted: { label: "Submitted", tone: "accent" },
-  won: { label: "Won", tone: "bloom" },
+  won: { label: "Won", tone: "won" },
   lost: { label: "Lost", tone: "danger" },
 };
 
 export const stageOrder: ApplicationStage[] = ["discovered", "researching", "drafting", "review", "submitted", "won", "lost"];
 
-export const milestoneMeta: Record<MilestoneKind, { label: string; tone: "neutral" | "info" | "accent" | "warning" | "success" | "danger" | "bloom" }> = {
+export const milestoneMeta: Record<MilestoneKind, { label: string; tone: "neutral" | "info" | "accent" | "warning" | "success" | "danger" | "won" }> = {
   deadline: { label: "Deadline", tone: "danger" },
   draft_due: { label: "Draft due", tone: "accent" },
   board_review: { label: "Board review", tone: "neutral" },

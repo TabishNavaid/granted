@@ -293,7 +293,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
             <p className="flex flex-wrap items-center gap-x-4 text-sm text-ink-muted">
               <span>{app.funder.name}</span>
               <span>{app.mode === "proposal" ? "Full proposal" : "Letter of inquiry"}</span>
-              <button type="button" onClick={() => setAskOpen(true)} className="inline-flex min-h-6 items-center tnum underline decoration-[1px] underline-offset-2 hover:decoration-corn">
+              <button type="button" onClick={() => setAskOpen(true)} className="inline-flex min-h-6 items-center tnum underline decoration-[1px] underline-offset-2 hover:decoration-ink">
                 {app.askAmount ? `Asking ${formatMoney(app.askAmount)}` : "Set the ask"}
               </button>
               {app.opportunity.deadline ? (
@@ -394,7 +394,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
                 </p>
                 {active.status === "approved" ? (
                   <div className="flex items-center gap-4">
-                    <Bloom key={active.id} flower={flowerFor(active.id)} grow={justApproved === active.id} className="pointer-events-none -my-3 h-16 self-end" />
+                    {justApproved === active.id ? <Bloom key={active.id} flower={flowerFor(active.id)} grow className="fleeting -my-2 h-10 self-end" /> : null}
                     <Button variant="ghost" size="sm" onClick={approveSection}>
                       Undo approval
                     </Button>
@@ -421,7 +421,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
               <TabsList variant="line" aria-label="Review panels" className="flex-wrap gap-x-4 gap-y-0 overflow-visible">
                 <TabsTrigger value="questions">
                   Questions
-                  {openQuestions ? <mark className="circled text-sm font-semibold tnum">{openQuestions}</mark> : null}
+                  {openQuestions ? <span className="count">{openQuestions}</span> : null}
                 </TabsTrigger>
                 <TabsTrigger value="checks">
                   Checks

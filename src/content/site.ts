@@ -32,7 +32,7 @@ export const faq: FaqItem[] = [
   },
   {
     q: "Who sees our data, and does anyone train on it?",
-    a: "Your workspace is private to the people you invite. Data lives in a Postgres database hosted by Supabase in the United States. Drafting uses Google's Gemini API. On paid plans we use the paid tier, where Google does not train on your data. On the free plan we may use the free tier, which can use data to improve Google's products. The app tells you which applies.",
+    a: "Your workspace is private to the people you invite. Data lives in a Postgres database hosted by Supabase in the United States. Drafting uses Google's Gemini API through one key set up by whoever runs the service, and Google's terms for that key decide whether prompts may be used to improve its products (not on the paid tier, possibly on the free tier). The app tells you which applies.",
   },
   {
     q: "What sources does it search?",
@@ -86,8 +86,8 @@ export const securitySections: Section[] = [
     heading: "AI providers and training",
     body: [
       `${PRODUCT_NAME} uses Google's Gemini API to read your documents, find matches, and write drafts. Your text is sent to Google for processing and returned to your workspace.`,
-      "On paid plans we use the paid API tier. Under its terms, Google does not use customer prompts or outputs to train its models.",
-      "On the Free plan we may use the free API tier. Under its terms, Google may use that data to improve its products. The app tells you when this applies, and you can move to a paid plan at any time to avoid it.",
+      "Every workspace uses one Gemini API key set up by whoever runs the service. Google's terms for that key decide what happens to prompts: on the paid API tier, Google does not use customer prompts or outputs to train its models; on the free tier, it may use them to improve its products.",
+      "The product does not yet show which tier its key is on. Ask whoever runs your service, or read the key's billing status in Google AI Studio.",
       "We do not train models of our own on your data, and we do not share one customer's data with another.",
     ],
   },
@@ -108,7 +108,7 @@ export const securitySections: Section[] = [
   {
     heading: "Email and sending",
     body: [
-      `${PRODUCT_NAME} does not send email for you and does not connect to your inbox. It writes a draft, and you send it from your own account.`,
+      `${PRODUCT_NAME} writes drafts; you send them. By default you copy a draft or open it in your own mail app. If you connect Gmail or Outlook, we hold a send-only token for that account and send a message only when you press Send on it. We never read your mail.`,
       "We do not scrape personal contact details. Funder contacts come from public program listings, and we keep to published professional information.",
     ],
   },
@@ -155,7 +155,7 @@ export const privacySections: Section[] = [
   {
     heading: "AI processing",
     body: [
-      "Your website text and documents are sent to Google's Gemini API to produce matches and drafts. On paid plans we use the paid tier, where Google does not train on customer data. On the Free plan we may use the free tier, where Google may use data to improve its products. We tell you in the app which tier you are on.",
+      "Your website text and documents are sent to Google's Gemini API to produce matches and drafts, through one API key configured by whoever runs the service. Google's terms for that key apply: on the paid API tier Google does not train on customer data; on the free tier it may use data to improve its products.",
       "We do not train models of our own on your content. Cross-customer learning, if we ever offer it, will be opt-in and anonymized.",
     ],
   },
@@ -285,7 +285,7 @@ export const pricingTiers: PricingTier[] = [
       "Every fact cited to its source",
     ],
     cta: "Start free",
-    note: "AI drafting on this plan may use the provider's free tier, which can use data to improve its products. The app tells you when it does.",
+    note: "Drafting on every plan goes through the same Gemini API key. Whether Google may use prompts to improve its products depends on that key's tier; see the Security page.",
   },
   {
     name: "Starter",
@@ -297,7 +297,7 @@ export const pricingTiers: PricingTier[] = [
       "3 full proposals a month",
       "Deadline calendar",
       "Funder email drafts you send yourself",
-      "Paid AI tier, no training on your data",
+      "Drafts cite your confirmed facts",
     ],
     cta: "Start Starter",
     note: "Prices are drafts we are testing with early users and may change.",
@@ -311,7 +311,7 @@ export const pricingTiers: PricingTier[] = [
       "Everything in Starter",
       "Connections and social campaign agents as they ship",
       "3 seats for your team",
-      "Paid AI tier, no training on your data",
+      "Drafts cite your confirmed facts",
     ],
     cta: "Start Growth",
     note: "Prices are drafts we are testing with early users and may change.",

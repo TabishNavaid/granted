@@ -11,7 +11,7 @@ import { PageContainer, PageHeader } from "@/components/app/page-header";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/ui/empty-state";
 
-/** The status of a run, said in a word. Blue for done and neutral, bold while it runs, poppy red when it failed. */
+/** The status of a run, said in a word. Ink for done and neutral, bold while it runs, red when it failed. */
 const statusWord: Record<AgentRun["status"], { label: string; className: string }> = {
   queued: { label: "Queued", className: "text-ink-muted" },
   running: { label: "Running now", className: "font-semibold text-ink" },
@@ -108,11 +108,11 @@ export function ActivityView({ runs, documents }: { runs: AgentRun[]; documents:
                           {run.sourcesUsed.map((src, i) => (
                             <li key={i} className="border-b border-rule py-2 text-sm">
                               {src.url ? (
-                                <a href={src.url} target="_blank" rel="noreferrer" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-corn">
+                                <a href={src.url} target="_blank" rel="noreferrer" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-ink">
                                   {src.label}
                                 </a>
                               ) : src.documentId ? (
-                                <Link href="/profile?tab=documents" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-corn">
+                                <Link href="/profile?tab=documents" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-ink">
                                   {docTitle(src.documentId) ?? src.label}
                                 </Link>
                               ) : (
@@ -135,7 +135,7 @@ export function ActivityView({ runs, documents }: { runs: AgentRun[]; documents:
                           <dt className="text-ink-muted">Result</dt>
                           <dd className="font-semibold text-ink">
                             {run.inboxItemId ? (
-                              <Link href="/inbox" className="underline decoration-[1.5px] underline-offset-4 hover:decoration-corn">
+                              <Link href="/inbox" className="underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
                                 In your Inbox
                               </Link>
                             ) : (

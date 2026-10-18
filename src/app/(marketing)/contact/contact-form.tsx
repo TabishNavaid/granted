@@ -71,7 +71,7 @@ export function ContactForm({ canSend, address }: { canSend: boolean; address: s
               <>
                 <p>Our contact form is not connected to email yet. Send this to us directly:</p>
                 <p className="mt-2 font-semibold">
-                  <a href={mailto ?? `mailto:${address}`} className="underline decoration-[1.5px] underline-offset-4 hover:decoration-corn">
+                  <a href={mailto ?? `mailto:${address}`} className="underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
                     {address}
                   </a>
                 </p>
@@ -93,7 +93,7 @@ export function ContactForm({ canSend, address }: { canSend: boolean; address: s
         {address ? (
           <p className="mt-3">
             Or write directly to{" "}
-            <a href={`mailto:${address}`} className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-corn">
+            <a href={`mailto:${address}`} className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
               {address}
             </a>
             .

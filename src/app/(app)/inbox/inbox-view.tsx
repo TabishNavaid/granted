@@ -10,8 +10,6 @@ import { Button } from "@/components/ui/button";
 import { PageContainer } from "@/components/app/page-header";
 import { CompactInboxRow, InboxItemCard, BLOOM_HOLD_MS, type InboxContext, type Leaving } from "@/components/app/inbox-item";
 import { PlanCard } from "@/components/app/plan-card";
-import { Meadow } from "@/components/drawings/meadow";
-import { meadowFlowers } from "@/lib/drawings";
 import { doneWord } from "@/lib/agents/meta";
 import { InboxTour } from "@/components/app/inbox-tour";
 
@@ -43,8 +41,6 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
   const [leaving, setLeaving] = React.useState<Record<string, Leaving>>({});
   const [filter, setFilter] = React.useState<Filter>("all");
   const [showResolved, setShowResolved] = React.useState(false);
-  /** Approved in this visit, so their flowers grow instead of just being there. */
-  const [grownNow, setGrownNow] = React.useState<string[]>([]);
   const liveRef = React.useRef<HTMLDivElement>(null);
 
   const announce = (msg: string) => {
@@ -64,7 +60,6 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
 
   const withLeave = (id: string, how: Leaving, after: () => void) => {
     setLeaving((s) => ({ ...s, [id]: how }));
-    if (how === "seal") setGrownNow((g) => [...g, id]);
     setTimeout(
       () => {
         after();
@@ -162,168 +157,118 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
           .replace(/, ([^,]*)$/, " and $1") + ".";
 
   return (
-    <>
-      <PageContainer>
-        <React.Suspense fallback={null}>
-          <InboxTour />
-        </React.Suspense>
-        <div ref={liveRef} aria-live="polite" className="sr-only" />
-        <header className="border-b border-rule pb-7">
-          <p className="text-base text-ink-muted">{new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</p>
-          <h1 className="mt-1 font-display text-h1 text-ink">{totalPending === 0 ? `Nothing waiting on you, ${firstName}.` : "Waiting on you"}</h1>
-          {totalPending > 0 ? (
-            <p className="mt-3 max-w-[60ch] text-lg text-ink-muted">
-              {firstName}, here is {summary}
-            </p>
-          ) : null}
-        </header>
-
-        {plan && planItemId ? (
-          <div className="mt-8">
-            <PlanCard plan={plan} matches={ctx.matches} onDecision={planDecision} onApprove={approvePlan} onSkip={skipPlan} leaving={!!leaving[planItemId]} />
-          </div>
+    <PageContainer>
+      <React.Suspense fallback={null}>
+        <InboxTour />
+      </React.Suspense>
+      <div ref={liveRef} aria-live="polite" className="sr-only" />
+      <header className="border-b border-rule pb-7">
+        <p className="text-base text-ink-muted">{new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</p>
+        <h1 className="mt-1 font-display text-h1 text-ink">{totalPending === 0 ? `Nothing waiting on you, ${firstName}.` : "Waiting on you"}</h1>
+        {totalPending > 0 ? (
+          <p className="mt-3 max-w-[60ch] text-lg text-ink-muted">
+            {firstName}, here is {summary}
+          </p>
         ) : null}
+      </header>
 
-        <div className="mt-10 flex flex-wrap items-end justify-between gap-4">
-          <h2 className="font-display text-3xl text-ink">Read and decide</h2>
-          <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
-            <TabsList variant="pill" aria-label="Filter inbox">
-              {filters.map((f) => (
-                <TabsTrigger key={f.value} value={f.value}>
-                  {f.label}
-                  {counts[f.value] > 0 ? <span className="text-sm text-ink-muted tnum">{counts[f.value]}</span> : null}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+      {plan && planItemId ? (
+        <div className="mt-8">
+          <PlanCard plan={plan} matches={ctx.matches} onDecision={planDecision} onApprove={approvePlan} onSkip={skipPlan} leaving={!!leaving[planItemId]} />
         </div>
+      ) : null}
 
-        {visible.length === 0 ? (
-          <EmptyState
-            className="mt-6"
-            art={filter === "all" ? "sun" : "grass"}
-            title={filter === "all" ? "You are caught up" : `No ${active.label.toLowerCase()} waiting`}
-            description={filter === "all" ? "New drafts, funders, and schedules land here as they are ready. Nothing is sent or submitted without you." : "Try another filter, or check back after Monday's search."}
-            action={
-              filter !== "all" ? (
-                <Button variant="secondary" onClick={() => setFilter("all")}>
-                  Show everything
-                </Button>
-              ) : undefined
-            }
-          />
-        ) : filter !== "all" ? (
-          <ul className="mt-4 border-t border-rule">
-            {visible.map((item) => (
-              <li key={item.id}>
-                <InboxItemCard item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
-              </li>
+      <div className="mt-10 flex flex-wrap items-end justify-between gap-4">
+        <h2 className="font-display text-3xl text-ink">Read and decide</h2>
+        <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
+          <TabsList variant="pill" aria-label="Filter inbox">
+            {filters.map((f) => (
+              <TabsTrigger key={f.value} value={f.value}>
+                {f.label}
+                {counts[f.value] > 0 ? <span className="text-sm text-ink-muted tnum">{counts[f.value]}</span> : null}
+              </TabsTrigger>
             ))}
-          </ul>
-        ) : (
-          <div className="mt-4 flex flex-col gap-12">
-            {decide.length ? (
-              <Group title="Read and approve" hint="Written for you. Take a few minutes with each one.">
-                {decide.map((item) => (
-                  <li key={item.id}>
-                    <InboxItemCard item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
-                  </li>
-                ))}
-              </Group>
-            ) : null}
-            {answer.length ? (
-              <Group title="Quick answers" hint="Facts that are not in your documents. About a minute each.">
-                {answer.map((item) => (
-                  <li key={item.id}>
-                    <InboxItemCard item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
-                  </li>
-                ))}
-              </Group>
-            ) : null}
-            {glance.length ? (
-              <Group title="At a glance" hint="Say yes from the row, or open one for the details.">
-                {glance.map((item) => (
-                  <li key={item.id}>
-                    <CompactInboxRow item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
-                  </li>
-                ))}
-              </Group>
-            ) : null}
-          </div>
-        )}
+          </TabsList>
+        </Tabs>
+      </div>
 
-        <section aria-labelledby="resolved-title" className="mt-16 border-t border-rule pt-6">
-          <div className="flex items-baseline justify-between gap-3">
-            <h2 id="resolved-title" className="font-display text-2xl text-ink">
-              Done <span className="ml-1 font-body text-base font-normal text-ink-muted tnum">{resolved.length}</span>
-            </h2>
-            <Button variant="ghost" size="sm" onClick={() => setShowResolved((s) => !s)} aria-expanded={showResolved}>
-              {showResolved ? "Hide" : "Show"}
-            </Button>
-          </div>
-          {showResolved ? (
-            resolved.length === 0 ? (
-              <p className="mt-4 text-base text-ink-muted">Nothing done yet. Your first approval goes here.</p>
-            ) : (
-              <ul className="mt-4 border-t border-rule">
-                {resolved.map((item) => (
-                  <li key={item.id}>
-                    <CompactInboxRow item={item} ctx={ctx} onApprove={approve} onReject={reject} />
-                  </li>
-                ))}
-              </ul>
-            )
+      {visible.length === 0 ? (
+        <EmptyState
+          className="mt-6"
+            title={filter === "all" ? "You are caught up" : `No ${active.label.toLowerCase()} waiting`}
+          description={filter === "all" ? "New drafts, funders, and schedules land here as they are ready. Nothing is sent or submitted without you." : "Try another filter, or check back after Monday's search."}
+          action={
+            filter !== "all" ? (
+              <Button variant="secondary" onClick={() => setFilter("all")}>
+                Show everything
+              </Button>
+            ) : undefined
+          }
+        />
+      ) : filter !== "all" ? (
+        <ul className="mt-4 border-t border-rule">
+          {visible.map((item) => (
+            <li key={item.id}>
+              <InboxItemCard item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="mt-4 flex flex-col gap-12">
+          {decide.length ? (
+            <Group title="Read and approve" hint="Written for you. Take a few minutes with each one.">
+              {decide.map((item) => (
+                <li key={item.id}>
+                  <InboxItemCard item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
+                </li>
+              ))}
+            </Group>
           ) : null}
-        </section>
+          {answer.length ? (
+            <Group title="Quick answers" hint="Facts that are not in your documents. About a minute each.">
+              {answer.map((item) => (
+                <li key={item.id}>
+                  <InboxItemCard item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
+                </li>
+              ))}
+            </Group>
+          ) : null}
+          {glance.length ? (
+            <Group title="At a glance" hint="Say yes from the row, or open one for the details.">
+              {glance.map((item) => (
+                <li key={item.id}>
+                  <CompactInboxRow item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
+                </li>
+              ))}
+            </Group>
+          ) : null}
+        </div>
+      )}
 
-        <MonthMeadowCaption items={items} leaving={leaving} />
-      </PageContainer>
-      <MonthMeadow items={items} leaving={leaving} grownNow={grownNow} />
-    </>
-  );
-}
-
-function approvedThisMonth(items: InboxItem[], leaving: Record<string, Leaving>) {
-  const now = new Date();
-  const thisMonth = (iso: string | null) => {
-    if (!iso) return false;
-    const d = new Date(iso);
-    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-  };
-  return items
-    .filter((i) => leaving[i.id] === "seal" || ((i.status === "approved" || i.status === "edited") && thisMonth(i.resolvedAt)))
-    .sort((a, b) => (a.resolvedAt ?? "9").localeCompare(b.resolvedAt ?? "9"));
-}
-
-const monthName = () => new Date().toLocaleDateString("en-US", { month: "long" });
-
-/** What the meadow below stands for, in words. */
-function MonthMeadowCaption({ items, leaving }: { items: InboxItem[]; leaving: Record<string, Leaving> }) {
-  const n = approvedThisMonth(items, leaving).length;
-  const month = monthName();
-  return (
-    <p className="mt-16 text-sm text-ink-muted" aria-live="polite">
-      {n === 0 ? `${month} so far: nothing approved yet. Every approval plants one flower here.` : `${month} so far: ${n} approved, ${n === 1 ? "one flower" : `${n} flowers`}.`}
-    </p>
-  );
-}
-
-/**
- * This month so far, as a meadow along the bottom of the Inbox, edge to edge:
- * one flower for every approved item, each a different color. It starts as
- * bare grass on the 1st and fills in.
- */
-function MonthMeadow({ items, leaving, grownNow }: { items: InboxItem[]; leaving: Record<string, Leaving>; grownNow: string[] }) {
-  const approved = approvedThisMonth(items, leaving);
-  const now = new Date();
-  const palette = meadowFlowers(approved.length, monthName());
-  return (
-    <Meadow
-      seed={`inbox-${now.getFullYear()}-${now.getMonth()}`}
-      clumps={64}
-      className="-mt-6 h-28 sm:h-36 lg:-mt-10"
-      flowers={approved.map((i, idx) => ({ key: i.id, flower: palette[idx], grow: grownNow.includes(i.id) }))}
-    />
+      <section aria-labelledby="resolved-title" className="mt-16 border-t border-rule pt-6">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 id="resolved-title" className="font-display text-2xl text-ink">
+            Done <span className="ml-1 font-body text-base font-normal text-ink-muted tnum">{resolved.length}</span>
+          </h2>
+          <Button variant="ghost" size="sm" onClick={() => setShowResolved((s) => !s)} aria-expanded={showResolved}>
+            {showResolved ? "Hide" : "Show"}
+          </Button>
+        </div>
+        {showResolved ? (
+          resolved.length === 0 ? (
+            <p className="mt-4 text-base text-ink-muted">Nothing done yet. Your first approval goes here.</p>
+          ) : (
+            <ul className="mt-4 border-t border-rule">
+              {resolved.map((item) => (
+                <li key={item.id}>
+                  <CompactInboxRow item={item} ctx={ctx} onApprove={approve} onReject={reject} />
+                </li>
+              ))}
+            </ul>
+          )
+        ) : null}
+      </section>
+    </PageContainer>
   );
 }
 

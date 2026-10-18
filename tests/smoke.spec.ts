@@ -13,7 +13,7 @@ const routes: { path: string; heading: RegExp }[] = [
   { path: "/sign-up", heading: /create your workspace/i },
   { path: "/onboarding?restart=1", heading: /organization's website/i },
   { path: "/onboarding/ein", heading: /know your ein/i },
-  { path: "/onboarding/gaps", heading: /questions|answered everything|places to start|nothing strong|looking for grants/i },
+  { path: "/onboarding/gaps", heading: /did not say|answered everything|places to start|nothing strong|looking for grants/i },
   { path: "/onboarding/documents", heading: /one to three documents/i },
   { path: "/onboarding/interview", heading: /a few questions/i },
   { path: "/onboarding/profile", heading: /look right/i },
@@ -56,7 +56,7 @@ test("the old image credits page sends you to the drawings", async ({ page }) =>
   await expect(page).toHaveURL(/\/drawings-review$/);
 });
 
-test("inbox approve grows a flower, files the item, and offers undo", async ({ page }) => {
+test("inbox approve opens a flower, files the item, and offers undo", async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem("inbox_tour_seen", "1"));
   await page.goto("/inbox");
   const card = page.getByRole("article").filter({ has: page.getByRole("button", { name: /^(approve|save|update|add to)/i }) }).first();
@@ -68,7 +68,6 @@ test("inbox approve grows a flower, files the item, and offers undo", async ({ p
   await expect(approved.getByText("Just now")).toBeVisible();
   await expect(page.getByRole("button", { name: /^undo$/i })).toBeVisible();
   await expect(page.getByRole("article", { name: title })).toBeHidden({ timeout: 5000 });
-  await expect(page.getByText(/so far: \d+ approved/i)).toBeVisible();
   await page.getByRole("button", { name: /^undo$/i }).click();
   await expect(page.getByRole("article", { name: title })).toBeVisible();
 });

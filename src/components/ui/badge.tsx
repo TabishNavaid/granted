@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 
 /**
  * A tag: sentence case text inside a thin rule. Used only where a status is
- * a fact (a stage, a milestone kind). Ink for neutral and done, a crayon
- * circle for waiting on you, poppy red for wrong or late, grass for won.
+ * a fact (a stage, a milestone kind). A thin rule for neutral, solid ink for
+ * waiting on you, red for wrong or late.
  */
 const badgeVariants = cva("tag", {
   variants: {
@@ -15,9 +15,9 @@ const badgeVariants = cva("tag", {
       info: "",
       accent: "tag-ink",
       success: "tag-ink",
-      warning: "circled border-transparent font-semibold",
+      warning: "tag-strong",
       danger: "tag-alert",
-      bloom: "tag-bloom",
+      won: "tag-ink font-semibold",
     },
   },
   defaultVariants: { variant: "neutral" },

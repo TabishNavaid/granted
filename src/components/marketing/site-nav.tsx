@@ -26,13 +26,13 @@ export function SiteNav() {
         <Logo />
         <nav aria-label="Site" className="hidden items-center gap-7 text-base text-ink md:flex">
           {links.map((l) => (
-            <Link key={l.href} href={l.href} className={cn("underline-offset-4 decoration-2 hover:underline hover:decoration-corn", pathname === l.href && "font-semibold")}>
+            <Link key={l.href} href={l.href} className={cn("underline-offset-4 decoration-2 hover:underline hover:decoration-ink", pathname === l.href && "font-semibold")}>
               {l.label}
             </Link>
           ))}
         </nav>
         <div className="hidden items-center gap-5 md:flex">
-          <Link href="/sign-in" className="text-base text-ink underline-offset-4 decoration-2 hover:underline hover:decoration-corn">
+          <Link href="/sign-in" className="text-base text-ink underline-offset-4 decoration-2 hover:underline hover:decoration-ink">
             Sign in
           </Link>
           <Button asChild>

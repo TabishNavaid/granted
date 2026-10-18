@@ -41,7 +41,7 @@ export function CitationChip({ label, excerpt, sourceTitle, url, page, verifiedA
           <div className="mt-3 flex items-center justify-between gap-2 text-xs text-ink-muted">
             {verifiedAt ? <span title={formatDate(verifiedAt)}>Checked {relativeTime(verifiedAt)}</span> : <span />}
             {url ? (
-              <a href={url} target="_blank" rel="noreferrer" className="font-semibold text-ink underline decoration-[1px] underline-offset-2 hover:decoration-corn">
+              <a href={url} target="_blank" rel="noreferrer" className="font-semibold text-ink underline decoration-[1px] underline-offset-2 hover:decoration-ink">
                 Open the source
               </a>
             ) : null}
@@ -62,7 +62,7 @@ export function VerifiedSource({ url, verifiedAt, className, label }: { url: str
   }
   return (
     <p className={cn("text-xs text-ink-muted", className)}>
-      <a href={url} target="_blank" rel="noreferrer" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-corn">
+      <a href={url} target="_blank" rel="noreferrer" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-ink">
         {label ?? host}
       </a>
       , checked <time dateTime={verifiedAt}>{relativeTime(verifiedAt)}</time>

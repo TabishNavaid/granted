@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Screenshot } from "@/components/marketing/screenshot";
 import { Drawing } from "@/components/drawings/drawing";
 import { Meadow } from "@/components/drawings/meadow";
-import { drawingOf, flowers, grassStrips, meadowFlowers, type DrawingAsset } from "@/lib/drawings";
+import { drawing } from "@/lib/drawings";
 import { faq, pricingTiers } from "@/content/site";
 import { PRODUCT_NAME, PRODUCT_TAGLINE } from "@/lib/brand";
 
@@ -41,21 +41,22 @@ const trust = [
   "The Activity screen shows every step an agent took, every page it read, and what it cost.",
 ];
 
-/** A single strip of crayon grass between two sections, in place of a rule. */
-function GrassLine({ seed }: { seed: string }) {
-  return <Meadow seed={seed} flowers={[]} strip clumps={96} className="h-10 sm:h-12" />;
+/** A section heading with, at most, one small watercolor plant beside it. Used on three sections, not all of them. */
+function SectionHeading({ plant, className, children }: { plant?: string; className?: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-end justify-between gap-6">
+      <h2 className={`font-display text-4xl text-ink lg:text-5xl ${className ?? ""}`}>{children}</h2>
+      {plant ? <Drawing asset={drawing(plant)} className="hidden h-24 w-auto shrink-0 opacity-90 sm:block lg:h-28" /> : null}
+    </div>
+  );
 }
 
 export default function LandingPage() {
-  const sun = drawingOf("sun");
-  // A sprout, a clump of grass, a flower: the three steps, growing.
-  const stepArt: (DrawingAsset | undefined)[] = [drawingOf("seedling"), grassStrips[0], flowers[0]];
   return (
     <div className="overflow-x-clip">
       {/* Hero */}
       <section className="relative mx-auto max-w-[75rem] px-4 pb-0 pt-14 sm:px-6 sm:pt-20 lg:px-10 lg:pt-24">
-        {sun ? <Drawing asset={sun} eager className="absolute right-[-1.5rem] top-2 h-24 w-auto sm:right-6 sm:top-6 sm:h-32 lg:right-10 lg:h-40" /> : null}
-        <h1 className="max-w-[12ch] pr-14 font-display text-display text-ink sm:pr-0">{PRODUCT_TAGLINE}</h1>
+        <h1 className="max-w-[12ch] font-display text-display text-ink">{PRODUCT_TAGLINE}</h1>
         <p className="mt-8 max-w-[52ch] text-lg text-ink sm:text-xl">
           {PRODUCT_NAME} finds grants you can apply for, drafts the letter from facts on your own website, and keeps every deadline. You read it. You approve it. Nothing moves without you.
         </p>
@@ -72,7 +73,7 @@ export default function LandingPage() {
           <Screenshot name="inbox" alt="The Inbox: this month's plan and the drafts, emails, and questions waiting for approval." priority />
         </div>
       </section>
-      <Meadow seed="hero" clumps={46} mobileMax={5} className="-mt-10 h-32 sm:-mt-16 sm:h-44" flowers={meadowFlowers(9, "hero").map((f, i) => ({ key: `${f.slug}-${i}`, flower: f }))} />
+      <Meadow seed="hero" count={12} mobileMax={7} className="-mt-8 h-36 border-b border-rule opacity-90 sm:-mt-14 sm:h-52" />
 
       {/* Problem */}
       <section>
@@ -88,22 +89,17 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <GrassLine seed="how" />
-
       {/* How it works */}
       <section id="how" className="scroll-mt-16">
         <div className="mx-auto max-w-[75rem] px-4 py-16 sm:px-6 lg:px-10 lg:py-24">
-          <h2 className="max-w-[18ch] font-display text-4xl text-ink lg:text-5xl">Three steps. The last one is yours.</h2>
+          <SectionHeading plant="harebell" className="max-w-[18ch]">Three steps. The last one is yours.</SectionHeading>
           <ol className="mt-14 flex flex-col gap-16 lg:gap-24">
             {steps.map((s, i) => (
               <li key={s.n} className={`grid items-start gap-8 lg:grid-cols-[2fr_3fr] lg:gap-16 ${i % 2 ? "lg:[&>*:first-child]:order-2 lg:grid-cols-[3fr_2fr]" : ""}`}>
                 <div>
-                  <div className="flex items-end gap-4">
-                    <span className="font-display text-6xl leading-none text-ink tnum" aria-hidden>
-                      {s.n}
-                    </span>
-                    {stepArt[i] ? <Drawing asset={stepArt[i]!} className="h-20 w-auto sm:h-24" /> : null}
-                  </div>
+                  <span className="block font-display text-5xl leading-none text-ink-muted tnum" aria-hidden>
+                    {s.n}
+                  </span>
                   <h3 className="mt-5 max-w-[20ch] font-display text-3xl text-ink">{s.title}</h3>
                   <p className="mt-4 max-w-[48ch] text-lg text-ink-muted">{s.body}</p>
                 </div>
@@ -114,11 +110,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <GrassLine seed="features" />
-
       {/* Features */}
       {features.map((f, i) => (
-        <section key={f.id} id={f.id} className={`scroll-mt-16 ${i ? "border-t border-rule" : ""}`}>
+        <section key={f.id} id={f.id} className="scroll-mt-16 border-t border-rule">
           <div className={`mx-auto grid max-w-[75rem] items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[2fr_3fr] lg:gap-20 lg:px-10 lg:py-24 ${i % 2 ? "lg:[&>*:first-child]:order-2 lg:grid-cols-[3fr_2fr]" : ""}`}>
             <div>
               <h2 className="max-w-[18ch] font-display text-3xl text-ink lg:text-4xl">{f.title}</h2>
@@ -129,13 +123,11 @@ export default function LandingPage() {
         </section>
       ))}
 
-      <GrassLine seed="trust" />
-
       {/* Trust */}
-      <section id="trust" className="scroll-mt-16">
+      <section id="trust" className="scroll-mt-16 border-t border-rule">
         <div className="mx-auto grid max-w-[75rem] gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1.4fr] lg:gap-20 lg:px-10 lg:py-24">
           <div>
-            <h2 className="max-w-[14ch] font-display text-4xl text-ink lg:text-5xl">Nothing leaves without you.</h2>
+            <SectionHeading plant="yarrow" className="max-w-[14ch]">Nothing leaves without you.</SectionHeading>
             <p className="mt-5 max-w-[40ch] text-lg text-ink-muted">Funders can spot a made-up number from across the room. So can you.</p>
             <Button asChild variant="secondary" className="mt-8">
               <Link href="/security">Read how we handle your data</Link>
@@ -151,10 +143,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <GrassLine seed="pricing" />
-
       {/* Pricing */}
-      <section id="pricing" className="scroll-mt-16">
+      <section id="pricing" className="scroll-mt-16 border-t border-rule">
         <div className="mx-auto max-w-[75rem] px-4 py-16 sm:px-6 lg:px-10 lg:py-24">
           <h2 className="max-w-[20ch] font-display text-4xl text-ink lg:text-5xl">Priced for the organizations the big tools price out.</h2>
           <p className="mt-5 max-w-[60ch] text-lg text-ink-muted">A grant writer costs a few thousand dollars a month. The big databases start near three hundred. We start at free and stay cheap on purpose.</p>
@@ -185,7 +175,7 @@ export default function LandingPage() {
           </div>
           <p className="mt-5 max-w-[60ch] text-base text-ink-muted">
             Details and plan questions are on the{" "}
-            <Link href="/pricing" className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-corn">
+            <Link href="/pricing" className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
               pricing page
             </Link>
             .
@@ -193,12 +183,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <GrassLine seed="questions" />
-
       {/* FAQ */}
-      <section id="questions" className="scroll-mt-16">
+      <section id="questions" className="scroll-mt-16 border-t border-rule">
         <div className="mx-auto max-w-[75rem] px-4 py-16 sm:px-6 lg:grid lg:grid-cols-[1fr_1.4fr] lg:gap-20 lg:px-10 lg:py-24">
-          <h2 className="max-w-[16ch] font-display text-4xl text-ink lg:text-5xl">Questions a careful director asks first.</h2>
+          <SectionHeading plant="wind-poppy" className="max-w-[16ch]">Questions a careful director asks first.</SectionHeading>
           <div className="mt-10 border-t border-rule lg:mt-0">
             {faq.map((f) => (
               <details key={f.q} className="group border-b border-rule py-5">
@@ -219,7 +207,7 @@ export default function LandingPage() {
       </section>
 
       {/* Closing, over a meadow */}
-      <section>
+      <section className="border-t border-rule">
         <div className="mx-auto max-w-[75rem] px-4 pb-10 pt-20 sm:px-6 lg:px-10 lg:pt-28">
           <h2 className="max-w-[16ch] font-display text-5xl text-ink lg:text-6xl">Start with your website.</h2>
           <p className="mt-6 max-w-[44ch] text-lg text-ink-muted">Ten minutes to your first matches. Free, and nothing is sent without you.</p>
@@ -229,7 +217,7 @@ export default function LandingPage() {
             </Button>
           </div>
         </div>
-        <Meadow seed="closing" clumps={52} mobileMax={5} className="h-52 sm:h-64" flowers={meadowFlowers(9, "closing").map((f, i) => ({ key: `${f.slug}-${i}`, flower: f }))} />
+        <Meadow seed="closing" count={12} mobileMax={7} className="h-40 opacity-90 sm:h-56" />
       </section>
     </div>
   );

@@ -16,7 +16,7 @@ export function ReviewerPanel({ check, onRun, running }: { check: ReviewerCheck 
       </Button>
       {check ? (
         <>
-          <div className={cn("border-l-[6px] py-2 pl-4", check.overall >= 75 ? "border-l-grass" : check.overall >= 50 ? "border-l-ink" : "border-l-alert")}>
+          <div className={cn("border-l-[6px] py-2 pl-4", check.overall >= 75 ? "border-l-ink" : check.overall >= 50 ? "border-l-ink" : "border-l-alert")}>
             <p className="font-display text-3xl text-ink tnum">
               {check.overall} <span className="font-body text-sm font-normal text-ink-muted">of 100</span>
             </p>

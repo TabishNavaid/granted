@@ -18,9 +18,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Field } from "@/components/ui/label";
 import { Input, Textarea } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Bloom } from "@/components/drawings/bloom";
 import { WonMeadow } from "@/components/drawings/won-meadow";
-import { flowerFor } from "@/lib/drawings";
 
 export function PipelineView({ initial, members, orgName }: { initial: ApplicationView[]; members: Member[]; orgName: string }) {
   const { toast } = useToast();
@@ -141,7 +139,7 @@ function PipelineCard({ app, members, dragging, onDragStart, onDragEnd, onMove }
       <GripVertical className="absolute left-0 top-3.5 size-3.5 cursor-grab text-ink-muted opacity-0 transition-opacity group-hover:opacity-100" aria-hidden />
       <div className="flex items-start gap-1">
         <div className="min-w-0 flex-1 pr-8">
-          <Link href={`/applications/${app.id}`} className="block text-base font-semibold leading-snug text-ink hover:underline hover:decoration-corn hover:decoration-2 hover:underline-offset-4">
+          <Link href={`/applications/${app.id}`} className="block text-base font-semibold leading-snug text-ink hover:underline hover:decoration-ink hover:decoration-2 hover:underline-offset-4">
             {app.opportunity.title}
           </Link>
           <p className="line-clamp-1 text-sm text-ink-muted">{app.funder.name}</p>
@@ -169,10 +167,7 @@ function PipelineCard({ app, members, dragging, onDragStart, onDragEnd, onMove }
 
       {app.stage === "won" ? (
         <div className="mt-3 flex flex-wrap items-end gap-x-3 gap-y-2 text-sm">
-          <span className="flex items-end gap-1 font-semibold text-ink">
-            <Bloom flower={flowerFor(app.id)} className="-mb-1 h-10" />
-            Funded
-          </span>
+          <span className="font-semibold text-ink">Funded</span>
           {app.outcome?.awardAmount ? <span className="font-semibold text-ink tnum">{formatMoney(app.outcome.awardAmount)}</span> : null}
         </div>
       ) : (
@@ -181,7 +176,7 @@ function PipelineCard({ app, members, dragging, onDragStart, onDragEnd, onMove }
           {!done && app.opportunity.deadline ? (
             <>
               <span className={cn(soon && "text-alert")}>{formatShortDate(app.opportunity.deadline)}</span>
-              <span className={cn(soon && "font-semibold text-alert")}>{soon ? <mark className="circled">{dl.text}</mark> : dl.text}</span>
+              <span className={cn(soon && "font-semibold text-alert")}>{dl.text}</span>
             </>
           ) : null}
         </div>

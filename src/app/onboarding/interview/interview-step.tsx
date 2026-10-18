@@ -148,7 +148,7 @@ export function InterviewStep() {
                 {state === "answered" ? <span className="text-sm text-ink-muted">Answered</span> : null}
                 {state === "now" ? (
                   <span className="text-sm font-semibold">
-                    <mark className="circled">Now</mark>
+                    <span className="font-semibold text-ink">Now</span>
                   </span>
                 ) : null}
                 {state === "next" ? <span className="text-sm text-ink-muted">Next</span> : null}

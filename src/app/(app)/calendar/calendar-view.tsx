@@ -158,7 +158,7 @@ export function CalendarView({ initial, applications, reminderDays, members, ics
       <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ink-muted">
         <p>
           Change reminder timing in{" "}
-          <Link href="/settings?tab=notifications" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-corn">
+          <Link href="/settings?tab=notifications" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-ink">
             Settings
           </Link>
           .
@@ -176,7 +176,7 @@ export function CalendarView({ initial, applications, reminderDays, members, ics
                 setCopied(false);
               }
             }}
-            className="inline-flex min-h-6 items-center font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-corn"
+            className="inline-flex min-h-6 items-center font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-ink"
           >
             {copied ? "Feed address copied" : "copy the feed address"}
           </button>
@@ -233,7 +233,7 @@ function DayList({ events, appTitle, onToggle, onAssign, members, showDate, empt
                   </label>
                 ) : null}
                 {!e.done ? (
-                  <span className={cn(passed && "font-semibold text-alert")}>{soon ? <mark className="circled">{relativeLabel(d)}</mark> : relativeLabel(d)}</span>
+                  <span className={cn(passed && "font-semibold text-alert", soon && !passed && "font-semibold text-ink")}>{relativeLabel(d)}</span>
                 ) : null}
               </div>
             </div>

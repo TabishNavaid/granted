@@ -3,231 +3,173 @@ import type { DrawingAsset } from "./drawings";
 
 export const drawings: DrawingAsset[] = [
   {
-    "slug": "flower-heart-poppy",
-    "kind": "flower",
-    "file": "/drawings/flower-heart-poppy",
-    "width": 211,
-    "height": 300,
-    "color": "poppy",
-    "head": {
-      "bottom": 0.66,
-      "x": 0.46,
-      "y": 0.36
-    },
-    "description": "A poppy red crayon flower on a clump of grass stems: the left flower of the pair, two big heart-shaped petals and a third folded one.",
+    "slug": "lupine-blue",
+    "kind": "plant",
+    "file": "/drawings/lupine-blue",
+    "width": 235,
+    "height": 340,
+    "description": "Blue lupine: a spike of violet-blue pea flowers over silvery, fingered leaves.",
     "credit": {
-      "title": "Flower Children Drawing Red",
-      "author": "Efraimstochter",
-      "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
-      "license": "Pixabay Content License",
-      "licenseUrl": "https://pixabay.com/service/license-summary/"
+      "title": "Blue Lupine (Lupinus argenteus), watercolor on paper, object 1970.355.99",
+      "author": "Mary Vaux Walcott",
+      "sourceUrl": "https://americanart.si.edu/collections/search/artwork/?id=25889",
+      "license": "CC0 (Smithsonian Open Access)",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
     }
   },
   {
-    "slug": "flower-heart-petal",
-    "kind": "flower",
-    "file": "/drawings/flower-heart-petal",
-    "width": 211,
-    "height": 300,
-    "color": "petal",
-    "head": {
-      "bottom": 0.66,
-      "x": 0.46,
-      "y": 0.36
-    },
-    "description": "A petal pink crayon flower on a clump of grass stems: the left flower of the pair, two big heart-shaped petals and a third folded one. Recolored from red to petal pink, outline included.",
+    "slug": "harebell",
+    "kind": "plant",
+    "file": "/drawings/harebell",
+    "width": 200,
+    "height": 340,
+    "description": "Harebell: nodding blue bells on thread-thin stems.",
     "credit": {
-      "title": "Flower Children Drawing Red",
-      "author": "Efraimstochter",
-      "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
-      "license": "Pixabay Content License",
-      "licenseUrl": "https://pixabay.com/service/license-summary/"
+      "title": "Harebell (Campanula rotundifolia), watercolor on paper, object 1970.355.706",
+      "author": "Mary Vaux Walcott",
+      "sourceUrl": "https://americanart.si.edu/collections/search/artwork/?id=26065",
+      "license": "CC0 (Smithsonian Open Access)",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
     }
   },
   {
-    "slug": "flower-heart-corn",
-    "kind": "flower",
-    "file": "/drawings/flower-heart-corn",
-    "width": 211,
-    "height": 300,
-    "color": "corn",
-    "head": {
-      "bottom": 0.66,
-      "x": 0.46,
-      "y": 0.36
-    },
-    "description": "A cornflower blue crayon flower on a clump of grass stems: the left flower of the pair, two big heart-shaped petals and a third folded one. Recolored from red to cornflower blue, outline included.",
+    "slug": "aster",
+    "kind": "plant",
+    "file": "/drawings/aster",
+    "width": 221,
+    "height": 340,
+    "description": "Prairie aster: small lavender daisies on branching stems.",
     "credit": {
-      "title": "Flower Children Drawing Red",
-      "author": "Efraimstochter",
-      "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
-      "license": "Pixabay Content License",
-      "licenseUrl": "https://pixabay.com/service/license-summary/"
+      "title": "Prairie Aster (Aster campestris), watercolor on paper, object 1970.355.456",
+      "author": "Mary Vaux Walcott",
+      "sourceUrl": "https://americanart.si.edu/collections/search/artwork/?id=26221",
+      "license": "CC0 (Smithsonian Open Access)",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
     }
   },
   {
-    "slug": "flower-heart-marigold",
-    "kind": "flower",
-    "file": "/drawings/flower-heart-marigold",
-    "width": 211,
-    "height": 300,
-    "color": "marigold",
-    "head": {
-      "bottom": 0.66,
-      "x": 0.46,
-      "y": 0.36
-    },
-    "description": "A marigold crayon flower on a clump of grass stems: the left flower of the pair, two big heart-shaped petals and a third folded one. Recolored from red to marigold, outline included.",
-    "credit": {
-      "title": "Flower Children Drawing Red",
-      "author": "Efraimstochter",
-      "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
-      "license": "Pixabay Content License",
-      "licenseUrl": "https://pixabay.com/service/license-summary/"
-    }
-  },
-  {
-    "slug": "flower-tulip-poppy",
-    "kind": "flower",
-    "file": "/drawings/flower-tulip-poppy",
-    "width": 264,
-    "height": 300,
-    "color": "poppy",
-    "head": {
-      "bottom": 0.71,
-      "x": 0.47,
-      "y": 0.38
-    },
-    "description": "A poppy red crayon flower on a clump of grass stems: the right flower of the pair, a wide heart of petals with a curl on one side.",
-    "credit": {
-      "title": "Flower Children Drawing Red",
-      "author": "Efraimstochter",
-      "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
-      "license": "Pixabay Content License",
-      "licenseUrl": "https://pixabay.com/service/license-summary/"
-    }
-  },
-  {
-    "slug": "flower-tulip-petal",
-    "kind": "flower",
-    "file": "/drawings/flower-tulip-petal",
-    "width": 264,
-    "height": 300,
-    "color": "petal",
-    "head": {
-      "bottom": 0.71,
-      "x": 0.47,
-      "y": 0.38
-    },
-    "description": "A petal pink crayon flower on a clump of grass stems: the right flower of the pair, a wide heart of petals with a curl on one side. Recolored from red to petal pink, outline included.",
-    "credit": {
-      "title": "Flower Children Drawing Red",
-      "author": "Efraimstochter",
-      "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
-      "license": "Pixabay Content License",
-      "licenseUrl": "https://pixabay.com/service/license-summary/"
-    }
-  },
-  {
-    "slug": "flower-tulip-corn",
-    "kind": "flower",
-    "file": "/drawings/flower-tulip-corn",
-    "width": 264,
-    "height": 300,
-    "color": "corn",
-    "head": {
-      "bottom": 0.71,
-      "x": 0.47,
-      "y": 0.38
-    },
-    "description": "A cornflower blue crayon flower on a clump of grass stems: the right flower of the pair, a wide heart of petals with a curl on one side. Recolored from red to cornflower blue, outline included.",
-    "credit": {
-      "title": "Flower Children Drawing Red",
-      "author": "Efraimstochter",
-      "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
-      "license": "Pixabay Content License",
-      "licenseUrl": "https://pixabay.com/service/license-summary/"
-    }
-  },
-  {
-    "slug": "flower-tulip-marigold",
-    "kind": "flower",
-    "file": "/drawings/flower-tulip-marigold",
-    "width": 264,
-    "height": 300,
-    "color": "marigold",
-    "head": {
-      "bottom": 0.71,
-      "x": 0.47,
-      "y": 0.38
-    },
-    "description": "A marigold crayon flower on a clump of grass stems: the right flower of the pair, a wide heart of petals with a curl on one side. Recolored from red to marigold, outline included.",
-    "credit": {
-      "title": "Flower Children Drawing Red",
-      "author": "Efraimstochter",
-      "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
-      "license": "Pixabay Content License",
-      "licenseUrl": "https://pixabay.com/service/license-summary/"
-    }
-  },
-  {
-    "slug": "grass-left",
-    "kind": "grass",
-    "file": "/drawings/grass-left",
-    "width": 135,
-    "height": 160,
-    "description": "A clump of tall crayon grass strokes, from under the left flower, with the flower lifted off.",
-    "credit": {
-      "title": "Flower Children Drawing Red",
-      "author": "Efraimstochter",
-      "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
-      "license": "Pixabay Content License",
-      "licenseUrl": "https://pixabay.com/service/license-summary/"
-    }
-  },
-  {
-    "slug": "grass-right",
-    "kind": "grass",
-    "file": "/drawings/grass-right",
+    "slug": "yarrow",
+    "kind": "plant",
+    "file": "/drawings/yarrow",
     "width": 197,
-    "height": 148,
-    "description": "A wider clump of crayon grass strokes, from under the right flower, with the flower lifted off.",
+    "height": 340,
+    "description": "Yarrow: flat heads of tiny white flowers over feathery leaves.",
     "credit": {
-      "title": "Flower Children Drawing Red",
-      "author": "Efraimstochter",
-      "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
-      "license": "Pixabay Content License",
-      "licenseUrl": "https://pixabay.com/service/license-summary/"
+      "title": "Western Yarrow (Achillea lanulosa), watercolor on paper, object 1970.355.489",
+      "author": "Mary Vaux Walcott",
+      "sourceUrl": "https://americanart.si.edu/collections/search/artwork/?id=26552",
+      "license": "CC0 (Smithsonian Open Access)",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
     }
   },
   {
-    "slug": "sprout",
-    "kind": "seedling",
-    "file": "/drawings/sprout",
-    "width": 29,
-    "height": 138,
-    "description": "A single green crayon stroke standing on its own between the two flowers: the first thing up.",
+    "slug": "wind-poppy",
+    "kind": "plant",
+    "file": "/drawings/wind-poppy",
+    "width": 180,
+    "height": 340,
+    "description": "Wind poppy: soft red-orange poppies on long, wandering stems.",
     "credit": {
-      "title": "Flower Children Drawing Red",
-      "author": "Efraimstochter",
-      "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
-      "license": "Pixabay Content License",
-      "licenseUrl": "https://pixabay.com/service/license-summary/"
+      "title": "Wind Poppy (Stylomecon heterophylla), watercolor on paper, object 1970.355.33",
+      "author": "Mary Vaux Walcott",
+      "sourceUrl": "https://americanart.si.edu/collections/search/artwork/?id=26576",
+      "license": "CC0 (Smithsonian Open Access)",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
     }
   },
   {
-    "slug": "sun",
-    "kind": "sun",
-    "file": "/drawings/sun",
-    "width": 395,
-    "height": 300,
-    "description": "A yellow crayon sun with long uneven rays, warmed slightly toward marigold.",
+    "slug": "camas",
+    "kind": "plant",
+    "file": "/drawings/camas",
+    "width": 254,
+    "height": 340,
+    "description": "Camas: a spike of blue star flowers with long grassy leaves.",
     "credit": {
-      "title": "Sun Children Drawing Character",
-      "author": "Efraimstochter",
-      "sourceUrl": "https://pixabay.com/photos/sun-children-drawing-75453/",
-      "license": "Pixabay Content License",
-      "licenseUrl": "https://pixabay.com/service/license-summary/"
+      "title": "Camas (Quamasia quamash), watercolor on paper, object 1970.355.695",
+      "author": "Mary Vaux Walcott",
+      "sourceUrl": "https://americanart.si.edu/collections/search/artwork/?id=25925",
+      "license": "CC0 (Smithsonian Open Access)",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "slug": "wild-hyacinth",
+    "kind": "plant",
+    "file": "/drawings/wild-hyacinth",
+    "width": 231,
+    "height": 340,
+    "description": "Wild hyacinth: violet clusters on tall bare stems with grass-like leaves.",
+    "credit": {
+      "title": "Wild Hyacinth (Brodiaea pulchella), watercolor on paper, object 1970.355.726",
+      "author": "Mary Vaux Walcott",
+      "sourceUrl": "https://americanart.si.edu/collections/search/artwork/?id=25947",
+      "license": "CC0 (Smithsonian Open Access)",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "slug": "paintbrush",
+    "kind": "plant",
+    "file": "/drawings/paintbrush",
+    "width": 221,
+    "height": 340,
+    "description": "Indian paintbrush: red bracts on slender leafy stems.",
+    "credit": {
+      "title": "Giant Red Paintbrush (Castilleja miniata), watercolor on paper, object 1970.355.440",
+      "author": "Mary Vaux Walcott",
+      "sourceUrl": "https://americanart.si.edu/collections/search/artwork/?id=26096",
+      "license": "CC0 (Smithsonian Open Access)",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "slug": "death-camas",
+    "kind": "plant",
+    "file": "/drawings/death-camas",
+    "width": 144,
+    "height": 340,
+    "description": "Death camas: a creamy flower spike with grassy leaves, used as a quiet filler.",
+    "credit": {
+      "title": "Death Camas (Zygadenus venenosus), watercolor on paper, object 1970.355.322",
+      "author": "Mary Vaux Walcott",
+      "sourceUrl": "https://americanart.si.edu/collections/search/artwork/?id=25970",
+      "license": "CC0 (Smithsonian Open Access)",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "slug": "phlox",
+    "kind": "plant",
+    "file": "/drawings/phlox",
+    "width": 233,
+    "height": 340,
+    "description": "Phlox: rounded heads of pale blue and pink flowers.",
+    "credit": {
+      "title": "Perennial Phlox (Phlox paniculata), watercolor on paper, object 1970.355.267",
+      "author": "Mary Vaux Walcott",
+      "sourceUrl": "https://americanart.si.edu/collections/search/artwork/?id=26194",
+      "license": "CC0 (Smithsonian Open Access)",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  },
+  {
+    "slug": "poppy-bloom",
+    "kind": "flower",
+    "file": "/drawings/poppy-bloom",
+    "width": 74,
+    "height": 120,
+    "head": {
+      "bottom": 0.6,
+      "x": 0.6,
+      "y": 0.36
+    },
+    "description": "A single wind poppy with its bud, cut from the wind poppy sheet. The flower that opens for a moment when you approve something.",
+    "credit": {
+      "title": "Wind Poppy (Stylomecon heterophylla), watercolor on paper, object 1970.355.33",
+      "author": "Mary Vaux Walcott",
+      "sourceUrl": "https://americanart.si.edu/collections/search/artwork/?id=26576",
+      "license": "CC0 (Smithsonian Open Access)",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
     }
   },
 ];

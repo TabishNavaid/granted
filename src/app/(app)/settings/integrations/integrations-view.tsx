@@ -64,7 +64,7 @@ export function IntegrationsView({ status, connections: initial, demo, notice }:
       <li className="grid gap-4 border-b border-rule py-5 lg:grid-cols-[14rem_1fr_auto] lg:gap-8">
         <div>
           <h3 className="font-display text-xl text-ink">{s.name}</h3>
-          <p className="mt-1 text-sm font-semibold text-ink">{s.present ? (account !== null && account !== undefined ? (connected ? "Connected" : "Key present, account not connected") : s.id === "gmail" || s.id === "outlook" || s.id === "google_calendar" ? "Key present, not connected yet" : "Connected") : s.required ? <mark className="circled">Missing</mark> : "Not connected"}</p>
+          <p className="mt-1 text-sm font-semibold text-ink">{s.present ? (account !== null && account !== undefined ? (connected ? "Connected" : "Key present, account not connected") : s.id === "gmail" || s.id === "outlook" || s.id === "google_calendar" ? "Key present, not connected yet" : "Connected") : s.required ? <span className="count">Missing</span> : "Not connected"}</p>
           {account && (s.id === "gmail" || s.id === "google_calendar" || s.id === "outlook") ? (
             <p className="mt-1 text-sm text-ink-muted">
               {account.accountEmail || "Account"}, since {formatDate(account.connectedAt)}
@@ -80,7 +80,7 @@ export function IntegrationsView({ status, connections: initial, demo, notice }:
                 {v}
               </code>
             ))}
-            <a href={s.docsUrl} target="_blank" rel="noreferrer" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-corn">
+            <a href={s.docsUrl} target="_blank" rel="noreferrer" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-ink">
               Where to get it
             </a>
           </p>
@@ -136,7 +136,7 @@ export function IntegrationsView({ status, connections: initial, demo, notice }:
 
   return (
     <PageContainer width="wide">
-      <Link href="/settings" className="text-sm text-ink underline decoration-[1px] underline-offset-4 hover:decoration-corn">
+      <Link href="/settings" className="text-sm text-ink underline decoration-[1px] underline-offset-4 hover:decoration-ink">
         Settings
       </Link>
       <PageHeader className="mt-4" title="Integrations" description="Each outside service, whether its key is on this server, what it turns on, and how to connect it. Keys live in .env.local on the server and never in the browser." />
