@@ -145,7 +145,7 @@ export function ConnectionsView({ contacts: initial, applications, demo }: { con
       />
       <PageHeader title="Connections" description="The people your organization already knows, and who could make an introduction." actions={contacts.length ? actions : undefined} />
       {demo ? <p className="mt-4 text-sm text-ink-muted">Demo workspace: the people here are sample data.</p> : null}
-      <p className="mt-2 max-w-[65ch] text-sm text-ink-muted">A CSV with Name, Organization, Role, Email, Phone, Relationship columns, or a LinkedIn connections export, works.</p>
+      <p className="mt-2 max-w-[65ch] text-sm text-ink-muted">Import a CSV with Name, Organization, Role, Email, Phone, and Relationship columns, or a LinkedIn connections export.</p>
 
       {contacts.length === 0 ? (
         <EmptyState

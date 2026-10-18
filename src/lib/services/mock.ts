@@ -457,7 +457,7 @@ export const mockServices: Services = {
           criteria: [
             { criterion: "Statement of need", score: 4, evidence: "Cites the district graduation rate of 81% and the program rate of 94%.", fix: "Answer the waitlist question so the demand claim has a number." },
             { criterion: "Program design", score: 4, evidence: "Four afternoons a week, meals, tutoring, studios: concrete and sequenced.", fix: "Say how many lead tutors the stipends cover; the number is still a gap." },
-            { criterion: "Evaluation", score: 3, evidence: "Attendance and grades through the district data agreement.", fix: "Name who reviews results and when, in one sentence." },
+            { criterion: "Evaluation", score: 3, evidence: "Attendance and grades through the district data agreement.", fix: "Say plainly that evaluation is done in-house, since there is no outside partner." },
             { criterion: "Sustainability", score: 1, evidence: "The section is empty.", fix: "Write two sentences on district contracts and the share of revenue they cover." },
           ],
           createdAt: now(),
@@ -773,7 +773,7 @@ export const mockServices: Services = {
           contactId: input.contactId,
           kind: input.kind,
           subject: opp ? `${input.kind === "thank_you" ? "Thank you" : input.kind === "follow_up" ? "Following up" : "A question"} about ${opp.title}` : "Hello from Riverbend Youth Collective",
-          body: `Hello${input.toName ? ` ${input.toName.split(" ")[0]}` : ""},\n\nI run Riverbend Youth Collective, a small nonprofit in East Dayton. We served 214 young people last year through after-school tutoring, a summer STEM and first-job program, and family navigators.${opp ? `\n\nWe are preparing an application to ${opp.title} and want to make sure we are a fit before we ask our partners for letters.` : ""}${input.notes ? `\n\n${input.notes}` : ""}\n\nThank you for your time.\n\nDana Okafor\n\n(Demo draft, no model key.)`,
+          body: `Hello${input.toName ? ` ${input.toName.split(" ")[0]}` : ""},\n\nI run Riverbend Youth Collective, a small nonprofit in East Dayton. We served 214 young people last year through after-school tutoring, a summer STEM and first-job program, and family navigators.${opp ? `\n\nWe are preparing an application to ${opp.title} and want to make sure we are a fit before we ask our partners for letters.` : ""}${input.notes ? `\n\n${input.notes}` : ""}\n\nThanks,\nDana Okafor\n\n(Demo draft, no model key.)`,
           to: input.to,
           toName: input.toName,
           status: "draft",

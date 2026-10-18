@@ -224,16 +224,8 @@ function ItemPreview({
           <Progress value={(drafted / p.sectionCount) * 100} className="mt-2" aria-label="Draft progress" />
           <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-muted">
             <div className="flex gap-1.5">
-              <dt>Citations</dt>
-              <dd className="font-semibold text-ink tnum">18</dd>
-            </div>
-            <div className="flex gap-1.5">
               <dt>Open questions</dt>
               <dd className="font-semibold text-ink tnum">{p.openQuestions}</dd>
-            </div>
-            <div className="flex gap-1.5">
-              <dt>Documents used</dt>
-              <dd className="font-semibold text-ink tnum">3</dd>
             </div>
           </dl>
         </div>

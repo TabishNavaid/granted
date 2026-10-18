@@ -111,7 +111,7 @@ export function PipelineView({ initial, members, orgName }: { initial: Applicati
             setApps((list) => list.map((a) => (a.id === next.id ? next : a)));
             setOutcomeFor(null);
             if (result === "won") setWon(next);
-            else toast({ title: "Logged", description: "Thank you for logging it. It helps us pick better matches next time." });
+            else toast({ title: "Outcome saved", description: "It stays with the application, along with what the funder said." });
           }}
         />
       ) : null}

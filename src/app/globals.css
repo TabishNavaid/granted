@@ -4,7 +4,8 @@
    Plain, grown-up product UI: white pages, one deep ink close to black,
    quiet gray rules, generous space. A few watercolor wildflowers frame
    the edges of the landing page and the Funded screen; nothing inside
-   the product is drawn. No gradients anywhere. See BRAND.md.
+   the product is drawn. The landing page adds a meadow green, one ink
+   band, and soft panels from the paintings. No gradients. See BRAND.md.
    ------------------------------------------------------------------ */
 
 :root {
@@ -23,6 +24,22 @@
   --rule: #e6e7ec;
   /* Control borders: 3.4:1 on white. */
   --rule-strong: #868b9c;
+
+  /*
+   * The second color: a deep meadow green from the leaves in Walcott's
+   * plates. 7.8:1 on white, so it can carry text. Used sparingly on the
+   * landing page for the one thing in a section that matters most, and as
+   * the ground of one full-bleed section. Never in the app.
+   */
+  --meadow: #2f5b45;
+  --meadow-light: #a9c9ae;
+  /* Soft panels under product screenshots, taken from the paintings. */
+  --panel-sage: #e8eee7;
+  --panel-cream: #f4efe6;
+  --panel-mist: #e9ecf4;
+  /* Type on the ink band: 13.7:1 and 8.2:1. */
+  --on-ink: #f4f1ea;
+  --on-ink-muted: #b8bdcf;
 
   /* The only warning color. 6.6:1 on white. */
   --alert: #b42318;
@@ -52,6 +69,13 @@
   --color-rule: var(--rule);
   --color-rule-strong: var(--rule-strong);
   --color-alert: var(--alert);
+  --color-meadow: var(--meadow);
+  --color-meadow-light: var(--meadow-light);
+  --color-panel-sage: var(--panel-sage);
+  --color-panel-cream: var(--panel-cream);
+  --color-panel-mist: var(--panel-mist);
+  --color-on-ink: var(--on-ink);
+  --color-on-ink-muted: var(--on-ink-muted);
   --color-focus: var(--focus);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);

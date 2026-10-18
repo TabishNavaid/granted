@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PageIntro } from "@/components/marketing/page-intro";
 import { pricingFaq, pricingTiers } from "@/content/site";
 
-export const metadata: Metadata = { title: "Pricing", description: "Free to start. Starter and Growth plans priced for small nonprofits. A success-fee plan is being evaluated.", alternates: { canonical: "/pricing" } };
+export const metadata: Metadata = { title: "Pricing", description: "Free to start. Starter is $29 a month and Growth is $79. A success-fee plan is under review.", alternates: { canonical: "/pricing" } };
 
 export default function PricingPage() {
   return (

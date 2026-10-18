@@ -371,6 +371,258 @@
         "x": 0.6,
         "y": 0.36
       }
+    },
+    {
+      "slug": "wind-poppy-dark",
+      "kind": "plant-dark",
+      "download": "https://ids.si.edu/ids/deliveryService?id=SAAM-1970.355.33_2&max=2400",
+      "source": "saam-1970.355.33_2",
+      "cropFrac": [
+        0.025,
+        0.02,
+        0.975,
+        0.985
+      ],
+      "erase": [
+        [
+          0,
+          0.86,
+          0.26,
+          1
+        ]
+      ],
+      "height": 340,
+      "cutoff": 0.06,
+      "tone": {
+        "saturation": 0.8,
+        "lightness": 0.015
+      },
+      "description": "Wind poppy: soft red-orange poppies on long, wandering stems. A variant for the dark ink band: the paint as it looks on paper, held more firmly.",
+      "credit": {
+        "title": "Wind Poppy (Stylomecon heterophylla), watercolor on paper, object 1970.355.33",
+        "author": "Mary Vaux Walcott",
+        "sourceUrl": "https://americanart.si.edu/collections/search/artwork/?id=26576",
+        "license": "CC0 (Smithsonian Open Access)",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+      },
+      "onDark": true,
+      "darkGain": 2.4
+    },
+    {
+      "slug": "lupine-blue-dark",
+      "kind": "plant-dark",
+      "download": "https://ids.si.edu/ids/deliveryService?id=SAAM-1970.355.99_2&max=2400",
+      "source": "saam-1970.355.99_2",
+      "cropFrac": [
+        0.025,
+        0.02,
+        0.975,
+        0.985
+      ],
+      "erase": [
+        [
+          0,
+          0.855,
+          0.4,
+          1
+        ]
+      ],
+      "height": 340,
+      "cutoff": 0.06,
+      "tone": {
+        "saturation": 0.8,
+        "lightness": 0.015
+      },
+      "description": "Blue lupine: a spike of violet-blue pea flowers over silvery, fingered leaves. A variant for the dark ink band: the paint as it looks on paper, held more firmly.",
+      "credit": {
+        "title": "Blue Lupine (Lupinus argenteus), watercolor on paper, object 1970.355.99",
+        "author": "Mary Vaux Walcott",
+        "sourceUrl": "https://americanart.si.edu/collections/search/artwork/?id=25889",
+        "license": "CC0 (Smithsonian Open Access)",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+      },
+      "onDark": true,
+      "darkGain": 2.4
+    },
+    {
+      "slug": "harebell-dark",
+      "kind": "plant-dark",
+      "download": "https://ids.si.edu/ids/deliveryService?id=SAAM-1970.355.706_2&max=2400",
+      "source": "saam-1970.355.706_2",
+      "cropFrac": [
+        0.025,
+        0.02,
+        0.975,
+        0.985
+      ],
+      "erase": [
+        [
+          0,
+          0.85,
+          0.33,
+          1
+        ]
+      ],
+      "height": 340,
+      "cutoff": 0.06,
+      "tone": {
+        "saturation": 0.8,
+        "lightness": 0.015
+      },
+      "description": "Harebell: nodding blue bells on thread-thin stems. A variant for the dark ink band: the paint as it looks on paper, held more firmly.",
+      "credit": {
+        "title": "Harebell (Campanula rotundifolia), watercolor on paper, object 1970.355.706",
+        "author": "Mary Vaux Walcott",
+        "sourceUrl": "https://americanart.si.edu/collections/search/artwork/?id=26065",
+        "license": "CC0 (Smithsonian Open Access)",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+      },
+      "onDark": true,
+      "darkGain": 2.4
+    },
+    {
+      "slug": "paintbrush-dark",
+      "kind": "plant-dark",
+      "download": "https://ids.si.edu/ids/deliveryService?id=SAAM-1970.355.440_2&max=2400",
+      "source": "saam-1970.355.440_2",
+      "cropFrac": [
+        0.025,
+        0.02,
+        0.975,
+        0.985
+      ],
+      "erase": [
+        [
+          0,
+          0.86,
+          0.32,
+          1
+        ]
+      ],
+      "height": 340,
+      "cutoff": 0.06,
+      "tone": {
+        "saturation": 0.8,
+        "lightness": 0.015
+      },
+      "description": "Indian paintbrush: red bracts on slender leafy stems. A variant for the dark ink band: the paint as it looks on paper, held more firmly.",
+      "credit": {
+        "title": "Giant Red Paintbrush (Castilleja miniata), watercolor on paper, object 1970.355.440",
+        "author": "Mary Vaux Walcott",
+        "sourceUrl": "https://americanart.si.edu/collections/search/artwork/?id=26096",
+        "license": "CC0 (Smithsonian Open Access)",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+      },
+      "onDark": true,
+      "darkGain": 2.4
+    },
+    {
+      "slug": "camas-dark",
+      "kind": "plant-dark",
+      "download": "https://ids.si.edu/ids/deliveryService?id=SAAM-1970.355.695_1&max=2400",
+      "source": "saam-1970.355.695_1",
+      "cropFrac": [
+        0.025,
+        0.02,
+        0.975,
+        0.985
+      ],
+      "erase": [
+        [
+          0,
+          0.85,
+          0.62,
+          1
+        ]
+      ],
+      "height": 340,
+      "cutoff": 0.06,
+      "tone": {
+        "saturation": 0.8,
+        "lightness": 0.015
+      },
+      "description": "Camas: a spike of blue star flowers with long grassy leaves. A variant for the dark ink band: the paint as it looks on paper, held more firmly.",
+      "credit": {
+        "title": "Camas (Quamasia quamash), watercolor on paper, object 1970.355.695",
+        "author": "Mary Vaux Walcott",
+        "sourceUrl": "https://americanart.si.edu/collections/search/artwork/?id=25925",
+        "license": "CC0 (Smithsonian Open Access)",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+      },
+      "onDark": true,
+      "darkGain": 2.4
+    },
+    {
+      "slug": "wild-hyacinth-dark",
+      "kind": "plant-dark",
+      "download": "https://ids.si.edu/ids/deliveryService?id=SAAM-1970.355.726_2&max=2400",
+      "source": "saam-1970.355.726_2",
+      "cropFrac": [
+        0.025,
+        0.02,
+        0.975,
+        0.985
+      ],
+      "erase": [
+        [
+          0,
+          0.85,
+          0.26,
+          1
+        ]
+      ],
+      "height": 340,
+      "cutoff": 0.06,
+      "tone": {
+        "saturation": 0.8,
+        "lightness": 0.015
+      },
+      "description": "Wild hyacinth: violet clusters on tall bare stems with grass-like leaves. A variant for the dark ink band: the paint as it looks on paper, held more firmly.",
+      "credit": {
+        "title": "Wild Hyacinth (Brodiaea pulchella), watercolor on paper, object 1970.355.726",
+        "author": "Mary Vaux Walcott",
+        "sourceUrl": "https://americanart.si.edu/collections/search/artwork/?id=25947",
+        "license": "CC0 (Smithsonian Open Access)",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+      },
+      "onDark": true,
+      "darkGain": 2.4
+    },
+    {
+      "slug": "aster-dark",
+      "kind": "plant-dark",
+      "download": "https://ids.si.edu/ids/deliveryService?id=SAAM-1970.355.456_2&max=2400",
+      "source": "saam-1970.355.456_2",
+      "cropFrac": [
+        0.025,
+        0.02,
+        0.975,
+        0.985
+      ],
+      "erase": [
+        [
+          0,
+          0.86,
+          0.34,
+          1
+        ]
+      ],
+      "height": 340,
+      "cutoff": 0.06,
+      "tone": {
+        "saturation": 0.8,
+        "lightness": 0.015
+      },
+      "description": "Prairie aster: small lavender daisies on branching stems. A variant for the dark ink band: the paint as it looks on paper, held more firmly.",
+      "credit": {
+        "title": "Prairie Aster (Aster campestris), watercolor on paper, object 1970.355.456",
+        "author": "Mary Vaux Walcott",
+        "sourceUrl": "https://americanart.si.edu/collections/search/artwork/?id=26221",
+        "license": "CC0 (Smithsonian Open Access)",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+      },
+      "onDark": true,
+      "darkGain": 2.4
     }
   ],
   "considered": [
@@ -381,5 +633,32 @@
     "Mary Vaux Walcott, Sun Dial Lupine (SAAM 1970.355.345). Painted to the edges of the sheet, so its leaves end in straight cuts; left out of the strips.",
     "Mary Vaux Walcott, Perennial Gaillardia (SAAM 1970.355.691). A beautiful painting, but its saturated yellow pulled the eye out of the strip.",
     "Mary Vaux Walcott, Golden Fleabane (SAAM 1970.355.133). Tried as the approval flower; at 40 pixels its gray leaves turned to a smudge, so a single wind poppy took its place."
+  ],
+  "plates": [
+    {
+      "slug": "walcott-blue-lupine-1915",
+      "download": "https://ids.si.edu/ids/deliveryService?id=SAAM-1970.355.99_2&max=2400",
+      "source": "saam-1970.355.99_2",
+      "cropFrac": [
+        0.018,
+        0.014,
+        0.982,
+        0.986
+      ],
+      "width": 620,
+      "plant": "Blue Lupine",
+      "latin": "Lupinus argenteus",
+      "year": "1915",
+      "medium": "watercolor on paper",
+      "collection": "Smithsonian American Art Museum, gift of the artist, 1970.355.99",
+      "alt": "A botanical watercolor of blue lupine: a spike of violet-blue flowers above silvery, fingered leaves, painted on cream paper with the painter's pencil notes in the corner.",
+      "credit": {
+        "title": "Blue Lupine (Lupinus argenteus), 1915, watercolor on paper, object 1970.355.99",
+        "author": "Mary Vaux Walcott",
+        "sourceUrl": "https://americanart.si.edu/collections/search/artwork/?id=25889",
+        "license": "CC0 (Smithsonian Open Access)",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+    }
   ]
 }

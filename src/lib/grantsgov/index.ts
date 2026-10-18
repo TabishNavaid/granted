@@ -174,7 +174,7 @@ function htmlToText(html: string | undefined): string {
   $("p, li, div, tr, h1, h2, h3, h4").each((_, el) => {
     $(el).prepend("\n").append("\n");
   });
-  return $.text().replace(/ /g, " ").replace(/[ \t]+/g, " ").replace(/ *\n */g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+  return $.text().replace(/\u00a0/g, " ").replace(/[ \t]+/g, " ").replace(/ *\n */g, "\n").replace(/\n{3,}/g, "\n\n").trim();
 }
 
 function dateFromStr(s: string | undefined): string | null {

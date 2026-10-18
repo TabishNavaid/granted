@@ -11,9 +11,9 @@
  * moment when something is approved. Nothing inside the product is drawn.
  */
 
-import { drawings } from "./drawings.manifest";
+import { drawings, plates } from "./drawings.manifest";
 
-export type DrawingKind = "plant" | "flower";
+export type DrawingKind = "plant" | "flower" | "plant-dark";
 
 export interface DrawingCredit {
   title: string;
@@ -40,7 +40,22 @@ export interface DrawingAsset {
   credit: DrawingCredit;
 }
 
-export { drawings };
+export { drawings, plates };
+
+/** A whole sheet shown as a painting, paper and pencil notes included, with a museum caption. */
+export interface PlateAsset {
+  slug: string;
+  file: string;
+  width: number;
+  height: number;
+  plant: string;
+  latin: string;
+  year: string;
+  medium: string;
+  collection: string;
+  alt: string;
+  credit: DrawingCredit;
+}
 
 export const plants = drawings.filter((d) => d.kind === "plant");
 export const flowers = drawings.filter((d) => d.kind === "flower");
@@ -73,8 +88,9 @@ export function flowerFor(id: string): DrawingAsset {
 const strip = ["death-camas", "lupine-blue", "harebell", "wind-poppy", "yarrow", "camas", "aster", "paintbrush", "wild-hyacinth", "phlox"];
 
 /** Plants for a strip of meadow, starting at a stable offset so two strips never match. */
-export function meadowPlants(count: number, seed = "meadow"): DrawingAsset[] {
-  const order = strip.map((slug) => plants.find((p) => p.slug === slug)).filter((p): p is DrawingAsset => Boolean(p));
+export function meadowPlants(count: number, seed = "meadow", onDark = false): DrawingAsset[] {
+  const pool = drawings.filter((d) => d.kind === (onDark ? "plant-dark" : "plant"));
+  const order = strip.map((slug) => pool.find((p) => p.slug === (onDark ? `${slug}-dark` : slug))).filter((p): p is DrawingAsset => Boolean(p));
   const start = hash(seed) % order.length;
   return Array.from({ length: count }, (_, i) => order[(start + i) % order.length]);
 }

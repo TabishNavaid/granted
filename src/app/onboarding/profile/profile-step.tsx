@@ -175,7 +175,7 @@ export function ProfileStep({ org, facts, documents, real, alreadyConfirmed }: P
       <aside className="border-l-[3px] border-rule-strong pl-5 text-base text-ink-muted lg:self-start">
         <h2 className="font-display text-xl text-ink">Why confirm</h2>
         <p className="mt-3">Only facts you've confirmed can show up in a draft. If a number looks off, fix it here or uncheck it. A fact you edit is recorded as stated by you.</p>
-        <p className="mt-3">Anything older than a year will ask you again, so a letter never goes out with a stale number.</p>
+        <p className="mt-3">Anything older than a year comes back to you for a check, so an old number does not slip into a letter.</p>
       </aside>
     </div>
   );

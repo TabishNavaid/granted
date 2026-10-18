@@ -196,7 +196,7 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
         <EmptyState
           className="mt-6"
             title={filter === "all" ? "You are caught up" : `No ${active.label.toLowerCase()} waiting`}
-          description={filter === "all" ? "New drafts, funders, and schedules land here as they are ready. Nothing is sent or submitted without you." : "Try another filter, or check back after Monday's search."}
+          description={filter === "all" ? "New drafts, funders, and schedules land here as they are ready. Nothing is sent or submitted without you." : "Try another filter."}
           action={
             filter !== "all" ? (
               <Button variant="secondary" onClick={() => setFilter("all")}>
@@ -316,7 +316,7 @@ function approvedDescription(item: InboxItem) {
     case "profile_update":
       return "Every draft from here on uses the new number.";
     case "milestones":
-      return "You will get a reminder before each one.";
+      return "They are on your calendar and in the weekly digest.";
     default:
       return item.title;
   }

@@ -20,7 +20,7 @@ import { useToast } from "@/components/ui/toast";
 
 const plans: { tier: PlanTier; name: string; price: string; who: string; includes: string[] }[] = [
   { tier: "free", name: "Free", price: "$0", who: "Try it out", includes: ["Profile and knowledge base", "5 matches a month", "1 drafted letter of inquiry"] },
-  { tier: "starter", name: "Starter", price: "$29", who: "Orgs under $250K", includes: ["Unlimited matches", "3 full proposals a month", "Calendar and reminders", "Outreach drafts"] },
+  { tier: "starter", name: "Starter", price: "$29", who: "Orgs under $250K", includes: ["Unlimited matches", "3 full proposals a month", "Deadline calendar", "Funder email drafts"] },
   { tier: "growth", name: "Growth", price: "$79", who: "Orgs $250K to $1M", includes: ["Everything in Starter", "Unlimited proposals", "Connections and Social (coming)", "3 seats"] },
 ];
 
@@ -93,7 +93,7 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
           </form>
           <div className="mt-12 max-w-lg border-l-2 border-alert pl-5">
             <h2 className="font-display text-xl text-ink">Delete workspace</h2>
-            <p className="mt-2 text-base text-ink-muted">This removes your profile, documents, and drafts for everyone on the team. We will ask you to confirm by email first.</p>
+            <p className="mt-2 text-base text-ink-muted">This removes your profile, documents, and drafts for everyone on the team. It cannot be undone.</p>
             <Button
               variant="danger-ghost"
               className="mt-3 -ml-4"
@@ -216,7 +216,7 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
               </Button>
             </div>
             <p className="mt-3 text-sm text-ink-muted">
-              Email reminders and the weekly digest go out only once email delivery is connected on the{" "}
+              The weekly digest goes out only once email delivery is connected on the{" "}
               <a href="/settings/integrations" className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
                 Integrations page
               </a>
@@ -225,9 +225,9 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
           </div>
           <div className="max-w-lg border-t border-rule">
             {[
-              { key: "weeklyDigest" as const, label: "Weekly match digest", desc: "An email every Monday with new matches and what changed." },
-              { key: "milestoneReminders" as const, label: "Milestone reminders", desc: "An email before each milestone on your calendar." },
-              { key: "inboxAlerts" as const, label: "Inbox alerts", desc: "An email when a draft or plan is waiting for you." },
+              { key: "weeklyDigest" as const, label: "Weekly match digest", desc: "A weekly email with new matches and the next two weeks of deadlines." },
+              { key: "milestoneReminders" as const, label: "Milestone reminders", desc: "An email before each milestone. Not sending yet. Your choice is saved for when it does." },
+              { key: "inboxAlerts" as const, label: "Inbox alerts", desc: "An email when a draft or plan is waiting for you. Not sending yet." },
             ].map((row) => (
               <div key={row.key} className="flex items-center justify-between gap-4 border-b border-rule py-4">
                 <div>

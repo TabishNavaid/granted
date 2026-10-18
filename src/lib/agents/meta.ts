@@ -6,7 +6,7 @@ import type { AgentName, ApplicationStage, InboxItemType, MilestoneKind } from "
  */
 export const agentMeta: Record<AgentName, { label: string; shortLabel: string; description: string }> = {
   profile: { label: "Your profile", shortLabel: "Profile", description: "Reads your website and documents and keeps your facts current." },
-  discovery: { label: "Funder search", shortLabel: "Funders", description: "Looks at funders every week and tells you which ones fit." },
+  discovery: { label: "Funder search", shortLabel: "Funders", description: "Finds funders and tells you which ones fit, and why." },
   planner: { label: "Monthly plan", shortLabel: "Plan", description: "Suggests what to go for each month." },
   proposal: { label: "Proposal drafts", shortLabel: "Drafts", description: "Reads the guidelines and writes every section from your own facts." },
   outreach: { label: "Funder emails", shortLabel: "Emails", description: "Writes funder emails for you to send." },

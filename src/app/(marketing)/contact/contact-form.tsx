@@ -69,7 +69,7 @@ export function ContactForm({ canSend, address }: { canSend: boolean; address: s
           <div className="border-l-[6px] border-ink py-1 pl-4 text-base text-ink">
             {address ? (
               <>
-                <p>Our contact form is not connected to email yet. Send this to us directly:</p>
+                <p>The contact form is not connected to email yet. Write to us directly:</p>
                 <p className="mt-2 font-semibold">
                   <a href={mailto ?? `mailto:${address}`} className="underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
                     {address}
@@ -77,13 +77,13 @@ export function ContactForm({ canSend, address }: { canSend: boolean; address: s
                 </p>
               </>
             ) : (
-              <p>Our contact form is not connected yet and no address is set. This will be fixed before launch.</p>
+              <p>The contact form is not connected yet, and no address is set. We will fix this before launch.</p>
             )}
           </div>
         ) : null}
         <div>
           <Button type="submit" size="lg" loading={state === "sending"}>
-            {canSend ? "Send message" : "Send message"}
+            Send message
           </Button>
         </div>
       </form>

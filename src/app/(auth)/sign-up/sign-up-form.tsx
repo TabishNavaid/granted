@@ -30,7 +30,7 @@ export function SignUpForm({ magicLink }: { magicLink: boolean }) {
   return (
     <div>
       <h1 className="font-display text-3xl text-ink">Create your workspace</h1>
-      <p className="mt-3 text-lg text-ink-muted">Free to start. You'll have your first matches in about twenty minutes.</p>
+      <p className="mt-3 text-lg text-ink-muted">Free to start. Setup ends with your first grant matches.</p>
       <form
         className="mt-8 flex flex-col gap-5"
         onSubmit={async (e) => {
@@ -67,7 +67,7 @@ export function SignUpForm({ magicLink }: { magicLink: boolean }) {
         <Button type="submit" size="lg" loading={loading}>
           {magicLink ? "Email me a link" : "Create workspace"}
         </Button>
-        <p className="text-sm text-ink-muted">By continuing you agree to the terms and privacy policy. We never train models on your data.</p>
+        <p className="text-sm text-ink-muted">By continuing you agree to the terms and privacy policy. We do not train models of our own on your data.</p>
       </form>
       <p className="mt-8 text-base text-ink-muted">
         Already have an account?{" "}

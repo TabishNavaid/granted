@@ -34,7 +34,7 @@ export function DocumentsStep() {
     <div className="grid gap-10 lg:grid-cols-[1fr_18rem]">
       <div>
         <h1 className="font-display text-h1 text-ink">Add one to three documents.</h1>
-        <p className="mt-4 max-w-[60ch] text-lg text-ink-muted">An annual report, an old proposal, or a 990 gives us real numbers to cite. It's optional, but honestly, the drafts are much better with them.</p>
+        <p className="mt-4 max-w-[60ch] text-lg text-ink-muted">An annual report, an old proposal, or a 990 gives us real numbers to cite. It's optional, but drafts are much better with them.</p>
         <div
           onDragOver={(e) => {
             e.preventDefault();
@@ -95,7 +95,7 @@ export function DocumentsStep() {
           <li>A proposal you were proud of, won or not</li>
           <li>Last year&apos;s Form 990</li>
         </ol>
-        <p className="mt-4">We pull out the numbers with page references, so every claim in a draft can show exactly where it came from.</p>
+        <p className="mt-4">We pull out the numbers with page references, so each claim in a draft can point to the page it came from.</p>
       </aside>
     </div>
   );

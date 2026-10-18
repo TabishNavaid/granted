@@ -55,7 +55,7 @@ export function OpportunityCard({ match, className }: { match: MatchView; classN
           </div>
           <div className="col-span-2 sm:col-span-1">
             <dt className="text-xs text-ink-muted">Eligibility</dt>
-            <dd className={cn("font-semibold", failed.length ? "text-alert" : "text-ink")}>{failed.length ? `${failed.length} check${failed.length === 1 ? "" : "s"} to confirm` : "You qualify"}</dd>
+            <dd className={cn("font-semibold", failed.length ? "text-alert" : "text-ink")}>{failed.length ? `${failed.length} check${failed.length === 1 ? "" : "s"} to confirm` : "Looks eligible"}</dd>
           </div>
         </dl>
 

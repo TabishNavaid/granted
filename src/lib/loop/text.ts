@@ -6,8 +6,8 @@ export function normalize(s: string): string {
     .toLowerCase()
     .replace(/[‘’‚‛]/g, "'")
     .replace(/[“”„‟]/g, '"')
-    .replace(/[–—]/g, "-")
-    .replace(/ /g, " ")
+    .replace(/[\u2013\u2014]/g, "-")
+    .replace(/\u00a0/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }

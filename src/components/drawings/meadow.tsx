@@ -10,18 +10,20 @@ interface MeadowProps {
   seed?: string;
   /** Set the strip's height here; plants are 70 to 100 percent of it. */
   className?: string;
-  /** Let the plants grow up one after another (the Funded screen only). */
+  /** Let the plants grow up one after another (the landing hero and the Funded screen). */
   grow?: boolean;
   /** On a phone, show only this many plants, spread evenly across the strip. */
   mobileMax?: number;
+  /** Use the variants painted for the dark ink band. */
+  onDark?: boolean;
 }
 
 /**
  * A soft strip of watercolor wildflowers standing along a bottom edge.
  * Decoration only: it frames a section and never carries meaning.
  */
-export function Meadow({ count = 11, seed = "meadow", className, grow = false, mobileMax }: MeadowProps) {
-  const plants = meadowPlants(count, seed);
+export function Meadow({ count = 11, seed = "meadow", className, grow = false, mobileMax, onDark = false }: MeadowProps) {
+  const plants = meadowPlants(count, seed, onDark);
   const onPhone = new Set(mobileMax === undefined ? plants.map((_, i) => i) : Array.from({ length: mobileMax }, (_, k) => Math.round((k * (count - 1)) / Math.max(1, mobileMax - 1))));
   return (
     <div aria-hidden className={cn("pointer-events-none relative h-48 w-full select-none overflow-hidden", className)}>

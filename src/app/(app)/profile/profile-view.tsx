@@ -121,7 +121,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
     <PageContainer width="wide">
       <PageHeader
         title="Profile and knowledge"
-        description="Everything we know about you, in one place. Every number has a source, and nothing goes into a proposal that is not on this page."
+        description="What drafts are allowed to say about you. Every number has a source, and nothing goes into a proposal that is not on this page."
       />
       <Tabs value={tab} onValueChange={setTab} className="mt-6">
         <TabsList variant="line" aria-label="Knowledge base sections">

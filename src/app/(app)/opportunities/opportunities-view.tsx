@@ -59,7 +59,7 @@ export function OpportunitiesView({ matches, demo, savedSearches }: { matches: M
         description={
           matches.length
             ? demo
-              ? `${matches.length} funders you can actually apply to, ranked by fit. We last looked on ${formatDate(lastScan)} and we'll look again Monday.`
+              ? `${matches.length} funders you can apply to, ranked by fit. We last looked on ${formatDate(lastScan)} and we'll look again Monday.`
               : `${matches.length} open federal notice${matches.length === 1 ? "" : "s"} from Grants.gov you can apply for, ranked by fit against your confirmed facts. We last looked on ${formatDate(lastScan)}.`
             : "Nothing here yet. Confirm your profile, then search Grants.gov for open notices that fit."
         }

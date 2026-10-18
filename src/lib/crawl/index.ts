@@ -95,7 +95,7 @@ async function fetchWithLimits(url: string): Promise<{ ok: true; contentType: st
 
 export function cleanText(s: string): string {
   return s
-    .replace(/ /g, " ")
+    .replace(/\u00a0/g, " ")
     .replace(/[ \t\f\v]+/g, " ")
     .replace(/ *\n */g, "\n")
     .replace(/\n{3,}/g, "\n\n")

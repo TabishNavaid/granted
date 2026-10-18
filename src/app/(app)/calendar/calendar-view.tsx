@@ -47,7 +47,7 @@ export function CalendarView({ initial, applications, reminderDays, members, ics
     <PageContainer width="wide">
       <PageHeader
         title="Calendar"
-        description={`Every deadline, with the milestones we planned backward from it. We'll email you ${reminderDays} days before each one.`}
+        description={`Every deadline, with the milestones we planned backward from it. The weekly digest lists the next two weeks. Reminder emails ${reminderDays} days ahead are not sending yet.`}
         actions={
           <Tabs value={mode} onValueChange={(v) => setMode(v as typeof mode)}>
             <TabsList variant="pill" aria-label="Calendar view">
