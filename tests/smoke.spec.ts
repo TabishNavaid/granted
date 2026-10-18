@@ -28,8 +28,10 @@ const routes: { path: string; heading: RegExp }[] = [
   { path: "/profile", heading: /profile and knowledge/i },
   { path: "/activity", heading: /^activity$/i },
   { path: "/settings", heading: /^settings$/i },
+  { path: "/outreach", heading: /^outreach$/i },
   { path: "/connections", heading: /^connections$/i },
   { path: "/social", heading: /^social$/i },
+  { path: "/settings/integrations", heading: /^integrations$/i },
   { path: "/design", heading: /tokens and components/i },
   { path: "/art-review", heading: /images for/i },
 ];

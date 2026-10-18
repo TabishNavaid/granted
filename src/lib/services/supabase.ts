@@ -785,7 +785,7 @@ export function makeSupabaseServices(): Services {
       return ms.map((m): CalendarEvent => {
         const a = apps.find((x) => x.id === m.applicationId);
         const o = a ? opps.get(a.opportunity_id as string) : null;
-        return { id: m.id, date: m.dueDate, title: m.title, kind: m.kind, applicationId: m.applicationId, funderName: o?.funder.name ?? "", done: m.done };
+        return { id: m.id, date: m.dueDate, title: m.title, kind: m.kind, applicationId: m.applicationId, funderName: o?.funder.name ?? "", done: m.done, assigneeId: m.assigneeId };
       });
     },
     async listMilestones(applicationId?: string) {

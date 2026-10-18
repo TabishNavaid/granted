@@ -11,6 +11,9 @@ import { VerifiedSource } from "@/components/app/citation-chip";
 import { StageBadge } from "@/components/app/badges";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/input";
+import { Field } from "@/components/ui/label";
 import { deadlineLabel, formatDate, formatMoney, formatRange } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +30,8 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
   const { toast } = useToast();
   const [starting, setStarting] = React.useState(false);
   const [status, setStatus] = React.useState(match?.status ?? "new");
+  const [dismissOpen, setDismissOpen] = React.useState(false);
+  const [reason, setReason] = React.useState("");
   const dl = deadlineLabel(opportunity.deadline);
   const soon = dl.tone === "danger" || dl.tone === "warning";
 
@@ -44,8 +49,8 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
   };
   const dismiss = async () => {
     if (!match) return;
-    await services.opportunities.setMatchStatus(match.id, "dismissed");
-    toast({ title: "Tucked away", description: "We won't suggest this one again.", tone: "info" });
+    await services.opportunities.dismiss(match.id, reason);
+    toast({ title: "Set aside", description: reason.trim() ? "Your reason shapes the next search." : "We won't suggest this one again.", tone: "info" });
     router.push("/opportunities");
   };
 
@@ -257,7 +262,7 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
                     <Button variant="secondary" className="flex-1" onClick={save} aria-pressed={status === "saved"}>
                       {status === "saved" ? "Saved" : "Save for later"}
                     </Button>
-                    <Button variant="ghost" className="flex-1" onClick={dismiss}>
+                    <Button variant="ghost" className="flex-1" onClick={() => setDismissOpen(true)}>
                       Not for us
                     </Button>
                   </div>
@@ -267,6 +272,23 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
           </div>
         </aside>
       </div>
+      <Dialog open={dismissOpen} onOpenChange={setDismissOpen}>
+        <DialogContent size="sm">
+          <DialogHeader>
+            <DialogTitle>Why is this not for you?</DialogTitle>
+            <DialogDescription>One line is plenty. The next search reads it and scores similar notices lower.</DialogDescription>
+          </DialogHeader>
+          <Field id="dismiss-reason" label="Reason" optional>
+            <Textarea value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Too big for us, or needs a hospital partner, or wrong state." rows={3} />
+          </Field>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setDismissOpen(false)}>
+              Keep it
+            </Button>
+            <Button onClick={dismiss}>Set it aside</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PageContainer>
   );
 }

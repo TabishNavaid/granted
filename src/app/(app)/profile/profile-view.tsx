@@ -49,14 +49,43 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
     toast({ title: "Confirmed", description: `${f.label} is good as of today. Thanks for checking.` });
   };
 
+  const [uploading, setUploading] = React.useState<string | null>(null);
   const addFiles = async (files: FileList | File[]) => {
     for (const file of Array.from(files)) {
-      const d = await services.knowledge.addDocument({ name: file.name, size: file.size, type: file.type });
-      setDocs((l) => [d, ...l]);
-      setTimeout(async () => setDocs(await services.knowledge.listDocuments()), 3000);
+      setUploading(file.name);
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("type", /990/.test(file.name) ? "form_990" : /annual|report/i.test(file.name) ? "annual_report" : /proposal|loi/i.test(file.name) ? "past_proposal" : /budget/i.test(file.name) ? "budget" : "other");
+      try {
+        const r = await fetch("/api/documents/upload", { method: "POST", body: fd });
+        const data = (await r.json()) as { ok: boolean; error?: string; document?: Document; extraction?: { ok: boolean; factCount?: number; error?: string } };
+        if (!r.ok || !data.ok || !data.document) {
+          toast({ title: `Could not read ${file.name}`, description: data.error ?? "Try again in a moment.", tone: "warning" });
+          continue;
+        }
+        setDocs((l) => [data.document!, ...l]);
+        if (data.extraction?.ok) {
+          setFacts(await services.knowledge.listFacts());
+          toast({ title: `${data.extraction.factCount ?? 0} facts found in ${data.document.title}`, description: "They are waiting for your review in the Facts tab." });
+        } else {
+          toast({ title: `${data.document.title} uploaded`, description: data.extraction?.error ?? "Stored. Facts can be read from it once a model key is connected.", tone: "info" });
+        }
+      } catch {
+        toast({ title: `Could not upload ${file.name}`, description: "Check your connection and try again.", tone: "warning" });
+      }
     }
-    toast({ title: "Uploading", description: "We'll read it and put any new facts in your Inbox for you to check.", tone: "info" });
+    setUploading(null);
   };
+  const extract = async (d: Document) => {
+    setUploading(d.title);
+    const r = await services.knowledge.extractDocument(d.id);
+    setUploading(null);
+    if (!r.ok) return toast({ title: "Could not read it", description: r.error, tone: "warning" });
+    setFacts(await services.knowledge.listFacts());
+    setDocs(await services.knowledge.listDocuments());
+    toast({ title: `${r.data.factCount} facts found`, description: "They are waiting for your review in the Facts tab." });
+  };
+  const [addingBp, setAddingBp] = React.useState(false);
 
   const factColumns: Column<Fact>[] = [
     { key: "label", header: "Fact", cell: (f) => (
@@ -201,7 +230,12 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
         </TabsContent>
 
         <TabsContent value="boilerplate">
-          <p className="mb-4 max-w-[65ch] text-base text-ink-muted">Paragraphs you will use again and again, written from your own documents. Every edit saves a new version, so nothing is lost.</p>
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <p className="max-w-[65ch] text-base text-ink-muted">Paragraphs you will use again and again, in your own words. Every edit saves a new version, so nothing is lost. Claims in them still need a confirmed fact before they go into a draft.</p>
+            <Button variant="secondary" size="sm" onClick={() => setAddingBp(true)}>
+              Add a paragraph
+            </Button>
+          </div>
           <ul className="border-t border-rule">
             {bps.map((b) => (
               <li key={b.id} className="border-b border-rule py-5">
@@ -214,9 +248,22 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
                       <span>Updated {relativeTime(b.updatedAt)}</span>
                     </p>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={() => setEditingBp(b)}>
-                    Edit
-                  </Button>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="sm" onClick={() => setEditingBp(b)}>
+                      Edit
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={`Remove ${b.title}`}
+                      onClick={async () => {
+                        await services.knowledge.removeBoilerplate(b.id);
+                        setBps((l) => l.filter((x) => x.id !== b.id));
+                      }}
+                    >
+                      <Trash2 />
+                    </Button>
+                  </div>
                 </div>
                 <p className="mt-3 line-clamp-4 max-w-[65ch] text-base text-ink">{b.body}</p>
                 {b.sourceDocumentIds.length ? (
@@ -247,10 +294,10 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
             className={cn("flex flex-col items-center justify-center border-2 border-dashed px-6 py-10 text-center transition-colors", dragOver ? "border-ink-deep bg-paper-tint" : "border-ink bg-paper")}
           >
             <p className="font-display text-xl text-ink">Drop a document here</p>
-            <p className="mt-2 max-w-[48ch] text-base text-ink-muted">Annual reports, old proposals, 990s, budgets. PDF, Word, or Excel up to 25 MB. We read them and pull out the facts, page numbers and all.</p>
-            <input ref={fileRef} type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx" className="sr-only" id="doc-upload" onChange={(e) => e.target.files && addFiles(e.target.files)} />
-            <Button variant="secondary" className="mt-5" onClick={() => fileRef.current?.click()}>
-              Choose files
+            <p className="mt-2 max-w-[48ch] text-base text-ink-muted">Annual reports, old proposals, 990s, budgets. PDF, Word, or plain text up to 25 MB. We read the text and pull out facts with the passage each one came from.</p>
+            <input ref={fileRef} type="file" multiple accept=".pdf,.docx,.txt,.md" className="sr-only" id="doc-upload" onChange={(e) => e.target.files && addFiles(e.target.files)} />
+            <Button variant="secondary" className="mt-5" loading={!!uploading} onClick={() => fileRef.current?.click()}>
+              {uploading ? `Reading ${uploading}` : "Choose files"}
             </Button>
           </div>
           <ul className="mt-8 border-t border-rule">
@@ -266,9 +313,15 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
                   </p>
                 </div>
                 {d.status === "ready" ? (
-                  <span className="shrink-0 text-sm text-ink tnum">
-                    {d.factCount} fact{d.factCount === 1 ? "" : "s"}
-                  </span>
+                  d.factCount ? (
+                    <span className="shrink-0 text-sm text-ink tnum">
+                      {d.factCount} fact{d.factCount === 1 ? "" : "s"}
+                    </span>
+                  ) : (
+                    <Button variant="secondary" size="sm" onClick={() => extract(d)} loading={uploading === d.title}>
+                      Read for facts
+                    </Button>
+                  )
                 ) : d.status === "extracting" ? (
                   <span className="flex shrink-0 items-center gap-2 text-sm text-ink-muted">
                     <Skeleton className="h-2 w-16" /> Reading
@@ -286,6 +339,48 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
           </ul>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={addingBp} onOpenChange={setAddingBp}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add a paragraph</DialogTitle>
+            <DialogDescription>Mission, history, a program description, how you evaluate. Drafts can draw on it, with a fact citation for every claim.</DialogDescription>
+          </DialogHeader>
+          <form
+            className="flex flex-col gap-4"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const fd = new FormData(e.currentTarget);
+              const b = await services.knowledge.addBoilerplate({ type: String(fd.get("type")) as Boilerplate["type"], title: String(fd.get("title")), body: String(fd.get("body")) });
+              setBps((l) => [b, ...l]);
+              setAddingBp(false);
+              toast({ title: "Paragraph saved" });
+            }}
+          >
+            <Field id="bp-type" label="Kind">
+              <select name="type" id="bp-type" className="h-10 border-[1.5px] border-ink bg-paper px-3 text-base text-ink" defaultValue="program">
+                {(["mission", "history", "program", "staff_bio", "evaluation", "budget_narrative", "need_statement"] as const).map((t) => (
+                  <option key={t} value={t}>
+                    {t.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase())}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field id="bp-title" label="Title">
+              <Input name="title" required placeholder="After-School Studio" />
+            </Field>
+            <Field id="bp-body" label="Text">
+              <Textarea name="body" required rows={6} />
+            </Field>
+            <DialogFooter>
+              <Button type="button" variant="ghost" onClick={() => setAddingBp(false)}>
+                Cancel
+              </Button>
+              <Button type="submit">Save</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={editing} onOpenChange={setEditing}>
         <DialogContent>

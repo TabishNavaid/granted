@@ -562,7 +562,7 @@ export const mockServices: Services = {
         const a = state.applications.find((x) => x.id === m.applicationId);
         const opp = a ? state.opportunities.find((o) => o.id === a.opportunityId) : null;
         const funder = opp ? state.funders.find((f) => f.id === opp.funderId) : null;
-        return { id: m.id, date: m.dueDate, title: m.title, kind: m.kind, applicationId: m.applicationId, funderName: funder?.name ?? "", done: m.done };
+        return { id: m.id, date: m.dueDate, title: m.title, kind: m.kind, applicationId: m.applicationId, funderName: funder?.name ?? "", done: m.done, assigneeId: m.assigneeId };
       });
       return events.sort((a, b) => a.date.localeCompare(b.date));
     },

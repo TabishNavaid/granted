@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, isSameDay, isSameMonth, isToday, parseISO, startOfMonth, startOfWeek, subMonths } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { ApplicationView, CalendarEvent, MilestoneKind } from "@/lib/types";
+import type { ApplicationView, CalendarEvent, Member, MilestoneKind } from "@/lib/types";
 import { services } from "@/lib/services";
 import { milestoneMeta } from "@/lib/agents/meta";
 import { cn } from "@/lib/utils";
@@ -16,11 +16,16 @@ import { MilestoneBadge } from "@/components/app/badges";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/ui/empty-state";
 
-export function CalendarView({ initial, applications, reminderDays }: { initial: CalendarEvent[]; applications: ApplicationView[]; reminderDays: number }) {
+export function CalendarView({ initial, applications, reminderDays, members, icsUrl }: { initial: CalendarEvent[]; applications: ApplicationView[]; reminderDays: number; members: Member[]; icsUrl: string }) {
+  const assign = async (e: CalendarEvent, assigneeId: string | null) => {
+    setEvents((list) => list.map((x) => (x.id === e.id ? { ...x, assigneeId } : x)));
+    await services.calendar.assignMilestone(e.id, assigneeId);
+  };
   const [events, setEvents] = React.useState(initial);
   const [month, setMonth] = React.useState(() => startOfMonth(new Date()));
   const [mode, setMode] = React.useState<"month" | "list">("month");
   const [selected, setSelected] = React.useState<Date | null>(null);
+  const [copied, setCopied] = React.useState(false);
 
   const days = eachDayOfInterval({ start: startOfWeek(startOfMonth(month)), end: endOfWeek(endOfMonth(month)) });
   const byDay = (d: Date) => events.filter((e) => isSameDay(parseISO(e.date), d));
@@ -126,7 +131,7 @@ export function CalendarView({ initial, applications, reminderDays }: { initial:
           </div>
           <aside className="min-w-0 lg:sticky lg:top-6 lg:self-start">
             <h3 className="font-display text-xl text-ink">{selected ? format(selected, "EEEE, MMMM d") : "Next up"}</h3>
-            <DayList events={selected ? byDay(selected) : upcoming.slice(0, 6)} appTitle={appTitle} onToggle={toggle} emptyText={selected ? "Nothing planned this day. Enjoy it." : "Nothing coming up."} />
+            <DayList events={selected ? byDay(selected) : upcoming.slice(0, 6)} appTitle={appTitle} onToggle={toggle} onAssign={assign} members={members} emptyText={selected ? "Nothing planned this day. Enjoy it." : "Nothing coming up."} />
             {selected ? (
               <Button variant="link" size="sm" className="mt-3" onClick={() => setSelected(null)}>
                 Show next up
@@ -144,19 +149,40 @@ export function CalendarView({ initial, applications, reminderDays }: { initial:
                 <h2 id={`m-${label}`} className="font-display text-2xl text-ink">
                   {label}
                 </h2>
-                <DayList events={list} appTitle={appTitle} onToggle={toggle} showDate emptyText="" />
+                <DayList events={list} appTitle={appTitle} onToggle={toggle} onAssign={assign} members={members} showDate emptyText="" />
               </section>
             ))
           )}
         </div>
       )}
-      <p className="mt-8 text-sm text-ink-muted">
-        Change reminder timing in{" "}
-        <Link href="/settings?tab=notifications" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-pink">
-          Settings
-        </Link>
-        .
-      </p>
+      <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ink-muted">
+        <p>
+          Change reminder timing in{" "}
+          <Link href="/settings?tab=notifications" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-pink">
+            Settings
+          </Link>
+          .
+        </p>
+        <p>
+          Subscribe from your own calendar:{" "}
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(icsUrl);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 1500);
+              } catch {
+                setCopied(false);
+              }
+            }}
+            className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-pink"
+          >
+            {copied ? "Feed address copied" : "copy the feed address"}
+          </button>
+          .
+        </p>
+      </div>
     </PageContainer>
   );
 }
@@ -168,7 +194,7 @@ function relativeLabel(d: number) {
   return `In ${d} days`;
 }
 
-function DayList({ events, appTitle, onToggle, showDate, emptyText }: { events: CalendarEvent[]; appTitle: (id: string) => string; onToggle: (e: CalendarEvent, done: boolean) => void; showDate?: boolean; emptyText: string }) {
+function DayList({ events, appTitle, onToggle, onAssign, members, showDate, emptyText }: { events: CalendarEvent[]; appTitle: (id: string) => string; onToggle: (e: CalendarEvent, done: boolean) => void; onAssign: (e: CalendarEvent, assigneeId: string | null) => void; members: Member[]; showDate?: boolean; emptyText: string }) {
   if (events.length === 0) return <p className="mt-3 text-base text-ink-muted">{emptyText}</p>;
   return (
     <ul className="mt-3 border-t border-rule">
@@ -193,6 +219,19 @@ function DayList({ events, appTitle, onToggle, showDate, emptyText }: { events: 
               <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink-muted">
                 <MilestoneBadge kind={e.kind} />
                 {showDate ? <span>{formatDate(e.date, "EEE, MMM d")}</span> : null}
+                {e.kind !== "deadline" ? (
+                  <label className="flex items-center gap-1.5">
+                    <span className="sr-only">Assigned to</span>
+                    <select value={e.assigneeId ?? ""} onChange={(ev) => onAssign(e, ev.target.value || null)} className="h-7 border border-rule-strong bg-paper px-1 text-xs text-ink" aria-label={`Assign ${e.title}`}>
+                      <option value="">Unassigned</option>
+                      {members.filter((m) => m.status === "active").map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.fullName || m.email}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ) : null}
                 {!e.done ? (
                   <span className={cn(passed && "font-semibold text-burgundy")}>{soon ? <mark className="highlight">{relativeLabel(d)}</mark> : relativeLabel(d)}</span>
                 ) : null}

@@ -572,4 +572,5 @@ export interface CalendarEvent {
   applicationId: string;
   funderName: string;
   done: boolean;
+  assigneeId: string | null;
 }

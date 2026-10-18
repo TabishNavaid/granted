@@ -7,7 +7,8 @@ import Placeholder from "@tiptap/extension-placeholder";
 import CharacterCount from "@tiptap/extension-character-count";
 import { Bold, Italic, List, ListOrdered, Heading3, Undo2, Redo2, Quote, ChevronDown } from "lucide-react";
 import { Citation, Gap } from "./extensions";
-import { reviseText, type ReviseTone } from "@/lib/agents";
+import { services } from "@/lib/services";
+type ReviseTone = "plain" | "warm" | "formal" | "confident";
 import type { Fact, Section } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ interface SectionEditorProps {
   onChange: (html: string, words: number) => void;
   onCitationClick: (factId: string) => void;
   onGapClick: (gapId: string) => void;
+  onVersions?: () => void;
 }
 
 function ToolbarButton({ label, active, onClick, children, disabled }: { label: string; active?: boolean; onClick: () => void; children: React.ReactNode; disabled?: boolean }) {
@@ -49,7 +51,7 @@ function ToolbarButton({ label, active, onClick, children, disabled }: { label: 
   );
 }
 
-export function SectionEditor({ section, facts, onChange, onCitationClick, onGapClick }: SectionEditorProps) {
+export function SectionEditor({ section, facts, onChange, onCitationClick, onGapClick, onVersions }: SectionEditorProps) {
   const { toast } = useToast();
   const [busy, setBusy] = React.useState<string | null>(null);
   const [words, setWords] = React.useState(0);
@@ -123,13 +125,22 @@ export function SectionEditor({ section, facts, onChange, onCitationClick, onGap
     const { from, to, empty } = editor.state.selection;
     const scopeHtml = empty ? editor.getHTML() : editor.state.doc.textBetween(from, to, " ");
     setBusy(action === "tone" ? `Changing the tone to ${tone}` : action === "shorten" ? "Shortening" : action === "expand" ? "Expanding" : "Rewriting");
-    const result = await reviseText({ html: empty ? scopeHtml : `<p>${scopeHtml}</p>`, action, tone, wordLimit: section.wordLimit });
+    const r = await services.applications.revise({ sectionId: section.id, html: empty ? scopeHtml : `<p>${scopeHtml}</p>`, action, tone, wordLimit: section.wordLimit });
+    setBusy(null);
+    if (!r.ok) {
+      toast({ title: "We could not revise that", description: r.error, tone: "warning" });
+      return;
+    }
+    const result = r.data;
+    if (result.html === (empty ? scopeHtml : `<p>${scopeHtml}</p>`)) {
+      toast({ title: "Kept your text", description: result.note, tone: "info" });
+      return;
+    }
     if (empty) {
       editor.chain().focus().setContent(result.html, { emitUpdate: true }).run();
     } else {
       editor.chain().focus().insertContentAt({ from, to }, result.html.replace(/^<p>|<\/p>$/g, "")).run();
     }
-    setBusy(null);
     toast({
       title: action === "tone" ? "Tone adjusted" : action === "shorten" ? "Shortened" : action === "expand" ? "Expanded" : "Rewritten",
       description: `${result.note} Every citation stayed put.`,
@@ -194,6 +205,11 @@ export function SectionEditor({ section, facts, onChange, onCitationClick, onGap
           </DropdownMenuContent>
         </DropdownMenu>
 
+        {onVersions ? (
+          <Button variant="ghost" size="sm" onClick={onVersions}>
+            Versions
+          </Button>
+        ) : null}
         <div className="ml-auto flex flex-wrap items-center gap-1">
           <span className="mr-1 hidden text-sm text-ink-muted sm:inline">Revise:</span>
           <Button variant="secondary" size="sm" onClick={() => runAi("rewrite")} disabled={!!busy}>

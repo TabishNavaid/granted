@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronDown, PanelLeft, PanelRight } from "lucide-react";
-import type { ApplicationStage, Member, ProposalWorkspace } from "@/lib/types";
+import type { ApplicationStage, Budget, BudgetLine, Member, ProposalWorkspace, ReviewerCheck, SectionVersion } from "@/lib/types";
 import { services } from "@/lib/services";
 import { cn } from "@/lib/utils";
 import { deadlineLabel, formatDate, formatMoney } from "@/lib/format";
@@ -20,14 +20,33 @@ import { InkStamp } from "@/components/brand/stamp";
 import { SectionEditor } from "@/components/proposal/section-editor";
 import { Checklist, CompliancePanel, QuestionsPanel, SourcesPanel } from "@/components/proposal/panels";
 import { ExportDialog } from "@/components/proposal/export-dialog";
+import { ReviewerPanel } from "@/components/proposal/reviewer-panel";
+import { BudgetPanel } from "@/components/proposal/budget-panel";
+import { VersionsDialog } from "@/components/proposal/versions-dialog";
+import { ProgressSteps, type JobView } from "@/components/app/progress-steps";
+import { newJobId, watchJob } from "@/lib/progress-client";
+import { Input } from "@/components/ui/input";
+import { Field } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { stageMeta, stageOrder } from "@/lib/agents/meta";
 
-export function Workspace({ initial, members, orgName, demo }: { initial: ProposalWorkspace; members: Member[]; orgName: string; demo: boolean }) {
+const PROPOSAL_FALLBACK: JobView = { status: "running", steps: [{ label: "Reading the funder's guidelines", state: "active" }, { label: "Building the requirements checklist", state: "pending" }, { label: "Drafting every section from your facts", state: "pending" }, { label: "Checking every citation and number", state: "pending" }] };
+
+export function Workspace({ initial, members, orgName, demo, reviewer: initialReviewer, budget: initialBudget }: { initial: ProposalWorkspace; members: Member[]; orgName: string; demo: boolean; reviewer: ReviewerCheck | null; budget: Budget | null }) {
   const router = useRouter();
   const { toast } = useToast();
   const [ws, setWs] = React.useState(initial);
   const [activeId, setActiveId] = React.useState(initial.sections[0]?.id ?? "");
-  const [panel, setPanel] = React.useState<"questions" | "checks" | "sources">(initial.missingFacts.some((m) => m.status === "open") ? "questions" : "checks");
+  const [panel, setPanel] = React.useState<"questions" | "checks" | "sources" | "reviewer" | "budget">(initial.missingFacts.some((m) => m.status === "open") ? "questions" : "checks");
+  const [reviewer, setReviewer] = React.useState<ReviewerCheck | null>(initialReviewer);
+  const [budget, setBudget] = React.useState<Budget | null>(initialBudget);
+  const [panelBusy, setPanelBusy] = React.useState<string | null>(null);
+  const [versionsOpen, setVersionsOpen] = React.useState(false);
+  const [versions, setVersions] = React.useState<SectionVersion[]>([]);
+  const [versionsLoading, setVersionsLoading] = React.useState(false);
+  const [job, setJob] = React.useState<JobView | null>(null);
+  const [askOpen, setAskOpen] = React.useState(false);
+  const [askValue, setAskValue] = React.useState(initial.application.askAmount ? String(initial.application.askAmount) : "");
   const [highlightFact, setHighlightFact] = React.useState<string | null>(null);
   const [highlightGap, setHighlightGap] = React.useState<string | null>(null);
   const [exportOpen, setExportOpen] = React.useState(false);
@@ -101,9 +120,19 @@ export function Workspace({ initial, members, orgName, demo }: { initial: Propos
     router.refresh();
   };
 
-  const draftNow = async () => {
+  const draftNow = async (mode: "letter" | "proposal" = app.mode) => {
     setDrafting(true);
-    const r = await services.loop.draftLetter(app.id);
+    let r: Awaited<ReturnType<typeof services.loop.draftLetter>> | Awaited<ReturnType<typeof services.loop.draftProposal>>;
+    if (mode === "proposal") {
+      const jobId = newJobId();
+      setJob(PROPOSAL_FALLBACK);
+      const stop = watchJob(jobId, setJob);
+      r = await services.loop.draftProposal(app.id, jobId);
+      stop();
+      setJob(null);
+    } else {
+      r = await services.loop.draftLetter(app.id);
+    }
     setDrafting(false);
     if (!r.ok) {
       toast({ title: "We could not write the draft", description: r.error, tone: "warning" });
@@ -117,10 +146,66 @@ export function Workspace({ initial, members, orgName, demo }: { initial: Propos
     if (next?.sections[0]) setActiveId(next.sections[0].id);
     setPanel(r.data.openQuestions ? "questions" : "checks");
     toast({
-      title: "Letter drafted",
+      title: mode === "proposal" ? "Proposal drafted" : "Letter drafted",
       description: r.data.openQuestions ? `${r.data.wordCount} words. ${r.data.openQuestions} question${r.data.openQuestions === 1 ? "" : "s"} for you before it is complete.` : `${r.data.wordCount} words, every claim sourced. Read it over.`,
     });
     router.refresh();
+  };
+
+  const runReviewer = async () => {
+    setPanelBusy("reviewer");
+    const r = await services.applications.runReviewerCheck(app.id);
+    setPanelBusy(null);
+    if (!r.ok) return toast({ title: "Could not score the draft", description: r.error, tone: "warning" });
+    setReviewer(r.data);
+    toast({ title: `Scored ${r.data.overall} of 100`, description: "One fix per criterion is in the Reviewer panel." });
+  };
+  const saveBudget = async (lines: BudgetLine[], justification: string) => {
+    setBudget(await services.applications.saveBudget(app.id, lines, justification));
+  };
+  const justify = async () => {
+    setPanelBusy("justify");
+    const r = await services.applications.writeBudgetJustification(app.id);
+    setPanelBusy(null);
+    if (!r.ok) {
+      toast({ title: "Could not write it", description: r.error, tone: "warning" });
+      return null;
+    }
+    setBudget(r.data);
+    toast({ title: "Justification written", description: "Read it over. Any number we could not source is bracketed." });
+    return r.data.justification;
+  };
+  const addBudgetSection = async () => {
+    setPanelBusy("section");
+    const sec = await services.applications.addBudgetSection(app.id);
+    setPanelBusy(null);
+    await reload();
+    setActiveId(sec.id);
+    toast({ title: "Budget added to the draft", description: "It is a section like any other now." });
+  };
+  const openVersions = async () => {
+    if (!active) return;
+    setVersionsOpen(true);
+    setVersionsLoading(true);
+    setVersions(await services.applications.listVersions(active.id));
+    setVersionsLoading(false);
+  };
+  const restore = async (versionId: string) => {
+    await services.applications.restoreVersion(versionId);
+    setVersionsOpen(false);
+    await reload();
+    toast({ title: "Version restored", description: "The text it replaced is saved as a version too." });
+  };
+  const planMilestones = async () => {
+    const ms = await services.calendar.planMilestones(app.id, { boardReview: true });
+    toast({ title: ms.length ? `${ms.length} milestones planned` : "No deadline to plan from", description: ms.length ? "Worked back from the deadline. See them on the Calendar." : "This notice has no posted deadline." });
+    router.refresh();
+  };
+  const saveAsk = async () => {
+    const n = Number(askValue.replace(/[^0-9.]/g, ""));
+    const next = await services.applications.setAskAmount(app.id, Number.isFinite(n) && n > 0 ? Math.round(n) : null);
+    setWs((w) => ({ ...w, application: next }));
+    setAskOpen(false);
   };
 
   const onCitationClick = (factId: string) => {
@@ -155,10 +240,20 @@ export function Workspace({ initial, members, orgName, demo }: { initial: Propos
               ? "We will read the guidelines, build the checklist, and write every section from your facts. Anything we cannot source becomes a question for you instead of a guess. The finished draft arrives in your Inbox."
               : "We will write a one-page letter of inquiry from your confirmed facts and this notice's own text. Every claim carries its source. Anything we cannot source becomes a question for you instead of a guess."}
           </p>
-          <Button className="mt-5" onClick={draftNow} loading={drafting}>
-            {drafting ? "Writing from your facts" : "Write the first draft"}
-          </Button>
-          {drafting ? <p className="mt-3 text-sm text-ink-muted" aria-live="polite">About half a minute.</p> : null}
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Button onClick={() => draftNow("letter")} loading={drafting && !job} disabled={drafting}>
+              {drafting && !job ? "Writing from your facts" : "Write a letter of inquiry"}
+            </Button>
+            <Button variant="secondary" onClick={() => draftNow("proposal")} loading={!!job} disabled={drafting}>
+              {job ? "Drafting the proposal" : "Write the full proposal"}
+            </Button>
+          </div>
+          <p className="mt-3 max-w-[60ch] text-sm text-ink-muted">A letter is one page and takes about half a minute. The full proposal reads the funder&apos;s guidelines into a checklist first and takes a minute or two.</p>
+          {job ? (
+            <div className="mt-6 max-w-xl" aria-live="polite">
+              <ProgressSteps job={job} />
+            </div>
+          ) : null}
           <div className="mt-10 grid gap-8 opacity-60 sm:grid-cols-3" aria-hidden>
             <div className="border-t border-rule pt-4">
               <Skeleton className="mb-3 h-3 w-24" />
@@ -185,7 +280,10 @@ export function Workspace({ initial, members, orgName, demo }: { initial: Propos
             <h1 className="truncate font-display text-xl text-ink">{app.opportunity.title}</h1>
             <p className="flex flex-wrap items-center gap-x-4 text-sm text-ink-muted">
               <span>{app.funder.name}</span>
-              {app.askAmount ? <span className="tnum">Asking {formatMoney(app.askAmount)}</span> : null}
+              <span>{app.mode === "proposal" ? "Full proposal" : "Letter of inquiry"}</span>
+              <button type="button" onClick={() => setAskOpen(true)} className="tnum underline decoration-[1px] underline-offset-2 hover:decoration-pink">
+                {app.askAmount ? `Asking ${formatMoney(app.askAmount)}` : "Set the ask"}
+              </button>
               {app.opportunity.deadline ? (
                 <>
                   <span>Due {formatDate(app.opportunity.deadline, "MMM d")}</span>
@@ -215,9 +313,21 @@ export function Workspace({ initial, members, orgName, demo }: { initial: Propos
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button variant="secondary" size="sm" asChild className="hidden sm:inline-flex">
-              <Link href="/calendar">Milestones</Link>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="secondary" size="sm">
+                  More <ChevronDown className="size-3" aria-hidden />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={planMilestones}>Plan milestones from the deadline</DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/calendar">Open the calendar</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                {app.mode === "letter" ? <DropdownMenuItem onSelect={() => draftNow("proposal")}>Write the full proposal instead</DropdownMenuItem> : <DropdownMenuItem onSelect={() => draftNow("letter")}>Write a letter of inquiry instead</DropdownMenuItem>}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button size="sm" onClick={() => setExportOpen(true)}>
               Export
             </Button>
@@ -264,7 +374,7 @@ export function Workspace({ initial, members, orgName, demo }: { initial: Propos
           {active ? (
             <>
               <div className="flex flex-1 flex-col">
-                <SectionEditor key={active.id} section={active} facts={ws.facts} onChange={onChange} onCitationClick={onCitationClick} onGapClick={onGapClick} />
+                <SectionEditor key={active.id} section={active} facts={ws.facts} onChange={onChange} onCitationClick={onCitationClick} onGapClick={onGapClick} onVersions={openVersions} />
               </div>
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-rule bg-paper px-5 py-3 sm:px-10">
                 <p className="text-sm text-ink-muted">
@@ -306,6 +416,8 @@ export function Workspace({ initial, members, orgName, demo }: { initial: Propos
                   {fails ? <span className="text-sm font-semibold text-burgundy tnum">{fails}</span> : null}
                 </TabsTrigger>
                 <TabsTrigger value="sources">Sources</TabsTrigger>
+                <TabsTrigger value="reviewer">Reviewer</TabsTrigger>
+                <TabsTrigger value="budget">Budget</TabsTrigger>
               </TabsList>
               <TabsContent value="questions">
                 <QuestionsPanel questions={ws.missingFacts} sections={ws.sections} highlightId={highlightGap} onAnswer={answer} onSkip={skip} />
@@ -316,12 +428,45 @@ export function Workspace({ initial, members, orgName, demo }: { initial: Propos
               <TabsContent value="sources">
                 <SourcesPanel facts={ws.facts} documents={ws.documents} sections={ws.sections} highlightFactId={highlightFact} />
               </TabsContent>
+              <TabsContent value="reviewer">
+                <ReviewerPanel check={reviewer} onRun={runReviewer} running={panelBusy === "reviewer"} />
+              </TabsContent>
+              <TabsContent value="budget">
+                <BudgetPanel budget={budget} onSave={saveBudget} onJustify={justify} onAddSection={addBudgetSection} busy={panelBusy} />
+              </TabsContent>
             </Tabs>
           </div>
         </aside>
       </div>
 
       <ExportDialog open={exportOpen} onOpenChange={setExportOpen} app={app} sections={ws.sections} orgName={orgName} />
+      <VersionsDialog open={versionsOpen} onOpenChange={setVersionsOpen} versions={versions} onRestore={restore} loading={versionsLoading} />
+      <Dialog open={!!job} onOpenChange={() => undefined}>
+        <DialogContent size="md">
+          <DialogHeader>
+            <DialogTitle>Drafting the full proposal</DialogTitle>
+            <DialogDescription>A minute or two. The current sections are replaced when it finishes.</DialogDescription>
+          </DialogHeader>
+          {job ? <ProgressSteps job={job} /> : null}
+        </DialogContent>
+      </Dialog>
+      <Dialog open={askOpen} onOpenChange={setAskOpen}>
+        <DialogContent size="sm">
+          <DialogHeader>
+            <DialogTitle>How much are you asking for?</DialogTitle>
+            <DialogDescription>Used as written in the draft and the budget. Leave it empty and the draft asks you instead of guessing.</DialogDescription>
+          </DialogHeader>
+          <Field id="ask" label="Ask amount" optional>
+            <Input inputMode="numeric" className="tnum" value={askValue} onChange={(e) => setAskValue(e.target.value)} placeholder="40000" />
+          </Field>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setAskOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={saveAsk}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -21,31 +21,7 @@ export const ELIGIBILITY = {
   unrestricted: "99",
 } as const;
 
-export const FUNDING_CATEGORIES: Record<string, string> = {
-  AG: "Agriculture",
-  AR: "Arts",
-  BC: "Business and Commerce",
-  CD: "Community Development",
-  CP: "Consumer Protection",
-  DPR: "Disaster Prevention and Relief",
-  ED: "Education",
-  ELT: "Employment, Labor and Training",
-  EN: "Energy",
-  ENV: "Environment",
-  FN: "Food and Nutrition",
-  HL: "Health",
-  HO: "Housing",
-  HU: "Humanities",
-  ISS: "Income Security and Social Services",
-  IS: "Information and Statistics",
-  LJL: "Law, Justice and Legal Services",
-  NR: "Natural Resources",
-  RA: "Recovery Act",
-  RD: "Regional Development",
-  ST: "Science and Technology",
-  T: "Transportation",
-  O: "Other",
-};
+export { FUNDING_CATEGORIES } from "./categories";
 
 export interface SearchParams {
   keyword: string;

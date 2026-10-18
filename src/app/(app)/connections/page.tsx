@@ -1,18 +1,10 @@
 import type { Metadata } from "next";
-import { ComingSoon } from "@/components/app/coming-soon";
+import { services } from "@/lib/services";
+import { ConnectionsView } from "./connections-view";
 
 export const metadata: Metadata = { title: "Connections" };
 
-export default function ConnectionsPage() {
-  return (
-    <ComingSoon
-      title="Connections"
-      description="Your board already knows people. Soon we'll help you find out who."
-      bullets={[
-        "Map program officers, trustees, and staff at each funder from public sources.",
-        "Upload your board list and see who overlaps with a funder's board.",
-        "Get an intro email drafted for the board member to send.",
-      ]}
-    />
-  );
+export default async function ConnectionsPage() {
+  const [contacts, applications, runtime] = await Promise.all([services.contacts.list(), services.applications.list(), services.loop.runtime()]);
+  return <ConnectionsView contacts={contacts} applications={applications} demo={runtime.demo && !runtime.ai} />;
 }

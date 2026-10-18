@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import type { Invoice, Member, NotificationSettings, Organization, PlanTier, Subscription } from "@/lib/types";
 import { services } from "@/lib/services";
 import { cn } from "@/lib/utils";
@@ -24,13 +25,9 @@ const plans: { tier: PlanTier; name: string; price: string; who: string; include
   { tier: "growth", name: "Growth", price: "$79", who: "Orgs $250K to $1M", includes: ["Everything in Starter", "Unlimited proposals", "Connections and Social (coming)", "3 seats"] },
 ];
 
-/** "owner" becomes "Owner". */
-function sentenceCase(s: string) {
-  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
-}
-
-export function SettingsView({ org, members: initialMembers, subscription: initialSub, invoices, notifications: initialNotif, initialTab }: { org: Organization; members: Member[]; subscription: Subscription; invoices: Invoice[]; notifications: NotificationSettings; initialTab?: string }) {
+export function SettingsView({ org, members: initialMembers, subscription: initialSub, invoices, notifications: initialNotif, initialTab, stripe, icsUrl, currentUserId }: { org: Organization; members: Member[]; subscription: Subscription; invoices: Invoice[]; notifications: NotificationSettings; initialTab?: string; stripe: boolean; icsUrl: string; currentUserId: string }) {
   const { toast } = useToast();
+  const router = useRouter();
   const [tab, setTab] = React.useState(initialTab && ["workspace", "team", "notifications", "billing"].includes(initialTab) ? initialTab : "workspace");
   const [members, setMembers] = React.useState(initialMembers);
   const [sub, setSub] = React.useState(initialSub);
@@ -67,6 +64,9 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
           <TabsTrigger value="team">Team</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="billing">Billing</TabsTrigger>
+          <TabsTrigger value="integrations" asChild>
+            <a href="/settings/integrations">Integrations</a>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="workspace">
@@ -99,7 +99,16 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
           <div className="mt-12 max-w-lg border-l-2 border-burgundy pl-5">
             <h2 className="font-display text-xl text-ink">Delete workspace</h2>
             <p className="mt-2 text-base text-ink-muted">This removes your profile, documents, and drafts for everyone on the team. We will ask you to confirm by email first.</p>
-            <Button variant="danger-ghost" className="mt-3 -ml-4" onClick={() => toast({ title: "Check your email", description: "We sent you a confirmation link. Nothing gets deleted until you click it.", tone: "warning" })}>
+            <Button
+              variant="danger-ghost"
+              className="mt-3 -ml-4"
+              onClick={async () => {
+                if (!window.confirm(`Delete ${org.name} and everything in it? This cannot be undone.`)) return;
+                await services.org.deleteWorkspace();
+                await services.auth.signOut();
+                router.push("/");
+              }}
+            >
               Delete workspace
             </Button>
           </div>
@@ -108,14 +117,52 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
         <TabsContent value="team">
           <ul className="border-t border-rule">
             {members.map((m) => (
-              <li key={m.id} className="flex items-center gap-3 border-b border-rule py-3">
+              <li key={m.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-rule py-3">
                 <Avatar name={m.fullName || m.email} size="sm" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-base font-semibold text-ink">{m.fullName || m.email}</p>
-                  {m.fullName ? <p className="truncate text-sm text-ink-muted">{m.email}</p> : null}
+                  <p className="truncate text-sm text-ink-muted">
+                    {m.email}
+                    {m.status === "invited" ? ", invited" : ""}
+                  </p>
                 </div>
-                {m.status === "invited" ? <span className="shrink-0 text-sm text-ink-muted">Invited</span> : null}
-                <span className="shrink-0 text-sm text-ink">{sentenceCase(m.role)}</span>
+                {m.role === "owner" ? (
+                  <span className="text-sm text-ink">Owner</span>
+                ) : (
+                  <>
+                    <Label htmlFor={`role-${m.id}`} className="sr-only">
+                      Role for {m.email}
+                    </Label>
+                    <Select
+                      value={m.role}
+                      onValueChange={async (v) => {
+                        const next = await services.org.updateMemberRole(m.id, v as Member["role"]);
+                        setMembers((l) => l.map((x) => (x.id === m.id ? { ...x, role: next.role } : x)));
+                      }}
+                    >
+                      <SelectTrigger id={`role-${m.id}`} className="h-9 w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="editor">Editor</SelectItem>
+                        <SelectItem value="reviewer">Reviewer</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {m.id !== currentUserId ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={async () => {
+                          await services.org.removeMember(m.id);
+                          setMembers((l) => l.filter((x) => x.id !== m.id));
+                          toast({ title: "Removed", description: `${m.email} no longer has access.`, tone: "info" });
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    ) : null}
+                  </>
+                )}
               </li>
             ))}
           </ul>
@@ -149,10 +196,38 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
               Send invite
             </Button>
           </form>
-          <p className="mt-3 max-w-[60ch] text-sm text-ink-muted">Reviewers can approve things in the Inbox but cannot edit drafts. Board members usually want exactly this.</p>
+          <p className="mt-3 max-w-[60ch] text-sm text-ink-muted">Reviewers can approve things in the Inbox but cannot edit drafts. Board members usually want exactly this. Assign milestones to teammates from the Calendar.</p>
         </TabsContent>
 
         <TabsContent value="notifications">
+          <div className="mb-8 max-w-lg border-l-[6px] border-ink py-2 pl-4">
+            <p className="text-base font-semibold text-ink">Your calendar feed</p>
+            <p className="mt-1 text-sm text-ink-muted">Subscribe from Google Calendar, Apple Calendar, or Outlook and every deadline and milestone shows up there. Anyone with this address can read your deadlines, so keep it private.</p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <code className="min-w-0 flex-1 truncate bg-paper-tint px-2 py-1 text-xs text-ink">{icsUrl}</code>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(icsUrl);
+                    toast({ title: "Copied", description: "Paste it into your calendar app under subscribe or add by URL." });
+                  } catch {
+                    toast({ title: "Could not copy", description: "Select the address and copy it by hand.", tone: "warning" });
+                  }
+                }}
+              >
+                Copy address
+              </Button>
+            </div>
+            <p className="mt-3 text-sm text-ink-muted">
+              Email reminders and the weekly digest go out only once email delivery is connected on the{" "}
+              <a href="/settings/integrations" className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-pink">
+                Integrations page
+              </a>
+              .
+            </p>
+          </div>
           <div className="max-w-lg border-t border-rule">
             {[
               { key: "weeklyDigest" as const, label: "Weekly match digest", desc: "An email every Monday with new matches and what changed." },
@@ -215,9 +290,15 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
                             variant={p.tier === "free" ? "secondary" : "primary"}
                             size="sm"
                             onClick={async () => {
+                              if (stripe && p.tier !== "free") {
+                                const r = await services.billing.checkoutUrl(p.tier);
+                                if (!r.ok) return toast({ title: "Could not open checkout", description: r.error, tone: "warning" });
+                                window.location.assign(r.data.url);
+                                return;
+                              }
                               const next = await services.billing.changePlan(p.tier);
                               setSub(next);
-                              toast({ title: `Switched to ${p.name}`, description: "Stripe checkout will open here once billing is hooked up." });
+                              toast({ title: `Switched to ${p.name}`, description: stripe ? "Your subscription is updated." : "Stripe is not connected on this server, so the plan switched in place." });
                             }}
                           >
                             {p.tier === "free" ? "Downgrade" : "Choose " + p.name}
@@ -253,10 +334,19 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
                 <p className="mt-4 text-sm text-ink-muted">Renews {formatDate(sub.currentPeriodEnd)}.</p>
               </div>
               <div className="border-t-2 border-ink pt-4">
-                <h2 className="font-display text-xl text-ink">Payment method</h2>
-                <p className="mt-3 text-base text-ink">Visa ending 4242</p>
-                <Button variant="link" size="sm" className={cn("mt-2")} onClick={() => toast({ title: "Managed in Stripe", description: "The billing portal will open here once it's hooked up.", tone: "info" })}>
-                  Update card
+                <h2 className="font-display text-xl text-ink">Payment and invoices</h2>
+                <p className="mt-3 text-base text-ink-muted">{stripe ? "Cards, invoices, and cancellation are handled in the Stripe billing portal." : "Stripe is not connected on this server. The Free plan works without it."}</p>
+                <Button
+                  variant="link"
+                  size="sm"
+                  className={cn("mt-2")}
+                  onClick={async () => {
+                    const r = await services.billing.portalUrl();
+                    if (!r.ok) return toast({ title: "Billing portal", description: r.error, tone: "info" });
+                    window.location.assign(r.data.url);
+                  }}
+                >
+                  Open the billing portal
                 </Button>
               </div>
             </aside>

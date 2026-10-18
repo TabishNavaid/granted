@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import type { MatchView } from "@/lib/types";
+import type { MatchView, SavedSearch } from "@/lib/types";
 import { PageContainer, PageHeader } from "@/components/app/page-header";
 import { OpportunityCard } from "@/components/app/opportunity-card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,18 +10,36 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Label } from "@/components/ui/label";
 import { formatDate } from "@/lib/format";
 import { FindMatchesButton } from "./find-matches-button";
+import { SearchPanel } from "./search-panel";
+import { daysUntil } from "@/lib/format";
 
 type Sort = "fit" | "deadline" | "amount";
 type Scope = "all" | "new" | "eligible" | "pipeline";
+type Deadline = "any" | "30" | "60" | "90" | "open";
+type Amount = "any" | "25" | "100" | "500";
 
-export function OpportunitiesView({ matches, demo }: { matches: MatchView[]; demo: boolean }) {
+export function OpportunitiesView({ matches, demo, savedSearches }: { matches: MatchView[]; demo: boolean; savedSearches: SavedSearch[] }) {
   const [sort, setSort] = React.useState<Sort>("fit");
   const [scope, setScope] = React.useState<Scope>("all");
+  const [deadline, setDeadline] = React.useState<Deadline>("any");
+  const [amount, setAmount] = React.useState<Amount>("any");
+  const [category, setCategory] = React.useState("any");
+  const categories = Array.from(new Set(matches.flatMap((m) => m.funder.focusAreas))).sort();
 
   const filtered = matches.filter((m) => {
-    if (scope === "new") return m.isNew;
-    if (scope === "eligible") return m.eligibilityChecks.every((c) => c.passed);
-    if (scope === "pipeline") return m.status === "applying";
+    if (scope === "new" && !m.isNew) return false;
+    if (scope === "eligible" && !m.eligibilityChecks.every((c) => c.passed)) return false;
+    if (scope === "pipeline" && m.status !== "applying") return false;
+    if (deadline === "open" && m.opportunity.forecasted) return false;
+    if (deadline !== "any" && deadline !== "open") {
+      const d = m.opportunity.deadline ? daysUntil(m.opportunity.deadline) : null;
+      if (d === null || d < 0 || d > Number(deadline)) return false;
+    }
+    if (amount !== "any") {
+      const max = m.opportunity.amountMax ?? m.opportunity.amountMin;
+      if (max === null || max < Number(amount) * 1000) return false;
+    }
+    if (category !== "any" && !m.funder.focusAreas.includes(category)) return false;
     return true;
   });
   const sorted = [...filtered].sort((a, b) => {
@@ -58,7 +76,56 @@ export function OpportunitiesView({ matches, demo }: { matches: MatchView[]; dem
             <TabsTrigger value="pipeline">In pipeline</TabsTrigger>
           </TabsList>
         </Tabs>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <Label htmlFor="deadline" className="sr-only">
+            Deadline
+          </Label>
+          <Select value={deadline} onValueChange={(v) => setDeadline(v as Deadline)}>
+            <SelectTrigger id="deadline" className="h-10 w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="any">Any deadline</SelectItem>
+              <SelectItem value="30">Due in 30 days</SelectItem>
+              <SelectItem value="60">Due in 60 days</SelectItem>
+              <SelectItem value="90">Due in 90 days</SelectItem>
+              <SelectItem value="open">Open now</SelectItem>
+            </SelectContent>
+          </Select>
+          <Label htmlFor="amount" className="sr-only">
+            Award size
+          </Label>
+          <Select value={amount} onValueChange={(v) => setAmount(v as Amount)}>
+            <SelectTrigger id="amount" className="h-10 w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="any">Any award</SelectItem>
+              <SelectItem value="25">$25K or more</SelectItem>
+              <SelectItem value="100">$100K or more</SelectItem>
+              <SelectItem value="500">$500K or more</SelectItem>
+            </SelectContent>
+          </Select>
+          {categories.length ? (
+            <>
+              <Label htmlFor="category" className="sr-only">
+                Category
+              </Label>
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger id="category" className="h-10 w-44">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any category</SelectItem>
+                  {categories.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </>
+          ) : null}
           <Label htmlFor="sort" className="shrink-0 text-sm font-normal text-ink-muted">
             Sort by
           </Label>
@@ -79,7 +146,7 @@ export function OpportunitiesView({ matches, demo }: { matches: MatchView[]; dem
         <EmptyState
           className="mt-6"
           title="No matches here"
-          description={demo ? "Try another filter. New matches show up every Monday and we'll put them in your Inbox." : matches.length ? "Try another filter." : "We search Grants.gov for posted and forecasted notices that 501(c)(3) nonprofits can apply for, read the strongest in full, and keep only the ones we can tie to your facts."}
+          description={demo ? "Try another filter. New matches show up every Monday and we'll put them in your Inbox." : matches.length ? "Try another filter, or run a search below." : "We search Grants.gov for posted and forecasted notices that 501(c)(3) nonprofits can apply for, read the strongest in full, and keep only the ones we can tie to your facts."}
           action={demo || matches.length ? undefined : <FindMatchesButton size="md" />}
         />
       ) : (
@@ -92,6 +159,7 @@ export function OpportunitiesView({ matches, demo }: { matches: MatchView[]; dem
         </ul>
       )}
 
+      {demo ? null : <SearchPanel saved={savedSearches} />}
     </PageContainer>
   );
 }
