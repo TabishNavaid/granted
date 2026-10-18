@@ -18,7 +18,7 @@ import type {
 import type { Services } from "./contracts";
 import { wordCount } from "@/lib/format";
 import { hasAi, runtimeMode } from "@/lib/env";
-import { checkUse, exportCampaign, icsUrlFor, usageThisMonth, withUsage } from "./shared";
+import { checkUse, exportCampaign, icsUrlFor, withUsage } from "./shared";
 import { planMilestones as planFromDeadline } from "@/lib/loop/milestones";
 import { BUDGET_CATEGORY_LABEL, budgetTotal } from "@/lib/loop/budget";
 import { reviseText as demoRevise } from "@/lib/agents";
@@ -606,7 +606,8 @@ export const mockServices: Services = {
 
   billing: {
     async getSubscription() {
-      return withUsage(clone(state.subscription), usageThisMonth(state.applications, state.matches));
+      // The demo keeps its seeded usage numbers; counting the seeded applications would exhaust the plan.
+      return withUsage(clone(state.subscription), { proposalsThisMonth: state.subscription.usage.proposalsThisMonth, matchesThisMonth: state.subscription.usage.matchesThisMonth });
     },
     async checkoutUrl() {
       return { ok: false, code: "no_ai", error: "Stripe is not connected in the demo. Plans switch in place here; connect Stripe on the Integrations page for real checkout." };
@@ -615,7 +616,7 @@ export const mockServices: Services = {
       return { ok: false, code: "no_ai", error: "Stripe is not connected in the demo." };
     },
     async canUse(what) {
-      return checkUse(withUsage(clone(state.subscription), usageThisMonth(state.applications, state.matches)), what);
+      return checkUse(await mockServices.billing.getSubscription(), what);
     },
     async listInvoices() {
       return clone(state.invoices);
@@ -717,6 +718,8 @@ export const mockServices: Services = {
       return readJob(jobId);
     },
     async draftLetter(applicationId) {
+      const limit = await mockServices.billing.canUse("proposal");
+      if (!limit.ok) return { ok: false, code: "failed", error: limit.message ?? "Your plan's limit for this month is used up." };
       if (!hasAi()) {
         await delay(2000);
         const secs = state.sections.filter((s) => s.applicationId === applicationId).length;
@@ -728,6 +731,8 @@ export const mockServices: Services = {
       return draftLetterFor(memoryStore, applicationId);
     },
     async draftProposal(applicationId, jobId) {
+      const limit = await mockServices.billing.canUse("proposal");
+      if (!limit.ok) return { ok: false, code: "failed", error: limit.message ?? "Your plan's limit for this month is used up." };
       if (!hasAi()) {
         const { startJob, advanceJob, finishJob } = await import("@/lib/loop/progress");
         const { PROPOSAL_STEPS } = await import("@/lib/loop/features");

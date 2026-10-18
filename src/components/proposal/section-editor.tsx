@@ -62,6 +62,8 @@ export function SectionEditor({ section, facts, onChange, onCitationClick, onGap
 
   const editor = useEditor({
     immediatelyRender: false,
+    // Toolbar pressed states follow the selection, so the editor must re-render on every transaction.
+    shouldRerenderOnTransaction: true,
     extensions: [
       StarterKit.configure({ heading: { levels: [2, 3] }, codeBlock: false, code: false, horizontalRule: false, link: false }),
       Placeholder.configure({ placeholder: "Start writing, or ask us to draft this section from your facts." }),

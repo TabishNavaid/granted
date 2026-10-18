@@ -30,16 +30,29 @@ TabsList.displayName = "TabsList";
 const TabsTrigger = React.forwardRef<
   React.ComponentRef<typeof TabsPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.Trigger
-    ref={ref}
-    className={cn(
-      "group/tab relative -mb-px inline-flex items-center gap-1.5 whitespace-nowrap border-b-2 border-transparent pb-2 text-base text-ink-muted transition-colors hover:text-ink disabled:opacity-50 data-[state=active]:border-ink data-[state=active]:font-semibold data-[state=active]:text-ink",
-      className,
-    )}
-    {...props}
-  />
-));
+>(({ className, ...props }, ref) => {
+  const inner = React.useRef<HTMLButtonElement | null>(null);
+  // Tabs used as a filter have no panel, so the aria-controls Radix adds points nowhere. Drop it in that case.
+  React.useEffect(() => {
+    const el = inner.current;
+    const id = el?.getAttribute("aria-controls");
+    if (el && id && !document.getElementById(id)) el.removeAttribute("aria-controls");
+  });
+  return (
+    <TabsPrimitive.Trigger
+      ref={(node) => {
+        inner.current = node;
+        if (typeof ref === "function") ref(node);
+        else if (ref) ref.current = node;
+      }}
+      className={cn(
+        "group/tab relative -mb-px inline-flex min-h-6 min-w-6 items-center justify-center gap-1.5 whitespace-nowrap border-b-2 border-transparent pb-2 text-base text-ink-muted transition-colors hover:text-ink disabled:opacity-50 data-[state=active]:border-ink data-[state=active]:font-semibold data-[state=active]:text-ink",
+        className,
+      )}
+      {...props}
+    />
+  );
+});
 TabsTrigger.displayName = "TabsTrigger";
 
 const TabsContent = React.forwardRef<

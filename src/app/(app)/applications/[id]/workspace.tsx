@@ -54,6 +54,14 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
   const [drafting, setDrafting] = React.useState(false);
   const [leftOpen, setLeftOpen] = React.useState(true);
   const [rightOpen, setRightOpen] = React.useState(true);
+  // Between 1024 and 1280px there is no room for both side panels and a readable editor, so the checklist starts closed.
+  React.useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1279px)");
+    const t = setTimeout(() => {
+      if (mq.matches) setLeftOpen(false);
+    }, 0);
+    return () => clearTimeout(t);
+  }, []);
   const saveTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const [saved, setSaved] = React.useState<"saved" | "saving" | "idle">("idle");
 
@@ -281,7 +289,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
             <p className="flex flex-wrap items-center gap-x-4 text-sm text-ink-muted">
               <span>{app.funder.name}</span>
               <span>{app.mode === "proposal" ? "Full proposal" : "Letter of inquiry"}</span>
-              <button type="button" onClick={() => setAskOpen(true)} className="tnum underline decoration-[1px] underline-offset-2 hover:decoration-pink">
+              <button type="button" onClick={() => setAskOpen(true)} className="inline-flex min-h-6 items-center tnum underline decoration-[1px] underline-offset-2 hover:decoration-pink">
                 {app.askAmount ? `Asking ${formatMoney(app.askAmount)}` : "Set the ask"}
               </button>
               {app.opportunity.deadline ? (
@@ -354,7 +362,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
 
       <div className="flex flex-1 flex-col lg:flex-row">
         <aside
-          className={cn("hidden shrink-0 border-r border-rule bg-paper lg:block", leftOpen ? "w-64" : "w-12")}
+          className={cn("hidden shrink-0 border-r border-rule bg-paper lg:block", leftOpen ? "w-56 xl:w-64" : "w-12")}
           aria-label="Checklist"
         >
           <div className="flex items-center justify-between px-2 py-2">
@@ -397,7 +405,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
           ) : null}
         </section>
 
-        <aside className={cn("border-t border-rule bg-paper lg:border-l lg:border-t-0", rightOpen ? "lg:w-80" : "lg:w-12")} aria-label="Questions, checks, and sources">
+        <aside className={cn("border-t border-rule bg-paper lg:border-l lg:border-t-0", rightOpen ? "lg:w-72 xl:w-80" : "lg:w-12")} aria-label="Questions, checks, and sources">
           <div className="hidden items-center justify-between px-2 py-2 lg:flex">
             {rightOpen ? <span className="px-2 text-sm font-semibold text-ink">Review</span> : null}
             <Button variant="ghost" size="icon-sm" aria-label={rightOpen ? "Collapse review panel" : "Expand review panel"} aria-expanded={rightOpen} onClick={() => setRightOpen((o) => !o)}>
@@ -406,7 +414,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
           </div>
           <div className={cn("px-4 pb-8 lg:px-4", !rightOpen && "lg:hidden")}>
             <Tabs value={panel} onValueChange={(v) => setPanel(v as typeof panel)}>
-              <TabsList variant="line" aria-label="Review panels">
+              <TabsList variant="line" aria-label="Review panels" className="flex-wrap gap-x-4 gap-y-0 overflow-visible">
                 <TabsTrigger value="questions">
                   Questions
                   {openQuestions ? <mark className="highlight text-sm font-semibold tnum">{openQuestions}</mark> : null}

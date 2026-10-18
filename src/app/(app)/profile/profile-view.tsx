@@ -295,7 +295,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
           >
             <p className="font-display text-xl text-ink">Drop a document here</p>
             <p className="mt-2 max-w-[48ch] text-base text-ink-muted">Annual reports, old proposals, 990s, budgets. PDF, Word, or plain text up to 25 MB. We read the text and pull out facts with the passage each one came from.</p>
-            <input ref={fileRef} type="file" multiple accept=".pdf,.docx,.txt,.md" className="sr-only" id="doc-upload" onChange={(e) => e.target.files && addFiles(e.target.files)} />
+            <input ref={fileRef} type="file" multiple accept=".pdf,.docx,.txt,.md" className="sr-only" id="doc-upload" aria-label="Choose documents" onChange={(e) => e.target.files && addFiles(e.target.files)} />
             <Button variant="secondary" className="mt-5" loading={!!uploading} onClick={() => fileRef.current?.click()}>
               {uploading ? `Reading ${uploading}` : "Choose files"}
             </Button>

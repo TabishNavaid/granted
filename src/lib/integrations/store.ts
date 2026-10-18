@@ -99,11 +99,7 @@ export function supabaseConnectionStore(): ConnectionStore {
 }
 
 export function connectionStore(): ConnectionStore {
-  const demo = (() => {
-    const flag = process.env.DEMO_MODE?.trim().toLowerCase();
-    if (flag === "true" || flag === "1" || flag === "yes") return true;
-    if (flag === "false" || flag === "0" || flag === "no") return false;
-    return !(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && process.env.SUPABASE_SERVICE_ROLE_KEY);
-  })();
-  return demo ? memoryConnectionStore : supabaseConnectionStore();
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { isDemoMode } = require("@/lib/env") as typeof import("@/lib/env");
+  return isDemoMode() ? memoryConnectionStore : supabaseConnectionStore();
 }

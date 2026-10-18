@@ -176,7 +176,7 @@ function QuestionCard({ q, index, sectionTitle, highlighted, onAnswer, onSkip }:
           Save
         </Button>
       </div>
-      <button type="button" onClick={() => onSkip(q.id)} className="mt-3 text-sm text-ink-muted underline decoration-[1px] underline-offset-4 hover:text-ink hover:decoration-pink">
+      <button type="button" onClick={() => onSkip(q.id)} className="mt-3 inline-flex min-h-6 items-center text-sm text-ink-muted underline decoration-[1px] underline-offset-4 hover:text-ink hover:decoration-pink">
         Skip for now
       </button>
     </form>

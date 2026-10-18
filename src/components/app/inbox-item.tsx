@@ -446,7 +446,7 @@ export function CompactInboxRow({ item, ctx, leaving, onApprove, onReject, defau
           <InkStamp label={stampWord[item.type]} line={stampDate()} animate size="sm" rotate={-7} />
         </div>
       ) : null}
-      <button type="button" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen(true)} className="min-w-0 flex-1 text-left">
+      <button type="button" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen(true)} className="min-h-6 min-w-0 flex-1 text-left">
         <span className="block text-sm text-ink-muted">{inboxKindLabel[item.type]}</span>
         <span className="block truncate text-base font-semibold text-ink">{resolved || leaving ? item.title : <mark className="highlight">{item.title}</mark>}</span>
       </button>

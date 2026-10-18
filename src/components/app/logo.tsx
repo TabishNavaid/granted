@@ -20,7 +20,7 @@ export function Wordmark({ className, size = "md" }: { className?: string; size?
 
 export function Logo({ className, href = "/", size = "md" }: { className?: string; href?: string; size?: "sm" | "md" | "lg" | "xl" }) {
   return (
-    <Link href={href} className={cn("inline-flex items-center", className)} aria-label={`${PRODUCT_NAME} home`}>
+    <Link href={href} className={cn("inline-flex items-center", className)} title={`${PRODUCT_NAME} home`}>
       <Wordmark size={size} />
     </Link>
   );

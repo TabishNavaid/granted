@@ -954,12 +954,16 @@ export function makeSupabaseServices(): Services {
       return readJob(jobId);
     },
     async draftLetter(applicationId: string) {
+      const limit = await billing.canUse("proposal");
+      if (!limit.ok) return { ok: false as const, code: "failed" as const, error: limit.message ?? "Your plan's limit for this month is used up." };
       const s = await ctx();
       const { draftLetterFor } = await import("@/lib/loop");
       const { makeSupabaseStore } = await import("@/lib/loop/supabase-store");
       return draftLetterFor(makeSupabaseStore(s), applicationId);
     },
     async draftProposal(applicationId: string, jobId?: string) {
+      const limit = await billing.canUse("proposal");
+      if (!limit.ok) return { ok: false as const, code: "failed" as const, error: limit.message ?? "Your plan's limit for this month is used up." };
       const { st } = await loopStore();
       const { draftProposalFor } = await import("@/lib/loop/features");
       return draftProposalFor(st, applicationId, jobId);

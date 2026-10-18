@@ -73,7 +73,7 @@ function NavBody({ orgName, userName, pendingCount, onNavigate }: SidebarProps &
         </div>
         <div className="mt-4 flex flex-col gap-2">
           <ThemeToggle />
-          <Link href="/" className="w-fit text-sm text-ink-muted underline-offset-4 hover:text-ink hover:underline">
+          <Link href="/" className="inline-flex min-h-6 w-fit items-center text-sm text-ink-muted underline-offset-4 hover:text-ink hover:underline">
             Sign out
           </Link>
         </div>
@@ -97,7 +97,7 @@ export function MobileTopBar(props: SidebarProps) {
       <Logo href="/inbox" size="sm" />
       <div className="flex items-center gap-3">
         {props.pendingCount ? (
-          <Link href="/inbox" className="text-sm font-semibold tnum" aria-label={`${props.pendingCount} waiting in your Inbox`}>
+          <Link href="/inbox" className="inline-flex min-h-6 items-center text-sm font-semibold tnum" aria-label={`${props.pendingCount} waiting in your Inbox`}>
             <mark className="highlight">{props.pendingCount} waiting</mark>
           </Link>
         ) : null}

@@ -28,7 +28,7 @@ export function ThemeToggle({ className }: { className?: string; tone?: "paper" 
           role="radio"
           aria-checked={current === o.value}
           onClick={() => setTheme(o.value)}
-          className={cn("underline-offset-4 decoration-2 hover:text-ink", current === o.value ? "font-semibold text-ink underline" : "text-ink-muted")}
+          className={cn("inline-flex min-h-6 items-center underline-offset-4 decoration-2 hover:text-ink", current === o.value ? "font-semibold text-ink underline" : "text-ink-muted")}
         >
           {o.label}
         </button>

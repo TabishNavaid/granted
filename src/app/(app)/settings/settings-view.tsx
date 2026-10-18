@@ -323,7 +323,7 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
                       {sub.usage.proposalsThisMonth} of {sub.usage.proposalLimit ?? "unlimited"}
                     </span>
                   </div>
-                  {sub.usage.proposalLimit ? <Progress value={(sub.usage.proposalsThisMonth / sub.usage.proposalLimit) * 100} className="mt-2" aria-label="Proposals used" /> : null}
+                  {sub.usage.proposalLimit ? <Progress value={Math.min(100, (sub.usage.proposalsThisMonth / sub.usage.proposalLimit) * 100)} className="mt-2" aria-label="Proposals used" /> : null}
                 </div>
                 <div className="mt-4 flex justify-between gap-4 text-sm">
                   <span className="text-ink">Matches</span>

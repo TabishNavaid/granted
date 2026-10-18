@@ -75,15 +75,15 @@ export function CalendarView({ initial, applications, reminderDays, members, ics
                 </Button>
               </div>
             </div>
-            <div className="mt-4 border-t-2 border-ink border-l border-rule" role="grid" aria-label={`${format(month, "MMMM yyyy")} calendar`}>
-              <div className="grid grid-cols-7" role="row">
+            <div className="mt-4 border-t-2 border-ink border-l border-rule" aria-label={`${format(month, "MMMM yyyy")} calendar`}>
+              <div className="grid grid-cols-7" aria-hidden>
                 {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-                  <div key={d} role="columnheader" className="border-b border-ink bg-paper-tint px-2 py-1.5 text-xs font-semibold text-ink">
+                  <div key={d} className="border-b border-ink bg-paper-tint px-2 py-1.5 text-xs font-semibold text-ink">
                     {d}
                   </div>
                 ))}
               </div>
-              <div className="grid grid-cols-7" role="rowgroup">
+              <div className="grid grid-cols-7">
                 {days.map((d) => {
                   const list = byDay(d);
                   const inMonth = isSameMonth(d, month);
@@ -92,9 +92,7 @@ export function CalendarView({ initial, applications, reminderDays, members, ics
                     <button
                       key={d.toISOString()}
                       type="button"
-                      role="gridcell"
-                      aria-selected={!!sel}
-                      aria-label={`${format(d, "EEEE, MMMM d")}${list.length ? `, ${list.length} item${list.length === 1 ? "" : "s"}` : ""}`}
+                      aria-pressed={!!sel}
                       onClick={() => setSelected(d)}
                       className={cn(
                         "flex min-h-[4.5rem] flex-col items-start gap-1 border-b border-r border-rule p-1.5 text-left transition-colors hover:bg-paper-hover sm:min-h-[6rem]",
@@ -102,7 +100,9 @@ export function CalendarView({ initial, applications, reminderDays, members, ics
                         sel && "bg-paper-tint",
                       )}
                     >
+                      <span className="sr-only">{format(d, "EEEE, MMMM")} </span>
                       <span className={cn("text-xs tnum", isToday(d) && "font-semibold text-ink underline decoration-2 underline-offset-4")}>{format(d, "d")}</span>
+                      {list.length ? <span className="sr-only">, {list.length} item{list.length === 1 ? "" : "s"}</span> : null}
                       <span className="flex w-full flex-col gap-0.5">
                         {list.slice(0, 3).map((e) => (
                           <span key={e.id} className={cn("hidden truncate text-xs sm:block", e.done ? "text-ink-muted line-through" : e.kind === "deadline" ? "font-semibold text-burgundy" : "text-ink")}>
@@ -176,7 +176,7 @@ export function CalendarView({ initial, applications, reminderDays, members, ics
                 setCopied(false);
               }
             }}
-            className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-pink"
+            className="inline-flex min-h-6 items-center font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-pink"
           >
             {copied ? "Feed address copied" : "copy the feed address"}
           </button>

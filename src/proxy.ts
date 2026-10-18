@@ -9,9 +9,10 @@ const PROTECTED = ["/inbox", "/opportunities", "/applications", "/pipeline", "/c
 
 function demo() {
   const flag = process.env.DEMO_MODE?.trim().toLowerCase();
+  const keys = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && process.env.SUPABASE_SERVICE_ROLE_KEY);
   if (flag === "true" || flag === "1" || flag === "yes") return true;
-  if (flag === "false" || flag === "0" || flag === "no") return false;
-  return !(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY && process.env.SUPABASE_SERVICE_ROLE_KEY);
+  if (flag === "false" || flag === "0" || flag === "no") return !keys;
+  return !keys;
 }
 
 export async function proxy(request: NextRequest) {

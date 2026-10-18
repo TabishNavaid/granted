@@ -13,10 +13,19 @@ export function hasAi() {
   return Boolean(process.env.GEMINI_API_KEY);
 }
 
+let warned = false;
 export function isDemoMode() {
   const flag = process.env.DEMO_MODE?.trim().toLowerCase();
   if (flag === "true" || flag === "1" || flag === "yes") return true;
-  if (flag === "false" || flag === "0" || flag === "no") return false;
+  if (flag === "false" || flag === "0" || flag === "no") {
+    if (hasSupabase()) return false;
+    // Asked for real mode without the keys for it: stay on demo data rather than crash on every screen.
+    if (!warned) {
+      warned = true;
+      console.warn("DEMO_MODE=false but the Supabase keys are missing; running on demo data. See /settings/integrations.");
+    }
+    return true;
+  }
   return !hasSupabase();
 }
 
