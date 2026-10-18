@@ -1,4 +1,6 @@
 import { Logo } from "@/components/app/logo";
+import { DawnScene, SealedLetter } from "@/components/brand/illustrations";
+import { PRODUCT_NAME } from "@/lib/brand";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -9,17 +11,23 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <div className="w-full max-w-sm">{children}</div>
         </div>
       </main>
-      <aside className="hidden flex-col justify-between bg-accent p-12 text-accent-fg lg:flex" aria-label="Why Granted">
-        <p className="text-sm font-medium opacity-80">Verified by default</p>
+      <aside className="relative isolate hidden flex-col justify-between overflow-hidden bg-night p-12 text-night-fg lg:flex" aria-label={`Why ${PRODUCT_NAME}`}>
+        <div className="absolute inset-0 -z-10">
+          <DawnScene lanterns={false} />
+        </div>
+        <p className="text-sm font-semibold text-glow">Nothing leaves without you</p>
         <blockquote className="max-w-md">
-          <p className="font-display text-3xl leading-snug">“I opened the Inbox on a Tuesday, answered four questions, and had a proposal I would have taken a week to write.”</p>
-          <footer className="mt-5 text-sm opacity-80">An executive director in our pilot cohort. Fictional quote for the demo.</footer>
+          <p className="font-display text-3xl leading-snug">“I answered four questions on a Tuesday and had a proposal I would have taken a week to write.”</p>
+          <footer className="mt-5 text-sm text-night-fg/80">Dana, executive director of a youth program. Illustrative quote for the demo.</footer>
         </blockquote>
-        <ul className="flex flex-col gap-2 text-sm opacity-90">
-          <li>Nothing is sent or submitted without your approval.</li>
-          <li>Every fact links to the document it came from.</li>
-          <li>Your data is never used to train models.</li>
-        </ul>
+        <div className="flex items-center gap-4 rounded-2xl border border-night-fg/15 bg-night-raised/60 p-4 backdrop-blur-sm">
+          <SealedLetter size={56} className="text-night-fg" />
+          <ul className="flex flex-col gap-1 text-sm text-night-fg/90">
+            <li>Every fact links to the document it came from.</li>
+            <li>Nothing is sent or submitted without your approval.</li>
+            <li>Your data is never used to train models.</li>
+          </ul>
+        </div>
       </aside>
     </div>
   );

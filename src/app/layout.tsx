@@ -1,44 +1,32 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Instrument_Sans } from "next/font/google";
+import { Caveat, Nunito_Sans, Young_Serif } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { ToastProvider } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { PRODUCT_DESCRIPTION, PRODUCT_NAME } from "@/lib/brand";
 import "./globals.css";
 
-const display = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-display",
-  axes: ["opsz", "SOFT"],
-  display: "swap",
-});
-
-const sans = Instrument_Sans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: "swap",
-});
+const display = Young_Serif({ subsets: ["latin"], weight: "400", variable: "--font-display", display: "swap" });
+const sans = Nunito_Sans({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const hand = Caveat({ subsets: ["latin"], weight: ["500", "600"], variable: "--font-hand", display: "swap" });
 
 export const metadata: Metadata = {
-  title: {
-    default: "Granted",
-    template: "%s · Granted",
-  },
-  description:
-    "A done-for-you funding team for small nonprofits. Matched grants arrive drafted, scheduled, and ready to review. You just approve.",
+  title: { default: PRODUCT_NAME, template: `%s · ${PRODUCT_NAME}` },
+  description: PRODUCT_DESCRIPTION,
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f3ec" },
-    { media: "(prefers-color-scheme: dark)", color: "#141210" },
+    { media: "(prefers-color-scheme: light)", color: "#f6efe3" },
+    { media: "(prefers-color-scheme: dark)", color: "#141229" },
   ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable} h-full`} suppressHydrationWarning>
+    <html lang="en" className={`${display.variable} ${sans.variable} ${hand.variable} h-full`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-bg text-fg">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <TooltipProvider delayDuration={300}>

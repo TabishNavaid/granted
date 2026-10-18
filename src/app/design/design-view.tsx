@@ -28,12 +28,17 @@ import { AgentMark, MilestoneBadge, StageBadge } from "@/components/app/badges";
 import { InboxItemCard, type InboxContext } from "@/components/app/inbox-item";
 import * as seed from "@/lib/mock/data";
 import { stageOrder } from "@/lib/agents/meta";
+import { DawnScene, HorizonRule, LanternGlyph, MarginNote, PhotoSlot, SealedLetter, Seedling, Sunrise } from "@/components/brand/illustrations";
+import { LanternMark } from "@/components/app/logo";
+import { PRODUCT_NAME } from "@/lib/brand";
 import type { MilestoneKind } from "@/lib/types";
 
 const colorTokens = [
   ["bg", "Page background"], ["surface", "Card surface"], ["surface-raised", "Raised surface"], ["surface-sunken", "Sunken surface"], ["surface-hover", "Hover"],
   ["border", "Border"], ["border-strong", "Strong border"], ["border-input", "Input border"], ["fg", "Text"], ["fg-muted", "Muted text"], ["fg-subtle", "Subtle text"],
-  ["accent", "Accent"], ["accent-soft", "Accent soft"], ["success", "Success"], ["success-soft", "Success soft"], ["warning", "Warning"], ["warning-soft", "Warning soft"],
+  ["night", "Night"], ["night-raised", "Night raised"], ["night-fg", "Night text"], ["night-muted", "Night muted"],
+  ["glow", "Marigold glow"], ["glow-soft", "Glow soft"], ["glow-text", "Glow as text"],
+  ["accent", "Terracotta accent"], ["accent-soft", "Accent soft"], ["success", "Success"], ["success-soft", "Success soft"], ["warning", "Warning"], ["warning-soft", "Warning soft"],
   ["danger", "Danger"], ["danger-soft", "Danger soft"], ["info", "Info"], ["info-soft", "Info soft"], ["fit-strong", "Fit strong"], ["fit-good", "Fit good"], ["fit-fair", "Fit fair"],
 ];
 const typeScale = [["text-6xl", "Display"], ["text-5xl", "Hero"], ["text-4xl", "Page title"], ["text-3xl", "Section"], ["text-2xl", "Card title"], ["text-xl", "Subtitle"], ["text-lg", "Lead"], ["text-base", "Body"], ["text-sm", "UI"], ["text-xs", "Caption"], ["text-2xs", "Micro"]];
@@ -83,7 +88,7 @@ export function DesignView() {
     funderNames: { funder_brightwater: "Brightwater Industries Giving Program" },
     applicationTitles: {},
   };
-  const nav = ["colors", "type", "spacing", "buttons", "forms", "cards", "badges", "tabs", "overlays", "states", "table", "product"];
+  const nav = ["brand", "colors", "type", "spacing", "buttons", "forms", "cards", "badges", "tabs", "overlays", "states", "table", "product"];
 
   return (
     <div className="min-h-screen">
@@ -91,11 +96,11 @@ export function DesignView() {
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
           <div className="flex items-center gap-3">
             <Logo size="sm" />
-            <span className="text-sm text-fg-subtle">Design system</span>
+            <span className="hidden text-sm text-fg-subtle sm:inline">Design system</span>
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Button asChild variant="ghost" size="sm">
+            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
               <Link href="/inbox">Open app</Link>
             </Button>
           </div>
@@ -116,12 +121,41 @@ export function DesignView() {
           </nav>
         </div>
 
-        <Section id="colors" title="Color" description="A warm neutral scale with one evergreen accent. Status colors appear only where they carry meaning.">
-          <Swatches />
-          <p className="mt-4 text-xs text-fg-subtle">Dark theme values are defined once under the .dark class. Both themes meet WCAG 2.2 AA for text on their surfaces.</p>
+        <Section id="brand" title="Brand" description={`${PRODUCT_NAME} is a lantern on the path. Night for depth, marigold for light, terracotta for the one action, paper for the ground. A lit lantern means something waits on you; a sealed letter means you approved it.`}>
+          <div className="grid gap-6 md:grid-cols-[1fr_1fr]">
+            <div className="overflow-hidden rounded-2xl border border-border">
+              <div className="h-56">
+                <DawnScene />
+              </div>
+              <p className="px-4 py-2 text-xs text-fg-subtle">DawnScene, the hero and closing backdrop. Anchors to the top or the bottom.</p>
+            </div>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-wrap items-center gap-6 rounded-2xl border border-border bg-surface p-5">
+                <span className="inline-flex items-center gap-2 font-display text-3xl text-fg"><LanternMark /> {PRODUCT_NAME}</span>
+                <span className="inline-flex items-center gap-2 rounded-xl bg-night px-4 py-2 font-display text-2xl text-night-fg"><LanternMark /> {PRODUCT_NAME}</span>
+              </div>
+              <div className="flex flex-wrap items-end gap-6 rounded-2xl border border-border bg-surface p-5 text-fg">
+                <figure className="flex flex-col items-center gap-1 text-xs text-fg-subtle"><LanternGlyph size={56} /> lit</figure>
+                <figure className="flex flex-col items-center gap-1 text-xs text-fg-subtle"><LanternGlyph size={56} lit={false} /> unlit</figure>
+                <figure className="flex flex-col items-center gap-1 text-xs text-fg-subtle"><SealedLetter size={72} /> sealed</figure>
+                <figure className="flex flex-col items-center gap-1 text-xs text-fg-subtle"><Seedling size={56} /> seedling</figure>
+                <figure className="flex flex-col items-center gap-1 text-xs text-fg-subtle"><Sunrise size={110} /> sunrise</figure>
+              </div>
+              <div className="flex flex-wrap items-center gap-6 rounded-2xl border border-border bg-surface p-5">
+                <MarginNote>you have got this</MarginNote>
+                <PhotoSlot className="h-20 flex-1" />
+              </div>
+              <HorizonRule />
+            </div>
+          </div>
         </Section>
 
-        <Section id="type" title="Typography" description="Fraunces for headings, Instrument Sans for everything else. Headings use the font-display utility.">
+        <Section id="colors" title="Color" description="Night, marigold, terracotta, and paper, each with a job. Status colors appear only where they carry meaning.">
+          <Swatches />
+          <p className="mt-4 text-xs text-fg-subtle">Night values are defined once under the .dark class. Both themes meet WCAG 2.2 AA for text on their surfaces and 3:1 for control borders.</p>
+        </Section>
+
+        <Section id="type" title="Typography" description="Young Serif for headings, Nunito Sans for everything you read at speed, Caveat only for small handwritten notes.">
           <ul className="flex flex-col gap-4">
             {typeScale.map(([cls, label]) => (
               <li key={cls} className="flex flex-col gap-1 border-b border-border pb-4 last:border-b-0 sm:flex-row sm:items-baseline sm:gap-6">

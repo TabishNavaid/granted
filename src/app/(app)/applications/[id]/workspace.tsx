@@ -260,7 +260,7 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
           ) : null}
         </aside>
 
-        <section className="flex min-w-0 flex-1 flex-col bg-surface-raised" aria-label="Editor">
+        <section className="flex min-w-0 flex-1 flex-col bg-surface-sunken/50" aria-label="Editor">
           {active ? (
             <>
               <div className="flex flex-1 flex-col">

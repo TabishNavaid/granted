@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { PageContainer, PageHeader } from "./page-header";
 import { Button } from "@/components/ui/button";
+import { LanternGlyph } from "@/components/brand/illustrations";
 
 export function ComingSoon({ title, description, bullets }: { title: string; description: string; bullets: string[] }) {
   return (
     <PageContainer width="narrow">
-      <PageHeader eyebrow="Coming soon" title={title} description={description} />
-      <div className="mt-8 rounded-lg border border-border bg-surface p-6">
+      <PageHeader eyebrow="Not lit yet" title={title} description={description} />
+      <div className="wash-paper mt-8 flex flex-col gap-6 rounded-2xl border border-border p-6 sm:flex-row sm:items-start">
+        <LanternGlyph size={72} lit={false} className="shrink-0 text-fg-subtle" />
+        <div>
         <p className="text-sm font-medium text-fg">What it will do</p>
         <ul className="mt-3 flex flex-col gap-2 text-sm text-fg-muted">
           {bullets.map((b) => (
@@ -20,6 +23,7 @@ export function ComingSoon({ title, description, bullets }: { title: string; des
         <Button asChild variant="secondary" className="mt-5">
           <Link href="/inbox">Back to Inbox</Link>
         </Button>
+        </div>
       </div>
     </PageContainer>
   );

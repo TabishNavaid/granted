@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatMoney, formatShortDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { FitScore } from "./fit-score";
+import { LanternMark } from "./logo";
 
 interface PlanCardProps {
   plan: MonthlyPlan;
@@ -30,12 +31,14 @@ export function PlanCard({ plan, matches, onDecision, onApprove, onSkip, leaving
     <section
       aria-labelledby="plan-title"
       className={cn(
-        "overflow-hidden rounded-xl border border-border bg-surface-raised shadow-sm",
-        leaving && "animate-collapse-out",
+        "overflow-hidden rounded-2xl border border-border bg-surface-raised shadow-sm",
+        leaving && "animate-seal",
       )}
     >
-      <div className="border-b border-border bg-accent-soft/50 px-5 py-4 sm:px-6">
-        <p className="text-xs font-semibold uppercase tracking-wider text-accent-soft-fg">This month</p>
+      <div className="wash-paper border-b border-border px-5 py-4 sm:px-6">
+        <p className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-glow-text">
+          <LanternMark className="size-3.5" /> This month
+        </p>
         <h2 id="plan-title" className="mt-1 font-display text-2xl text-fg">
           Your plan for {monthName}
         </h2>
@@ -48,7 +51,7 @@ export function PlanCard({ plan, matches, onDecision, onApprove, onSkip, leaving
           const skipped = item.decision === "skip";
           return (
             <li key={item.opportunityId} className={cn("flex gap-4 px-5 py-4 sm:px-6", skipped && "opacity-60")}>
-              <span className="mt-1 hidden size-7 shrink-0 items-center justify-center rounded-full bg-surface-sunken font-display text-sm text-fg-muted sm:flex" aria-hidden>
+              <span className="mt-1 hidden size-7 shrink-0 items-center justify-center rounded-full bg-night font-display text-sm text-night-fg sm:flex" aria-hidden>
                 {i + 1}
               </span>
               <div className="min-w-0 flex-1">
@@ -76,7 +79,7 @@ export function PlanCard({ plan, matches, onDecision, onApprove, onSkip, leaving
                       onClick={() => onDecision(item.opportunityId, "keep")}
                       className={cn(
                         "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
-                        !skipped ? "border-accent bg-accent-soft text-accent-soft-fg" : "border-border text-fg-subtle hover:text-fg",
+                        !skipped ? "border-success bg-success-soft text-success-soft-fg" : "border-border text-fg-subtle hover:text-fg",
                       )}
                     >
                       <Check className="size-3" aria-hidden /> Keep

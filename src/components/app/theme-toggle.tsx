@@ -6,12 +6,12 @@ import { Monitor, Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const options = [
-  { value: "light", label: "Light", icon: Sun },
-  { value: "system", label: "System", icon: Monitor },
-  { value: "dark", label: "Dark", icon: Moon },
+  { value: "light", label: "Dawn", icon: Sun },
+  { value: "system", label: "Match my device", icon: Monitor },
+  { value: "dark", label: "Night", icon: Moon },
 ] as const;
 
-export function ThemeToggle({ className }: { className?: string }) {
+export function ThemeToggle({ className, tone = "paper" }: { className?: string; tone?: "paper" | "night" }) {
   const { theme, setTheme } = useTheme();
   const mounted = React.useSyncExternalStore(
     () => () => {},
@@ -19,8 +19,9 @@ export function ThemeToggle({ className }: { className?: string }) {
     () => false,
   );
   const current = mounted ? theme ?? "system" : "system";
+  const night = tone === "night";
   return (
-    <div role="radiogroup" aria-label="Color theme" className={cn("inline-flex rounded-md bg-surface-sunken p-0.5", className)}>
+    <div role="radiogroup" aria-label="Color theme" className={cn("inline-flex rounded-full p-0.5", night ? "bg-night-raised" : "bg-surface-sunken", className)}>
       {options.map((o) => (
         <button
           key={o.value}
@@ -31,8 +32,9 @@ export function ThemeToggle({ className }: { className?: string }) {
           title={o.label}
           onClick={() => setTheme(o.value)}
           className={cn(
-            "inline-flex size-7 items-center justify-center rounded-[5px] text-fg-subtle transition-colors hover:text-fg",
-            current === o.value && "bg-surface-raised text-fg shadow-xs",
+            "inline-flex size-7 items-center justify-center rounded-full transition-colors",
+            night ? "text-night-muted hover:text-night-fg" : "text-fg-subtle hover:text-fg",
+            current === o.value && (night ? "bg-glow text-glow-fg hover:text-glow-fg" : "bg-surface-raised text-fg shadow-xs"),
           )}
         >
           <o.icon className="size-3.5" aria-hidden />

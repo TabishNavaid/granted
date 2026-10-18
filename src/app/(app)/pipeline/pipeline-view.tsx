@@ -17,6 +17,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Field } from "@/components/ui/label";
 import { Input, Textarea } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sunrise } from "@/components/brand/illustrations";
 
 export function PipelineView({ initial, members }: { initial: ApplicationView[]; members: Member[] }) {
   const { toast } = useToast();
@@ -24,6 +25,7 @@ export function PipelineView({ initial, members }: { initial: ApplicationView[];
   const [dragging, setDragging] = React.useState<string | null>(null);
   const [over, setOver] = React.useState<ApplicationStage | null>(null);
   const [outcomeFor, setOutcomeFor] = React.useState<ApplicationView | null>(null);
+  const [won, setWon] = React.useState<ApplicationView | null>(null);
   const liveRef = React.useRef<HTMLDivElement>(null);
 
   const move = async (app: ApplicationView, stage: ApplicationStage) => {
@@ -110,9 +112,29 @@ export function PipelineView({ initial, members }: { initial: ApplicationView[];
             const next = await services.applications.logOutcome(outcomeFor.id, result, amount, feedback);
             setApps((list) => list.map((a) => (a.id === next.id ? next : a)));
             setOutcomeFor(null);
-            toast({ title: result === "won" ? "Congratulations" : "Logged", description: result === "won" ? `${formatMoney(amount)} from ${outcomeFor.funder.name}. The Outreach agent will draft a thank-you.` : "The planner will use this to pick better matches." });
+            if (result === "won") setWon(next);
+            else toast({ title: "Logged", description: "The planner uses this to pick better matches next time." });
           }}
         />
+      ) : null}
+      {won ? (
+        <Dialog open onOpenChange={(o) => !o && setWon(null)}>
+          <DialogContent size="sm" className="wash-paper items-center text-center">
+            <Sunrise size={160} className="mx-auto text-fg" />
+            <DialogHeader className="items-center pr-0">
+              <DialogTitle className="text-3xl">You won.</DialogTitle>
+              <DialogDescription className="text-base">
+                {won.outcome?.awardAmount ? <span className="font-display text-2xl text-fg tnum">{formatMoney(won.outcome.awardAmount)}</span> : null}
+                {won.outcome?.awardAmount ? <br /> : null}
+                from {won.funder.name}. Somebody read what you wrote and said yes.
+              </DialogDescription>
+            </DialogHeader>
+            <p className="text-sm text-fg-muted">The Outreach agent is drafting the thank-you. It lands in your Inbox, and the January update goes on your calendar.</p>
+            <DialogFooter className="sm:justify-center">
+              <Button onClick={() => setWon(null)}>Back to the board</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       ) : null}
     </PageContainer>
   );

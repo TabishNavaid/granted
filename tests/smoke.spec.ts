@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 /** Every P0 route renders without a console error and shows its main heading. */
 const routes: { path: string; heading: RegExp }[] = [
-  { path: "/", heading: /matched grants arrive/i },
+  { path: "/", heading: /closer than it feels/i },
   { path: "/sign-in", heading: /welcome back/i },
   { path: "/sign-up", heading: /create your workspace/i },
   { path: "/onboarding", heading: /read up on you/i },
@@ -39,13 +39,14 @@ for (const r of routes) {
   });
 }
 
-test("inbox approve removes the item and offers undo", async ({ page }) => {
+test("inbox approve seals the item and offers undo", async ({ page }) => {
   await page.goto("/inbox");
-  const card = page.getByRole("article", { name: /email to tomas reyes/i });
+  const card = page.getByRole("article").filter({ has: page.getByRole("button", { name: /^(approve|save|update|add to)/i }) }).first();
   await expect(card).toBeVisible();
-  await card.getByRole("button", { name: /approve email/i }).click();
-  await expect(page.getByText("Email approved")).toBeVisible();
-  await expect(card).toBeHidden();
+  const title = await card.getByRole("heading", { level: 3 }).innerText();
+  await card.getByRole("button", { name: /^(approve|save|update|add to)/i }).first().click();
+  await expect(page.getByRole("button", { name: /^undo$/i })).toBeVisible();
+  await expect(page.getByRole("article", { name: title })).toBeHidden({ timeout: 5000 });
   await page.getByRole("button", { name: /^undo$/i }).click();
-  await expect(page.getByRole("article", { name: /email to tomas reyes/i })).toBeVisible();
+  await expect(page.getByRole("article", { name: title })).toBeVisible();
 });

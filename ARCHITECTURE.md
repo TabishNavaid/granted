@@ -1,6 +1,6 @@
 # Architecture
 
-Granted is a Next.js App Router front end that talks to a thin service layer. The backend is Supabase (Postgres, auth, storage, pgvector), a job runner for agent runs, and the Claude API with tool use. Agents never talk to the user directly; every output lands in the Inbox as a row the user approves, edits, or rejects.
+The product (working name in `src/lib/brand.ts`) is a Next.js App Router front end that talks to a thin service layer. The backend is Supabase (Postgres, auth, storage, pgvector), a job runner for agent runs, and the Claude API with tool use. Agents never talk to the user directly; every output lands in the Inbox as a row the user approves, edits, or rejects.
 
 ## 1. Folder structure
 

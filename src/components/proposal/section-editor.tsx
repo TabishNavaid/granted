@@ -195,7 +195,7 @@ export function SectionEditor({ section, facts, onChange, onCitationClick, onGap
         </DropdownMenu>
 
         <div className="ml-auto flex flex-wrap items-center gap-1">
-          <span className="mr-1 hidden text-xs text-fg-subtle sm:inline">AI</span>
+          <span className="mr-1 hidden text-xs font-semibold text-fg-subtle sm:inline">Ask the agent to</span>
           <Button variant="soft" size="sm" onClick={() => runAi("rewrite")} disabled={!!busy}>
             <Wand2 aria-hidden /> Rewrite
           </Button>
@@ -231,7 +231,7 @@ export function SectionEditor({ section, facts, onChange, onCitationClick, onGap
             {busy}...
           </div>
         ) : null}
-        <div className={cn("prose-editor mx-auto transition-opacity", busy && "opacity-50")}>
+        <div className={cn("prose-editor mx-auto rounded-2xl border border-border bg-surface-raised px-6 py-7 shadow-sm transition-opacity sm:px-10 sm:py-9", busy && "opacity-50")}>
           <h2 className="mb-4 font-display text-2xl text-fg">{section.title}</h2>
           <EditorContent editor={editor} />
         </div>
