@@ -1,0 +1,351 @@
+import { PRODUCT_NAME } from "@/lib/brand";
+
+/**
+ * Site copy: FAQ, founder note, security page, legal drafts, and pricing.
+ * Plain text only. Square brackets mark details the founders fill in.
+ */
+
+export type FaqItem = { q: string; a: string };
+export type Section = { heading: string; body: string[] };
+export type PricingTier = {
+  name: string;
+  price: string;
+  period: string;
+  who: string;
+  includes: string[];
+  cta: string;
+  note?: string;
+};
+
+export const faq: FaqItem[] = [
+  {
+    q: "Does it make things up?",
+    a: `It is built not to. ${PRODUCT_NAME} only names funders that appear in Grants.gov records or on a page it fetched. Every claim in a draft links to the sentence in your website or documents it came from. When a fact is missing, the draft shows a placeholder and asks you instead of guessing. A model can still misread a source, so check the citations before you send.`,
+  },
+  {
+    q: "Will funders know AI helped, and do we have to disclose it?",
+    a: "Some funders ask you to disclose AI use and some do not. Federal agencies differ, and policies change. We show a funder's AI policy when we have it and flag when disclosure looks required, but you are responsible for reading the guidelines. The draft is built from your own facts and voice, and you edit and approve it, so you remain the author.",
+  },
+  {
+    q: "Does it submit or send anything for us?",
+    a: `No. ${PRODUCT_NAME} drafts, you send. Letters and proposals export as documents for you to submit through the funder's own portal. Funder emails open in your email client or copy to your clipboard, and you press send. Nothing leaves your workspace without your explicit approval, and every action the assistant took is written to a log you can read.`,
+  },
+  {
+    q: "Who sees our data, and does anyone train on it?",
+    a: "Your workspace is private to the people you invite. Data lives in a Postgres database hosted by Supabase in the United States. Drafting uses Google's Gemini API. On paid plans we use the paid tier, where Google does not train on your data. On the free plan we may use the free tier, which can use data to improve Google's products. The app tells you which applies.",
+  },
+  {
+    q: "What sources does it search?",
+    a: `Today, federal funding notices from Grants.gov, refreshed regularly. That covers federal agencies, not private foundations or corporate giving. Foundation data is next, likely starting from public IRS Form 990 filings. If most of your funding comes from local foundations, ${PRODUCT_NAME} will be more useful for drafting than for discovery until then, and we would rather tell you that now.`,
+  },
+  {
+    q: "How much time does it really save?",
+    a: "We do not have measured numbers yet, and we will not invent any. What it removes is the blank page and the hunt for your own facts. You still read the funder's guidelines, check every citation, edit the draft so it sounds like you, and submit. Expect to spend real time reviewing. The goal is a solid draft in an afternoon, not a finished proposal in a minute.",
+  },
+  {
+    q: "What does it cost, and what happens if we cannot pay?",
+    a: "The Free plan is $0 and includes your profile, five matches a month, and one drafted letter of inquiry. Starter is $29 a month and Growth is $79 a month. If you stop paying, your workspace drops to Free. You keep your data and can export your drafts. We are also exploring a plan for organizations with no cash, described on the pricing page.",
+  },
+  {
+    q: "What if the draft is wrong or sounds nothing like us?",
+    a: "Edit it, or tell the assistant what is off and ask for another pass. Drafts are grounded in your own website and documents, so the more you give it, the closer it sounds. You can keep a short note about your voice in your profile. Wrong facts are a bug we want to hear about, with the citation, so we can fix the extraction.",
+  },
+];
+
+export const founderNote: {
+  heading: string;
+  paragraphs: string[];
+  signoff: string;
+} = {
+  heading: "Why we built it",
+  paragraphs: [
+    "I spent [a period of time] volunteering with [the organization where I volunteered] in [city]. The person running it did programs, finance, and every grant application alone, mostly after hours. The money was out there. The hours to chase it were not.",
+    "Grant writers cost more than most small organizations can spend. The research tools are priced for development offices. And the AI tools we tried produced confident drafts with invented numbers, which is worse than no draft at all when a funder is reading.",
+    `So we built ${PRODUCT_NAME} around one rule: every fact comes from your own documents or a real funding notice, with a link to where it came from. Nothing goes out without your approval. It is a draft and a calendar, not a stranger speaking for you.`,
+    "It is early. The federal listings are in, foundation data is next, and we are building it with [number] organizations who tell us what is wrong every week. If you run a small nonprofit and want to be one of them, write to us at [founders@yourdomain].",
+  ],
+  signoff: `[Name] and [Name], founders of ${PRODUCT_NAME}`,
+};
+
+export const securitySections: Section[] = [
+  {
+    heading: "Where your data lives",
+    body: [
+      "Your profile, uploaded documents, matches, drafts, and calendar are stored in a Postgres database hosted by Supabase in a United States region. Each organization has its own workspace, and database rules keep one workspace from reading another.",
+      "Files you upload are stored in the same account, under your workspace. We do not copy your data to other regions.",
+    ],
+  },
+  {
+    heading: "Who can see it",
+    body: [
+      "The people you invite to your workspace. Nobody else by default.",
+      `A small number of ${PRODUCT_NAME} staff can reach production systems to fix problems. That access is logged, limited to what the task needs, and never used to read your proposals out of curiosity. We will tell you if we need to open your workspace to resolve a support request.`,
+    ],
+  },
+  {
+    heading: "AI providers and training",
+    body: [
+      `${PRODUCT_NAME} uses Google's Gemini API to read your documents, find matches, and write drafts. Your text is sent to Google for processing and returned to your workspace.`,
+      "On paid plans we use the paid API tier. Under its terms, Google does not use customer prompts or outputs to train its models.",
+      "On the Free plan we may use the free API tier. Under its terms, Google may use that data to improve its products. The app tells you when this applies, and you can move to a paid plan at any time to avoid it.",
+      "We do not train models of our own on your data, and we do not share one customer's data with another.",
+    ],
+  },
+  {
+    heading: "You approve everything",
+    body: [
+      "Nothing is sent, posted, or submitted on your behalf. Drafts stay drafts until you review them. Proposals export as files that you upload to the funder's portal yourself. Funder emails are handed to you to send from your own address.",
+      "Every action the assistant takes, and every source it used, is written to a log you can open from your workspace.",
+    ],
+  },
+  {
+    heading: "A source on every fact",
+    body: [
+      "Funders come only from Grants.gov records or a page the assistant fetched, each with a link and a last-checked date. The assistant never names a funder from memory.",
+      "Claims in a draft link to the sentence in your website or document they came from. When a fact is missing, the draft shows a placeholder and asks you. It does not fill in a plausible number.",
+    ],
+  },
+  {
+    heading: "Email and sending",
+    body: [
+      `${PRODUCT_NAME} does not send email for you and does not connect to your inbox. It writes a draft, and you send it from your own account.`,
+      "We do not scrape personal contact details. Funder contacts come from public program listings, and we keep to published professional information.",
+    ],
+  },
+  {
+    heading: "Account access and deletion",
+    body: [
+      "You sign in with a magic link sent to your email address, so there is no password for us to store or for anyone to steal. We may offer sign-in with Google as well.",
+      "You can delete your workspace from settings. That removes your profile, documents, drafts, matches, and logs. Backups expire within [30] days. Deleting does not take back anything you already exported or sent.",
+    ],
+  },
+  {
+    heading: "Reporting a problem",
+    body: [
+      "If you find a security issue, or a fact in a draft that does not match its source, write to [security@yourdomain]. We read every report and will reply within [two business days].",
+      "Please do not test against other customers' workspaces. If you need a safe place to look, ask and we will set one up.",
+    ],
+  },
+];
+
+export const privacySections: Section[] = [
+  {
+    heading: "What this policy covers",
+    body: [
+      `This policy explains what ${PRODUCT_NAME} collects when you use the service, what we do with it, and the choices you have. It applies to the website and the app. The plain language is deliberate. If something is unclear, ask us.`,
+    ],
+  },
+  {
+    heading: "What we collect",
+    body: [
+      "Account details: your email address and name, and your Google account identifier if you sign in with Google.",
+      "Workspace content: your organization's profile, the website pages and documents you give us, the drafts and matches we create, and your calendar entries.",
+      "Usage data: pages visited, features used, browser type, and approximate location from your IP address, used to run and improve the service.",
+      "Payment details on paid plans are collected by Stripe. We never see your full card number.",
+    ],
+  },
+  {
+    heading: "How we use it",
+    body: [
+      "To run the service: find matching grants, draft letters and proposals from your documents, and keep your deadlines.",
+      "To support you: answer questions, fix problems, and send account emails such as sign-in links and deadline reminders.",
+      "To improve the product: understand which features are used and where drafts go wrong. We do not sell your data and we do not show advertising.",
+    ],
+  },
+  {
+    heading: "AI processing",
+    body: [
+      "Your website text and documents are sent to Google's Gemini API to produce matches and drafts. On paid plans we use the paid tier, where Google does not train on customer data. On the Free plan we may use the free tier, where Google may use data to improve its products. We tell you in the app which tier you are on.",
+      "We do not train models of our own on your content. Cross-customer learning, if we ever offer it, will be opt-in and anonymized.",
+    ],
+  },
+  {
+    heading: "Sharing with providers",
+    body: [
+      "We share data only with the providers needed to run the service: Supabase for hosting and database, Google for AI processing, Stripe for payments, and an email provider for sign-in links and notifications. Each is bound by its own terms and acts on our instructions.",
+      "We may disclose data when the law requires it, or to protect the rights and safety of users. We will tell you when we are allowed to.",
+    ],
+  },
+  {
+    heading: "How long we keep it",
+    body: [
+      "Your workspace content stays as long as your account exists. Deleted workspaces are removed from live systems at once and from backups within [30] days.",
+      "Usage logs are kept for [12 months]. Billing records are kept as long as tax law requires.",
+    ],
+  },
+  {
+    heading: "Your rights and choices",
+    body: [
+      "You can see, edit, export, and delete your workspace content yourself in the app. You can delete your whole account from settings.",
+      "Depending on where you live, you may have rights to access, correct, or delete personal data, or to object to how it is used. Email [privacy@yourdomain] and we will respond within [30 days].",
+      "You can unsubscribe from reminder emails at any time. Sign-in and billing emails are part of running your account.",
+    ],
+  },
+  {
+    heading: "Children",
+    body: [
+      `${PRODUCT_NAME} is for organizations and the adults who work with them. It is not directed at children under 13, and we do not knowingly collect their data. If you believe a child has given us data, write to us and we will delete it.`,
+    ],
+  },
+  {
+    heading: "Changes to this policy",
+    body: [
+      "We will post changes here and update the date at the top. If a change affects how we use your content, we will email you before it takes effect.",
+    ],
+  },
+  {
+    heading: "Contact",
+    body: [
+      "Questions about privacy go to [privacy@yourdomain]. Our mailing address is [address].",
+    ],
+  },
+];
+
+export const termsSections: Section[] = [
+  {
+    heading: "The service",
+    body: [
+      `${PRODUCT_NAME} finds grant opportunities, drafts letters and proposals from the material you provide, drafts emails to funders, and tracks deadlines. It is a drafting assistant for your organization. It does not submit applications, send email, or make decisions for you.`,
+    ],
+  },
+  {
+    heading: "Your account",
+    body: [
+      "You need an email address to sign in. You are responsible for who you invite to your workspace and for what they do there. Tell us if you think your account has been used without permission. You must be 18 or older to use the service.",
+    ],
+  },
+  {
+    heading: "Acceptable use",
+    body: [
+      "Use the service for your own organization's fundraising, or for organizations that have asked you to help them.",
+      "Do not upload material you have no right to share, including stories or photos of beneficiaries without their consent. Do not use the service to mislead funders, to harass anyone, or to scrape or resell our data. Do not try to access another workspace.",
+    ],
+  },
+  {
+    heading: "Your content and ownership",
+    body: [
+      "Your website text, documents, and the drafts made from them belong to you. We do not claim ownership of anything you upload or anything the service produces for you.",
+      `You give ${PRODUCT_NAME} permission to store, process, and send your content to our providers only as needed to run the service. You can withdraw this by deleting your content or your account.`,
+    ],
+  },
+  {
+    heading: "AI output and your responsibility to review",
+    body: [
+      "Drafts are produced by an AI model working from your material and public funding records. They can contain errors, misreadings, and claims that do not match the source. Every fact carries a citation so you can check it.",
+      "You are responsible for reviewing, editing, and approving anything before you send or submit it, and for following each funder's rules, including any disclosure of AI use.",
+    ],
+  },
+  {
+    heading: "No guarantee of funding",
+    body: [
+      "We do not promise that you will find a suitable grant, that a draft will be accepted, or that you will win any award. Funding decisions belong to funders. We also do not give legal, tax, or accounting advice.",
+    ],
+  },
+  {
+    heading: "Payment and plans",
+    body: [
+      "The Free plan costs nothing and needs no card. Paid plans are billed monthly through Stripe at the price shown when you subscribe. You can cancel at any time and keep access until the end of the paid period.",
+      "If a payment fails, we will try again and email you. After [14 days] your workspace moves to the Free plan. Your data stays. We will give at least 30 days' notice before changing a price.",
+    ],
+  },
+  {
+    heading: "Termination",
+    body: [
+      "You can delete your account at any time from settings. We may suspend or close an account that breaks these terms or puts other users at risk, and we will say why unless the law prevents it. After termination, you can export your content for [30 days] before it is deleted.",
+    ],
+  },
+  {
+    heading: "Liability",
+    body: [
+      `The service is provided as is, without warranties beyond those the law requires. To the extent the law allows, ${PRODUCT_NAME} is not liable for lost funding, lost revenue, or indirect damages arising from your use of the service, and our total liability is limited to the amount you paid us in the 12 months before the claim.`,
+      "Nothing here limits liability that cannot be limited by law.",
+    ],
+  },
+  {
+    heading: "Governing law and contact",
+    body: [
+      "These terms are governed by the laws of [State], and disputes will be handled in the courts of [County, State]. Questions about these terms go to [legal@yourdomain]. We may update these terms, and we will email account holders before material changes take effect.",
+    ],
+  },
+];
+
+export const legalNotice =
+  "This page is a draft and needs review by a lawyer before launch, so it is not yet a binding agreement.";
+
+export const pricingTiers: PricingTier[] = [
+  {
+    name: "Free",
+    price: "$0",
+    period: "no card needed",
+    who: "Anyone, for as long as you like",
+    includes: [
+      "Organization profile built from your website",
+      "5 grant matches a month",
+      "1 drafted letter of inquiry",
+      "Every fact cited to its source",
+    ],
+    cta: "Start free",
+    note: "AI drafting on this plan may use the provider's free tier, which can use data to improve its products. The app tells you when it does.",
+  },
+  {
+    name: "Starter",
+    price: "$29",
+    period: "a month",
+    who: "Organizations under $250K a year",
+    includes: [
+      "Unlimited matches",
+      "3 full proposals a month",
+      "Deadline calendar",
+      "Funder email drafts you send yourself",
+      "Paid AI tier, no training on your data",
+    ],
+    cta: "Start Starter",
+    note: "Prices are drafts we are testing with early users and may change.",
+  },
+  {
+    name: "Growth",
+    price: "$79",
+    period: "a month",
+    who: "Organizations between $250K and $1M a year",
+    includes: [
+      "Everything in Starter",
+      "Connections and social campaign agents as they ship",
+      "3 seats for your team",
+      "Paid AI tier, no training on your data",
+    ],
+    cta: "Start Growth",
+    note: "Prices are drafts we are testing with early users and may change.",
+  },
+  {
+    name: "Success plan",
+    price: "Coming later",
+    period: "",
+    who: "Organizations with no cash on hand",
+    includes: [
+      "Everything in Growth",
+      "A low monthly base",
+      "A small share of awards, paid only on grants you win",
+    ],
+    cta: "Tell us you are interested",
+    note: "We are still evaluating this plan. Many funders and fundraising ethics codes restrict paying a percentage of a grant, so we are checking with an advisor and with early users before offering it.",
+  },
+];
+
+export const pricingFaq: FaqItem[] = [
+  {
+    q: "Can we switch plans?",
+    a: "Yes, at any time from settings. Moving up takes effect right away and is charged for the rest of the month. Moving down or cancelling takes effect at the end of the paid period. Your data stays on every plan.",
+  },
+  {
+    q: "What counts as a proposal?",
+    a: "A full proposal is a complete application draft for one funding opportunity, including the narrative sections the funder asks for. Letters of inquiry and funder emails are shorter and do not count against the limit. Re-drafting the same proposal does not count twice.",
+  },
+  {
+    q: "Is there a nonprofit discount?",
+    a: `Every plan is already priced for small nonprofits. ${PRODUCT_NAME} is built for them, so there is no separate discount. If a fiscal sponsor, community foundation, or incubator wants seats for a cohort, write to us at [hello@yourdomain] and we will work something out.`,
+  },
+  {
+    q: "What if we cannot afford it?",
+    a: "Start on Free. It is not a trial, and it does not expire. If you need more than Free offers and have no budget, tell us at [hello@yourdomain]. We are evaluating a plan with a low base and a small fee only on grants won, and we would like to hear from you before we set it.",
+  },
+];

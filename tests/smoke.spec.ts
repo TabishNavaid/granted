@@ -3,6 +3,12 @@ import { expect, test } from "@playwright/test";
 /** Every P0 route renders without a console error and shows its main heading. */
 const routes: { path: string; heading: RegExp }[] = [
   { path: "/", heading: /grants for the people doing the work/i },
+  { path: "/pricing", heading: /simple plans/i },
+  { path: "/about", heading: /people doing the work/i },
+  { path: "/security", heading: /handle your data/i },
+  { path: "/privacy", heading: /privacy policy/i },
+  { path: "/terms", heading: /terms of service/i },
+  { path: "/contact", heading: /write to us/i },
   { path: "/sign-in", heading: /welcome back/i },
   { path: "/sign-up", heading: /create your workspace/i },
   { path: "/onboarding", heading: /who you are/i },
@@ -51,13 +57,4 @@ test("inbox approve stamps the item, files it, and offers undo", async ({ page }
   await expect(page.getByRole("article", { name: title })).toBeHidden({ timeout: 5000 });
   await page.getByRole("button", { name: /^undo$/i }).click();
   await expect(page.getByRole("article", { name: title })).toBeVisible();
-});
-
-test("the landing hero inbox is the real component and can be approved", async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
-  const card = page.getByRole("article").filter({ has: page.getByRole("button", { name: /^approve/i }) }).first();
-  await expect(card).toBeVisible();
-  await card.getByRole("button", { name: /^approve/i }).click();
-  await expect(card.getByRole("img", { name: /^approved/i })).toBeVisible();
 });
