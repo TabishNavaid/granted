@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
 
-const linkClass = "font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-corn";
+const linkClass = "font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-ink";
 
 export function SignUpForm() {
   const router = useRouter();

@@ -29,9 +29,9 @@ function NavLink({ item, active, badge, onNavigate }: { item: NavItem; active: b
       <span className="flex-1 truncate">{item.label}</span>
       {item.comingSoon ? <span className="text-xs text-ink-muted">Soon</span> : null}
       {badge ? (
-        <mark className="circled mr-1 text-sm font-semibold text-ink tnum" aria-label={`${badge} waiting for you`}>
+        <span className="count" aria-label={`${badge} waiting for you`}>
           {badge}
-        </mark>
+        </span>
       ) : null}
     </Link>
   );
@@ -95,7 +95,7 @@ export function MobileTopBar(props: SidebarProps) {
       <div className="flex items-center gap-3">
         {props.pendingCount ? (
           <Link href="/inbox" className="text-sm font-semibold tnum" aria-label={`${props.pendingCount} waiting in your Inbox`}>
-            <mark className="circled">{props.pendingCount} waiting</mark>
+            <span className="count px-2">{props.pendingCount} waiting</span>
           </Link>
         ) : null}
         <Dialog open={open} onOpenChange={setOpen}>

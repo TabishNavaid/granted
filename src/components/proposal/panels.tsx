@@ -59,7 +59,7 @@ export function Checklist({
                 >
                   <span className="block truncate text-ink">{s.title}</span>
                   <span className="mt-0.5 flex flex-wrap gap-x-4 text-xs font-normal text-ink-muted">
-                    {s.status === "needs_facts" ? <mark className="circled">{statusLabel[s.status]}</mark> : <span>{statusLabel[s.status]}</span>}
+                    {s.status === "needs_facts" ? <span className="font-semibold text-ink">{statusLabel[s.status]}</span> : <span>{statusLabel[s.status]}</span>}
                     {s.wordLimit ? (
                       <span className="tnum">
                         {words} of {s.wordLimit} words
@@ -176,7 +176,7 @@ function QuestionCard({ q, index, sectionTitle, highlighted, onAnswer, onSkip }:
           Save
         </Button>
       </div>
-      <button type="button" onClick={() => onSkip(q.id)} className="mt-3 text-sm text-ink-muted underline decoration-[1px] underline-offset-4 hover:text-ink hover:decoration-corn">
+      <button type="button" onClick={() => onSkip(q.id)} className="mt-3 text-sm text-ink-muted underline decoration-[1px] underline-offset-4 hover:text-ink hover:decoration-ink">
         Skip for now
       </button>
     </form>
@@ -196,7 +196,7 @@ export function CompliancePanel({ checks, onRerun, running, onJump }: { checks: 
   const ready = fails.length === 0;
   return (
     <div className="flex flex-col gap-4">
-      <div className={cn("border-l-[6px] py-2 pl-4 text-sm", ready ? "border-l-grass-line" : "border-l-alert")}>
+      <div className={cn("border-l-[6px] py-2 pl-4 text-sm", ready ? "border-l-ink" : "border-l-alert")}>
         <p className="font-display text-xl text-ink">{ready ? "Ready to submit" : `${fails.length} thing${fails.length === 1 ? "" : "s"} to sort out before you submit`}</p>
         <p className="mt-1 flex flex-wrap gap-x-4 text-ink-muted">
           <span className="tnum">{passes.length} passed</span>
@@ -217,7 +217,7 @@ export function CompliancePanel({ checks, onRerun, running, onJump }: { checks: 
                 <p className="text-ink">{c.rule}</p>
                 <p className="text-xs text-ink-muted">{c.detail}</p>
                 {c.sectionId && c.status !== "pass" ? (
-                  <button type="button" onClick={() => onJump(c.sectionId!)} className="mt-1 text-sm font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-corn">
+                  <button type="button" onClick={() => onJump(c.sectionId!)} className="mt-1 text-sm font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
                     Go to the section
                   </button>
                 ) : null}

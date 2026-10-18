@@ -45,7 +45,7 @@ test("the old image credits page sends you to the drawings", async ({ page }) =>
   await expect(page).toHaveURL(/\/drawings-review$/);
 });
 
-test("inbox approve grows a flower, files the item, and offers undo", async ({ page }) => {
+test("inbox approve opens a flower, files the item, and offers undo", async ({ page }) => {
   await page.goto("/inbox");
   const card = page.getByRole("article").filter({ has: page.getByRole("button", { name: /^(approve|save|update|add to)/i }) }).first();
   await expect(card).toBeVisible();
@@ -56,7 +56,6 @@ test("inbox approve grows a flower, files the item, and offers undo", async ({ p
   await expect(approved.getByText("Just now")).toBeVisible();
   await expect(page.getByRole("button", { name: /^undo$/i })).toBeVisible();
   await expect(page.getByRole("article", { name: title })).toBeHidden({ timeout: 5000 });
-  await expect(page.getByText(/so far: \d+ approved/i)).toBeVisible();
   await page.getByRole("button", { name: /^undo$/i }).click();
   await expect(page.getByRole("article", { name: title })).toBeVisible();
 });

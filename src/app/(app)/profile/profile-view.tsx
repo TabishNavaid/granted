@@ -98,7 +98,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
         <TabsList variant="line" aria-label="Knowledge base sections">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="facts">
-            Facts {needsReview ? <mark className="circled text-sm font-semibold tnum">{needsReview}</mark> : null}
+            Facts {needsReview ? <span className="count">{needsReview}</span> : null}
           </TabsTrigger>
           <TabsTrigger value="boilerplate">Boilerplate</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
@@ -146,7 +146,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
                 <div>
                   <dt className="text-sm font-semibold text-ink">Website</dt>
                   <dd className="mt-1 text-base">
-                    <a href={org.websiteUrl} className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-corn" target="_blank" rel="noreferrer">
+                    <a href={org.websiteUrl} className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-ink" target="_blank" rel="noreferrer">
                       {org.websiteUrl.replace(/^https?:\/\//, "")}
                     </a>
                   </dd>
@@ -187,7 +187,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
                   </li>
                   <li className="flex justify-between gap-4 border-b border-rule py-2">
                     <span className="text-ink-muted">Need your review</span>
-                    {needsReview ? <mark className="circled font-semibold tnum">{needsReview}</mark> : <span className="font-semibold text-ink tnum">0</span>}
+                    <span className="font-semibold text-ink tnum">{needsReview}</span>
                   </li>
                 </ul>
               </div>

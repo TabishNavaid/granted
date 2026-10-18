@@ -24,26 +24,20 @@ import { MilestoneBadge, StageBadge } from "@/components/app/badges";
 import { InboxItemCard, type InboxContext } from "@/components/app/inbox-item";
 import { Bloom } from "@/components/drawings/bloom";
 import { Meadow } from "@/components/drawings/meadow";
-import { flowers, meadowFlowers } from "@/lib/drawings";
+import { flowers } from "@/lib/drawings";
 import * as seed from "@/lib/mock/data";
 import { stageOrder } from "@/lib/agents/meta";
 import type { FunderType, MilestoneKind } from "@/lib/types";
 
 const paperAndInk: { token: string; name: string; note: string }[] = [
   { token: "paper", name: "Paper", note: "#FFFFFF" },
-  { token: "paper-tint", name: "Paper tint", note: "Sunken fields" },
-  { token: "ink", name: "Crayon blue", note: "All text, 11.2:1" },
-  { token: "ink-muted", name: "Crayon blue, soft", note: "Secondary, 6.2:1" },
+  { token: "paper-tint", name: "Tint", note: "Sunken fields, #F6F7F9" },
+  { token: "ink", name: "Ink", note: "All text, #1C2340, 15.4:1" },
+  { token: "ink-muted", name: "Ink, soft", note: "Secondary, 6.6:1" },
   { token: "rule", name: "Hairline", note: "Between rows" },
-  { token: "rule-strong", name: "Control edge", note: "Fields, 3.7:1" },
-];
-
-const crayons: { token: string; name: string }[] = [
-  { token: "grass", name: "Grass green" },
-  { token: "corn", name: "Cornflower blue" },
-  { token: "petal", name: "Petal pink" },
-  { token: "poppy", name: "Poppy red" },
-  { token: "marigold", name: "Marigold" },
+  { token: "rule-strong", name: "Control edge", note: "Fields, 3.4:1" },
+  { token: "alert", name: "Alert", note: "Late or wrong, 6.6:1" },
+  { token: "focus", name: "Focus", note: "Focus ring, 7.1:1" },
 ];
 
 const SAMPLE = "Grants for the people doing the work.";
@@ -64,7 +58,7 @@ const tagTones: { tone: BadgeTone; label: string }[] = [
   { tone: "accent", label: "Submitted" },
   { tone: "warning", label: "Waiting on you" },
   { tone: "danger", label: "Past due" },
-  { tone: "bloom", label: "Won" },
+  { tone: "won", label: "Won" },
 ];
 const milestoneKinds: MilestoneKind[] = ["deadline", "draft_due", "board_review", "budget_signoff", "submit", "follow_up"];
 
@@ -80,7 +74,7 @@ const funderTypeLabel: Record<FunderType, string> = {
 const sections: { id: string; title: string }[] = [
   { id: "color", title: "Color" },
   { id: "type", title: "Type" },
-  { id: "bloom", title: "Bloom and circle" },
+  { id: "bloom", title: "Bloom" },
   { id: "meadow", title: "Meadow" },
   { id: "wordmark", title: "Wordmark" },
   { id: "button", title: "Button" },
@@ -108,34 +102,17 @@ function Section({ id, title, description, children }: { id: string; title: stri
 
 function Swatches() {
   return (
-    <div className="flex flex-col gap-10">
-      <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        {paperAndInk.map((c) => (
-          <li key={c.token} className="overflow-hidden rounded-md border border-rule">
-            <div className="h-16" style={{ background: `var(--${c.token})` }} />
-            <div className="border-t border-rule px-3 py-2">
-              <p className="text-sm font-semibold text-ink">{c.name}</p>
-              <p className="text-xs text-ink-muted">{c.note}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
-      <div>
-        <h3 className="font-display text-xl text-ink">The crayon box</h3>
-        <p className="mt-1 max-w-[60ch] text-sm text-ink-muted">Each crayon has a fill and the darker shade it is outlined in. Crayons are for drawings, the waiting circle, and celebration. Never for body text.</p>
-        <ul className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-          {crayons.map((c) => (
-            <li key={c.token} className="flex items-center gap-3">
-              <span className="relative size-14 shrink-0 rounded-round" style={{ background: `var(--${c.token})`, boxShadow: `inset 0 0 0 4px var(--${c.token}-line)` }} aria-hidden />
-              <span>
-                <span className="block text-sm font-semibold text-ink">{c.name}</span>
-                <span className="block text-xs text-ink-muted">--{c.token}, --{c.token}-line</span>
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+    <ul className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      {paperAndInk.map((c) => (
+        <li key={c.token} className="overflow-hidden rounded-md border border-rule">
+          <div className="h-16" style={{ background: `var(--${c.token})` }} />
+          <div className="border-t border-rule px-3 py-2">
+            <p className="text-sm font-semibold text-ink">{c.name}</p>
+            <p className="text-xs text-ink-muted">{c.note}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -178,18 +155,18 @@ export function DesignView() {
           <p className="mt-4 max-w-[60ch] text-lg text-ink-muted">Every color, size, and component on one page, so a screen can be checked against the meadow it came from.</p>
           <nav aria-label="Sections" className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-base">
             {sections.map((s) => (
-              <a key={s.id} href={`#${s.id}`} className="rounded-sm text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-corn">
+              <a key={s.id} href={`#${s.id}`} className="rounded-sm text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
                 {s.title}
               </a>
             ))}
           </nav>
         </div>
 
-        <Section id="color" title="Color" description="White paper and one deep crayon-blue ink for every word. Five crayons, each with a darker outline shade. No gradients anywhere.">
+        <Section id="color" title="Color" description="White pages, one deep ink close to black with a hint of blue, quiet gray rules. One red for what is late or wrong. No gradients anywhere.">
           <Swatches />
         </Section>
 
-        <Section id="type" title="Type" description="Shantell Sans for headlines, with its informality axis turned partway up. Atkinson Hyperlegible Next for everything you read, every button, and every field.">
+        <Section id="type" title="Type" description="Newsreader for headlines, set at weight 500 with tight spacing and its optical size axis. Atkinson Hyperlegible Next for everything you read, every button, and every field.">
           <ul className="flex flex-col divide-y divide-rule border-y border-rule">
             {typeScale.map((t) => (
               <li key={t.cls} className="flex flex-col gap-2 py-5 sm:flex-row sm:items-baseline sm:gap-8">
@@ -200,34 +177,33 @@ export function DesignView() {
           </ul>
         </Section>
 
-        <Section id="bloom" title="Bloom and circle" description="A flower grows up from the bottom of anything the user approves: stem first, then petals. Whatever is waiting on the user is circled in marigold crayon, in place of badges and dots.">
-          <div className="flex flex-col gap-10">
-            <div className="flex flex-wrap items-end gap-x-10 gap-y-6 border-b border-rule">
-              {flowers.slice(0, 5).map((f, i) => (
-                <Bloom key={`${f.slug}-${bloomKey}`} flower={f} grow delayMs={i * 140} className="h-32" />
-              ))}
-              <Button variant="secondary" className="mb-4" onClick={() => setBloomKey((k) => k + 1)}>
-                Grow them again
-              </Button>
-            </div>
-            <p className="max-w-[60ch] text-lg leading-loose text-ink">
-              Your plan for October is ready, and <mark className="circled">the Meridian draft</mark> is waiting on you. The sidebar says <mark className="circled circled-b font-semibold tnum">3</mark> and nothing else does.
-            </p>
+        <Section id="bloom" title="Bloom" description="When something is approved, a small watercolor flower opens beside the confirmation for a moment: leaves first, then the flowers. It leaves with the item. This is the only orchestrated motion in the product.">
+          <div className="flex flex-wrap items-end gap-6">
+            {flowers.map((f) => (
+              <p key={`${f.slug}-${bloomKey}`} className="flex items-end gap-2 text-sm text-ink-muted">
+                <Bloom flower={f} grow className="-mb-1 h-12" />
+                <span className="font-semibold text-ink">Approved</span>
+                <span>Just now</span>
+              </p>
+            ))}
+            <Button variant="secondary" size="sm" onClick={() => setBloomKey((k) => k + 1)}>
+              Play it again
+            </Button>
           </div>
         </Section>
 
-        <Section id="meadow" title="Meadow" description="The Inbox grows one flower per approved item each month. A grant marked Won fills the whole screen with one.">
-          <Meadow seed="design" className="h-40" flowers={meadowFlowers(7, "design").map((f, i) => ({ key: `${f.slug}-${i}`, flower: f }))} />
+        <Section id="meadow" title="Meadow" description="Watercolor wildflowers by Mary Vaux Walcott, used only as framing: along the bottom of the landing hero, above the footer, and on the Funded screen.">
+          <Meadow seed="design" count={11} className="h-44" />
         </Section>
 
-        <Section id="wordmark" title="Wordmark" description="The name in the headline face, a little more informal than the headlines. No drawn logo yet.">
+        <Section id="wordmark" title="Wordmark" description="The name in Newsreader, semibold and tightly spaced. No drawn logo yet.">
           <div className="flex flex-col items-start gap-8">
             <Wordmark size="xl" />
             <Wordmark size="md" />
           </div>
         </Section>
 
-        <Section id="button" title="Button" description="One primary action per screen. The text face, softly rounded, and the label says what happens. Never an arrow.">
+        <Section id="button" title="Button" description="One primary action per screen, in ink. The text face, a modest corner, and the label says what happens. Never an arrow.">
           <div className="flex flex-col divide-y divide-rule border-y border-rule">
             {(["primary", "secondary", "ghost", "danger", "danger-ghost", "link"] as const).map((v) => (
               <div key={v} className="flex flex-wrap items-center gap-4 py-4">
@@ -316,7 +292,7 @@ export function DesignView() {
           </div>
         </Section>
 
-        <Section id="sheet" title="Sheet" description="A sheet of paper is white with one hairline. A raised sheet lies on top of the page with a soft lift.">
+        <Section id="sheet" title="Sheet" description="A sheet is white with one hairline. A raised sheet lies on top of the page with a soft lift.">
           <div className="grid gap-8 md:grid-cols-2">
             <div className="sheet p-5">
               <p className="text-base text-ink">A sheet sits flat on the page, for a form or a plan that belongs to this screen.</p>
@@ -327,7 +303,7 @@ export function DesignView() {
           </div>
         </Section>
 
-        <Section id="tag" title="Tag" description="Sentence case inside a thin rule, used only where a status is a fact. Waiting on you is circled instead.">
+        <Section id="tag" title="Tag" description="Sentence case inside a thin rule, used only where a status is a fact. Waiting on you is solid ink.">
           <div className="flex flex-col gap-5">
             <div className="flex flex-wrap gap-2">
               {tagTones.map((t) => (
@@ -419,9 +395,9 @@ export function DesignView() {
           </div>
         </Section>
 
-        <Section id="states" title="Empty and loading" description="Nothing here is a sentence next to a small drawing: a sun when you are caught up, a seedling when something is still coming. Loading is a plain block of paper tint.">
+        <Section id="states" title="Empty and loading" description="Nothing here is a plain sentence on a quiet tint. Loading is a plain block of tint.">
           <div className="grid gap-8 md:grid-cols-2">
-            <EmptyState art="sun" title="You are caught up" description="New drafts, funders, and schedules land here as they are ready." action={<Button variant="secondary">Show everything</Button>} />
+            <EmptyState title="You are caught up" description="New drafts, funders, and schedules land here as they are ready." action={<Button variant="secondary">Show everything</Button>} />
             <EmptyState size="sm" title="No funders here" description="Try another filter." />
             <div className="flex flex-col md:col-span-2">
               <SkeletonCard />

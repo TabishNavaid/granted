@@ -4,7 +4,7 @@ import { SiteFooter, SiteNav } from "@/components/marketing/site-nav";
 import { ApprovedSheet, DraftSheet, HeroInbox, MatchSheet } from "@/components/marketing/demos";
 import { Drawing } from "@/components/drawings/drawing";
 import { Meadow } from "@/components/drawings/meadow";
-import { drawingOf, flowers, grassStrips, meadowFlowers, type DrawingAsset } from "@/lib/drawings";
+import { drawing } from "@/lib/drawings";
 import { Button } from "@/components/ui/button";
 import { PRODUCT_NAME, PRODUCT_TAGLINE } from "@/lib/brand";
 
@@ -41,9 +41,6 @@ const trust = [
 ];
 
 export default function LandingPage() {
-  const sun = drawingOf("sun");
-  // A sprout, a clump of grass, a flower: the three steps, growing.
-  const stepArt: (DrawingAsset | undefined)[] = [drawingOf("seedling"), grassStrips[0], flowers[0]];
   return (
     <div className="flex min-h-screen flex-col overflow-x-clip">
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-sm focus:bg-ink focus:px-3 focus:py-2 focus:text-white">
@@ -54,10 +51,9 @@ export default function LandingPage() {
       <main id="main">
         {/* ---------- Hero: the headline, the real Inbox on a sheet of paper, and a meadow along the bottom ---------- */}
         <section className="relative">
-          {sun ? <Drawing asset={sun} eager className="absolute right-[-1.5rem] top-2 h-24 w-auto sm:right-6 sm:top-6 sm:h-32 lg:right-10 lg:h-40" /> : null}
           <div className="relative mx-auto grid max-w-[75rem] gap-12 px-4 pb-0 pt-12 sm:px-6 sm:pt-16 lg:grid-cols-[1.22fr_1fr] lg:gap-12 lg:px-10 lg:pt-24">
             <div className="lg:pt-6">
-              <h1 className="max-w-[16ch] pr-14 font-display text-[clamp(2.75rem,1.6rem+3.2vw,4.5rem)] leading-[1.04] text-ink sm:pr-0">{PRODUCT_TAGLINE}</h1>
+              <h1 className="max-w-[16ch] font-display text-[clamp(2.75rem,1.6rem+3.2vw,4.5rem)] leading-[1.04] text-ink">{PRODUCT_TAGLINE}</h1>
               <p className="mt-7 max-w-[46ch] text-lg text-ink sm:text-xl">
                 {PRODUCT_NAME} finds the funders you can win, drafts the proposal from your own documents, and keeps every deadline. You read it. You approve it. Nothing moves without you.
               </p>
@@ -72,7 +68,7 @@ export default function LandingPage() {
               <HeroInbox />
             </div>
           </div>
-          <Meadow seed="hero" clumps={46} mobileMax={5} className="-mt-6 h-32 sm:-mt-20 sm:h-44" flowers={meadowFlowers(9, "hero").map((f, i) => ({ key: `${f.slug}-${i}`, flower: f }))} />
+          <Meadow seed="hero" count={12} mobileMax={7} className="-mt-4 h-36 border-b border-rule opacity-90 sm:-mt-24 sm:h-52" />
         </section>
 
         {/* ---------- The night before ---------- */}
@@ -90,20 +86,18 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <GrassLine seed="how" />
-
         {/* ---------- How it works: a real sequence, each step with its drawing ---------- */}
         <section id="how" className="scroll-mt-16">
           <div className="mx-auto max-w-[75rem] px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
-            <h2 className="max-w-[18ch] font-display text-3xl text-ink sm:text-4xl lg:text-5xl">Three things happen. You do the last one.</h2>
+            <SectionHeading plant="harebell" className="max-w-[18ch]">Three things happen. You do the last one.</SectionHeading>
             <ol className="mt-16 flex flex-col gap-24 lg:gap-32">
-              <Step n="1" art={stepArt[0]} title="A funder turns up, with reasons" body="Every Monday we read each funder's own page, check it against your profile, and say in plain words why it fits. If you cannot apply, you never see it.">
+              <Step n="1" title="A funder turns up, with reasons" body="Every Monday we read each funder's own page, check it against your profile, and say in plain words why it fits. If you cannot apply, you never see it.">
                 <MatchSheet />
               </Step>
-              <Step n="2" art={stepArt[1]} title="The draft grows from your own numbers" body="We turn the guidelines into a checklist, then write every section from your annual report, your 990, and the proposals you have already written. Every number carries a footnote to the page it came from." flip>
+              <Step n="2" title="The draft grows from your own numbers" body="We turn the guidelines into a checklist, then write every section from your annual report, your 990, and the proposals you have already written. Every number carries a footnote to the page it came from." flip>
                 <DraftSheet />
               </Step>
-              <Step n="3" art={stepArt[2]} title="You read it. You approve it." body="Edit anything, answer the questions it could not, and approve. A flower goes up, the item is filed, and nothing is submitted or sent until you do it yourself.">
+              <Step n="3" title="You read it. You approve it." body="Edit anything, answer the questions it could not, and approve. The item is filed, and nothing is submitted or sent until you do it yourself.">
                 <ApprovedSheet />
               </Step>
             </ol>
@@ -120,7 +114,7 @@ export default function LandingPage() {
         <section id="trust" className="scroll-mt-16">
           <div className="mx-auto grid max-w-[75rem] gap-10 px-4 py-24 sm:px-6 lg:grid-cols-[1fr_1.4fr] lg:gap-20 lg:px-10 lg:py-32">
             <div>
-              <h2 className="max-w-[14ch] font-display text-3xl text-ink sm:text-4xl lg:text-5xl">Nothing leaves without you.</h2>
+              <SectionHeading plant="yarrow" className="max-w-[14ch]">Nothing leaves without you.</SectionHeading>
               <p className="mt-5 max-w-[40ch] text-lg text-ink-muted">Funders can spot a made-up number from across the room. So can you.</p>
             </div>
             <ul className="border-t border-rule text-base text-ink sm:text-lg">
@@ -133,12 +127,10 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <GrassLine seed="stories" />
-
         {/* ---------- Stories ---------- */}
         <section id="stories">
           <div className="mx-auto max-w-[75rem] px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
-            <h2 className="max-w-[18ch] font-display text-3xl text-ink sm:text-4xl lg:text-5xl">Four organizations that got their weekends back.</h2>
+            <SectionHeading plant="wind-poppy" className="max-w-[18ch]">Four organizations that got their weekends back.</SectionHeading>
             <ul className="mt-12 border-t border-rule">
               {stories.map((s) => (
                 <li key={s.org} className="grid gap-5 border-b border-rule py-9 lg:grid-cols-[1fr_20rem] lg:gap-16">
@@ -220,7 +212,7 @@ export default function LandingPage() {
               </Button>
             </div>
           </div>
-          <Meadow seed="closing" clumps={52} mobileMax={5} className="h-52 sm:h-64" flowers={meadowFlowers(9, "closing").map((f, i) => ({ key: `${f.slug}-${i}`, flower: f }))} />
+          <Meadow seed="closing" count={12} mobileMax={7} className="h-40 opacity-90 sm:h-56" />
         </section>
       </main>
       <SiteFooter />
@@ -228,22 +220,27 @@ export default function LandingPage() {
   );
 }
 
-/** A single strip of crayon grass between two sections, in place of a rule. */
-function GrassLine({ seed }: { seed: string }) {
-  return <Meadow seed={seed} flowers={[]} strip clumps={96} className="h-10 sm:h-12" />;
+/**
+ * A section heading with, at most, one small watercolor plant beside it.
+ * Used on three sections, not all of them.
+ */
+function SectionHeading({ plant, className, children }: { plant?: string; className?: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-end justify-between gap-6">
+      <h2 className={`font-display text-3xl text-ink sm:text-4xl lg:text-5xl ${className ?? ""}`}>{children}</h2>
+      {plant ? <Drawing asset={drawing(plant)} className="hidden h-24 w-auto shrink-0 opacity-90 sm:block lg:h-28" /> : null}
+    </div>
+  );
 }
 
-function Step({ n, art, title, body, children, flip }: { n: string; art?: DrawingAsset; title: string; body: string; children: React.ReactNode; flip?: boolean }) {
+function Step({ n, title, body, children, flip }: { n: string; title: string; body: string; children: React.ReactNode; flip?: boolean }) {
   return (
     <li className={`grid items-start gap-8 lg:grid-cols-[2fr_3fr] lg:gap-16 ${flip ? "lg:grid-cols-[3fr_2fr] lg:[&>*:first-child]:order-2" : ""}`}>
       <div>
-        <div className="flex items-end gap-4">
-          <span className="font-display text-6xl leading-none text-ink tnum" aria-hidden>
-            {n}
-          </span>
-          {art ? <Drawing asset={art} className="h-20 w-auto sm:h-24" /> : null}
-        </div>
-        <h3 className="mt-6 max-w-[20ch] font-display text-3xl text-ink">{title}</h3>
+        <span className="block font-display text-5xl leading-none text-ink-muted tnum" aria-hidden>
+          {n}
+        </span>
+        <h3 className="mt-5 max-w-[20ch] font-display text-3xl text-ink">{title}</h3>
         <p className="mt-4 max-w-[48ch] text-lg text-ink-muted">{body}</p>
       </div>
       <div className="min-w-0">{children}</div>

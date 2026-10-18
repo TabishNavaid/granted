@@ -21,7 +21,7 @@ npx playwright test
 npm run drawings
 ```
 
-The smoke test opens every route and checks for console errors. It starts the dev server itself if one is not running. `npm run drawings` rebuilds the crayon drawings in `public/drawings` from `scripts/drawings.json`.
+The smoke test opens every route and checks for console errors. It starts the dev server itself if one is not running. `npm run drawings` rebuilds the watercolor drawings in `public/drawings` from `scripts/drawings.json`.
 
 ## Where things are
 
@@ -36,7 +36,7 @@ The smoke test opens every route and checks for console errors. It starts the de
 | `src/lib/services` | The data layer the UI calls. `contracts.ts` is the interface, `mock.ts` the in-memory adapter, `server.ts` the single switch for Supabase. |
 | `src/lib/agents` | Claude tool schemas, agent input and output types, and stub implementations. |
 | `supabase/migrations` | Postgres schema with RLS, pgvector, and storage policies. |
-| `src/app/globals.css` | Every design token: paper, ink, the crayon box, the waiting circle, and the bloom animation. See BRAND.md. |
-| `src/components/drawings` | The crayon drawings: `Drawing`, `Bloom` (the flower that grows on approval), `Meadow`, and `WonMeadow`. Catalog in `src/lib/drawings.ts`, credits in `public/drawings/CREDITS.md`, look in `docs/design-references.md`. |
+| `src/app/globals.css` | Every design token: paper, ink, rules, the count, and the bloom animation. See BRAND.md. |
+| `src/components/drawings` | The watercolor drawings (framing only): `Drawing`, `Bloom` (the small flower that opens on approval), `Meadow` (a strip of wildflowers), and `WonMeadow` (the Funded screen). Catalog in `src/lib/drawings.ts`, credits in `public/drawings/CREDITS.md`, look in `docs/design-references.md`. |
 | `scripts/clean-drawing.mjs` | Cuts each drawing out of its paper and writes 2x PNG and WebP, the manifest, and the credits. |
 | `src/components/marketing` | Landing page nav and the hero Inbox, which is the real Inbox component on a sheet of paper. |

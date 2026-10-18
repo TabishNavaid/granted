@@ -53,7 +53,7 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
 
   return (
     <PageContainer width="wide">
-      <Link href="/opportunities" className="text-sm text-ink underline decoration-[1px] underline-offset-4 hover:decoration-corn">
+      <Link href="/opportunities" className="text-sm text-ink underline decoration-[1px] underline-offset-4 hover:decoration-ink">
         All funders
       </Link>
 
@@ -65,7 +65,7 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
             <p className="mt-4 max-w-[65ch] text-lg text-ink-muted">{opportunity.summary}</p>
             <div className="mt-4 flex flex-wrap items-baseline gap-x-6 gap-y-1">
               <VerifiedSource url={opportunity.sourceUrl} verifiedAt={opportunity.lastVerifiedAt} />
-              <a href={opportunity.guidelinesUrl} target="_blank" rel="noreferrer" className="text-xs text-ink underline decoration-[1px] underline-offset-2 hover:decoration-corn">
+              <a href={opportunity.guidelinesUrl} target="_blank" rel="noreferrer" className="text-xs text-ink underline decoration-[1px] underline-offset-2 hover:decoration-ink">
                 Read the guidelines
               </a>
             </div>
@@ -81,7 +81,7 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
               <dd className="mt-1 font-display text-2xl text-ink">{opportunity.deadline ? formatDate(opportunity.deadline) : "Rolling"}</dd>
               {opportunity.deadline ? (
                 <dd className={cn("mt-1 text-sm", dl.tone === "danger" ? "text-alert" : "text-ink-muted")}>
-                  {soon ? <mark className="circled">{dl.text}</mark> : dl.text}
+                  {soon ? <span className="font-semibold">{dl.text}</span> : dl.text}
                 </dd>
               ) : null}
             </div>
@@ -136,7 +136,7 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
                     <p className="font-semibold text-ink">{c.label}</p>
                     {c.detail ? <p className="text-sm text-ink-muted">{c.detail}</p> : null}
                   </div>
-                  <span className="shrink-0 text-sm font-semibold text-ink">{c.passed ? "Passed" : <mark className="circled">Confirm</mark>}</span>
+                  <span className="shrink-0 text-sm font-semibold text-ink">{c.passed ? "Passed" : "Confirm"}</span>
                   <span className="sr-only">{c.passed ? "Passed" : "Needs confirmation"}</span>
                 </li>
               ))}
@@ -203,7 +203,7 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
                       <p className="text-sm text-ink-muted">{c.role}</p>
                     </div>
                     {c.email ? <span className="text-sm text-ink-muted">{c.email}</span> : null}
-                    <a href={c.publicSourceUrl} target="_blank" rel="noreferrer" className="text-xs text-ink underline decoration-[1px] underline-offset-2 hover:decoration-corn">
+                    <a href={c.publicSourceUrl} target="_blank" rel="noreferrer" className="text-xs text-ink underline decoration-[1px] underline-offset-2 hover:decoration-ink">
                       Public source
                     </a>
                   </li>

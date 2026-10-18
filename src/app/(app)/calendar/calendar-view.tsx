@@ -152,7 +152,7 @@ export function CalendarView({ initial, applications, reminderDays }: { initial:
       )}
       <p className="mt-8 text-sm text-ink-muted">
         Change reminder timing in{" "}
-        <Link href="/settings?tab=notifications" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-corn">
+        <Link href="/settings?tab=notifications" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-ink">
           Settings
         </Link>
         .
@@ -194,7 +194,7 @@ function DayList({ events, appTitle, onToggle, showDate, emptyText }: { events: 
                 <MilestoneBadge kind={e.kind} />
                 {showDate ? <span>{formatDate(e.date, "EEE, MMM d")}</span> : null}
                 {!e.done ? (
-                  <span className={cn(passed && "font-semibold text-alert")}>{soon ? <mark className="circled">{relativeLabel(d)}</mark> : relativeLabel(d)}</span>
+                  <span className={cn(passed && "font-semibold text-alert", soon && !passed && "font-semibold text-ink")}>{relativeLabel(d)}</span>
                 ) : null}
               </div>
             </div>

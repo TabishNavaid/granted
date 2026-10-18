@@ -56,9 +56,9 @@ interface InboxItemCardProps {
 }
 
 /**
- * One item waiting on the user: what it is (circled when it should come first), when it
- * arrived, the title, a preview, and the actions. Approving grows a crayon
- * flower up from the bottom edge of the item before it is filed.
+ * One item waiting on the user: what it is, when it arrived, the title, a
+ * preview, and the actions. Approving opens a small watercolor flower beside
+ * the confirmation for a moment, and then the item is filed, flower and all.
  */
 export function InboxItemCard({ item, ctx, leaving, onApprove, onReject, fileAway = true }: InboxItemCardProps) {
   const [rejectOpen, setRejectOpen] = React.useState(false);
@@ -69,7 +69,6 @@ export function InboxItemCard({ item, ctx, leaving, onApprove, onReject, fileAwa
   const headingId = `inbox-${item.id}-title`;
   const resolved = item.status !== "pending";
   const approved = leaving === "seal" || item.status === "approved" || item.status === "edited";
-  const flower = flowerFor(item.id);
 
   const editTarget = editHref(item);
   const canApprove = item.type !== "missing_facts" || Object.values(answers).some((a) => a.trim());
@@ -84,11 +83,7 @@ export function InboxItemCard({ item, ctx, leaving, onApprove, onReject, fileAwa
       )}
     >
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-sm">
-        {!resolved && !leaving && item.priority === "high" ? (
-          <mark className="circled font-semibold text-ink">{inboxKindLabel[item.type]}</mark>
-        ) : (
-          <span className="font-semibold text-ink">{inboxKindLabel[item.type]}</span>
-        )}
+        <span className="font-semibold text-ink">{inboxKindLabel[item.type]}</span>
         <span className="flex flex-wrap gap-x-4 text-ink-muted">
           <time dateTime={item.createdAt}>{relativeTime(item.createdAt)}</time>
           {item.sourceCount > 0 ? <span>Built from {item.sourceCount} source{item.sourceCount === 1 ? "" : "s"}</span> : null}
@@ -130,10 +125,10 @@ export function InboxItemCard({ item, ctx, leaving, onApprove, onReject, fileAwa
           </Button>
         </div>
       ) : (
-        <div className={cn("relative mt-5 flex flex-wrap items-end gap-x-3 pr-24 text-sm text-ink-muted sm:pr-32", approved && "min-h-20")}>
+        <div className="mt-5 flex min-h-10 flex-wrap items-end gap-x-3 text-sm text-ink-muted">
+          {leaving === "seal" ? <Bloom flower={flowerFor(item.id)} grow className="-mb-1 h-12" /> : null}
           <span className="font-semibold text-ink">{approved ? (item.status === "edited" ? "Approved with edits" : doneWord[item.type]) : "Declined"}</span>
           <span>{leaving === "seal" ? "Just now" : item.resolvedAt ? formatDate(item.resolvedAt, "EEEE, MMMM d") : null}</span>
-          {approved ? <Bloom flower={flower} grow={leaving === "seal"} className="pointer-events-none absolute -bottom-6 right-0 h-[6.5rem] sm:right-4" /> : null}
         </div>
       )}
 
@@ -258,7 +253,7 @@ function ItemPreview({
               <li key={id} className="flex items-center gap-4 py-3">
                 <FitScore score={m.fitScore} size="sm" showLabel={false} />
                 <div className="min-w-0 flex-1">
-                  <Link href={`/opportunities/${m.opportunityId}`} className="block truncate text-base font-semibold text-ink hover:underline hover:decoration-corn hover:decoration-2 hover:underline-offset-4">
+                  <Link href={`/opportunities/${m.opportunityId}`} className="block truncate text-base font-semibold text-ink hover:underline hover:decoration-ink hover:decoration-2 hover:underline-offset-4">
                     {m.opportunity.title}
                   </Link>
                   <p className="flex flex-wrap gap-x-4 text-sm text-ink-muted">
@@ -436,7 +431,6 @@ export function CompactInboxRow({ item, ctx, leaving, onApprove, onReject, defau
         leaving === "dismiss" && "animate-leave",
       )}
     >
-      {leaving === "seal" ? <Bloom flower={flowerFor(item.id)} grow className="pointer-events-none absolute bottom-0 right-14 z-10 h-16" /> : null}
       <button type="button" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen(true)} className="min-w-0 flex-1 py-1 text-left">
         <span className="block text-sm text-ink-muted">
           {inboxKindLabel[item.type]}
@@ -445,13 +439,15 @@ export function CompactInboxRow({ item, ctx, leaving, onApprove, onReject, defau
       </button>
       {resolved ? (
         approved ? (
-          <span className="flex items-end gap-1 text-sm text-ink-muted">
-            <Bloom flower={flowerFor(item.id)} className="h-9" />
-            {item.status === "edited" ? "Approved" : doneWord[item.type]}
-          </span>
+          <span className="text-sm text-ink-muted">{item.status === "edited" ? "Approved" : doneWord[item.type]}</span>
         ) : (
           <span className="text-sm text-ink-muted">Declined</span>
         )
+      ) : leaving === "seal" ? (
+        <span className="flex items-end gap-1.5 text-sm font-semibold text-ink">
+          <Bloom flower={flowerFor(item.id)} grow className="-mb-0.5 h-10" />
+          {doneWord[item.type]}
+        </span>
       ) : leaving ? null : (
         <Button size="sm" variant="secondary" className="hidden sm:inline-flex" onClick={() => onApprove(item)}>
           {approveLabels[item.type]}

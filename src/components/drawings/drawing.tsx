@@ -11,7 +11,7 @@ interface DrawingProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "
 }
 
 /**
- * One crayon drawing, cut out of its white paper by scripts/clean-drawing.
+ * One watercolor, cut out of its paper by scripts/clean-drawing.
  * The files are already 2x and optimized, so they go straight to the browser:
  * WebP where it is supported, PNG otherwise.
  */

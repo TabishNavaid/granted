@@ -255,7 +255,7 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
                 </p>
                 {active.status === "approved" ? (
                   <div className="flex items-center gap-4">
-                    <Bloom key={active.id} flower={flowerFor(active.id)} grow={justApproved === active.id} className="pointer-events-none -my-3 h-16 self-end" />
+                    {justApproved === active.id ? <Bloom key={active.id} flower={flowerFor(active.id)} grow className="fleeting -my-2 h-10 self-end" /> : null}
                     <Button variant="ghost" size="sm" onClick={approveSection}>
                       Undo approval
                     </Button>
@@ -282,7 +282,7 @@ export function Workspace({ initial, members }: { initial: ProposalWorkspace; me
               <TabsList variant="line" aria-label="Review panels">
                 <TabsTrigger value="questions">
                   Questions
-                  {openQuestions ? <mark className="circled text-sm font-semibold tnum">{openQuestions}</mark> : null}
+                  {openQuestions ? <span className="count">{openQuestions}</span> : null}
                 </TabsTrigger>
                 <TabsTrigger value="checks">
                   Checks

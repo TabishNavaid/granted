@@ -116,7 +116,7 @@ export function HeroInbox() {
       {items.some((i) => i.status !== "pending") ? (
         <p className="pt-3 text-sm text-ink-muted">
           {items.every((i) => i.status !== "pending") ? "Nothing waiting on you. " : ""}
-          <button type="button" onClick={reset} className="rounded-sm font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-corn">
+          <button type="button" onClick={reset} className="rounded-sm font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
             Put them back
           </button>
         </p>
@@ -152,7 +152,7 @@ export function DraftSheet() {
         <span className="cite-chip">Annual report, p.12</span> live in the neighborhoods we serve. Demand is now ahead of capacity: <span className="gap-chip">waitlist size</span> students are
         waiting at Belmont.
       </p>
-      <p className="mt-5 text-sm text-ink-muted">A footnote tag opens the passage it came from. A circled gap is a question for you, never a guess.</p>
+      <p className="mt-5 text-sm text-ink-muted">A footnote tag opens the passage it came from. A marked gap is a question for you, never a guess.</p>
     </div>
   );
 }

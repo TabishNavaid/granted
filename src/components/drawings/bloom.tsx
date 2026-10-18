@@ -5,7 +5,7 @@ import { Drawing } from "./drawing";
 
 interface BloomProps {
   flower: DrawingAsset;
-  /** Grow it: stem first out of the ground line, then the petals open. Otherwise it is simply there. */
+  /** Grow it: leaves first, then the flowers open. Otherwise it is simply there. */
   grow?: boolean;
   /** Wait this long before growing, for a row of flowers coming up one after another. */
   delayMs?: number;
@@ -14,10 +14,9 @@ interface BloomProps {
 }
 
 /**
- * A crayon flower that can grow. The drawing is shown twice, split at the
- * bottom of its head: the stem layer is revealed upward from the ground, and
- * the head layer opens from the middle of the flower once the stem reaches
- * it. With reduced motion both animations end instantly, so the flower is
+ * A small watercolor flower that can open. The drawing is shown twice, split
+ * where the flowers start: the leaves are revealed upward from the line they
+ * stand on, then the flowers open from their middle once the leaves are up. With reduced motion both animations end instantly, so the flower is
  * just there. Size it with a height class; the width follows the drawing.
  */
 export function Bloom({ flower, grow = false, delayMs = 0, className, style }: BloomProps) {
