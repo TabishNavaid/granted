@@ -1,6 +1,8 @@
 # Architecture
 
-The product (working name in `src/lib/brand.ts`) is a Next.js App Router front end that talks to a thin service layer. The backend is Supabase (Postgres, auth, storage, pgvector), a job runner for agent runs, and the Claude API with tool use. Agents never talk to the user directly; every output lands in the Inbox as a row the user approves, edits, or rejects.
+This is the target design. The README lists what is implemented today; the job runner, several API routes, and the stubbed agents below are planned.
+
+The product (working name in `src/lib/brand.ts`) is a Next.js App Router front end that talks to a thin service layer. The backend is Supabase (Postgres, auth, storage, pgvector), a job runner for agent runs, and a model provider behind `src/lib/ai` (Gemini today) called with tool use and structured output. Agents never talk to the user directly; every output lands in the Inbox as a row the user approves, edits, or rejects.
 
 ## 1. Folder structure
 
@@ -23,7 +25,7 @@ src/
   lib/types                   Domain types, one per table
   lib/mock                    Fictional seed data
   lib/services                contracts.ts (interfaces), mock.ts (adapter), server.ts (switch), index.ts (proxy)
-  lib/agents                  tools.ts (Claude tool schemas), index.ts (typed stubs), meta.ts (labels)
+  lib/agents                  tools.ts (tool schemas), index.ts (typed stubs), meta.ts (labels)
 supabase/migrations           0001_init.sql
 tests/smoke.spec.ts           One Playwright test: every route renders
 ```
@@ -83,7 +85,7 @@ All routes are under `/api` and are thin: validate input, check membership, call
 
 ## 4. Agents
 
-Every agent runs as a job with a Claude tool-use loop. Tool schemas are in `src/lib/agents/tools.ts`; `agentToolsets` lists which tools each agent gets. Each run writes an `agent_runs` row with tools called, sources used, and cost, and ends by calling `create_inbox_item` or writing rows that the UI reads.
+Every agent runs as a job with a tool-use loop against the model provider. Tool schemas are in `src/lib/agents/tools.ts`; `agentToolsets` lists which tools each agent gets. Each run writes an `agent_runs` row with tools called, sources used, and cost, and ends by calling `create_inbox_item` or writing rows that the UI reads.
 
 | Agent | Purpose | Inputs | Outputs | Tools |
 | --- | --- | --- | --- | --- |

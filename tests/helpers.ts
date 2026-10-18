@@ -38,7 +38,6 @@ export const ALL_ROUTES = [
   "/connections",
   "/social",
   "/design",
-  "/art-review",
   "/this-page-does-not-exist",
 ];
 

@@ -4,7 +4,7 @@ import { ALL_ROUTES, quiet } from "./helpers";
 
 /** axe on every route: no serious or critical violations. */
 // The design and art galleries are internal pages (robots disallowed) and are audited by hand.
-for (const route of ALL_ROUTES.filter((r) => !r.includes("does-not-exist") && r !== "/design" && r !== "/art-review")) {
+for (const route of ALL_ROUTES.filter((r) => !r.includes("does-not-exist") && r !== "/design")) {
   test(`axe ${route}`, async ({ page }) => {
     await quiet(page);
     await page.goto(route, { waitUntil: "networkidle" });

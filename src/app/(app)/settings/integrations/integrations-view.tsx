@@ -167,7 +167,7 @@ export function IntegrationsView({ status, connections: initial, demo, notice }:
           ))}
         </ul>
       </section>
-      <p className="mt-8 max-w-[65ch] text-sm text-ink-muted">Step-by-step instructions for every key are in KEYS.md in the repository.</p>
+      <p className="mt-8 max-w-[65ch] text-sm text-ink-muted">Step-by-step instructions for every key are in docs/setup.md in the repository.</p>
     </PageContainer>
   );
 }

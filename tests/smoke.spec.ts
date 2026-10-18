@@ -33,7 +33,6 @@ const routes: { path: string; heading: RegExp }[] = [
   { path: "/social", heading: /^social$/i },
   { path: "/settings/integrations", heading: /^integrations$/i },
   { path: "/design", heading: /tokens and components/i },
-  { path: "/drawings-review", heading: /^drawings$/i },
 ];
 
 for (const r of routes) {
@@ -50,11 +49,6 @@ for (const r of routes) {
     expect(errors, `console errors on ${r.path}`).toEqual([]);
   });
 }
-
-test("the old image credits page sends you to the drawings", async ({ page }) => {
-  await page.goto("/art-review");
-  await expect(page).toHaveURL(/\/drawings-review$/);
-});
 
 test("inbox approve opens a flower, files the item, and offers undo", async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem("inbox_tour_seen", "1"));

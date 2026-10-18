@@ -2,8 +2,7 @@
  * The drawings. Every one is a watercolor by Mary Vaux Walcott (1860 to
  * 1940) from the Smithsonian American Art Museum, released as CC0 through
  * Smithsonian Open Access, cut out of its paper by scripts/clean-drawing and
- * saved to public/drawings at 2x. Credits are in public/drawings/CREDITS.md
- * and on /drawings-review.
+ * saved to public/drawings at 2x. Credits are in public/drawings/CREDITS.md.
  *
  * They are framing accents only: a strip of wildflowers along the bottom of
  * the landing hero and above the footer, one small plant beside a few

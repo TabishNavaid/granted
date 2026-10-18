@@ -31,7 +31,7 @@ async function fillValid(page: Page, form: import("@playwright/test").Locator) {
 }
 
 // The design and art galleries are static component samples, not product screens.
-for (const route of ALL_ROUTES.filter((r) => r !== "/design" && r !== "/art-review")) {
+for (const route of ALL_ROUTES.filter((r) => r !== "/design")) {
   test(`crawl ${route}`, async ({ page, request, context }) => {
     await context.grantPermissions(["clipboard-read", "clipboard-write"]).catch(() => undefined);
     await quiet(page);

@@ -142,9 +142,6 @@ export function DesignView() {
           </div>
           <div className="flex items-center gap-4">
             <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-              <Link href="/drawings-review">Drawings</Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
               <Link href="/inbox">Open the app</Link>
             </Button>
           </div>

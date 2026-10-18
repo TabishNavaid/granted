@@ -119,7 +119,7 @@ export interface ReviseTextOutput {
 }
 /**
  * Inline editor action. The stub applies a visible, deterministic transformation
- * so the UI can be exercised; the real implementation calls Claude with revise_text.
+ * so the UI can be exercised; the real implementation calls the model with revise_text.
  */
 export async function reviseText(input: ReviseTextInput): Promise<ReviseTextOutput> {
   await delay(900);

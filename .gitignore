@@ -30,7 +30,7 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files (.env.local and all others; only .env.example is committed)
 .env*
 
 # vercel
@@ -49,3 +49,8 @@ next-env.d.ts
 
 # keep the example env file
 !.env.example
+
+# secrets: never commit local env files or keys
+.env.local
+.env.*.local
+*.key

@@ -1,5 +1,5 @@
 /**
- * Tool definitions for the Claude API (Messages API tool use).
+ * Tool definitions for model tool use.
  * Each agent is given a subset of these. The backend implements the handlers;
  * the shapes here are the contract between prompt and code.
  */

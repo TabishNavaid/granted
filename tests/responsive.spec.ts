@@ -6,7 +6,7 @@ const widths = [375, 768, 1440];
 
 for (const width of widths) {
   // The design and art galleries are internal dev pages and are not held to the product's layout rules.
-  for (const route of ALL_ROUTES.filter((r) => !r.includes("does-not-exist") && r !== "/design" && r !== "/art-review")) {
+  for (const route of ALL_ROUTES.filter((r) => !r.includes("does-not-exist") && r !== "/design")) {
     test(`${width}px ${route}`, async ({ page }) => {
       await quiet(page);
       await page.setViewportSize({ width, height: 900 });

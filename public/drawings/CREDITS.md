@@ -2,7 +2,7 @@
 
 Every drawing in the product is a watercolor by Mary Vaux Walcott (1860 to 1940), held by the Smithsonian American Art Museum and released as CC0 through Smithsonian Open Access. Each record was checked before use: the museum page marks the image "Free to use" with the CC0 badge, and the Smithsonian Open Access API lists its usage as CC0. CC0 allows commercial use without permission or attribution; the credit below is given anyway. None of the reference images used to set the direction are shipped.
 
-The files here are produced by `scripts/clean-drawing.mjs` from `scripts/drawings.json`: the paper is removed to transparency, the painter's pencil label is erased, color is softened slightly so the paintings sit calmly next to the interface, and each is trimmed and saved at 2x as PNG and WebP. Two files can come from one sheet. You can see every drawing with its credit at `/drawings-review`.
+The files here are produced by `scripts/clean-drawing.mjs` from `scripts/drawings.json`: the paper is removed to transparency, the painter's pencil label is erased, color is softened slightly so the paintings sit calmly next to the interface, and each is trimmed and saved at 2x as PNG and WebP. Two files can come from one sheet.
 
 | File | What it is | Source title | Author | Source page | License |
 | --- | --- | --- | --- | --- | --- |
@@ -52,15 +52,8 @@ The files here are produced by `scripts/clean-drawing.mjs` from `scripts/drawing
 - Mary Vaux Walcott, Perennial Gaillardia (SAAM 1970.355.691). A beautiful painting, but its saturated yellow pulled the eye out of the strip.
 - Mary Vaux Walcott, Golden Fleabane (SAAM 1970.355.133). Tried as the approval flower; at 40 pixels its gray leaves turned to a smudge, so a single wind poppy took its place.
 
-## Would swap if better ones turn up
-
-- A grass or sedge plate in the same hand, to sit low between the flowers. Death camas and wild hyacinth stand in for grass today.
-- A cleaner single-stem flower for the approval bloom. The poppy is cut from a sheet with crossing stems, so its stem ends in a straight edge.
-- The Smithsonian holds more than 700 of Walcott's plates; any of them can be added the same way.
-
 ## Adding or swapping a drawing
 
 1. Prefer another Mary Vaux Walcott plate from the Smithsonian American Art Museum so the set stays in one hand. Otherwise use CC0, public domain, or the Pixabay Content License, confirmed on the source page. No watermarks, no stock sites, no unclear licenses, nothing marked AI generated.
 2. Add an entry to `scripts/drawings.json` with the download URL, an optional crop box, and the credit exactly as the source page states it.
 3. Run `npm run drawings`. This file and `src/lib/drawings.manifest.ts` are rewritten.
-4. Check it next to the rest at `/drawings-review` against the test in `docs/design-references.md`.
