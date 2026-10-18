@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Granted
 
-## Getting Started
+A done-for-you funding team for small nonprofits. AI agents find grants, draft proposals from the organization's own documents, write funder emails, and plan deadlines. The executive director reviews everything in one Inbox.
 
-First, run the development server:
+This repository holds the P0 front end running on mock data, plus the schema, types, service contracts, and agent tool definitions the backend plugs into. See [ARCHITECTURE.md](ARCHITECTURE.md) and [prd.md](prd.md).
+
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install && npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000. The marketing page is at `/`, the app at `/inbox`, and the design system at `/design`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+npm run lint
+npx playwright test
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The smoke test opens every route and checks for console errors. It starts the dev server itself if one is not running.
 
-## Learn More
+## Where things are
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Path | What |
+| --- | --- |
+| `src/app` | Routes. `(app)` is the signed-in product, `(auth)` is sign in and sign up, `onboarding` is the setup flow, `design` is the token and component gallery. |
+| `src/components/ui` | Base components built on the tokens: button, input, select, card, badge, tabs, dialog, toast, empty state, skeleton, data table, and so on. |
+| `src/components/app` | Product components: Inbox item, fit score, citation chip, verified source, stage and agent badges, sidebar. |
+| `src/components/proposal` | The proposal workspace: TipTap editor with citation and gap nodes, checklist, panels, export. |
+| `src/lib/types` | Domain types mirroring the Postgres schema. |
+| `src/lib/mock` | Fictional organization, funders, and agent output. |
+| `src/lib/services` | The data layer the UI calls. `contracts.ts` is the interface, `mock.ts` the in-memory adapter, `server.ts` the single switch for Supabase. |
+| `src/lib/agents` | Claude tool schemas, agent input and output types, and stub implementations. |
+| `supabase/migrations` | Postgres schema with RLS, pgvector, and storage policies. |
+| `src/app/globals.css` | Every design token, light and dark. |

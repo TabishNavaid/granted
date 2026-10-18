@@ -1,0 +1,257 @@
+"use client";
+
+import * as React from "react";
+import { EditorContent, useEditor, type Editor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Placeholder from "@tiptap/extension-placeholder";
+import CharacterCount from "@tiptap/extension-character-count";
+import { Bold, Italic, List, ListOrdered, Heading3, Undo2, Redo2, Wand2, Quote, Scissors, Expand as ExpandIcon, ChevronDown } from "lucide-react";
+import { Citation, Gap } from "./extensions";
+import { reviseText, type ReviseTone } from "@/lib/agents";
+import type { Fact, Section } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/components/ui/toast";
+import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
+
+interface SectionEditorProps {
+  section: Section;
+  facts: Fact[];
+  onChange: (html: string, words: number) => void;
+  onCitationClick: (factId: string) => void;
+  onGapClick: (gapId: string) => void;
+}
+
+function ToolbarButton({ label, active, onClick, children, disabled }: { label: string; active?: boolean; onClick: () => void; children: React.ReactNode; disabled?: boolean }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          aria-label={label}
+          aria-pressed={active}
+          disabled={disabled}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={onClick}
+          className={cn(
+            "inline-flex size-8 items-center justify-center rounded-md text-fg-muted transition-colors hover:bg-surface-hover hover:text-fg disabled:opacity-40 [&_svg]:size-4",
+            active && "bg-accent-soft text-accent-soft-fg",
+          )}
+        >
+          {children}
+        </button>
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+export function SectionEditor({ section, facts, onChange, onCitationClick, onGapClick }: SectionEditorProps) {
+  const { toast } = useToast();
+  const [busy, setBusy] = React.useState<string | null>(null);
+  const [words, setWords] = React.useState(0);
+  const onChangeRef = React.useRef(onChange);
+  React.useEffect(() => {
+    onChangeRef.current = onChange;
+  });
+
+  const editor = useEditor({
+    immediatelyRender: false,
+    extensions: [
+      StarterKit.configure({ heading: { levels: [2, 3] }, codeBlock: false, code: false, horizontalRule: false, link: false }),
+      Placeholder.configure({ placeholder: "Start writing, or ask the agent to draft this section from your facts." }),
+      CharacterCount,
+      Citation,
+      Gap,
+    ],
+    content: section.bodyHtml,
+    editorProps: {
+      attributes: { class: "tiptap", "aria-label": `${section.title} editor`, role: "textbox", "aria-multiline": "true" },
+      handleClickOn: (_view, _pos, node) => {
+        if (node.type.name === "citation" && node.attrs.factId) {
+          onCitationClick(node.attrs.factId);
+          return true;
+        }
+        if (node.type.name === "gap" && node.attrs.gapId) {
+          onGapClick(node.attrs.gapId);
+          return true;
+        }
+        return false;
+      },
+      handleKeyDown: (view, event) => {
+        if (event.key !== "Enter" && event.key !== " ") return false;
+        const { selection } = view.state;
+        const node = "node" in selection ? (selection as unknown as { node: { type: { name: string }; attrs: Record<string, string> } }).node : null;
+        if (!node) return false;
+        if (node.type.name === "citation") {
+          onCitationClick(node.attrs.factId);
+          return true;
+        }
+        if (node.type.name === "gap") {
+          onGapClick(node.attrs.gapId);
+          return true;
+        }
+        return false;
+      },
+    },
+    onUpdate: ({ editor }) => {
+      const w = editor.storage.characterCount.words();
+      setWords(w);
+      onChangeRef.current(editor.getHTML(), w);
+    },
+    onCreate: ({ editor }) => setWords(editor.storage.characterCount.words()),
+  });
+
+  // Swap content when the active section changes.
+  const lastSection = React.useRef(section.id);
+  React.useEffect(() => {
+    if (!editor) return;
+    if (lastSection.current !== section.id || editor.getHTML() !== section.bodyHtml) {
+      if (lastSection.current !== section.id || editor.isEmpty) {
+        editor.commands.setContent(section.bodyHtml, { emitUpdate: false });
+        setWords(editor.storage.characterCount.words());
+      }
+      lastSection.current = section.id;
+    }
+  }, [editor, section.id, section.bodyHtml]);
+
+  const runAi = async (action: "rewrite" | "shorten" | "expand" | "tone", tone?: ReviseTone) => {
+    if (!editor) return;
+    const { from, to, empty } = editor.state.selection;
+    const scopeHtml = empty ? editor.getHTML() : editor.state.doc.textBetween(from, to, " ");
+    setBusy(action === "tone" ? `Changing tone to ${tone}` : action === "shorten" ? "Shortening" : action === "expand" ? "Expanding" : "Rewriting");
+    const result = await reviseText({ html: empty ? scopeHtml : `<p>${scopeHtml}</p>`, action, tone, wordLimit: section.wordLimit });
+    if (empty) {
+      editor.chain().focus().setContent(result.html, { emitUpdate: true }).run();
+    } else {
+      editor.chain().focus().insertContentAt({ from, to }, result.html.replace(/^<p>|<\/p>$/g, "")).run();
+    }
+    setBusy(null);
+    toast({
+      title: action === "tone" ? "Tone adjusted" : action === "shorten" ? "Shortened" : action === "expand" ? "Expanded" : "Rewritten",
+      description: `${result.note} Citations were kept.`,
+      action: { label: "Undo", onClick: () => editor.chain().focus().undo().run() },
+    });
+  };
+
+  const insertCitation = (f: Fact) => {
+    editor?.chain().focus().insertCitation({ factId: f.id, label: f.label }).run();
+  };
+
+  const limit = section.wordLimit;
+  const over = limit ? words > limit : false;
+  const pct = limit ? Math.min(100, (words / limit) * 100) : 0;
+
+  return (
+    <div className="flex flex-1 flex-col">
+      <div role="toolbar" aria-label="Formatting and AI actions" className="sticky top-0 z-10 flex flex-wrap items-center gap-1 border-b border-border bg-surface/95 px-3 py-2 backdrop-blur">
+        <ToolbarButton label="Bold" active={editor?.isActive("bold")} onClick={() => editor?.chain().focus().toggleBold().run()}>
+          <Bold />
+        </ToolbarButton>
+        <ToolbarButton label="Italic" active={editor?.isActive("italic")} onClick={() => editor?.chain().focus().toggleItalic().run()}>
+          <Italic />
+        </ToolbarButton>
+        <ToolbarButton label="Subheading" active={editor?.isActive("heading", { level: 3 })} onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}>
+          <Heading3 />
+        </ToolbarButton>
+        <ToolbarButton label="Bulleted list" active={editor?.isActive("bulletList")} onClick={() => editor?.chain().focus().toggleBulletList().run()}>
+          <List />
+        </ToolbarButton>
+        <ToolbarButton label="Numbered list" active={editor?.isActive("orderedList")} onClick={() => editor?.chain().focus().toggleOrderedList().run()}>
+          <ListOrdered />
+        </ToolbarButton>
+        <ToolbarButton label="Quote" active={editor?.isActive("blockquote")} onClick={() => editor?.chain().focus().toggleBlockquote().run()}>
+          <Quote />
+        </ToolbarButton>
+        <Separator orientation="vertical" className="mx-1 h-5" />
+        <ToolbarButton label="Undo" onClick={() => editor?.chain().focus().undo().run()} disabled={!editor?.can().undo()}>
+          <Undo2 />
+        </ToolbarButton>
+        <ToolbarButton label="Redo" onClick={() => editor?.chain().focus().redo().run()} disabled={!editor?.can().redo()}>
+          <Redo2 />
+        </ToolbarButton>
+        <Separator orientation="vertical" className="mx-1 h-5" />
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="gap-1.5">
+              <Quote className="size-3.5" aria-hidden /> Cite a fact <ChevronDown className="size-3" aria-hidden />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="max-h-80 w-72 overflow-y-auto">
+            <DropdownMenuLabel>Insert a citation</DropdownMenuLabel>
+            {facts.map((f) => (
+              <DropdownMenuItem key={f.id} onSelect={() => insertCitation(f)}>
+                <span className="flex min-w-0 flex-col">
+                  <span className="truncate">{f.label}</span>
+                  <span className="truncate text-xs text-fg-subtle">{f.value}</span>
+                </span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <div className="ml-auto flex flex-wrap items-center gap-1">
+          <span className="mr-1 hidden text-xs text-fg-subtle sm:inline">AI</span>
+          <Button variant="soft" size="sm" onClick={() => runAi("rewrite")} disabled={!!busy}>
+            <Wand2 aria-hidden /> Rewrite
+          </Button>
+          <Button variant="soft" size="sm" onClick={() => runAi("shorten")} disabled={!!busy}>
+            <Scissors aria-hidden /> Shorten
+          </Button>
+          <Button variant="soft" size="sm" onClick={() => runAi("expand")} disabled={!!busy}>
+            <ExpandIcon aria-hidden /> Expand
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="soft" size="sm" disabled={!!busy}>
+                Tone <ChevronDown className="size-3" aria-hidden />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Change tone of {editor?.state.selection.empty ? "this section" : "selection"}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {(["plain", "warm", "formal", "confident"] as ReviseTone[]).map((t) => (
+                <DropdownMenuItem key={t} onSelect={() => runAi("tone", t)} className="capitalize">
+                  {t}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+
+      <div className="relative flex-1 px-5 py-6 sm:px-10 sm:py-8">
+        {busy ? (
+          <div className="absolute inset-x-5 top-4 z-10 flex items-center gap-2 rounded-md border border-border bg-surface-raised px-3 py-2 text-sm text-fg shadow-md sm:inset-x-10" role="status">
+            <span className="size-2 animate-pulse rounded-full bg-accent" aria-hidden />
+            {busy}...
+          </div>
+        ) : null}
+        <div className={cn("prose-editor mx-auto transition-opacity", busy && "opacity-50")}>
+          <h2 className="mb-4 font-display text-2xl text-fg">{section.title}</h2>
+          <EditorContent editor={editor} />
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3 border-t border-border bg-surface px-5 py-2 text-xs text-fg-subtle sm:px-10">
+        {limit ? (
+          <>
+            <Progress value={pct} tone={over ? "danger" : pct > 90 ? "warning" : "accent"} className="h-1.5 w-32" aria-label="Word count against limit" />
+            <span className={cn("tnum", over && "font-medium text-danger")}>
+              {words} / {limit} words{over ? `, ${words - limit} over` : ""}
+            </span>
+          </>
+        ) : (
+          <span className="tnum">{words} words</span>
+        )}
+        <span className="ml-auto hidden sm:inline">Click a chip to see its source. Saved automatically.</span>
+      </div>
+    </div>
+  );
+}
+
+export type { Editor };
