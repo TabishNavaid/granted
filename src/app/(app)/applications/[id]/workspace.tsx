@@ -293,9 +293,18 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
             <p className="flex flex-wrap items-center gap-x-4 text-sm text-ink-muted">
               <span>{app.funder.name}</span>
               <span>{app.mode === "proposal" ? "Full proposal" : "Letter of inquiry"}</span>
-              <button type="button" onClick={() => setAskOpen(true)} className="inline-flex min-h-6 items-center tnum underline decoration-[1px] underline-offset-2 hover:decoration-ink">
-                {app.askAmount ? `Asking ${formatMoney(app.askAmount)}` : "Set the ask"}
-              </button>
+              {/* The amount is a fact, so it is plain text. Only the control that changes it looks clickable. */}
+              <span className="inline-flex min-h-6 items-center gap-2">
+                {app.askAmount ? <span className="tnum">Asking {formatMoney(app.askAmount)}</span> : null}
+                <button
+                  type="button"
+                  onClick={() => setAskOpen(true)}
+                  aria-label={app.askAmount ? "Change the ask" : undefined}
+                  className="inline-flex min-h-6 items-center rounded-sm font-semibold text-ink underline-offset-4 hover:underline"
+                >
+                  {app.askAmount ? "Change" : "Set the ask"}
+                </button>
+              </span>
               {app.opportunity.deadline ? (
                 <>
                   <span>Due {formatDate(app.opportunity.deadline, "MMM d")}</span>

@@ -156,14 +156,14 @@ export const drawings: DrawingAsset[] = [
     "slug": "poppy-bloom",
     "kind": "flower",
     "file": "/drawings/poppy-bloom",
-    "width": 74,
+    "width": 85,
     "height": 120,
     "head": {
-      "bottom": 0.6,
-      "x": 0.6,
-      "y": 0.36
+      "bottom": 0.62,
+      "x": 0.67,
+      "y": 0.38
     },
-    "description": "A single wind poppy with its bud, cut from the wind poppy sheet. The flower that opens for a moment when you approve something.",
+    "description": "A wind poppy with its bud on the main stalk, cut from the wind poppy sheet and faded out at the top and left. The flower that opens for a moment when you approve something.",
     "credit": {
       "title": "Wind Poppy (Stylomecon heterophylla), watercolor on paper, object 1970.355.33",
       "author": "Mary Vaux Walcott",

@@ -346,19 +346,26 @@
       "download": "https://ids.si.edu/ids/deliveryService?id=SAAM-1970.355.33_2&max=2400",
       "source": "saam-1970.355.33_2",
       "cropFrac": [
-        0.47,
+        0.445,
         0.385,
         0.76,
         0.7
       ],
-      "erase": [],
+      "erase": [
+        [
+          0.4,
+          0.6,
+          0.462,
+          0.74
+        ]
+      ],
       "height": 120,
       "cutoff": 0.06,
       "tone": {
         "saturation": 0.8,
         "lightness": 0.015
       },
-      "description": "A single wind poppy with its bud, cut from the wind poppy sheet. The flower that opens for a moment when you approve something.",
+      "description": "A wind poppy with its bud on the main stalk, cut from the wind poppy sheet and faded out at the top and left. The flower that opens for a moment when you approve something.",
       "credit": {
         "title": "Wind Poppy (Stylomecon heterophylla), watercolor on paper, object 1970.355.33",
         "author": "Mary Vaux Walcott",
@@ -367,9 +374,13 @@
         "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
       },
       "head": {
-        "bottom": 0.6,
-        "x": 0.6,
-        "y": 0.36
+        "bottom": 0.62,
+        "x": 0.67,
+        "y": 0.38
+      },
+      "feather": {
+        "top": 0.22,
+        "left": 0.12
       }
     },
     {

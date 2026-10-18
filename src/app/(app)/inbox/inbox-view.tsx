@@ -181,11 +181,11 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
       <div className="mt-10 flex flex-wrap items-end justify-between gap-4">
         <h2 className="font-display text-3xl text-ink">Read and decide</h2>
         <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
-          <TabsList variant="pill" aria-label="Filter inbox">
+          <TabsList variant="pill" aria-label="Filter inbox" className="-mx-4 px-4 sm:mx-0 sm:px-0">
             {filters.map((f) => (
               <TabsTrigger key={f.value} value={f.value}>
                 {f.label}
-                {counts[f.value] > 0 ? <span className="text-sm text-ink-muted tnum">{counts[f.value]}</span> : null}
+                {counts[f.value] > 0 ? <span className="text-sm font-normal text-ink-muted tnum">{counts[f.value]}</span> : null}
               </TabsTrigger>
             ))}
           </TabsList>

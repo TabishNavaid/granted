@@ -361,7 +361,10 @@ export function EmailPreview({ draft, funderName }: { draft: EmailDraft; funderN
           <dd className="font-semibold text-ink">{draft.subject}</dd>
         </div>
       </dl>
-      <pre className="line-clamp-4 whitespace-pre-wrap py-3 font-body text-base leading-relaxed text-ink">{draft.body}</pre>
+      {/* The clamp sits on an unpadded block so it always ends on a whole line. */}
+      <div className="py-3">
+        <p className="line-clamp-4 whitespace-pre-line text-base leading-relaxed text-ink">{draft.body}</p>
+      </div>
       <div className="flex justify-end border-t border-rule py-1.5">
         <Button variant="ghost" size="sm" onClick={copy}>
           {copied ? "Copied" : "Copy the email"}

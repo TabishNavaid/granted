@@ -20,7 +20,7 @@ const TabsList = React.forwardRef<
 >(({ className, variant = "line", ...props }, ref) => (
   <TabsPrimitive.List
     ref={ref}
-    className={cn("flex max-w-full items-end gap-5 overflow-x-auto", variant === "line" && "border-b border-rule", className)}
+    className={cn("flex max-w-full snap-x items-end overflow-x-auto", variant === "line" ? "gap-5 border-b border-rule" : "gap-7", className)}
     data-variant={variant}
     {...props}
   />
@@ -46,7 +46,7 @@ const TabsTrigger = React.forwardRef<
         else if (ref) ref.current = node;
       }}
       className={cn(
-        "group/tab relative -mb-px inline-flex shrink-0 min-h-6 min-w-6 items-center justify-center gap-1.5 whitespace-nowrap border-b-2 border-transparent pb-2 text-base text-ink-muted transition-colors hover:text-ink disabled:opacity-50 data-[state=active]:border-ink data-[state=active]:font-semibold data-[state=active]:text-ink",
+        "group/tab relative -mb-px inline-flex shrink-0 snap-start min-h-6 min-w-6 items-center justify-center gap-1.5 whitespace-nowrap border-b-2 border-transparent pb-2 text-base text-ink-muted transition-colors hover:text-ink disabled:opacity-50 data-[state=active]:border-ink data-[state=active]:font-semibold data-[state=active]:text-ink",
         className,
       )}
       {...props}

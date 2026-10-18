@@ -5,8 +5,9 @@
  *
  * For every entry in scripts/drawings.json it:
  *   1. downloads the original from its source into .cache/drawings (once),
- *   2. crops to the entry's box, if it has one, and erases what is written
- *      on the sheet (a painter's pencil label, a signature),
+ *   2. crops to the entry's box, if it has one, erases what is written on
+ *      the sheet (a painter's pencil label, a signature), and fades cropped
+ *      edges out where an entry asks,
  *   3. flattens the paper: estimates the paper's own color and shading across
  *      the sheet and divides it out, so the paper reads as pure white,
  *   4. removes the white: "color to alpha" against white, so thin washes and
@@ -284,6 +285,27 @@ async function clean(entry) {
     }
   }
   if (maxX < 0) throw new Error(`${entry.slug}: nothing left after removing the paper`);
+
+  // Fade a cropped edge out, so a stem cut by the crop dissolves the way a
+  // field sketch trails off instead of ending in a hard straight line.
+  // Each side is a fraction of the crop's width or height.
+  if (entry.feather) {
+    const { top = 0, left = 0, right = 0, bottom = 0 } = entry.feather;
+    const ease = (t) => t * t * (3 - 2 * t);
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        let f = 1;
+        if (top) f *= ease(Math.min(1, y / (top * height)));
+        if (bottom) f *= ease(Math.min(1, (height - 1 - y) / (bottom * height)));
+        if (left) f *= ease(Math.min(1, x / (left * width)));
+        if (right) f *= ease(Math.min(1, (width - 1 - x) / (right * width)));
+        if (f < 1) {
+          const o = (y * width + x) * 4 + 3;
+          rgba[o] = Math.round(rgba[o] * f);
+        }
+      }
+    }
+  }
 
   // Tighten the box to rows and columns that really hold paint, so a stray
   // speck or the edge of the scan does not hold the trim open.
