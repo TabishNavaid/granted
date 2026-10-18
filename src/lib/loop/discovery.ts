@@ -21,6 +21,8 @@ export interface DiscoveryInput {
   facts: Fact[];
   /** Fetch this many full notices at most. Each one costs a second of throttle. */
   maxDetails?: number;
+  /** Called as each stage finishes, with a short note for the progress screen. */
+  onStage?: (stage: "plan" | "search" | "read" | "score", detail: string) => void;
 }
 
 export interface ScoredMatch {
@@ -198,6 +200,7 @@ export async function runDiscovery(input: DiscoveryInput): Promise<DiscoveryResu
   tally(plan);
   const searches = plan.data.searches.slice(0, 4).map((s) => ({ keyword: s.keyword.trim().slice(0, 60), fundingCategories: (s.fundingCategories ?? []).filter((c) => c in gg.FUNDING_CATEGORIES).slice(0, 2) }));
   tools.push({ name: "plan_searches", summary: searches.map((s) => `"${s.keyword}"`).join(", "), durationMs: Date.now() - t });
+  input.onStage?.("plan", searches.map((s) => s.keyword).join(", "));
 
   // 2. Search. One status filter: open or announced. One eligibility filter: 501(c)(3) nonprofits.
   t = Date.now();
@@ -218,6 +221,7 @@ export async function runDiscovery(input: DiscoveryInput): Promise<DiscoveryResu
     return true;
   });
   tools.push({ name: "search_opportunities", summary: `${screened} notices from ${searches.length} searches, ${live.length} still open`, durationMs: Date.now() - t });
+  input.onStage?.("search", `${screened} notices, ${live.length} still open`);
   sources.push({ label: "Grants.gov search", url: "https://www.grants.gov/search-grants", documentId: null, kind: "database" });
   if (!live.length) {
     return { matches: [], searches: searchLog, screened, read: 0, droppedIneligible: 0, droppedUnsupported: 0, tools, sources, usage, costUsd, models: [...models], durationMs: Date.now() - started };
@@ -261,6 +265,7 @@ export async function runDiscovery(input: DiscoveryInput): Promise<DiscoveryResu
     }
   }
   tools.push({ name: "fetch_opportunity", summary: `${candidates.length} notices read, ${droppedIneligible} closed or not open to nonprofits`, durationMs: Date.now() - t });
+  input.onStage?.("read", `${candidates.length} read in full`);
   if (!candidates.length) {
     return { matches: [], searches: searchLog, screened, read: keepIds.length, droppedIneligible, droppedUnsupported: 0, tools, sources, usage, costUsd, models: [...models], durationMs: Date.now() - started };
   }

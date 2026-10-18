@@ -70,6 +70,7 @@ export const map = {
     populations: (r.populations as string[]) ?? [],
     staffCount: num(r.staff_count),
     volunteerCount: num(r.volunteer_count),
+    onboardingStep: (r.onboarding_step as Organization["onboardingStep"]) ?? "start",
     createdAt: iso(r.created_at),
   }),
   orgPatch: (p: Partial<Organization>): Row => {
@@ -88,6 +89,7 @@ export const map = {
     if (p.populations !== undefined) out.populations = p.populations;
     if (p.staffCount !== undefined) out.staff_count = p.staffCount;
     if (p.volunteerCount !== undefined) out.volunteer_count = p.volunteerCount;
+    if (p.onboardingStep !== undefined) out.onboarding_step = p.onboardingStep;
     return out;
   },
   fact: (r: Row): Fact => ({
@@ -701,13 +703,23 @@ export function makeSupabaseServices(): Services {
       const supa = await createUserClient();
       await supa.auth.signOut();
     },
+    async signInWithGoogle(next: string) {
+      const { isConnected } = await import("@/lib/integrations");
+      if (!isConnected("google_auth")) return { ok: false as const, error: "Google sign-in is not set up on this server yet. Use the email link instead." };
+      const supa = await createUserClient();
+      const base = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
+      const safe = next.startsWith("/") && !next.startsWith("//") ? next : "/inbox";
+      const { data, error } = await supa.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${base}/auth/callback?next=${encodeURIComponent(safe)}`, skipBrowserRedirect: true } });
+      if (error || !data.url) return { ok: false as const, error: error?.message ?? "Google did not answer. Try the email link." };
+      return { ok: true as const, url: data.url };
+    },
   };
 
   const loop = {
     async runtime() {
       return runtimeMode();
     },
-    async buildProfile(input: { websiteUrl: string; ein: string | null }) {
+    async buildProfile(input: { websiteUrl: string; ein: string | null; jobId?: string }) {
       const s = await ctx();
       const { buildProfile } = await import("@/lib/loop");
       const { makeSupabaseStore } = await import("@/lib/loop/supabase-store");
@@ -719,11 +731,21 @@ export function makeSupabaseServices(): Services {
       const { makeSupabaseStore } = await import("@/lib/loop/supabase-store");
       return confirmProfile(makeSupabaseStore(s), input);
     },
-    async findMatches() {
+    async findMatches(jobId?: string) {
       const s = await ctx();
       const { findMatches } = await import("@/lib/loop");
       const { makeSupabaseStore } = await import("@/lib/loop/supabase-store");
-      return findMatches(makeSupabaseStore(s));
+      return findMatches(makeSupabaseStore(s), jobId);
+    },
+    async answerGaps(answers: { budgetRange?: string; peopleServed?: string; location?: string }) {
+      const s = await ctx();
+      const { answerGaps } = await import("@/lib/loop");
+      const { makeSupabaseStore } = await import("@/lib/loop/supabase-store");
+      return answerGaps(makeSupabaseStore(s), answers);
+    },
+    async progress(jobId: string) {
+      const { readJob } = await import("@/lib/loop/progress");
+      return readJob(jobId);
     },
     async draftLetter(applicationId: string) {
       const s = await ctx();

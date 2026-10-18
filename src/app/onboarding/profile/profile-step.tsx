@@ -57,14 +57,8 @@ export function ProfileStep({ org, facts, documents, real, alreadyConfirmed }: P
         return;
       }
     }
-    setLoading("match");
-    const m = await services.loop.findMatches();
-    setLoading(null);
-    if (!m.ok) {
-      setFailure(m.code === "no_facts" ? m.error : `${m.error} Your facts are saved, so you can try the search again from Opportunities.`);
-      return;
-    }
-    router.push("/onboarding/matches");
+    await services.org.update({ onboardingStep: "gaps" });
+    router.push("/onboarding/gaps");
   };
 
   return (
@@ -171,13 +165,12 @@ export function ProfileStep({ org, facts, documents, real, alreadyConfirmed }: P
 
         <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
           <Button size="lg" loading={loading !== null} onClick={confirmAndMatch}>
-            {loading === "confirm" ? "Saving your facts" : loading === "match" ? "Searching Grants.gov" : alreadyConfirmed ? "Find my matches" : "Looks right, find my matches"}
+            {loading === "confirm" ? "Saving your facts" : alreadyConfirmed ? "Continue" : "Looks right, continue"}
           </Button>
           <span className="text-base text-ink-muted tnum">
             {keptCount} of {facts.length} facts kept
           </span>
         </div>
-        {loading === "match" ? <p className="mt-3 text-sm text-ink-muted" aria-live="polite">About a minute. We search Grants.gov, read the strongest notices in full, and score each one against your facts.</p> : null}
       </div>
       <aside className="border-l-2 border-ink pl-5 text-base text-ink-muted lg:self-start">
         <h2 className="font-display text-xl text-ink">Why confirm</h2>

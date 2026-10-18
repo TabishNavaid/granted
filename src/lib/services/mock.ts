@@ -454,6 +454,9 @@ export const mockServices: Services = {
     async signOut() {
       await delay(200);
     },
+    async signInWithGoogle() {
+      return { ok: false, error: "Google sign-in is not set up in the demo. Use the email form; any address works here." };
+    },
   },
 
   /**
@@ -467,7 +470,16 @@ export const mockServices: Services = {
     },
     async buildProfile(input) {
       if (!hasAi()) {
-        await delay(900);
+        // Scripted so the progress screen has something honest to show: the demo workspace is already built.
+        const { startJob, advanceJob, finishJob } = await import("@/lib/loop/progress");
+        const { PROFILE_STEPS } = await import("@/lib/loop");
+        if (input.jobId) startJob(input.jobId, PROFILE_STEPS);
+        for (const note of ["Demo workspace", "6 pages in the demo", "15 facts", "Every fact has a source"]) {
+          await delay(700);
+          if (input.jobId) advanceJob(input.jobId, note);
+        }
+        if (input.jobId) finishJob(input.jobId, "done");
+        state.org.onboardingStep = "profile";
         return { ok: true, data: { pageCount: 6, factCount: state.facts.length, droppedCount: 0, runId: "run_profile_onboard", fromCache: true } };
       }
       const { buildProfile } = await import("@/lib/loop");
@@ -483,14 +495,31 @@ export const mockServices: Services = {
       const { memoryStore } = await import("@/lib/loop/memory-store");
       return confirmProfile(memoryStore, input);
     },
-    async findMatches() {
+    async findMatches(jobId) {
       if (!hasAi()) {
-        await delay(1200);
+        const { startJob, advanceJob, finishJob } = await import("@/lib/loop/progress");
+        const { MATCH_STEPS } = await import("@/lib/loop");
+        if (jobId) startJob(jobId, MATCH_STEPS);
+        for (const note of ["youth development, mentoring, afterschool", "412 notices screened", "24 read in full", `${state.matches.length} kept`]) {
+          await delay(600);
+          if (jobId) advanceJob(jobId, note);
+        }
+        if (jobId) finishJob(jobId, "done");
+        state.org.onboardingStep = "matches";
         return { ok: true, data: { matchCount: state.matches.length, screened: 412, read: 24, runId: "run_discovery_w42", fromCache: true } };
       }
       const { findMatches } = await import("@/lib/loop");
       const { memoryStore } = await import("@/lib/loop/memory-store");
-      return findMatches(memoryStore);
+      return findMatches(memoryStore, jobId);
+    },
+    async answerGaps(answers) {
+      const { answerGaps } = await import("@/lib/loop");
+      const { memoryStore } = await import("@/lib/loop/memory-store");
+      return answerGaps(memoryStore, answers);
+    },
+    async progress(jobId) {
+      const { readJob } = await import("@/lib/loop/progress");
+      return readJob(jobId);
     },
     async draftLetter(applicationId) {
       if (!hasAi()) {

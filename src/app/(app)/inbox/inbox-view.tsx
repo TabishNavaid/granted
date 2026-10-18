@@ -11,6 +11,7 @@ import { PageContainer } from "@/components/app/page-header";
 import { CompactInboxRow, InboxItemCard, STAMP_HOLD_MS, type InboxContext, type Leaving } from "@/components/app/inbox-item";
 import { PlanCard } from "@/components/app/plan-card";
 import { stampWord } from "@/lib/agents/meta";
+import { InboxTour } from "@/components/app/inbox-tour";
 
 type Filter = "all" | "proposal" | "email" | "matches" | "schedule" | "profile";
 const filters: { value: Filter; label: string; types: InboxItem["type"][] }[] = [
@@ -156,6 +157,9 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
 
   return (
     <PageContainer>
+      <React.Suspense fallback={null}>
+        <InboxTour />
+      </React.Suspense>
       <div ref={liveRef} aria-live="polite" className="sr-only" />
       <header className="border-b-2 border-ink pb-6">
         <p className="text-base text-ink-muted">{new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</p>

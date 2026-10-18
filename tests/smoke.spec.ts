@@ -11,11 +11,13 @@ const routes: { path: string; heading: RegExp }[] = [
   { path: "/contact", heading: /write to us/i },
   { path: "/sign-in", heading: /welcome back/i },
   { path: "/sign-up", heading: /create your workspace/i },
-  { path: "/onboarding", heading: /who you are/i },
+  { path: "/onboarding?restart=1", heading: /organization's website/i },
+  { path: "/onboarding/ein", heading: /know your ein/i },
+  { path: "/onboarding/gaps", heading: /questions|answered everything/i },
   { path: "/onboarding/documents", heading: /one to three documents/i },
   { path: "/onboarding/interview", heading: /a few questions/i },
   { path: "/onboarding/profile", heading: /look right/i },
-  { path: "/onboarding/matches", heading: /three places to start/i },
+  { path: "/onboarding/matches", heading: /places to start|nothing strong|looking for grants/i },
   { path: "/inbox", heading: /waiting on you/i },
   { path: "/opportunities", heading: /^opportunities$/i },
   { path: "/opportunities/opp_meridian_2027", heading: /youth development grants 2027/i },
@@ -34,6 +36,7 @@ const routes: { path: string; heading: RegExp }[] = [
 
 for (const r of routes) {
   test(`renders ${r.path}`, async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem("inbox_tour_seen", "1"));
     const errors: string[] = [];
     page.on("pageerror", (e) => errors.push(e.message));
     page.on("console", (m) => {
@@ -47,6 +50,7 @@ for (const r of routes) {
 }
 
 test("inbox approve stamps the item, files it, and offers undo", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("inbox_tour_seen", "1"));
   await page.goto("/inbox");
   const card = page.getByRole("article").filter({ has: page.getByRole("button", { name: /^(approve|save|update|add to)/i }) }).first();
   await expect(card).toBeVisible();

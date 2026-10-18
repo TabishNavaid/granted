@@ -112,6 +112,8 @@ export interface AuthService {
   signIn(email: string, password: string): Promise<AuthResult>;
   signUp(input: { fullName: string; email: string; password: string; orgName: string }): Promise<AuthResult>;
   signOut(): Promise<void>;
+  /** Returns the provider URL to redirect to, or a kind error when Google is not set up. */
+  signInWithGoogle(next: string): Promise<{ ok: true; url: string } | { ok: false; error: string }>;
 }
 
 /** The real loop: website to facts to matches to a letter. Results carry kind, honest errors for the UI. */
@@ -124,13 +126,18 @@ export interface RuntimeInfo {
   /** A model key is set, so the agents can run (against the in-memory store in demo mode). */
   ai: boolean;
   persistence: "memory" | "supabase";
+  /** Google OAuth keys are present. */
+  googleAuth: boolean;
 }
 
 export interface LoopService {
   runtime(): Promise<RuntimeInfo>;
-  buildProfile(input: { websiteUrl: string; ein: string | null }): Promise<LoopResult<{ pageCount: number; factCount: number; droppedCount: number; runId: string; fromCache: boolean }>>;
+  buildProfile(input: { websiteUrl: string; ein: string | null; jobId?: string }): Promise<LoopResult<{ pageCount: number; factCount: number; droppedCount: number; runId: string; fromCache: boolean }>>;
+  /** Live steps for a running job, or null when this server has no record of it. */
+  progress(jobId: string): Promise<{ jobId: string; status: "running" | "done" | "failed"; steps: { label: string; state: "done" | "active" | "pending"; detail?: string }[] } | null>;
+  answerGaps(answers: { budgetRange?: string; peopleServed?: string; location?: string }): Promise<LoopResult<{ added: number }>>;
   confirmProfile(input: { keptFactIds: string[]; factEdits: Record<string, string>; org: { mission?: string; serviceArea?: string; name?: string } }): Promise<LoopResult<{ confirmed: number; removed: number }>>;
-  findMatches(): Promise<LoopResult<{ matchCount: number; screened: number; read: number; runId: string; fromCache: boolean }>>;
+  findMatches(jobId?: string): Promise<LoopResult<{ matchCount: number; screened: number; read: number; runId: string; fromCache: boolean }>>;
   draftLetter(applicationId: string): Promise<LoopResult<{ sectionCount: number; openQuestions: number; issues: number; wordCount: number; runId: string }>>;
 }
 

@@ -3,18 +3,18 @@
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-const allSteps = [
+const steps = [
   { href: "/onboarding", label: "Website" },
-  { href: "/onboarding/documents", label: "Documents", demoOnly: true },
-  { href: "/onboarding/interview", label: "Short interview", demoOnly: true },
-  { href: "/onboarding/profile", label: "Confirm profile" },
+  { href: "/onboarding/ein", label: "EIN" },
+  { href: "/onboarding/reading", label: "Reading" },
+  { href: "/onboarding/profile", label: "Confirm" },
+  { href: "/onboarding/gaps", label: "A few questions" },
   { href: "/onboarding/matches", label: "First matches" },
 ];
 
 /** Setup progress as a printed line: a number and a word per step, the current one underlined in ink. */
-export function OnboardingSteps({ demo = true }: { demo?: boolean }) {
+export function OnboardingSteps() {
   const pathname = usePathname();
-  const steps = demo ? allSteps : allSteps.filter((s) => !s.demoOnly);
   const current = Math.max(0, steps.findIndex((s) => s.href === pathname));
   return (
     <nav aria-label="Setup progress">
@@ -23,11 +23,7 @@ export function OnboardingSteps({ demo = true }: { demo?: boolean }) {
           const done = i < current;
           const active = i === current;
           return (
-            <li
-              key={s.href}
-              aria-current={active ? "step" : undefined}
-              className={cn("flex items-baseline gap-2 text-base", active ? "-mb-[13px] border-b-2 border-ink pb-3 font-semibold text-ink" : "text-ink-muted")}
-            >
+            <li key={s.href} aria-current={active ? "step" : undefined} className={cn("flex items-baseline gap-2 text-base", active ? "-mb-[13px] border-b-2 border-ink pb-3 font-semibold text-ink" : "text-ink-muted")}>
               <span className="font-display text-lg tnum" aria-hidden>
                 {i + 1}
               </span>

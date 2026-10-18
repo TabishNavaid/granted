@@ -6,5 +6,5 @@ export const metadata: Metadata = { title: "Sign in" };
 
 export default async function SignInPage({ searchParams }: { searchParams: Promise<{ error?: string; next?: string }> }) {
   const [{ error, next }, runtime] = await Promise.all([searchParams, services.loop.runtime()]);
-  return <SignInForm magicLink={!runtime.demo} initialError={error ?? null} next={next ?? null} />;
+  return <SignInForm magicLink={!runtime.demo} google={runtime.googleAuth} initialError={error ?? null} next={next ?? null} />;
 }

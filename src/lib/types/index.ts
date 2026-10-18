@@ -51,8 +51,12 @@ export interface Organization {
   populations: string[];
   staffCount: number | null;
   volunteerCount: number | null;
+  /** Where the user is in setup, so they can leave and come back. */
+  onboardingStep: OnboardingStep;
   createdAt: ISODate;
 }
+
+export type OnboardingStep = "start" | "ein" | "reading" | "profile" | "gaps" | "matches" | "done";
 
 /** org_members (joined with profiles) */
 export interface Member {

@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { services } from "@/lib/services";
-import { StartForm } from "./start-form";
+import { WebsiteStep } from "./website-step";
 
 export const metadata: Metadata = { title: "Setup" };
 
-export default async function OnboardingStartPage() {
-  const runtime = await services.loop.runtime();
-  return <StartForm demo={runtime.demo && !runtime.ai} />;
+const resume: Record<string, string> = { ein: "/onboarding/ein", reading: "/onboarding/reading", profile: "/onboarding/profile", gaps: "/onboarding/gaps", matches: "/onboarding/matches" };
+
+/** The first question. A returning user is sent to the step they left on. */
+export default async function OnboardingStartPage({ searchParams }: { searchParams: Promise<{ restart?: string }> }) {
+  const [{ restart }, org] = await Promise.all([searchParams, services.org.get()]);
+  if (!restart && org.onboardingStep !== "start" && org.onboardingStep !== "done" && resume[org.onboardingStep]) redirect(resume[org.onboardingStep]);
+  return <WebsiteStep initialUrl={org.onboardingStep === "done" ? "" : org.websiteUrl} />;
 }

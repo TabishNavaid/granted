@@ -165,7 +165,7 @@ function scoreLink(link: { href: string; text: string }, home: URL): number {
   return score;
 }
 
-export async function crawlSite(input: string, opts: { maxPages?: number } = {}): Promise<CrawlResult> {
+export async function crawlSite(input: string, opts: { maxPages?: number; onPage?: (page: CrawledPage, index: number) => void } = {}): Promise<CrawlResult> {
   const maxPages = opts.maxPages ?? 8;
   const homepage = normalizeUrl(input);
   const home = new URL(homepage);
@@ -181,6 +181,7 @@ export async function crawlSite(input: string, opts: { maxPages?: number } = {})
   seen.add(keyOf(first.finalUrl));
   const parsedHome = parseHtml(first.body.toString("utf8"), first.finalUrl);
   pages.push({ url: first.finalUrl, title: parsedHome.title || canonical.hostname, text: parsedHome.text, kind: "html" });
+  opts.onPage?.(pages[0], 0);
 
   // Rank candidate links from the homepage; pages we read may add a few more.
   const queue = new Map<string, number>();
@@ -210,8 +211,10 @@ export async function crawlSite(input: string, opts: { maxPages?: number } = {})
     if (isPdf) {
       try {
         const text = await pdfToText(res.body);
-        if (text.length > 200) pages.push({ url: res.finalUrl, title: decodeURIComponent(new URL(res.finalUrl).pathname.split("/").pop() ?? "PDF"), text, kind: "pdf" });
-        else skipped.push({ url: next, reason: "no readable text" });
+        if (text.length > 200) {
+          pages.push({ url: res.finalUrl, title: decodeURIComponent(new URL(res.finalUrl).pathname.split("/").pop() ?? "PDF"), text, kind: "pdf" });
+          opts.onPage?.(pages[pages.length - 1], pages.length - 1);
+        } else skipped.push({ url: next, reason: "no readable text" });
       } catch (err) {
         skipped.push({ url: next, reason: `PDF: ${err instanceof Error ? err.message : String(err)}` });
       }
@@ -232,6 +235,7 @@ export async function crawlSite(input: string, opts: { maxPages?: number } = {})
       continue;
     }
     pages.push({ url: res.finalUrl, title: parsed.title || next, text: parsed.text, kind: "html" });
+    opts.onPage?.(pages[pages.length - 1], pages.length - 1);
     consider(parsed.links);
   }
 

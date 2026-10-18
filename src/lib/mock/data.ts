@@ -49,6 +49,7 @@ export const organization: Organization = {
   populations: ["Middle and high school students", "Low-income families", "First-generation college aspirants"],
   staffCount: 4,
   volunteerCount: 23,
+  onboardingStep: "done",
   createdAt: "2026-09-02T14:12:00Z",
 };
 

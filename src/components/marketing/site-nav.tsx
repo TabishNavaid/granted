@@ -19,7 +19,7 @@ const links = [
 export function SiteNav() {
   const [open, setOpen] = React.useState(false);
   const pathname = usePathname();
-  React.useEffect(() => setOpen(false), [pathname]);
+  const close = () => setOpen(false);
   return (
     <header className="sticky top-0 z-30 border-b-2 border-ink bg-paper">
       <div className="mx-auto flex h-16 max-w-[75rem] items-center justify-between gap-6 px-4 sm:px-6 lg:px-10">
@@ -48,13 +48,13 @@ export function SiteNav() {
           <ul className="flex flex-col gap-1 text-base text-ink">
             {links.map((l) => (
               <li key={l.href}>
-                <Link href={l.href} className="block py-2 underline-offset-4 hover:underline">
+                <Link href={l.href} onClick={close} className="block py-2 underline-offset-4 hover:underline">
                   {l.label}
                 </Link>
               </li>
             ))}
             <li>
-              <Link href="/sign-in" className="block py-2 underline-offset-4 hover:underline">
+              <Link href="/sign-in" onClick={close} className="block py-2 underline-offset-4 hover:underline">
                 Sign in
               </Link>
             </li>

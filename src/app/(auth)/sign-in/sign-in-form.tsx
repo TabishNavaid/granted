@@ -11,7 +11,8 @@ import { Separator } from "@/components/ui/separator";
 
 const linkClass = "font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-pink";
 
-export function SignInForm({ magicLink, initialError, next }: { magicLink: boolean; initialError: string | null; next: string | null }) {
+export function SignInForm({ magicLink, google, initialError, next }: { magicLink: boolean; google: boolean; initialError: string | null; next: string | null }) {
+  const [googleLoading, setGoogleLoading] = React.useState(false);
   const router = useRouter();
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(initialError);
@@ -70,16 +71,31 @@ export function SignInForm({ magicLink, initialError, next }: { magicLink: boole
           {magicLink ? "Email me a link" : "Sign in"}
         </Button>
       </form>
-      {magicLink ? null : (
+      {google || !magicLink ? (
         <>
           <div className="my-6 flex items-center gap-3 text-sm text-ink-muted">
             <Separator className="flex-1" /> or <Separator className="flex-1" />
           </div>
-          <Button variant="secondary" size="lg" className="w-full" onClick={() => router.push("/inbox")}>
+          <Button
+            variant="secondary"
+            size="lg"
+            className="w-full"
+            loading={googleLoading}
+            onClick={async () => {
+              if (!magicLink) return router.push("/inbox");
+              setGoogleLoading(true);
+              const r = await services.auth.signInWithGoogle(next && next.startsWith("/") ? next : "/inbox");
+              if (!r.ok) {
+                setGoogleLoading(false);
+                return setError(r.error);
+              }
+              window.location.assign(r.url);
+            }}
+          >
             Continue with Google
           </Button>
         </>
-      )}
+      ) : null}
       <p className="mt-8 text-base text-ink-muted">
         New here?{" "}
         <Link href="/sign-up" className={linkClass}>

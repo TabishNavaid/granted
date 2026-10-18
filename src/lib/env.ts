@@ -20,9 +20,9 @@ export function isDemoMode() {
   return !hasSupabase();
 }
 
-export type RuntimeMode = { demo: boolean; ai: boolean; persistence: "memory" | "supabase" };
+export type RuntimeMode = { demo: boolean; ai: boolean; persistence: "memory" | "supabase"; googleAuth: boolean };
 
 export function runtimeMode(): RuntimeMode {
   const demo = isDemoMode();
-  return { demo, ai: hasAi(), persistence: demo ? "memory" : "supabase" };
+  return { demo, ai: hasAi(), persistence: demo ? "memory" : "supabase", googleAuth: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) && !demo };
 }

@@ -8,6 +8,7 @@ import { runDiscovery, type DiscoveryResult } from "./discovery";
 import { draftLetter, factIdsIn, gapIdsIn, htmlToMarkedText, redraftParagraph, renderLetter, renderParagraph, PARAGRAPH_KEYS, type LetterInput, type ParagraphKey, type RenderedCheck } from "./letter";
 import { extractProfile, type ProfileExtraction } from "./profile";
 import { recordRun } from "./runs";
+import { advanceJob, finishJob, noteJob, startJob } from "./progress";
 import type { LoopStore, NewFact } from "./store";
 import { wordCount } from "./text";
 
@@ -62,7 +63,18 @@ export interface BuildProfileOutput {
   fromCache: boolean;
 }
 
-export async function buildProfile(store: LoopStore, input: { websiteUrl: string; ein: string | null }): Promise<LoopResult<BuildProfileOutput>> {
+export const PROFILE_STEPS = ["Reading your homepage", "Reading your other pages", "Writing down the facts", "Checking every fact against its page"];
+
+export async function buildProfile(store: LoopStore, input: { websiteUrl: string; ein: string | null; jobId?: string }): Promise<LoopResult<BuildProfileOutput>> {
+  const job = input.jobId;
+  if (job) startJob(job, PROFILE_STEPS);
+  const r = await buildProfileInner(store, input);
+  if (job) finishJob(job, r.ok ? "done" : "failed");
+  return r;
+}
+
+async function buildProfileInner(store: LoopStore, input: { websiteUrl: string; ein: string | null; jobId?: string }): Promise<LoopResult<BuildProfileOutput>> {
+  const job = input.jobId;
   let host = input.websiteUrl;
   try {
     host = new URL(/^https?:\/\//i.test(input.websiteUrl) ? input.websiteUrl : `https://${input.websiteUrl}`).hostname.replace(/^www\./, "");
@@ -74,12 +86,31 @@ export async function buildProfile(store: LoopStore, input: { websiteUrl: string
       // Crawl and extraction are cached together for a day: a reload must not pay for the model twice.
       const key = `profile:${input.websiteUrl.trim().toLowerCase()}`;
       const { value, fromCache } = await cached<{ crawl: CrawlResult; extraction: ProfileExtraction }>(key, 24 * HOURS, async () => {
-        const crawl = await rec.step("fetch_url", () => crawlSite(input.websiteUrl), (r) => `${r.pages.length} page${r.pages.length === 1 ? "" : "s"} read${r.skipped.length ? `, ${r.skipped.length} skipped` : ""}`);
+        const crawl = await rec.step(
+          "fetch_url",
+          () =>
+            crawlSite(input.websiteUrl, {
+              onPage: (p, i) => {
+                if (!job) return;
+                if (i === 0) advanceJob(job, `Found ${p.title || host}`);
+                else noteJob(job, `Read ${p.title || p.url}`);
+              },
+            }),
+          (r) => `${r.pages.length} page${r.pages.length === 1 ? "" : "s"} read${r.skipped.length ? `, ${r.skipped.length} skipped` : ""}`,
+        );
+        if (job) advanceJob(job, `${crawl.pages.length} page${crawl.pages.length === 1 ? "" : "s"} read`);
         const extraction = await rec.step("extract_profile", () => extractProfile(crawl.pages), (r) => `${r.facts.length} facts kept, ${r.dropped.length} dropped for failing the source check`);
+        if (job) advanceJob(job, `${extraction.facts.length + extraction.dropped.length} candidate facts`);
         return { crawl, extraction };
       });
-      if (fromCache) rec.tool("cache", `Used the reading of ${host} from earlier today`, 0);
-      else rec.tally(value.extraction);
+      if (fromCache) {
+        rec.tool("cache", `Used the reading of ${host} from earlier today`, 0);
+        if (job) {
+          advanceJob(job, "Read earlier today");
+          advanceJob(job, `${value.crawl.pages.length} pages`);
+          advanceJob(job, `${value.extraction.facts.length} facts`);
+        }
+      } else rec.tally(value.extraction);
       for (const p of value.crawl.pages) rec.source(p.title || p.url, p.url, "web");
 
       const { profile, facts, dropped } = value.extraction;
@@ -118,6 +149,8 @@ export async function buildProfile(store: LoopStore, input: { websiteUrl: string
         newFacts.push({ label: "Program", value: program, category: "organization", sourceUrl: page.url, sourceLabel: sourceLabelFor(page.url), sourceExcerpt: excerpt, confidence: 0.85, status: "needs_review" });
       }
       await store.replaceReadFacts(newFacts);
+      await store.updateOrg({ onboardingStep: "profile" });
+      if (job) advanceJob(job, `${newFacts.length} facts kept, ${dropped.length} set aside`);
       const summary = `Read ${value.crawl.pages.length} page${value.crawl.pages.length === 1 ? "" : "s"} on ${host} and found ${newFacts.length} fact${newFacts.length === 1 ? "" : "s"} for you to check.${dropped.length ? ` Set aside ${dropped.length} that did not pass the source check.` : ""}`;
       return { output: { pageCount: value.crawl.pages.length, factCount: newFacts.length, droppedCount: dropped.length, fromCache }, summary };
     });
@@ -169,6 +202,46 @@ export async function confirmProfile(store: LoopStore, input: ConfirmInput): Pro
   }
 }
 
+// ---------- 2b. Gap questions ----------
+
+export interface GapAnswers {
+  budgetRange?: string;
+  peopleServed?: string;
+  location?: string;
+}
+
+/** Short answers from the director become facts stated by them; nothing is inferred from a range. */
+export async function answerGaps(store: LoopStore, answers: GapAnswers): Promise<LoopResult<{ added: number }>> {
+  try {
+    const user = await store.currentUser();
+    const by = `Answered by ${user.fullName || user.email} during setup.`;
+    let added = 0;
+    const add = async (label: string, value: string, category: Fact["category"]) => {
+      await store.addFact({ label, value, category, sourceUrl: null, sourceLabel: "You", sourceExcerpt: by, confidence: 1, status: "confirmed" });
+      added++;
+    };
+    const orgPatch: Partial<Organization> = { onboardingStep: "gaps" };
+    if (answers.budgetRange?.trim()) {
+      await add("Annual budget range", answers.budgetRange.trim(), "finance");
+    }
+    if (answers.peopleServed?.trim()) await add("People served last year", answers.peopleServed.trim(), "reach");
+    if (answers.location?.trim()) {
+      const loc = answers.location.trim();
+      await add("Location", loc, "geography");
+      const m = loc.match(/^(.+?),\s*([A-Za-z]{2})$/);
+      if (m) {
+        orgPatch.city = m[1].trim();
+        orgPatch.state = m[2].toUpperCase();
+      }
+      if (!(await store.getOrg()).serviceArea) orgPatch.serviceArea = loc;
+    }
+    await store.updateOrg(orgPatch);
+    return { ok: true, data: { added } };
+  } catch (err) {
+    return fail(err);
+  }
+}
+
 // ---------- 3. Matches ----------
 
 export interface FindMatchesOutput {
@@ -179,7 +252,16 @@ export interface FindMatchesOutput {
   fromCache: boolean;
 }
 
-export async function findMatches(store: LoopStore): Promise<LoopResult<FindMatchesOutput>> {
+export const MATCH_STEPS = ["Planning the searches", "Searching Grants.gov", "Reading the strongest notices in full", "Scoring each one against your facts"];
+
+export async function findMatches(store: LoopStore, jobId?: string): Promise<LoopResult<FindMatchesOutput>> {
+  if (jobId) startJob(jobId, MATCH_STEPS);
+  const r = await findMatchesInner(store, jobId);
+  if (jobId) finishJob(jobId, r.ok ? "done" : "failed");
+  return r;
+}
+
+async function findMatchesInner(store: LoopStore, jobId?: string): Promise<LoopResult<FindMatchesOutput>> {
   try {
     const org = await store.getOrg();
     const facts = (await store.listFacts()).filter((f) => f.status === "confirmed");
@@ -187,7 +269,16 @@ export async function findMatches(store: LoopStore): Promise<LoopResult<FindMatc
     const { output, run } = await recordRun(store, { agent: "discovery", title: "Search Grants.gov for open opportunities", trigger: "user" }, async (rec) => {
       // Same profile, same day: reuse the scoring rather than paying for it again.
       const fingerprint = createHash("sha1").update(JSON.stringify({ org: [org.name, org.mission, org.causes, org.populations, org.serviceArea], facts: facts.map((f) => [f.id, f.label, f.value]), day: new Date().toISOString().slice(0, 10) })).digest("hex");
-      const { value: result, fromCache } = await cached<DiscoveryResult>(`discovery:${store.orgId}:${fingerprint}`, 6 * HOURS, () => runDiscovery({ org, facts }));
+      const { value: result, fromCache } = await cached<DiscoveryResult>(`discovery:${store.orgId}:${fingerprint}`, 6 * HOURS, () =>
+        runDiscovery({
+          org,
+          facts,
+          onStage: (stage, detail) => {
+            if (jobId) advanceJob(jobId, detail);
+            void stage;
+          },
+        }),
+      );
       if (fromCache) rec.tool("cache", "Used this morning's search; nothing about your profile changed", 0);
       else {
         for (const t of result.tools) rec.tool(t.name, t.summary, t.durationMs);
@@ -200,6 +291,7 @@ export async function findMatches(store: LoopStore): Promise<LoopResult<FindMatc
         matches.push({ opportunityId: stored.opportunity.id, fitScore: m.fitScore, reasons: m.reasons, cautions: m.cautions, eligibilityChecks: m.eligibilityChecks, status: "new" });
       }
       await store.replaceMatches(matches);
+      await store.updateOrg({ onboardingStep: "matches" });
       const summary = matches.length
         ? `Screened ${result.screened} notices, read ${result.read} in full, and kept ${matches.length} you can apply for. Set aside ${result.droppedIneligible} you are not eligible for and ${result.droppedUnsupported} we could not justify.`
         : `Screened ${result.screened} notices and read ${result.read} in full, but none fit well enough to show you. We will keep looking.`;
