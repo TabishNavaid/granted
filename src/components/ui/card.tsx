@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-/** A sheet of paper: white, one ink rule, square corners. Not a card. */
+/** A sheet of paper: white, one hairline. Not a card grid. */
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & { interactive?: boolean }>(
   ({ className, interactive, ...props }, ref) => (
     <div ref={ref} className={cn("sheet", interactive && "transition-colors hover:bg-paper-tint", className)} {...props} />

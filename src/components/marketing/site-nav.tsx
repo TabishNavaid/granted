@@ -21,18 +21,18 @@ export function SiteNav() {
   const pathname = usePathname();
   const close = () => setOpen(false);
   return (
-    <header className="sticky top-0 z-30 border-b-2 border-ink bg-paper">
+    <header className="sticky top-0 z-30 border-b border-rule bg-paper">
       <div className="mx-auto flex h-16 max-w-[75rem] items-center justify-between gap-6 px-4 sm:px-6 lg:px-10">
         <Logo />
         <nav aria-label="Site" className="hidden items-center gap-7 text-base text-ink md:flex">
           {links.map((l) => (
-            <Link key={l.href} href={l.href} className={cn("underline-offset-4 decoration-2 hover:underline hover:decoration-pink", pathname === l.href && "font-semibold")}>
+            <Link key={l.href} href={l.href} className={cn("underline-offset-4 decoration-2 hover:underline hover:decoration-corn", pathname === l.href && "font-semibold")}>
               {l.label}
             </Link>
           ))}
         </nav>
         <div className="hidden items-center gap-5 md:flex">
-          <Link href="/sign-in" className="text-base text-ink underline-offset-4 decoration-2 hover:underline hover:decoration-pink">
+          <Link href="/sign-in" className="text-base text-ink underline-offset-4 decoration-2 hover:underline hover:decoration-corn">
             Sign in
           </Link>
           <Button asChild>
@@ -78,7 +78,7 @@ const footerGroups = [
 
 export function SiteFooter() {
   return (
-    <footer className="border-t-2 border-ink">
+    <footer className="border-t border-rule">
       <div className="mx-auto grid max-w-[75rem] gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1fr_auto] lg:px-10">
         <div>
           <Logo size="sm" />

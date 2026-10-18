@@ -13,7 +13,7 @@ interface FitScoreProps {
   className?: string;
 }
 
-/** A printed score: the number large, its meaning under it, and a five-block meter in ink. */
+/** A score: the number large, its meaning under it, and a five-step meter in ink. */
 export function FitScore({ score, size = "md", showLabel = true, className }: FitScoreProps) {
   const { label } = fitLabel(score);
   const filled = Math.round(score / 20);
@@ -24,7 +24,7 @@ export function FitScore({ score, size = "md", showLabel = true, className }: Fi
       </span>
       <span className={cn("mt-1.5 flex gap-[3px]", size === "lg" && "mt-2.5")} aria-hidden>
         {Array.from({ length: 5 }).map((_, i) => (
-          <span key={i} className={cn("block border border-ink", size === "sm" ? "h-1.5 w-3" : size === "md" ? "h-2 w-4" : "h-2.5 w-6", i < filled && "bg-ink")} />
+          <span key={i} className={cn("block rounded-[2px] border border-ink", size === "sm" ? "h-1.5 w-3" : size === "md" ? "h-2 w-4" : "h-2.5 w-6", i < filled && "bg-ink")} />
         ))}
       </span>
       {showLabel ? <span className={cn("mt-1 font-semibold text-ink", size === "sm" ? "text-xs" : "text-sm")} aria-hidden>{label}</span> : null}

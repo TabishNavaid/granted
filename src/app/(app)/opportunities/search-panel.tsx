@@ -69,7 +69,7 @@ export function SearchPanel({ saved: initial }: { saved: SavedSearch[] }) {
   const pickedCount = Object.values(picked).filter(Boolean).length;
 
   return (
-    <section className="mt-10 border-t-2 border-ink pt-5" aria-labelledby="searches-title">
+    <section className="mt-10 border-t border-rule pt-5" aria-labelledby="searches-title">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h2 id="searches-title" className="font-display text-2xl text-ink">
@@ -157,7 +157,7 @@ export function SearchPanel({ saved: initial }: { saved: SavedSearch[] }) {
             </Button>
           </form>
           {error ? (
-            <p role="alert" className="border-l-[6px] border-burgundy py-1 pl-4 text-base text-ink">
+            <p role="alert" className="border-l-[6px] border-alert py-1 pl-4 text-base text-ink">
               {error}
             </p>
           ) : null}
@@ -168,7 +168,7 @@ export function SearchPanel({ saved: initial }: { saved: SavedSearch[] }) {
                   {results.hitCount} on Grants.gov, {results.candidates.length} still open to nonprofits
                 </span>
                 {!results.savedId ? (
-                  <button type="button" onClick={save} className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-pink">
+                  <button type="button" onClick={save} className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-corn">
                     Save this search
                   </button>
                 ) : null}
@@ -185,7 +185,7 @@ export function SearchPanel({ saved: initial }: { saved: SavedSearch[] }) {
                         <span className="flex flex-wrap gap-x-4 text-sm text-ink-muted">
                           <span>{c.agency}</span>
                           <span>{c.status === "forecasted" ? "Forecasted" : c.closeDate ? `Closes ${formatDate(c.closeDate)}` : "No close date"}</span>
-                          <a href={c.url} target="_blank" rel="noreferrer" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-pink">
+                          <a href={c.url} target="_blank" rel="noreferrer" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-corn">
                             Grants.gov
                           </a>
                         </span>

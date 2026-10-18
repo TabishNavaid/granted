@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { isDemoMode } from "@/lib/env";
 import type { Milestone } from "@/lib/types";
+import { PRODUCT_NAME } from "@/lib/brand";
 
 /**
  * A private ICS feed per workspace: every milestone and deadline as an all-day
@@ -12,12 +13,12 @@ function escapeIcs(s: string) {
 
 function toIcs(items: { milestone: Milestone; title: string; url: string }[], calendarName: string) {
   const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
-  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Firstlight//Deadlines//EN", "CALSCALE:GREGORIAN", `X-WR-CALNAME:${escapeIcs(calendarName)}`];
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", `PRODID:-//${PRODUCT_NAME}//Deadlines//EN`, "CALSCALE:GREGORIAN", `X-WR-CALNAME:${escapeIcs(calendarName)}`];
   for (const { milestone: m, title, url } of items) {
     const day = m.dueDate.replace(/-/g, "");
     const next = new Date(`${m.dueDate}T12:00:00Z`);
     next.setUTCDate(next.getUTCDate() + 1);
-    lines.push("BEGIN:VEVENT", `UID:${m.id}@firstlight`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${day}`, `DTEND;VALUE=DATE:${next.toISOString().slice(0, 10).replace(/-/g, "")}`, `SUMMARY:${escapeIcs(`${m.title}: ${title}`)}`, `DESCRIPTION:${escapeIcs(`${title}\n${url}`)}`, `STATUS:${m.done ? "COMPLETED" : "CONFIRMED"}`, "END:VEVENT");
+    lines.push("BEGIN:VEVENT", `UID:${m.id}@${PRODUCT_NAME.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${day}`, `DTEND;VALUE=DATE:${next.toISOString().slice(0, 10).replace(/-/g, "")}`, `SUMMARY:${escapeIcs(`${m.title}: ${title}`)}`, `DESCRIPTION:${escapeIcs(`${title}\n${url}`)}`, `STATUS:${m.done ? "COMPLETED" : "CONFIRMED"}`, "END:VEVENT");
   }
   lines.push("END:VCALENDAR");
   return lines.join("\r\n") + "\r\n";

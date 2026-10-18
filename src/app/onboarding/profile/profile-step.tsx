@@ -158,7 +158,7 @@ export function ProfileStep({ org, facts, documents, real, alreadyConfirmed }: P
         </section>
 
         {failure ? (
-          <p role="alert" className="mt-6 max-w-[60ch] border-l-[6px] border-burgundy py-1 pl-4 text-base text-ink">
+          <p role="alert" className="mt-6 max-w-[60ch] border-l-[6px] border-alert py-1 pl-4 text-base text-ink">
             {failure}
           </p>
         ) : null}
@@ -172,7 +172,7 @@ export function ProfileStep({ org, facts, documents, real, alreadyConfirmed }: P
           </span>
         </div>
       </div>
-      <aside className="border-l-2 border-ink pl-5 text-base text-ink-muted lg:self-start">
+      <aside className="border-l-[3px] border-rule-strong pl-5 text-base text-ink-muted lg:self-start">
         <h2 className="font-display text-xl text-ink">Why confirm</h2>
         <p className="mt-3">Only facts you've confirmed can show up in a draft. If a number looks off, fix it here or uncheck it. A fact you edit is recorded as stated by you.</p>
         <p className="mt-3">Anything older than a year will ask you again, so a letter never goes out with a stale number.</p>

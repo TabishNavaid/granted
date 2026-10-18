@@ -61,7 +61,7 @@ export function ContactForm({ canSend, address }: { canSend: boolean; address: s
           <input id="c-website" tabIndex={-1} autoComplete="off" value={form.website} onChange={set("website")} />
         </div>
         {error ? (
-          <p role="alert" className="border-l-[6px] border-burgundy py-1 pl-4 text-base text-ink">
+          <p role="alert" className="border-l-[6px] border-alert py-1 pl-4 text-base text-ink">
             {error}
           </p>
         ) : null}
@@ -71,7 +71,7 @@ export function ContactForm({ canSend, address }: { canSend: boolean; address: s
               <>
                 <p>Our contact form is not connected to email yet. Send this to us directly:</p>
                 <p className="mt-2 font-semibold">
-                  <a href={mailto ?? `mailto:${address}`} className="underline decoration-[1.5px] underline-offset-4 hover:decoration-pink">
+                  <a href={mailto ?? `mailto:${address}`} className="underline decoration-[1.5px] underline-offset-4 hover:decoration-corn">
                     {address}
                   </a>
                 </p>
@@ -87,13 +87,13 @@ export function ContactForm({ canSend, address }: { canSend: boolean; address: s
           </Button>
         </div>
       </form>
-      <aside className="border-l-2 border-ink pl-5 text-base text-ink-muted lg:self-start">
+      <aside className="border-l-2 border-rule-strong pl-5 text-base text-ink-muted lg:self-start">
         <h2 className="font-display text-xl text-ink">What to expect</h2>
         <p className="mt-3">A reply from a person within two working days. We do not add you to a list.</p>
         {address ? (
           <p className="mt-3">
             Or write directly to{" "}
-            <a href={`mailto:${address}`} className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-pink">
+            <a href={`mailto:${address}`} className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-corn">
               {address}
             </a>
             .

@@ -8,10 +8,10 @@ interface PageHeaderProps {
   className?: string;
 }
 
-/** A page title set like a poster headline, with one sentence under it. */
+/** A page title in the headline face, with one sentence under it. */
 export function PageHeader({ title, description, actions, className }: PageHeaderProps) {
   return (
-    <div className={cn("flex flex-col gap-5 border-b-2 border-ink pb-6 sm:flex-row sm:items-end sm:justify-between", className)}>
+    <div className={cn("flex flex-col gap-5 border-b border-rule pb-6 sm:flex-row sm:items-end sm:justify-between", className)}>
       <div className="min-w-0">
         <h1 className="font-display text-h1 text-ink">{title}</h1>
         {description ? <p className="mt-3 max-w-[60ch] text-lg text-ink-muted">{description}</p> : null}

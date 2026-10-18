@@ -10,7 +10,7 @@ export default async function OnboardingLayout({ children }: { children: React.R
   const demo = runtime.demo && !runtime.ai;
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="border-b-2 border-ink bg-paper">
+      <header className="border-b border-rule bg-paper">
         <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4 sm:px-6">
           <Logo />
           <span className="text-base text-ink-muted">Setup</span>
@@ -20,7 +20,7 @@ export default async function OnboardingLayout({ children }: { children: React.R
         <div className="border-b border-rule bg-paper-tint">
           <p className="mx-auto max-w-4xl px-4 py-2.5 text-sm text-ink sm:px-6">
             This is a demo. Setup walks through a sample organization, Riverbend Youth Collective, because no model key is set on this server.{" "}
-            <Link href="/settings/integrations" className="font-semibold underline decoration-[1.5px] underline-offset-4 hover:decoration-pink">
+            <Link href="/settings/integrations" className="font-semibold underline decoration-[1.5px] underline-offset-4 hover:decoration-corn">
               See what to connect
             </Link>
             .

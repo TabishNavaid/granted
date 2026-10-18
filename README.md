@@ -12,13 +12,13 @@ This repository holds the P0 front end plus one real, thin, end-to-end loop: pas
 npm install && npm run dev
 ```
 
-Open http://localhost:3000. The marketing page is at `/`, the app at `/inbox`, and the design system at `/design`. With no keys set, every screen runs on mock data (demo mode).
+Open http://localhost:3000. The marketing page is at `/`, the app at `/inbox`, the design system at `/design`, and every drawing with its credit at `/drawings-review`. With no keys set, every screen runs on mock data (demo mode).
 
 ## Run the real loop
 
 1. Copy `.env.example` to `.env.local`.
 2. Add a `GEMINI_API_KEY` from [Google AI Studio](https://aistudio.google.com/apikey). The free tier is enough to try it; the agents back off on rate limits and tell you when to wait.
-3. For real sign-in and persistence, create a Supabase project, run `supabase/migrations/0001_init.sql` then `0002_real_loop.sql` in the SQL editor, enable Email auth with magic links, add `http://localhost:3000/auth/callback` to the Auth redirect URLs, and fill in the three Supabase keys plus `NEXT_PUBLIC_SITE_URL`.
+3. For real sign-in and persistence, create a Supabase project, run `supabase/migrations/0001_init.sql` then `0002_real_loop.sql` and `0003_features.sql` in the SQL editor, enable Email auth with magic links, add `http://localhost:3000/auth/callback` to the Auth redirect URLs, and fill in the three Supabase keys plus `NEXT_PUBLIC_SITE_URL`.
 4. `npm run dev`, create a workspace at `/sign-up`, and paste a website at `/onboarding`.
 
 To try the loop without a database, set `DEMO_MODE=true` with only the Gemini key. Onboarding then runs for real against in-memory state that resets when the server restarts.
@@ -33,9 +33,10 @@ npm run loop -- riverbendyouth.org        # run the loop from the command line a
 npm run build
 npm run lint
 npx playwright test
+npm run drawings
 ```
 
-The smoke test opens every route and checks for console errors. It starts the dev server itself if one is not running.
+The smoke test opens every route and checks for console errors. It starts the dev server itself if one is not running. `npm run drawings` rebuilds the crayon drawings in `public/drawings` from `scripts/drawings.json`.
 
 ## Where things are
 
@@ -55,6 +56,7 @@ The smoke test opens every route and checks for console errors. It starts the de
 | `src/lib/loop` | The real loop: profile extraction, discovery, the letter with citation and number checks, and the stores it writes to. |
 | `src/lib/supabase` | Server clients, session bootstrap, and the shared cache table. |
 | `supabase/migrations` | Postgres schema with RLS, pgvector, and storage policies. |
-| `src/app/globals.css` | Every design token: day print (light) and night print (dark). See BRAND.md. |
-| `src/components/brand` | The stamp, the duotone plate, the won poster, and the SVG filters they use. Image catalog in `src/lib/images.ts`, credits in `CREDITS.md`. |
-| `src/components/marketing` | Landing page nav and the hero Inbox, which is the real Inbox component on a printed sheet. |
+| `src/app/globals.css` | Every design token: paper, ink, the crayon box, the waiting circle, and the bloom animation. See BRAND.md. |
+| `src/components/drawings` | The crayon drawings: `Drawing`, `Bloom` (the flower that grows on approval), `Meadow`, and `WonMeadow`. Catalog in `src/lib/drawings.ts`, credits in `public/drawings/CREDITS.md`, look in `docs/design-references.md`. |
+| `scripts/clean-drawing.mjs` | Cuts each drawing out of its paper and writes 2x PNG and WebP, the manifest, and the credits. |
+| `src/components/marketing` | Landing page nav and the hero Inbox, which is the real Inbox component on a sheet of paper. |

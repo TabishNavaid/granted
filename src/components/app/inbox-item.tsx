@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import type { EmailDraft, Fact, InboxItem, MatchView, Milestone, MissingFact, Document } from "@/lib/types";
-import { inboxKindLabel, stampWord } from "@/lib/agents/meta";
+import { inboxKindLabel, doneWord } from "@/lib/agents/meta";
 import { cn } from "@/lib/utils";
 import { formatDate, formatShortDate, relativeTime, formatRange } from "@/lib/format";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,8 @@ import { Progress } from "@/components/ui/progress";
 import { Input, Textarea } from "@/components/ui/input";
 import { Label, Field } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { InkStamp, stampDate } from "@/components/brand/stamp";
+import { Bloom } from "@/components/drawings/bloom";
+import { flowerFor } from "@/lib/drawings";
 import { FitScore } from "./fit-score";
 import { MilestoneBadge } from "./badges";
 import { CitationChip } from "./citation-chip";
@@ -40,8 +41,8 @@ const approveLabels: Record<InboxItem["type"], string> = {
 
 export type Leaving = false | "seal" | "dismiss";
 
-/** How long the stamp needs before the sheet is filed away, in ms. */
-export const STAMP_HOLD_MS = 1150;
+/** How long the flower takes to grow, plus a beat to enjoy it, before the item is filed away. In ms. */
+export const BLOOM_HOLD_MS = 1600;
 
 interface InboxItemCardProps {
   item: InboxItem;
@@ -50,14 +51,14 @@ interface InboxItemCardProps {
   onApprove: (item: InboxItem, extra?: { answers?: Record<string, string>; email?: Pick<EmailDraft, "subject" | "body"> }) => void;
   onReject: (item: InboxItem, reason: string | null) => void;
   onEdited?: (item: InboxItem) => void;
-  /** Whether the sheet is filed away after the stamp lands. The landing page keeps it on the page. */
+  /** Whether the item is filed away after its flower grows. The landing page keeps it on the page. */
   fileAway?: boolean;
 }
 
 /**
- * One item waiting on the user, printed as a form on the page: what it is,
- * when it arrived, the title highlighted while it waits, a preview, and the
- * actions. Approving thumps a pink stamp onto it before it is filed.
+ * One item waiting on the user: what it is (circled when it should come first), when it
+ * arrived, the title, a preview, and the actions. Approving grows a crayon
+ * flower up from the bottom edge of the item before it is filed.
  */
 export function InboxItemCard({ item, ctx, leaving, onApprove, onReject, fileAway = true }: InboxItemCardProps) {
   const [rejectOpen, setRejectOpen] = React.useState(false);
@@ -67,7 +68,8 @@ export function InboxItemCard({ item, ctx, leaving, onApprove, onReject, fileAwa
   const [emailOpen, setEmailOpen] = React.useState(false);
   const headingId = `inbox-${item.id}-title`;
   const resolved = item.status !== "pending";
-  const stamped = leaving === "seal" || item.status === "approved" || item.status === "edited";
+  const approved = leaving === "seal" || item.status === "approved" || item.status === "edited";
+  const flower = flowerFor(item.id);
 
   const editTarget = editHref(item);
   const canApprove = item.type !== "missing_facts" || Object.values(answers).some((a) => a.trim());
@@ -77,25 +79,16 @@ export function InboxItemCard({ item, ctx, leaving, onApprove, onReject, fileAwa
       aria-labelledby={headingId}
       className={cn(
         "relative border-b border-rule py-6",
-        leaving === "seal" && fileAway && "animate-file-away [animation-delay:750ms]",
-        leaving === "dismiss" && fileAway && "animate-file-away",
+        leaving === "seal" && fileAway && "animate-leave [animation-delay:1150ms]",
+        leaving === "dismiss" && fileAway && "animate-leave",
       )}
     >
-      {leaving === "seal" || (resolved && stamped) ? (
-        <div className="pointer-events-none absolute right-2 top-3 z-10 sm:right-8 sm:top-6">
-          <InkStamp
-            label={item.status === "edited" ? "Approved" : stampWord[item.type]}
-            line={stampDate(leaving === "seal" ? null : item.resolvedAt)}
-            animate={leaving === "seal"}
-            size="lg"
-            rotate={-9}
-            className="text-[1rem] sm:text-[1.6rem]"
-          />
-        </div>
-      ) : null}
-
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-sm">
-        <span className="font-semibold text-ink">{inboxKindLabel[item.type]}</span>
+        {!resolved && !leaving && item.priority === "high" ? (
+          <mark className="circled font-semibold text-ink">{inboxKindLabel[item.type]}</mark>
+        ) : (
+          <span className="font-semibold text-ink">{inboxKindLabel[item.type]}</span>
+        )}
         <span className="flex flex-wrap gap-x-4 text-ink-muted">
           <time dateTime={item.createdAt}>{relativeTime(item.createdAt)}</time>
           {item.sourceCount > 0 ? <span>Built from {item.sourceCount} source{item.sourceCount === 1 ? "" : "s"}</span> : null}
@@ -103,7 +96,7 @@ export function InboxItemCard({ item, ctx, leaving, onApprove, onReject, fileAwa
       </div>
 
       <h3 id={headingId} className="mt-2 max-w-[30ch] font-display text-2xl leading-tight text-ink sm:text-[1.75rem]">
-        {resolved || leaving ? item.title : <mark className="highlight">{item.title}</mark>}
+        {item.title}
       </h3>
       <p className="mt-2 max-w-[65ch] text-base text-ink-muted">{item.summary}</p>
 
@@ -112,13 +105,13 @@ export function InboxItemCard({ item, ctx, leaving, onApprove, onReject, fileAwa
       </div>
 
       {item.rejectionReason ? (
-        <p className="mt-4 max-w-[65ch] border-l-2 border-ink pl-3 text-sm text-ink-muted">
+        <p className="mt-4 max-w-[65ch] border-l-[3px] border-rule-strong pl-3 text-sm text-ink-muted">
           <span className="font-semibold text-ink">Why you declined: </span>
           {item.rejectionReason}
         </p>
       ) : null}
 
-      {!resolved ? (
+      {!resolved && !leaving ? (
         <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
           <Button onClick={() => onApprove(item, { answers, email: emailEdit ?? undefined })} disabled={!canApprove}>
             {approveLabels[item.type]}
@@ -137,10 +130,11 @@ export function InboxItemCard({ item, ctx, leaving, onApprove, onReject, fileAwa
           </Button>
         </div>
       ) : (
-        <p className="mt-5 flex flex-wrap gap-x-3 text-sm text-ink-muted">
-          <span className="font-semibold text-ink">{stamped ? (item.status === "edited" ? "Approved with edits" : stampWord[item.type]) : "Declined"}</span>
-          {item.resolvedAt ? <span>{formatDate(item.resolvedAt, "EEEE, MMMM d")}</span> : null}
-        </p>
+        <div className={cn("relative mt-5 flex flex-wrap items-end gap-x-3 pr-24 text-sm text-ink-muted sm:pr-32", approved && "min-h-20")}>
+          <span className="font-semibold text-ink">{approved ? (item.status === "edited" ? "Approved with edits" : doneWord[item.type]) : "Declined"}</span>
+          <span>{leaving === "seal" ? "Just now" : item.resolvedAt ? formatDate(item.resolvedAt, "EEEE, MMMM d") : null}</span>
+          {approved ? <Bloom flower={flower} grow={leaving === "seal"} className="pointer-events-none absolute -bottom-6 right-0 h-[6.5rem] sm:right-4" /> : null}
+        </div>
       )}
 
       <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
@@ -264,7 +258,7 @@ function ItemPreview({
               <li key={id} className="flex items-center gap-4 py-3">
                 <FitScore score={m.fitScore} size="sm" showLabel={false} />
                 <div className="min-w-0 flex-1">
-                  <Link href={`/opportunities/${m.opportunityId}`} className="block truncate text-base font-semibold text-ink hover:underline hover:decoration-pink hover:decoration-2 hover:underline-offset-4">
+                  <Link href={`/opportunities/${m.opportunityId}`} className="block truncate text-base font-semibold text-ink hover:underline hover:decoration-corn hover:decoration-2 hover:underline-offset-4">
                     {m.opportunity.title}
                   </Link>
                   <p className="flex flex-wrap gap-x-4 text-sm text-ink-muted">
@@ -422,6 +416,7 @@ export function formatResolved(item: InboxItem) {
 export function CompactInboxRow({ item, ctx, leaving, onApprove, onReject, defaultOpen = false }: InboxItemCardProps & { defaultOpen?: boolean }) {
   const [open, setOpen] = React.useState(defaultOpen);
   const resolved = item.status !== "pending";
+  const approved = item.status === "approved" || item.status === "edited";
   const panelId = `row-${item.id}`;
   if (open) {
     return (
@@ -436,27 +431,28 @@ export function CompactInboxRow({ item, ctx, leaving, onApprove, onReject, defau
   return (
     <div
       className={cn(
-        "relative flex items-center gap-4 border-b border-rule py-3",
-        leaving === "seal" && "animate-file-away [animation-delay:750ms]",
-        leaving === "dismiss" && "animate-file-away",
+        "relative flex min-h-16 items-center gap-4 border-b border-rule py-3",
+        leaving === "seal" && "animate-leave [animation-delay:1150ms]",
+        leaving === "dismiss" && "animate-leave",
       )}
     >
-      {leaving === "seal" ? (
-        <div className="pointer-events-none absolute right-10 top-0 z-10">
-          <InkStamp label={stampWord[item.type]} line={stampDate()} animate size="sm" rotate={-7} />
-        </div>
-      ) : null}
-      <button type="button" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen(true)} className="min-h-6 min-w-0 flex-1 text-left">
-        <span className="block text-sm text-ink-muted">{inboxKindLabel[item.type]}</span>
-        <span className="block truncate text-base font-semibold text-ink">{resolved || leaving ? item.title : <mark className="highlight">{item.title}</mark>}</span>
+      {leaving === "seal" ? <Bloom flower={flowerFor(item.id)} grow className="pointer-events-none absolute bottom-0 right-14 z-10 h-16" /> : null}
+      <button type="button" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen(true)} className="min-h-6 min-w-0 flex-1 py-1 text-left">
+        <span className="block text-sm text-ink-muted">
+          {inboxKindLabel[item.type]}
+        </span>
+        <span className="mt-1 block truncate text-base font-semibold text-ink">{item.title}</span>
       </button>
       {resolved ? (
-        item.status === "rejected" ? (
-          <span className="text-sm text-ink-muted">Declined</span>
+        approved ? (
+          <span className="flex items-end gap-1 text-sm text-ink-muted">
+            <Bloom flower={flowerFor(item.id)} className="h-9" />
+            {item.status === "edited" ? "Approved" : doneWord[item.type]}
+          </span>
         ) : (
-          <InkStamp label={item.status === "edited" ? "Approved" : stampWord[item.type]} size="sm" rotate={-4} />
+          <span className="text-sm text-ink-muted">Declined</span>
         )
-      ) : (
+      ) : leaving ? null : (
         <Button size="sm" variant="secondary" className="hidden sm:inline-flex" onClick={() => onApprove(item)}>
           {approveLabels[item.type]}
         </Button>

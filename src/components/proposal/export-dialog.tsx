@@ -79,7 +79,7 @@ async function buildDocx(app: ApplicationView, sections: Section[], orgName: str
   return Packer.toBlob(doc);
 }
 
-const fileOptionClasses = "flex flex-col gap-1 border border-ink p-4 text-left transition-colors hover:bg-paper-tint disabled:opacity-60";
+const fileOptionClasses = "flex flex-col gap-1 rounded-md border border-rule-strong p-4 text-left transition-colors hover:bg-paper-tint disabled:opacity-60";
 
 export function ExportDialog({ open, onOpenChange, app, sections, orgName }: { open: boolean; onOpenChange: (o: boolean) => void; app: ApplicationView; sections: Section[]; orgName: string }) {
   const { toast } = useToast();

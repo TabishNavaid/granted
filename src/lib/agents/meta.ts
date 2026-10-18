@@ -24,8 +24,8 @@ export const inboxKindLabel: Record<InboxItemType, string> = {
   profile_update: "A fact to check",
 };
 
-/** What the stamp says when an item of this kind is approved. */
-export const stampWord: Record<InboxItemType, string> = {
+/** The word an item of this kind gets once it is approved. */
+export const doneWord: Record<InboxItemType, string> = {
   monthly_plan: "Approved",
   proposal_draft: "Approved",
   email_draft: "Approved",
@@ -35,19 +35,19 @@ export const stampWord: Record<InboxItemType, string> = {
   profile_update: "Updated",
 };
 
-export const stageMeta: Record<ApplicationStage, { label: string; tone: "neutral" | "info" | "accent" | "warning" | "success" | "danger" | "pink" }> = {
+export const stageMeta: Record<ApplicationStage, { label: string; tone: "neutral" | "info" | "accent" | "warning" | "success" | "danger" | "bloom" }> = {
   discovered: { label: "Discovered", tone: "neutral" },
   researching: { label: "Researching", tone: "neutral" },
   drafting: { label: "Drafting", tone: "accent" },
   review: { label: "Review", tone: "warning" },
   submitted: { label: "Submitted", tone: "accent" },
-  won: { label: "Won", tone: "pink" },
+  won: { label: "Won", tone: "bloom" },
   lost: { label: "Lost", tone: "danger" },
 };
 
 export const stageOrder: ApplicationStage[] = ["discovered", "researching", "drafting", "review", "submitted", "won", "lost"];
 
-export const milestoneMeta: Record<MilestoneKind, { label: string; tone: "neutral" | "info" | "accent" | "warning" | "success" | "danger" | "pink" }> = {
+export const milestoneMeta: Record<MilestoneKind, { label: string; tone: "neutral" | "info" | "accent" | "warning" | "success" | "danger" | "bloom" }> = {
   deadline: { label: "Deadline", tone: "danger" },
   draft_due: { label: "Draft due", tone: "accent" },
   board_review: { label: "Board review", tone: "neutral" },

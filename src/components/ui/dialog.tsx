@@ -9,7 +9,7 @@ const Dialog = DialogPrimitive.Root;
 const DialogTrigger = DialogPrimitive.Trigger;
 const DialogClose = DialogPrimitive.Close;
 
-/** A dialog is a sheet laid on top of the page, with the one hard shadow. */
+/** A dialog is a sheet of paper laid on top of the page. */
 const DialogContent = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & { size?: "sm" | "md" | "lg" | "sheet" }
@@ -19,7 +19,7 @@ const DialogContent = React.forwardRef<
   const openerRef = React.useRef<HTMLElement | null>(null);
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-[#1c2b4d]/50 animate-fade-in dark:bg-black/60" />
+      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-[#24318a]/40 animate-fade-in" />
       <DialogPrimitive.Content
         ref={ref}
         onOpenAutoFocus={(e) => {
@@ -36,7 +36,7 @@ const DialogContent = React.forwardRef<
         className={cn(
           "fixed z-50 flex flex-col gap-4 bg-paper p-6 text-ink focus:outline-none",
           size === "sheet"
-            ? "inset-y-0 left-0 h-full w-[min(20rem,85vw)] border-r-2 border-ink p-0 animate-sheet-in"
+            ? "inset-y-0 left-0 h-full w-[min(20rem,85vw)] border-r border-rule p-0 animate-sheet-in"
             : "sheet-raised left-1/2 top-1/2 max-h-[calc(100vh-2rem)] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto animate-sheet-in",
           size === "sm" && "max-w-sm",
           size === "md" && "max-w-lg",
@@ -46,7 +46,7 @@ const DialogContent = React.forwardRef<
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="absolute right-3 top-3 p-1.5 text-ink-muted hover:bg-paper-tint hover:text-ink">
+        <DialogPrimitive.Close className="absolute right-3 top-3 rounded-sm p-1.5 text-ink-muted hover:bg-paper-tint hover:text-ink">
           <X className="size-4" aria-hidden />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>

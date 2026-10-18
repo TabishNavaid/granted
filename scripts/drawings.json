@@ -1,0 +1,745 @@
+{
+  "drawings": [
+    {
+      "slug": "flower-heart-poppy",
+      "kind": "flower",
+      "color": "poppy",
+      "download": "https://cdn.pixabay.com/photo/2013/03/22/14/41/flowers-95767_1280.jpg",
+      "source": "pixabay-95767",
+      "crop": [
+        0,
+        175,
+        540,
+        770
+      ],
+      "height": 300,
+      "cutoff": 0.12,
+      "drop": [
+        {
+          "hue": [
+            50,
+            105
+          ],
+          "minSat": 0.25
+        },
+        {
+          "gray": true
+        }
+      ],
+      "recolor": {
+        "dark": {
+          "maxL": 0.24,
+          "color": "#B23A3A"
+        },
+        "rules": [
+          {
+            "hue": [
+              320,
+              40
+            ],
+            "fill": "#E25B5B",
+            "ref": 0.45,
+            "spread": 0.55
+          },
+          {
+            "hue": [
+              70,
+              190
+            ],
+            "fill": "#8DB55A",
+            "ref": 0.38,
+            "spread": 0.5
+          }
+        ]
+      },
+      "description": "A poppy red crayon flower on a clump of grass stems: the left flower of the pair, two big heart-shaped petals and a third folded one.",
+      "credit": {
+        "title": "Flower Children Drawing Red",
+        "author": "Efraimstochter",
+        "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
+        "license": "Pixabay Content License",
+        "licenseUrl": "https://pixabay.com/service/license-summary/"
+      },
+      "head": {
+        "bottom": 0.66,
+        "x": 0.46,
+        "y": 0.36
+      }
+    },
+    {
+      "slug": "flower-heart-petal",
+      "kind": "flower",
+      "color": "petal",
+      "download": "https://cdn.pixabay.com/photo/2013/03/22/14/41/flowers-95767_1280.jpg",
+      "source": "pixabay-95767",
+      "crop": [
+        0,
+        175,
+        540,
+        770
+      ],
+      "height": 300,
+      "cutoff": 0.12,
+      "drop": [
+        {
+          "hue": [
+            50,
+            105
+          ],
+          "minSat": 0.25
+        },
+        {
+          "gray": true
+        }
+      ],
+      "recolor": {
+        "dark": {
+          "maxL": 0.24,
+          "color": "#B5639C"
+        },
+        "rules": [
+          {
+            "hue": [
+              320,
+              40
+            ],
+            "fill": "#E9A3D3",
+            "ref": 0.45,
+            "spread": 0.55
+          },
+          {
+            "hue": [
+              70,
+              190
+            ],
+            "fill": "#8DB55A",
+            "ref": 0.38,
+            "spread": 0.5
+          }
+        ]
+      },
+      "description": "A petal pink crayon flower on a clump of grass stems: the left flower of the pair, two big heart-shaped petals and a third folded one. Recolored from red to petal pink, outline included.",
+      "credit": {
+        "title": "Flower Children Drawing Red",
+        "author": "Efraimstochter",
+        "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
+        "license": "Pixabay Content License",
+        "licenseUrl": "https://pixabay.com/service/license-summary/"
+      },
+      "head": {
+        "bottom": 0.66,
+        "x": 0.46,
+        "y": 0.36
+      }
+    },
+    {
+      "slug": "flower-heart-corn",
+      "kind": "flower",
+      "color": "corn",
+      "download": "https://cdn.pixabay.com/photo/2013/03/22/14/41/flowers-95767_1280.jpg",
+      "source": "pixabay-95767",
+      "crop": [
+        0,
+        175,
+        540,
+        770
+      ],
+      "height": 300,
+      "cutoff": 0.12,
+      "drop": [
+        {
+          "hue": [
+            50,
+            105
+          ],
+          "minSat": 0.25
+        },
+        {
+          "gray": true
+        }
+      ],
+      "recolor": {
+        "dark": {
+          "maxL": 0.24,
+          "color": "#2B3FA8"
+        },
+        "rules": [
+          {
+            "hue": [
+              320,
+              40
+            ],
+            "fill": "#7493E6",
+            "ref": 0.45,
+            "spread": 0.55
+          },
+          {
+            "hue": [
+              70,
+              190
+            ],
+            "fill": "#8DB55A",
+            "ref": 0.38,
+            "spread": 0.5
+          }
+        ]
+      },
+      "description": "A cornflower blue crayon flower on a clump of grass stems: the left flower of the pair, two big heart-shaped petals and a third folded one. Recolored from red to cornflower blue, outline included.",
+      "credit": {
+        "title": "Flower Children Drawing Red",
+        "author": "Efraimstochter",
+        "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
+        "license": "Pixabay Content License",
+        "licenseUrl": "https://pixabay.com/service/license-summary/"
+      },
+      "head": {
+        "bottom": 0.66,
+        "x": 0.46,
+        "y": 0.36
+      }
+    },
+    {
+      "slug": "flower-heart-marigold",
+      "kind": "flower",
+      "color": "marigold",
+      "download": "https://cdn.pixabay.com/photo/2013/03/22/14/41/flowers-95767_1280.jpg",
+      "source": "pixabay-95767",
+      "crop": [
+        0,
+        175,
+        540,
+        770
+      ],
+      "height": 300,
+      "cutoff": 0.12,
+      "drop": [
+        {
+          "hue": [
+            50,
+            105
+          ],
+          "minSat": 0.25
+        },
+        {
+          "gray": true
+        }
+      ],
+      "recolor": {
+        "dark": {
+          "maxL": 0.24,
+          "color": "#C9781A"
+        },
+        "rules": [
+          {
+            "hue": [
+              320,
+              40
+            ],
+            "fill": "#F2A33A",
+            "ref": 0.45,
+            "spread": 0.55
+          },
+          {
+            "hue": [
+              70,
+              190
+            ],
+            "fill": "#8DB55A",
+            "ref": 0.38,
+            "spread": 0.5
+          }
+        ]
+      },
+      "description": "A marigold crayon flower on a clump of grass stems: the left flower of the pair, two big heart-shaped petals and a third folded one. Recolored from red to marigold, outline included.",
+      "credit": {
+        "title": "Flower Children Drawing Red",
+        "author": "Efraimstochter",
+        "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
+        "license": "Pixabay Content License",
+        "licenseUrl": "https://pixabay.com/service/license-summary/"
+      },
+      "head": {
+        "bottom": 0.66,
+        "x": 0.46,
+        "y": 0.36
+      }
+    },
+    {
+      "slug": "flower-tulip-poppy",
+      "kind": "flower",
+      "color": "poppy",
+      "download": "https://cdn.pixabay.com/photo/2013/03/22/14/41/flowers-95767_1280.jpg",
+      "source": "pixabay-95767",
+      "crop": [
+        700,
+        285,
+        580,
+        660
+      ],
+      "height": 300,
+      "cutoff": 0.12,
+      "drop": [
+        {
+          "hue": [
+            50,
+            105
+          ],
+          "minSat": 0.25
+        },
+        {
+          "gray": true
+        }
+      ],
+      "recolor": {
+        "dark": {
+          "maxL": 0.24,
+          "color": "#B23A3A"
+        },
+        "rules": [
+          {
+            "hue": [
+              320,
+              40
+            ],
+            "fill": "#E25B5B",
+            "ref": 0.45,
+            "spread": 0.55
+          },
+          {
+            "hue": [
+              70,
+              190
+            ],
+            "fill": "#8DB55A",
+            "ref": 0.38,
+            "spread": 0.5
+          }
+        ]
+      },
+      "description": "A poppy red crayon flower on a clump of grass stems: the right flower of the pair, a wide heart of petals with a curl on one side.",
+      "credit": {
+        "title": "Flower Children Drawing Red",
+        "author": "Efraimstochter",
+        "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
+        "license": "Pixabay Content License",
+        "licenseUrl": "https://pixabay.com/service/license-summary/"
+      },
+      "head": {
+        "bottom": 0.71,
+        "x": 0.47,
+        "y": 0.38
+      }
+    },
+    {
+      "slug": "flower-tulip-petal",
+      "kind": "flower",
+      "color": "petal",
+      "download": "https://cdn.pixabay.com/photo/2013/03/22/14/41/flowers-95767_1280.jpg",
+      "source": "pixabay-95767",
+      "crop": [
+        700,
+        285,
+        580,
+        660
+      ],
+      "height": 300,
+      "cutoff": 0.12,
+      "drop": [
+        {
+          "hue": [
+            50,
+            105
+          ],
+          "minSat": 0.25
+        },
+        {
+          "gray": true
+        }
+      ],
+      "recolor": {
+        "dark": {
+          "maxL": 0.24,
+          "color": "#B5639C"
+        },
+        "rules": [
+          {
+            "hue": [
+              320,
+              40
+            ],
+            "fill": "#E9A3D3",
+            "ref": 0.45,
+            "spread": 0.55
+          },
+          {
+            "hue": [
+              70,
+              190
+            ],
+            "fill": "#8DB55A",
+            "ref": 0.38,
+            "spread": 0.5
+          }
+        ]
+      },
+      "description": "A petal pink crayon flower on a clump of grass stems: the right flower of the pair, a wide heart of petals with a curl on one side. Recolored from red to petal pink, outline included.",
+      "credit": {
+        "title": "Flower Children Drawing Red",
+        "author": "Efraimstochter",
+        "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
+        "license": "Pixabay Content License",
+        "licenseUrl": "https://pixabay.com/service/license-summary/"
+      },
+      "head": {
+        "bottom": 0.71,
+        "x": 0.47,
+        "y": 0.38
+      }
+    },
+    {
+      "slug": "flower-tulip-corn",
+      "kind": "flower",
+      "color": "corn",
+      "download": "https://cdn.pixabay.com/photo/2013/03/22/14/41/flowers-95767_1280.jpg",
+      "source": "pixabay-95767",
+      "crop": [
+        700,
+        285,
+        580,
+        660
+      ],
+      "height": 300,
+      "cutoff": 0.12,
+      "drop": [
+        {
+          "hue": [
+            50,
+            105
+          ],
+          "minSat": 0.25
+        },
+        {
+          "gray": true
+        }
+      ],
+      "recolor": {
+        "dark": {
+          "maxL": 0.24,
+          "color": "#2B3FA8"
+        },
+        "rules": [
+          {
+            "hue": [
+              320,
+              40
+            ],
+            "fill": "#7493E6",
+            "ref": 0.45,
+            "spread": 0.55
+          },
+          {
+            "hue": [
+              70,
+              190
+            ],
+            "fill": "#8DB55A",
+            "ref": 0.38,
+            "spread": 0.5
+          }
+        ]
+      },
+      "description": "A cornflower blue crayon flower on a clump of grass stems: the right flower of the pair, a wide heart of petals with a curl on one side. Recolored from red to cornflower blue, outline included.",
+      "credit": {
+        "title": "Flower Children Drawing Red",
+        "author": "Efraimstochter",
+        "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
+        "license": "Pixabay Content License",
+        "licenseUrl": "https://pixabay.com/service/license-summary/"
+      },
+      "head": {
+        "bottom": 0.71,
+        "x": 0.47,
+        "y": 0.38
+      }
+    },
+    {
+      "slug": "flower-tulip-marigold",
+      "kind": "flower",
+      "color": "marigold",
+      "download": "https://cdn.pixabay.com/photo/2013/03/22/14/41/flowers-95767_1280.jpg",
+      "source": "pixabay-95767",
+      "crop": [
+        700,
+        285,
+        580,
+        660
+      ],
+      "height": 300,
+      "cutoff": 0.12,
+      "drop": [
+        {
+          "hue": [
+            50,
+            105
+          ],
+          "minSat": 0.25
+        },
+        {
+          "gray": true
+        }
+      ],
+      "recolor": {
+        "dark": {
+          "maxL": 0.24,
+          "color": "#C9781A"
+        },
+        "rules": [
+          {
+            "hue": [
+              320,
+              40
+            ],
+            "fill": "#F2A33A",
+            "ref": 0.45,
+            "spread": 0.55
+          },
+          {
+            "hue": [
+              70,
+              190
+            ],
+            "fill": "#8DB55A",
+            "ref": 0.38,
+            "spread": 0.5
+          }
+        ]
+      },
+      "description": "A marigold crayon flower on a clump of grass stems: the right flower of the pair, a wide heart of petals with a curl on one side. Recolored from red to marigold, outline included.",
+      "credit": {
+        "title": "Flower Children Drawing Red",
+        "author": "Efraimstochter",
+        "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
+        "license": "Pixabay Content License",
+        "licenseUrl": "https://pixabay.com/service/license-summary/"
+      },
+      "head": {
+        "bottom": 0.71,
+        "x": 0.47,
+        "y": 0.38
+      }
+    },
+    {
+      "slug": "grass-left",
+      "kind": "grass",
+      "download": "https://cdn.pixabay.com/photo/2013/03/22/14/41/flowers-95767_1280.jpg",
+      "source": "pixabay-95767",
+      "crop": [
+        100,
+        600,
+        310,
+        345
+      ],
+      "height": 160,
+      "cutoff": 0.12,
+      "drop": [
+        {
+          "hue": [
+            50,
+            105
+          ],
+          "minSat": 0.25
+        },
+        {
+          "gray": true
+        },
+        {
+          "hue": [
+            300,
+            45
+          ],
+          "minSat": 0.15
+        },
+        {
+          "dark": true,
+          "maxL": 0.3
+        }
+      ],
+      "recolor": {
+        "rules": [
+          {
+            "hue": [
+              70,
+              190
+            ],
+            "fill": "#8DB55A",
+            "ref": 0.38,
+            "spread": 0.5
+          }
+        ]
+      },
+      "description": "A clump of tall crayon grass strokes, from under the left flower, with the flower lifted off.",
+      "credit": {
+        "title": "Flower Children Drawing Red",
+        "author": "Efraimstochter",
+        "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
+        "license": "Pixabay Content License",
+        "licenseUrl": "https://pixabay.com/service/license-summary/"
+      }
+    },
+    {
+      "slug": "grass-right",
+      "kind": "grass",
+      "download": "https://cdn.pixabay.com/photo/2013/03/22/14/41/flowers-95767_1280.jpg",
+      "source": "pixabay-95767",
+      "crop": [
+        880,
+        650,
+        400,
+        295
+      ],
+      "height": 160,
+      "cutoff": 0.12,
+      "drop": [
+        {
+          "hue": [
+            50,
+            105
+          ],
+          "minSat": 0.25
+        },
+        {
+          "gray": true
+        },
+        {
+          "hue": [
+            300,
+            45
+          ],
+          "minSat": 0.15
+        },
+        {
+          "dark": true,
+          "maxL": 0.3
+        }
+      ],
+      "recolor": {
+        "rules": [
+          {
+            "hue": [
+              70,
+              190
+            ],
+            "fill": "#8DB55A",
+            "ref": 0.38,
+            "spread": 0.5
+          }
+        ]
+      },
+      "description": "A wider clump of crayon grass strokes, from under the right flower, with the flower lifted off.",
+      "credit": {
+        "title": "Flower Children Drawing Red",
+        "author": "Efraimstochter",
+        "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
+        "license": "Pixabay Content License",
+        "licenseUrl": "https://pixabay.com/service/license-summary/"
+      }
+    },
+    {
+      "slug": "sprout",
+      "kind": "seedling",
+      "download": "https://cdn.pixabay.com/photo/2013/03/22/14/41/flowers-95767_1280.jpg",
+      "source": "pixabay-95767",
+      "crop": [
+        585,
+        670,
+        70,
+        280
+      ],
+      "height": 140,
+      "cutoff": 0.12,
+      "drop": [
+        {
+          "hue": [
+            50,
+            105
+          ],
+          "minSat": 0.25
+        },
+        {
+          "gray": true
+        }
+      ],
+      "recolor": {
+        "rules": [
+          {
+            "hue": [
+              70,
+              190
+            ],
+            "fill": "#8DB55A",
+            "ref": 0.38,
+            "spread": 0.5
+          }
+        ]
+      },
+      "description": "A single green crayon stroke standing on its own between the two flowers: the first thing up.",
+      "credit": {
+        "title": "Flower Children Drawing Red",
+        "author": "Efraimstochter",
+        "sourceUrl": "https://pixabay.com/photos/flower-children-drawing-red-flowers-95767/",
+        "license": "Pixabay Content License",
+        "licenseUrl": "https://pixabay.com/service/license-summary/"
+      }
+    },
+    {
+      "slug": "sun",
+      "kind": "sun",
+      "download": "https://cdn.pixabay.com/photo/2013/01/19/15/11/sun-75453_1280.jpg",
+      "source": "pixabay-75453",
+      "height": 300,
+      "cutoff": 0.1,
+      "drop": [
+        {
+          "gray": true
+        },
+        {
+          "hue": [
+            150,
+            330
+          ],
+          "minSat": 0.15
+        }
+      ],
+      "recolor": {
+        "rules": [
+          {
+            "hue": [
+              30,
+              75
+            ],
+            "fill": "#F2B33D",
+            "ref": 0.5,
+            "spread": 0.5,
+            "minSat": 0.15
+          }
+        ]
+      },
+      "description": "A yellow crayon sun with long uneven rays, warmed slightly toward marigold.",
+      "credit": {
+        "title": "Sun Children Drawing Character",
+        "author": "Efraimstochter",
+        "sourceUrl": "https://pixabay.com/photos/sun-children-drawing-75453/",
+        "license": "Pixabay Content License",
+        "licenseUrl": "https://pixabay.com/service/license-summary/"
+      }
+    }
+  ],
+  "considered": [
+    "Pixabay, MarjanNo, \"Flowers, Drawing, Child's Drawing\" (https://pixabay.com/photos/flowers-tulips-children-drawing-3311082/), Pixabay Content License. Real oil pastel tulips with stems. Set aside: a heavier, flatter pastel hand than the crayon set.",
+    "Pixabay, EME, \"To Paint Children Drawing Sun\" (https://pixabay.com/photos/to-paint-children-drawing-sun-day-537195/), Pixabay Content License. A good oil pastel sun. Set aside for the sun by the same child as the flowers.",
+    "Flickr, Missouri State Parks, \"Pre-K and Kindergarten, Honorable Mention, Gracie Portell\" (https://www.flickr.com/photos/47969339@N02/52276408118), Public Domain Mark. Small crayon flowers in four colors. Set aside: too small to cut out cleanly and a finer colored-pencil line.",
+    "Pixabay, Liziart, \"Crayon Kid Drawing Illustration\" (https://pixabay.com/photos/crayon-kid-drawing-illustration-663940/), Pixabay Content License. Red crayon flower heads with no stems. A good backup source for more flower heads.",
+    "Pixabay, pastelila and loveline: crayon flowers, clouds, sprouts, and grass tufts. Rejected: digital crayon brushes, not crayon on paper, and they would mix two kinds of hand in one set.",
+    "Pixabay, the crayon cloud and crayon sun-face searches: no real crayon cloud on white turned up with a confirmed license; the sun face sits on a blue scribbled sky that cannot be separated."
+  ]
+}

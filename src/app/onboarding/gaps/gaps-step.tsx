@@ -85,7 +85,7 @@ export function GapsStep({ ask }: { ask: { budget: boolean; people: boolean; loc
           </Field>
         ) : null}
         {error ? (
-          <p role="alert" className="border-l-[6px] border-burgundy py-1 pl-4 text-base text-ink">
+          <p role="alert" className="border-l-[6px] border-alert py-1 pl-4 text-base text-ink">
             {error}
           </p>
         ) : null}

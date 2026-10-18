@@ -17,7 +17,6 @@ import { Progress } from "@/components/ui/progress";
 import { DataTable, type Column } from "@/components/ui/data-table";
 import { Avatar } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/toast";
-import { ThemeToggle } from "@/components/app/theme-toggle";
 
 const plans: { tier: PlanTier; name: string; price: string; who: string; includes: string[] }[] = [
   { tier: "free", name: "Free", price: "$0", who: "Try it out", includes: ["Profile and knowledge base", "5 matches a month", "1 drafted letter of inquiry"] },
@@ -46,7 +45,7 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
     { key: "status", header: "Status", cell: (i) => (
       i.status === "paid" ? <span className="text-ink-muted">Paid</span>
       : i.status === "open" ? <span className="font-semibold text-ink">Open</span>
-      : <span className="font-semibold text-burgundy">Failed</span>
+      : <span className="font-semibold text-alert">Failed</span>
     ) },
     { key: "pdf", header: <span className="sr-only">Download</span>, align: "right", cell: () => (
       <Button variant="ghost" size="sm" onClick={() => toast({ title: "Invoices come from Stripe", description: "They'll be here once billing is hooked up.", tone: "info" })}>
@@ -88,15 +87,11 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
             <Field id="ws-web" label="Website">
               <Input name="website" type="url" defaultValue={org.websiteUrl} />
             </Field>
-            <div className="flex flex-col gap-1.5">
-              <Label>Appearance</Label>
-              <ThemeToggle className="w-fit" />
-            </div>
             <div>
               <Button type="submit">Save changes</Button>
             </div>
           </form>
-          <div className="mt-12 max-w-lg border-l-2 border-burgundy pl-5">
+          <div className="mt-12 max-w-lg border-l-2 border-alert pl-5">
             <h2 className="font-display text-xl text-ink">Delete workspace</h2>
             <p className="mt-2 text-base text-ink-muted">This removes your profile, documents, and drafts for everyone on the team. We will ask you to confirm by email first.</p>
             <Button
@@ -222,7 +217,7 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
             </div>
             <p className="mt-3 text-sm text-ink-muted">
               Email reminders and the weekly digest go out only once email delivery is connected on the{" "}
-              <a href="/settings/integrations" className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-pink">
+              <a href="/settings/integrations" className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-corn">
                 Integrations page
               </a>
               .
@@ -266,7 +261,7 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
         <TabsContent value="billing">
           <div className="grid gap-10 lg:grid-cols-[1fr_18rem]">
             <div className="min-w-0">
-              <ul className="border-t-2 border-ink">
+              <ul className="border-t border-rule">
                 {plans.map((p) => {
                   const current = sub.plan === p.tier;
                   return (
@@ -314,7 +309,7 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
               <DataTable className="mt-4" columns={invoiceColumns} rows={invoices} rowKey={(i) => i.id} caption="Invoices" dense />
             </div>
             <aside className="flex flex-col gap-10">
-              <div className="border-t-2 border-ink pt-4">
+              <div className="border-t border-rule pt-4">
                 <h2 className="font-display text-xl text-ink">This month</h2>
                 <div className="mt-4">
                   <div className="flex justify-between gap-4 text-sm">
@@ -333,7 +328,7 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
                 </div>
                 <p className="mt-4 text-sm text-ink-muted">Renews {formatDate(sub.currentPeriodEnd)}.</p>
               </div>
-              <div className="border-t-2 border-ink pt-4">
+              <div className="border-t border-rule pt-4">
                 <h2 className="font-display text-xl text-ink">Payment and invoices</h2>
                 <p className="mt-3 text-base text-ink-muted">{stripe ? "Cards, invoices, and cancellation are handled in the Stripe billing portal." : "Stripe is not connected on this server. The Free plan works without it."}</p>
                 <Button

@@ -56,7 +56,7 @@ function Preview({ body, className }: { body: string; className?: string }) {
     <p className={cn("whitespace-pre-wrap text-base text-ink", className)}>
       {parts.map((part, i) =>
         /^\[confirm:[^\]]*\]$/.test(part) ? (
-          <mark key={i} className="highlight">
+          <mark key={i} className="circled">
             {part}
           </mark>
         ) : (
@@ -310,7 +310,7 @@ function EmailRow({
             <div className="flex gap-1.5">
               <dt className="text-ink-muted">To confirm</dt>
               <dd className="text-ink">
-                <mark className="highlight tnum">{confirmCount}</mark>
+                <mark className="circled tnum">{confirmCount}</mark>
               </dd>
             </div>
           ) : null}
@@ -554,7 +554,7 @@ function DraftDialog({ applications, contacts, onClose, onDrafted }: { applicati
           <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="A past conversation, a question you want answered, a date to mention." className="min-h-24" />
         </Field>
         {error ? (
-          <p role="alert" className="border-l-[6px] border-burgundy py-1 pl-4 text-base text-ink">
+          <p role="alert" className="border-l-[6px] border-alert py-1 pl-4 text-base text-ink">
             {error}
           </p>
         ) : null}

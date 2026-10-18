@@ -170,7 +170,7 @@ export function SocialView({ campaigns: initial, demo }: { campaigns: SocialCamp
             </Button>
           </div>
 
-          <ol className="mt-8 border-t-2 border-ink" aria-label={`Posts for ${monthName(month)}`}>
+          <ol className="mt-8 border-t border-rule" aria-label={`Posts for ${monthName(month)}`}>
             {posts.map((post) => (
               <PostRow key={post.id} post={post} onChange={(patch) => updatePost(post.id, patch)} onCopied={() => toast({ title: "Copied", description: "The post is on your clipboard.", tone: "info" })} />
             ))}
@@ -241,7 +241,7 @@ function PostRow({ post, onChange, onCopied }: { post: SocialPost; onChange: (pa
           <Textarea value={text} onChange={(e) => setText(e.target.value)} onBlur={saveText} disabled={skipped} className="min-h-28" />
         </Field>
         <div className="mt-1.5 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-sm">
-          <span className={cn("tnum", overLimit ? "font-semibold text-burgundy" : "text-ink-muted")} aria-live="polite">
+          <span className={cn("tnum", overLimit ? "font-semibold text-alert" : "text-ink-muted")} aria-live="polite">
             {text.length} characters{overLimit ? `, over the ${X_LIMIT} allowed on X` : ""}
           </span>
           {needsCheck ? <span className="text-ink">Check the bracketed number before you post.</span> : null}

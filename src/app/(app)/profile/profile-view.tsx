@@ -127,7 +127,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
         <TabsList variant="line" aria-label="Knowledge base sections">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="facts">
-            Facts {needsReview ? <mark className="highlight text-sm font-semibold tnum">{needsReview}</mark> : null}
+            Facts {needsReview ? <mark className="circled text-sm font-semibold tnum">{needsReview}</mark> : null}
           </TabsTrigger>
           <TabsTrigger value="boilerplate">Boilerplate</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
@@ -175,7 +175,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
                 <div>
                   <dt className="text-sm font-semibold text-ink">Website</dt>
                   <dd className="mt-1 text-base">
-                    <a href={org.websiteUrl} className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-pink" target="_blank" rel="noreferrer">
+                    <a href={org.websiteUrl} className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-corn" target="_blank" rel="noreferrer">
                       {org.websiteUrl.replace(/^https?:\/\//, "")}
                     </a>
                   </dd>
@@ -183,7 +183,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
               </dl>
             </div>
             <div className="flex flex-col gap-10">
-              <div className="border-t-2 border-ink pt-4">
+              <div className="border-t border-rule pt-4">
                 <h2 className="font-display text-xl text-ink">At a glance</h2>
                 <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-5">
                   {[
@@ -199,7 +199,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
                   ))}
                 </dl>
               </div>
-              <div className="border-t-2 border-ink pt-4">
+              <div className="border-t border-rule pt-4">
                 <h2 className="font-display text-xl text-ink">Knowledge base</h2>
                 <ul className="mt-3 border-t border-rule text-sm">
                   <li className="flex justify-between gap-4 border-b border-rule py-2">
@@ -216,7 +216,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
                   </li>
                   <li className="flex justify-between gap-4 border-b border-rule py-2">
                     <span className="text-ink-muted">Need your review</span>
-                    {needsReview ? <mark className="highlight font-semibold tnum">{needsReview}</mark> : <span className="font-semibold text-ink tnum">0</span>}
+                    {needsReview ? <mark className="circled font-semibold tnum">{needsReview}</mark> : <span className="font-semibold text-ink tnum">0</span>}
                   </li>
                 </ul>
               </div>
@@ -291,7 +291,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
               setDragOver(false);
               if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
             }}
-            className={cn("flex flex-col items-center justify-center border-2 border-dashed px-6 py-10 text-center transition-colors", dragOver ? "border-ink-deep bg-paper-tint" : "border-ink bg-paper")}
+            className={cn("flex flex-col items-center justify-center rounded-lg border-2 border-dashed px-6 py-10 text-center transition-colors", dragOver ? "border-ink-deep bg-paper-tint" : "border-rule-strong bg-paper")}
           >
             <p className="font-display text-xl text-ink">Drop a document here</p>
             <p className="mt-2 max-w-[48ch] text-base text-ink-muted">Annual reports, old proposals, 990s, budgets. PDF, Word, or plain text up to 25 MB. We read the text and pull out facts with the passage each one came from.</p>
@@ -327,7 +327,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
                     <Skeleton className="h-2 w-16" /> Reading
                   </span>
                 ) : d.status === "failed" ? (
-                  <span className="shrink-0 text-sm font-semibold text-burgundy">Could not read</span>
+                  <span className="shrink-0 text-sm font-semibold text-alert">Could not read</span>
                 ) : (
                   <span className="shrink-0 text-sm text-ink-muted">Uploaded</span>
                 )}

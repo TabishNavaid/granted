@@ -58,7 +58,7 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
 
   return (
     <PageContainer width="wide">
-      <Link href="/opportunities" className="text-sm text-ink underline decoration-[1px] underline-offset-4 hover:decoration-pink">
+      <Link href="/opportunities" className="text-sm text-ink underline decoration-[1px] underline-offset-4 hover:decoration-corn">
         All funders
       </Link>
 
@@ -70,13 +70,13 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
             <p className="mt-4 max-w-[65ch] text-lg text-ink-muted">{opportunity.summary}</p>
             <div className="mt-4 flex flex-wrap items-baseline gap-x-6 gap-y-1">
               <VerifiedSource url={opportunity.sourceUrl} verifiedAt={opportunity.lastVerifiedAt} />
-              <a href={opportunity.guidelinesUrl} target="_blank" rel="noreferrer" className="text-xs text-ink underline decoration-[1px] underline-offset-2 hover:decoration-pink">
+              <a href={opportunity.guidelinesUrl} target="_blank" rel="noreferrer" className="text-xs text-ink underline decoration-[1px] underline-offset-2 hover:decoration-corn">
                 Read the guidelines
               </a>
             </div>
           </header>
 
-          <dl className="mt-8 grid grid-cols-2 gap-6 border-y-2 border-ink py-5 sm:grid-cols-4">
+          <dl className="mt-8 grid grid-cols-2 gap-6 border-y border-rule py-5 sm:grid-cols-4">
             <div>
               <dt className="text-sm text-ink-muted">Award</dt>
               <dd className="mt-1 font-display text-2xl text-ink tnum">{formatRange(opportunity.amountMin, opportunity.amountMax)}</dd>
@@ -85,8 +85,8 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
               <dt className="text-sm text-ink-muted">Deadline</dt>
               <dd className="mt-1 font-display text-2xl text-ink">{opportunity.deadline ? formatDate(opportunity.deadline) : opportunity.forecasted ? "Not announced" : "Rolling"}</dd>
               {opportunity.deadline ? (
-                <dd className={cn("mt-1 text-sm", dl.tone === "danger" ? "text-burgundy" : "text-ink-muted")}>
-                  {soon ? <mark className="highlight">{dl.text}</mark> : dl.text}
+                <dd className={cn("mt-1 text-sm", dl.tone === "danger" ? "text-alert" : "text-ink-muted")}>
+                  {soon ? <mark className="circled">{dl.text}</mark> : dl.text}
                 </dd>
               ) : null}
             </div>
@@ -141,7 +141,7 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
                     <p className="font-semibold text-ink">{c.label}</p>
                     {c.detail ? <p className="text-sm text-ink-muted">{c.detail}</p> : null}
                   </div>
-                  <span className="shrink-0 text-sm font-semibold text-ink">{c.passed ? "Passed" : <mark className="highlight">Confirm</mark>}</span>
+                  <span className="shrink-0 text-sm font-semibold text-ink">{c.passed ? "Passed" : <mark className="circled">Confirm</mark>}</span>
                   <span className="sr-only">{c.passed ? "Passed" : "Needs confirmation"}</span>
                 </li>
               ))}
@@ -185,7 +185,7 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
               </div>
             ) : null}
             {funder.aiPolicy ? (
-              <div className="mt-6 max-w-[65ch] border-l-2 border-ink pl-4 text-base text-ink">
+              <div className="mt-6 max-w-[65ch] border-l-[3px] border-rule-strong pl-4 text-base text-ink">
                 <p className="font-semibold">AI disclosure policy</p>
                 <p className="mt-0.5 text-ink-muted">{funder.aiPolicy}</p>
               </div>
@@ -208,7 +208,7 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
                       <p className="text-sm text-ink-muted">{c.role}</p>
                     </div>
                     {c.email ? <span className="text-sm text-ink-muted">{c.email}</span> : null}
-                    <a href={c.publicSourceUrl} target="_blank" rel="noreferrer" className="text-xs text-ink underline decoration-[1px] underline-offset-2 hover:decoration-pink">
+                    <a href={c.publicSourceUrl} target="_blank" rel="noreferrer" className="text-xs text-ink underline decoration-[1px] underline-offset-2 hover:decoration-corn">
                       Public source
                     </a>
                   </li>

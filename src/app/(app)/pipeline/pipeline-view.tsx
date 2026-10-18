@@ -18,8 +18,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Field } from "@/components/ui/label";
 import { Input, Textarea } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { InkStamp } from "@/components/brand/stamp";
-import { WonPoster } from "@/components/brand/poster";
+import { Bloom } from "@/components/drawings/bloom";
+import { WonMeadow } from "@/components/drawings/won-meadow";
+import { flowerFor } from "@/lib/drawings";
 
 export function PipelineView({ initial, members, orgName }: { initial: ApplicationView[]; members: Member[]; orgName: string }) {
   const { toast } = useToast();
@@ -29,15 +30,6 @@ export function PipelineView({ initial, members, orgName }: { initial: Applicati
   const [outcomeFor, setOutcomeFor] = React.useState<ApplicationView | null>(null);
   const [won, setWon] = React.useState<ApplicationView | null>(null);
   const liveRef = React.useRef<HTMLDivElement>(null);
-  const posterRef = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    if (!won || !posterRef.current) return;
-    posterRef.current.scrollIntoView({
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
-      block: "start",
-    });
-  }, [won]);
 
   const move = async (app: ApplicationView, stage: ApplicationStage) => {
     if (app.stage === stage) return;
@@ -60,11 +52,7 @@ export function PipelineView({ initial, members, orgName }: { initial: Applicati
   return (
     <PageContainer width="full" className="lg:px-8">
       <div ref={liveRef} aria-live="polite" className="sr-only" />
-      {won ? (
-        <div ref={posterRef} className="scroll-mt-16 lg:scroll-mt-6">
-          <WonPoster orgName={orgName} funderName={won.funder.name} amount={won.outcome?.awardAmount ?? null} onDismiss={() => setWon(null)} className="mb-10" />
-        </div>
-      ) : null}
+      {won ? <WonMeadow orgName={orgName} funderName={won.funder.name} amount={won.outcome?.awardAmount ?? null} onDismiss={() => setWon(null)} /> : null}
       <PageHeader
         title="Pipeline"
         description={`${apps.filter((a) => !["won", "lost"].includes(a.stage)).length} active applications asking ${formatMoney(totals.active)} in total. ${formatMoney(totals.won)} won this year.`}
@@ -95,7 +83,7 @@ export function PipelineView({ initial, members, orgName }: { initial: Applicati
                   setDragging(null);
                   if (app) move(app, stage);
                 }}
-                className={cn("flex min-h-[28rem] flex-col border-t-2 border-ink pt-3 transition-colors", over === stage && "bg-paper-tint")}
+                className={cn("flex min-h-[28rem] flex-col border-t border-rule pt-3 transition-colors", over === stage && "bg-paper-tint")}
               >
                 <h2 className="flex items-baseline gap-x-3 px-1 font-display text-lg text-ink">
                   {m.label}
@@ -148,12 +136,12 @@ function PipelineCard({ app, members, dragging, onDragStart, onDragEnd, onMove }
       }}
       onDragEnd={onDragEnd}
       aria-label={`${app.opportunity.title}, ${app.funder.name}`}
-      className={cn("group relative border border-ink bg-paper p-3 transition-opacity", dragging && "opacity-50")}
+      className={cn("group relative rounded-md border border-rule bg-paper p-3 transition-opacity", dragging && "opacity-50")}
     >
       <GripVertical className="absolute left-0 top-3.5 size-3.5 cursor-grab text-ink-muted opacity-0 transition-opacity group-hover:opacity-100" aria-hidden />
       <div className="flex items-start gap-1">
         <div className="min-w-0 flex-1 pr-8">
-          <Link href={`/applications/${app.id}`} className="block text-base font-semibold leading-snug text-ink hover:underline hover:decoration-pink hover:decoration-2 hover:underline-offset-4">
+          <Link href={`/applications/${app.id}`} className="block text-base font-semibold leading-snug text-ink hover:underline hover:decoration-corn hover:decoration-2 hover:underline-offset-4">
             {app.opportunity.title}
           </Link>
           <p className="line-clamp-1 text-sm text-ink-muted">{app.funder.name}</p>
@@ -180,8 +168,11 @@ function PipelineCard({ app, members, dragging, onDragStart, onDragEnd, onMove }
       </div>
 
       {app.stage === "won" ? (
-        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-          <InkStamp label="Funded" size="sm" rotate={-6} />
+        <div className="mt-3 flex flex-wrap items-end gap-x-3 gap-y-2 text-sm">
+          <span className="flex items-end gap-1 font-semibold text-ink">
+            <Bloom flower={flowerFor(app.id)} className="-mb-1 h-10" />
+            Funded
+          </span>
           {app.outcome?.awardAmount ? <span className="font-semibold text-ink tnum">{formatMoney(app.outcome.awardAmount)}</span> : null}
         </div>
       ) : (
@@ -189,8 +180,8 @@ function PipelineCard({ app, members, dragging, onDragStart, onDragEnd, onMove }
           {app.askAmount ? <span className="tnum">Ask {formatMoney(app.askAmount, { compact: true })}</span> : null}
           {!done && app.opportunity.deadline ? (
             <>
-              <span className={cn(soon && "text-burgundy")}>{formatShortDate(app.opportunity.deadline)}</span>
-              <span className={cn(soon && "font-semibold text-burgundy")}>{soon ? <mark className="highlight">{dl.text}</mark> : dl.text}</span>
+              <span className={cn(soon && "text-alert")}>{formatShortDate(app.opportunity.deadline)}</span>
+              <span className={cn(soon && "font-semibold text-alert")}>{soon ? <mark className="circled">{dl.text}</mark> : dl.text}</span>
             </>
           ) : null}
         </div>

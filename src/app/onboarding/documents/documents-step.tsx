@@ -46,7 +46,7 @@ export function DocumentsStep() {
             setDragOver(false);
             if (e.dataTransfer.files.length) add(e.dataTransfer.files);
           }}
-          className={cn("mt-8 flex flex-col items-center justify-center border-2 border-dashed border-ink px-6 py-12 text-center transition-colors", dragOver ? "bg-paper-tint" : "bg-paper")}
+          className={cn("mt-8 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-rule-strong px-6 py-12 text-center transition-colors", dragOver ? "bg-paper-tint" : "bg-paper")}
         >
           <p className="font-display text-xl text-ink">Drop files here</p>
           <p className="mt-1 text-sm text-ink-muted">PDF, Word, or Excel up to 25 MB each</p>
@@ -88,7 +88,7 @@ export function DocumentsStep() {
           </Button>
         </div>
       </div>
-      <aside className="border-l-2 border-ink pl-5 text-base text-ink-muted lg:self-start">
+      <aside className="border-l-[3px] border-rule-strong pl-5 text-base text-ink-muted lg:self-start">
         <h2 className="font-display text-xl text-ink">Most useful</h2>
         <ol className="mt-3 flex list-decimal flex-col gap-2 pl-5 marker:font-display marker:text-ink">
           <li>Your most recent annual report</li>

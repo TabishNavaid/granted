@@ -64,7 +64,7 @@ export function IntegrationsView({ status, connections: initial, demo, notice }:
       <li className="grid gap-4 border-b border-rule py-5 lg:grid-cols-[14rem_1fr_auto] lg:gap-8">
         <div>
           <h3 className="font-display text-xl text-ink">{s.name}</h3>
-          <p className="mt-1 text-sm font-semibold text-ink">{s.present ? (account !== null && account !== undefined ? (connected ? "Connected" : "Key present, account not connected") : s.id === "gmail" || s.id === "outlook" || s.id === "google_calendar" ? "Key present, not connected yet" : "Connected") : s.required ? <mark className="highlight">Missing</mark> : "Not connected"}</p>
+          <p className="mt-1 text-sm font-semibold text-ink">{s.present ? (account !== null && account !== undefined ? (connected ? "Connected" : "Key present, account not connected") : s.id === "gmail" || s.id === "outlook" || s.id === "google_calendar" ? "Key present, not connected yet" : "Connected") : s.required ? <mark className="circled">Missing</mark> : "Not connected"}</p>
           {account && (s.id === "gmail" || s.id === "google_calendar" || s.id === "outlook") ? (
             <p className="mt-1 text-sm text-ink-muted">
               {account.accountEmail || "Account"}, since {formatDate(account.connectedAt)}
@@ -80,7 +80,7 @@ export function IntegrationsView({ status, connections: initial, demo, notice }:
                 {v}
               </code>
             ))}
-            <a href={s.docsUrl} target="_blank" rel="noreferrer" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-pink">
+            <a href={s.docsUrl} target="_blank" rel="noreferrer" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-corn">
               Where to get it
             </a>
           </p>
@@ -136,12 +136,12 @@ export function IntegrationsView({ status, connections: initial, demo, notice }:
 
   return (
     <PageContainer width="wide">
-      <Link href="/settings" className="text-sm text-ink underline decoration-[1px] underline-offset-4 hover:decoration-pink">
+      <Link href="/settings" className="text-sm text-ink underline decoration-[1px] underline-offset-4 hover:decoration-corn">
         Settings
       </Link>
       <PageHeader className="mt-4" title="Integrations" description="Each outside service, whether its key is on this server, what it turns on, and how to connect it. Keys live in .env.local on the server and never in the browser." />
       {notice ? (
-        <p role="status" className={`mt-6 max-w-[65ch] border-l-[6px] py-1 pl-4 text-base text-ink ${notice.kind === "error" ? "border-burgundy" : "border-ink"}`}>
+        <p role="status" className={`mt-6 max-w-[65ch] border-l-[6px] py-1 pl-4 text-base text-ink ${notice.kind === "error" ? "border-alert" : "border-ink"}`}>
           {notice.kind === "connected" ? `${notice.provider === "google" ? "Google" : "Microsoft"} is connected.` : errorCopy[notice.code] ?? "Something did not work."}
         </p>
       ) : null}
@@ -150,7 +150,7 @@ export function IntegrationsView({ status, connections: initial, demo, notice }:
         <h2 id="req" className="font-display text-2xl text-ink">
           Required
         </h2>
-        <ul className="mt-3 border-t-2 border-ink">
+        <ul className="mt-3 border-t border-rule">
           {required.map((s) => (
             <Row key={s.id} s={s} />
           ))}
@@ -161,7 +161,7 @@ export function IntegrationsView({ status, connections: initial, demo, notice }:
           Optional
         </h2>
         <p className="mt-1 text-base text-ink-muted">Everything here is off until its key is present, and the product works without it.</p>
-        <ul className="mt-3 border-t-2 border-ink">
+        <ul className="mt-3 border-t border-rule">
           {optional.map((s) => (
             <Row key={s.id} s={s} />
           ))}

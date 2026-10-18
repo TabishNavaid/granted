@@ -411,7 +411,7 @@ function ContactDetail({ contact, applications, onClose, onChange, onRemoved }: 
             <dt className="text-sm font-semibold text-ink">Email</dt>
             <dd className="mt-0.5 text-base text-ink">
               {contact.email ? (
-                <a href={`mailto:${contact.email}`} className="underline decoration-[1.5px] underline-offset-4 hover:decoration-pink">
+                <a href={`mailto:${contact.email}`} className="underline decoration-[1.5px] underline-offset-4 hover:decoration-corn">
                   {contact.email}
                 </a>
               ) : (
@@ -430,7 +430,7 @@ function ContactDetail({ contact, applications, onClose, onChange, onRemoved }: 
         </dl>
       )}
 
-      <div className="mt-8 border-t-2 border-ink pt-6">
+      <div className="mt-8 border-t border-rule pt-6">
         <h3 className="font-display text-xl text-ink">Ask for an introduction</h3>
         <p className="mt-1 max-w-[65ch] text-sm text-ink-muted">We write the request. {contact.name} sends it, in their own name, to the funder they know.</p>
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
@@ -454,7 +454,7 @@ function ContactDetail({ contact, applications, onClose, onChange, onRemoved }: 
           </Button>
         </div>
         {draftError ? (
-          <p role="alert" className="mt-4 border-l-[6px] border-burgundy py-1 pl-4 text-base text-ink">
+          <p role="alert" className="mt-4 border-l-[6px] border-alert py-1 pl-4 text-base text-ink">
             {draftError}
           </p>
         ) : null}
@@ -476,7 +476,7 @@ function ContactDetail({ contact, applications, onClose, onChange, onRemoved }: 
         ) : null}
       </div>
 
-      <div className="mt-8 border-t-2 border-ink pt-6">
+      <div className="mt-8 border-t border-rule pt-6">
         <h3 className="font-display text-xl text-ink">Relationship log</h3>
         {sortedNotes === null ? (
           <p className="mt-3 text-sm text-ink-muted">Loading the log.</p>

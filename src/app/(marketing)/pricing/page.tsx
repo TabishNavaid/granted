@@ -11,7 +11,7 @@ export default function PricingPage() {
     <>
       <PageIntro title="Simple plans, priced for small organizations." lead="Start free with your real profile. Pay only when the matches and drafts are earning their keep." />
       <section className="mx-auto max-w-[75rem] px-4 py-14 sm:px-6 lg:px-10 lg:py-20">
-        <div className="border-t-2 border-ink">
+        <div className="border-t border-rule">
           {pricingTiers.map((t) => (
             <div key={t.name} className="grid gap-5 border-b border-rule py-8 lg:grid-cols-[12rem_1fr_auto] lg:items-start lg:gap-10">
               <div>
@@ -43,7 +43,7 @@ export default function PricingPage() {
           ))}
         </div>
       </section>
-      <section className="border-t-2 border-ink">
+      <section className="border-t border-rule">
         <div className="mx-auto max-w-[75rem] px-4 py-14 sm:px-6 lg:grid lg:grid-cols-[1fr_1.4fr] lg:gap-20 lg:px-10 lg:py-20">
           <h2 className="max-w-[14ch] font-display text-3xl text-ink lg:text-4xl">Plan questions</h2>
           <div className="mt-8 border-t border-rule lg:mt-0">

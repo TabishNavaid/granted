@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
-const linkClass = "font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-pink";
+const linkClass = "font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-corn";
 
 export function SignInForm({ magicLink, google, initialError, next }: { magicLink: boolean; google: boolean; initialError: string | null; next: string | null }) {
   const [googleLoading, setGoogleLoading] = React.useState(false);

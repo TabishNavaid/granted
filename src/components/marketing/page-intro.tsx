@@ -1,7 +1,7 @@
 /** The top of every marketing subpage: one headline and one line under it, left aligned. */
 export function PageIntro({ title, lead, children }: { title: string; lead?: string; children?: React.ReactNode }) {
   return (
-    <section className="border-b-2 border-ink">
+    <section className="border-b border-rule">
       <div className="mx-auto max-w-[75rem] px-4 pb-12 pt-14 sm:px-6 lg:px-10 lg:pb-16 lg:pt-20">
         <h1 className="max-w-[16ch] font-display text-h1 text-ink">{title}</h1>
         {lead ? <p className="mt-5 max-w-[60ch] text-lg text-ink-muted sm:text-xl">{lead}</p> : null}

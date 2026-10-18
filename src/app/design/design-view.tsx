@@ -3,7 +3,6 @@
 import * as React from "react";
 import Link from "next/link";
 import { Logo, Wordmark } from "@/components/app/logo";
-import { ThemeToggle } from "@/components/app/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { Field, Label } from "@/components/ui/label";
@@ -23,25 +22,28 @@ import { FitScore } from "@/components/app/fit-score";
 import { CitationChip, VerifiedSource } from "@/components/app/citation-chip";
 import { MilestoneBadge, StageBadge } from "@/components/app/badges";
 import { InboxItemCard, type InboxContext } from "@/components/app/inbox-item";
-import { InkStamp, stampDate } from "@/components/brand/stamp";
-import { Plate } from "@/components/brand/duotone";
-import { plates } from "@/lib/images";
+import { Bloom } from "@/components/drawings/bloom";
+import { Meadow } from "@/components/drawings/meadow";
+import { flowers, meadowFlowers } from "@/lib/drawings";
 import * as seed from "@/lib/mock/data";
 import { stageOrder } from "@/lib/agents/meta";
 import type { FunderType, MilestoneKind } from "@/lib/types";
 
-const inks: { token: string; name: string }[] = [
-  { token: "paper", name: "Paper" },
-  { token: "paper-tint", name: "Paper, 6% ink" },
-  { token: "paper-hover", name: "Paper, 10% ink" },
-  { token: "ink", name: "Federal Blue" },
-  { token: "ink-muted", name: "Federal Blue, 70%" },
-  { token: "ink-deep", name: "Midnight" },
-  { token: "rule", name: "Hairline" },
-  { token: "rule-strong", name: "Rule" },
-  { token: "pink", name: "Fluorescent Pink" },
-  { token: "yellow", name: "Yellow" },
-  { token: "burgundy", name: "Burgundy" },
+const paperAndInk: { token: string; name: string; note: string }[] = [
+  { token: "paper", name: "Paper", note: "#FFFFFF" },
+  { token: "paper-tint", name: "Paper tint", note: "Sunken fields" },
+  { token: "ink", name: "Crayon blue", note: "All text, 11.2:1" },
+  { token: "ink-muted", name: "Crayon blue, soft", note: "Secondary, 6.2:1" },
+  { token: "rule", name: "Hairline", note: "Between rows" },
+  { token: "rule-strong", name: "Control edge", note: "Fields, 3.7:1" },
+];
+
+const crayons: { token: string; name: string }[] = [
+  { token: "grass", name: "Grass green" },
+  { token: "corn", name: "Cornflower blue" },
+  { token: "petal", name: "Petal pink" },
+  { token: "poppy", name: "Poppy red" },
+  { token: "marigold", name: "Marigold" },
 ];
 
 const SAMPLE = "Grants for the people doing the work.";
@@ -62,14 +64,9 @@ const tagTones: { tone: BadgeTone; label: string }[] = [
   { tone: "accent", label: "Submitted" },
   { tone: "warning", label: "Waiting on you" },
   { tone: "danger", label: "Past due" },
+  { tone: "bloom", label: "Won" },
 ];
 const milestoneKinds: MilestoneKind[] = ["deadline", "draft_due", "board_review", "budget_signoff", "submit", "follow_up"];
-const stampSizes = [
-  { size: "sm", label: "Approved" },
-  { size: "md", label: "Sent" },
-  { size: "lg", label: "Submitted" },
-  { size: "xl", label: "Funded" },
-] as const;
 
 const funderTypeLabel: Record<FunderType, string> = {
   private_foundation: "Private foundation",
@@ -81,10 +78,10 @@ const funderTypeLabel: Record<FunderType, string> = {
 };
 
 const sections: { id: string; title: string }[] = [
-  { id: "inks", title: "Inks" },
+  { id: "color", title: "Color" },
   { id: "type", title: "Type" },
-  { id: "stamp", title: "Stamp and highlighter" },
-  { id: "duotone", title: "Duotone" },
+  { id: "bloom", title: "Bloom and circle" },
+  { id: "meadow", title: "Meadow" },
   { id: "wordmark", title: "Wordmark" },
   { id: "button", title: "Button" },
   { id: "form", title: "Form" },
@@ -99,7 +96,7 @@ const sections: { id: string; title: string }[] = [
 
 function Section({ id, title, description, children }: { id: string; title: string; description?: string; children: React.ReactNode }) {
   return (
-    <section id={id} aria-labelledby={`${id}-t`} className="scroll-mt-20 border-t-2 border-ink py-10">
+    <section id={id} aria-labelledby={`${id}-t`} className="scroll-mt-20 border-t border-rule py-12">
       <h2 id={`${id}-t`} className="font-display text-3xl text-ink">
         {title}
       </h2>
@@ -111,50 +108,40 @@ function Section({ id, title, description, children }: { id: string; title: stri
 
 function Swatches() {
   return (
-    <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-      {inks.map((c) => (
-        <li key={c.token} className="border border-ink">
-          <div className="h-16" style={{ background: `var(--${c.token})` }} />
-          <div className="border-t border-ink px-3 py-2">
-            <p className="text-sm font-semibold text-ink">{c.name}</p>
-            <p className="text-xs text-ink-muted">--{c.token}</p>
-          </div>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function Overprints() {
-  return (
-    <div>
-      <h3 className="font-display text-xl text-ink">Overprints</h3>
-      <div className="relative mt-4 h-40 w-48" aria-hidden>
-        <span className="absolute left-0 top-0 size-24 mix-blend-multiply" style={{ background: "#ff48b0" }} />
-        <span className="absolute left-16 top-0 size-24 mix-blend-multiply" style={{ background: "#ffe800" }} />
-        <span className="absolute left-8 top-14 size-24 mix-blend-multiply" style={{ background: "#3d5588" }} />
+    <div className="flex flex-col gap-10">
+      <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+        {paperAndInk.map((c) => (
+          <li key={c.token} className="overflow-hidden rounded-md border border-rule">
+            <div className="h-16" style={{ background: `var(--${c.token})` }} />
+            <div className="border-t border-rule px-3 py-2">
+              <p className="text-sm font-semibold text-ink">{c.name}</p>
+              <p className="text-xs text-ink-muted">{c.note}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <div>
+        <h3 className="font-display text-xl text-ink">The crayon box</h3>
+        <p className="mt-1 max-w-[60ch] text-sm text-ink-muted">Each crayon has a fill and the darker shade it is outlined in. Crayons are for drawings, the waiting circle, and celebration. Never for body text.</p>
+        <ul className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          {crayons.map((c) => (
+            <li key={c.token} className="flex items-center gap-3">
+              <span className="relative size-14 shrink-0 rounded-round" style={{ background: `var(--${c.token})`, boxShadow: `inset 0 0 0 4px var(--${c.token}-line)` }} aria-hidden />
+              <span>
+                <span className="block text-sm font-semibold text-ink">{c.name}</span>
+                <span className="block text-xs text-ink-muted">--{c.token}, --{c.token}-line</span>
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
-      <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-muted">
-        <div className="flex gap-1.5">
-          <dt>Blue over pink</dt>
-          <dd className="font-semibold text-ink">#3d185e</dd>
-        </div>
-        <div className="flex gap-1.5">
-          <dt>Blue over yellow</dt>
-          <dd className="font-semibold text-ink">#3d4d00</dd>
-        </div>
-        <div className="flex gap-1.5">
-          <dt>Pink over yellow</dt>
-          <dd className="font-semibold text-ink">#ff4100</dd>
-        </div>
-      </dl>
     </div>
   );
 }
 
 export function DesignView() {
   const { toast } = useToast();
-  const [stampKey, setStampKey] = React.useState(0);
+  const [bloomKey, setBloomKey] = React.useState(0);
   const sample = seed.inboxItems.find((i) => i.id === "inbox_email_brightwater")!;
   const ctx: InboxContext = {
     matches: {},
@@ -169,14 +156,16 @@ export function DesignView() {
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-30 border-b-2 border-ink bg-paper">
+      <header className="sticky top-0 z-30 border-b border-rule bg-paper">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
           <div className="flex items-center gap-4">
             <Logo size="sm" />
             <span className="hidden text-base text-ink-muted sm:inline">Design system</span>
           </div>
           <div className="flex items-center gap-4">
-            <ThemeToggle />
+            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+              <Link href="/drawings-review">Drawings</Link>
+            </Button>
             <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
               <Link href="/inbox">Open the app</Link>
             </Button>
@@ -186,24 +175,21 @@ export function DesignView() {
       <main id="main" className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
         <div className="py-12">
           <h1 className="font-display text-h1 text-ink">Tokens and components</h1>
-          <p className="mt-4 max-w-[60ch] text-lg text-ink-muted">Every ink, size, and component on one page, so a screen can be checked against the print it came from. Switch to night print above to see both.</p>
+          <p className="mt-4 max-w-[60ch] text-lg text-ink-muted">Every color, size, and component on one page, so a screen can be checked against the meadow it came from.</p>
           <nav aria-label="Sections" className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-base">
             {sections.map((s) => (
-              <a key={s.id} href={`#${s.id}`} className="text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-pink">
+              <a key={s.id} href={`#${s.id}`} className="rounded-sm text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-corn">
                 {s.title}
               </a>
             ))}
           </nav>
         </div>
 
-        <Section id="inks" title="Inks" description="Real riso inks on white paper. Blue is the voice, yellow is what waits on you, pink is the stamp, burgundy is the only warning.">
+        <Section id="color" title="Color" description="White paper and one deep crayon-blue ink for every word. Five crayons, each with a darker outline shade. No gradients anywhere.">
           <Swatches />
-          <div className="mt-10">
-            <Overprints />
-          </div>
         </Section>
 
-        <Section id="type" title="Type" description="Archivo for headlines and buttons, Source Serif 4 for everything you read.">
+        <Section id="type" title="Type" description="Shantell Sans for headlines, with its informality axis turned partway up. Atkinson Hyperlegible Next for everything you read, every button, and every field.">
           <ul className="flex flex-col divide-y divide-rule border-y border-rule">
             {typeScale.map((t) => (
               <li key={t.cls} className="flex flex-col gap-2 py-5 sm:flex-row sm:items-baseline sm:gap-8">
@@ -214,47 +200,34 @@ export function DesignView() {
           </ul>
         </Section>
 
-        <Section id="stamp" title="Stamp and highlighter" description="The stamp lands when a person approves something. The highlighter marks only what is waiting on the user.">
+        <Section id="bloom" title="Bloom and circle" description="A flower grows up from the bottom of anything the user approves: stem first, then petals. Whatever is waiting on the user is circled in marigold crayon, in place of badges and dots.">
           <div className="flex flex-col gap-10">
-            <div className="flex flex-wrap items-end gap-x-12 gap-y-8">
-              {stampSizes.map((s) => (
-                <div key={s.size} className="flex flex-col gap-3">
-                  <span className="text-xs text-ink-muted">{s.size}</span>
-                  {s.size === "lg" ? <InkStamp key={stampKey} label={s.label} line={stampDate()} size="lg" animate /> : <InkStamp label={s.label} line={stampDate()} size={s.size} />}
-                </div>
+            <div className="flex flex-wrap items-end gap-x-10 gap-y-6 border-b border-rule">
+              {flowers.slice(0, 5).map((f, i) => (
+                <Bloom key={`${f.slug}-${bloomKey}`} flower={f} grow delayMs={i * 140} className="h-32" />
               ))}
-              <Button variant="secondary" onClick={() => setStampKey((k) => k + 1)}>
-                Stamp it again
+              <Button variant="secondary" className="mb-4" onClick={() => setBloomKey((k) => k + 1)}>
+                Grow them again
               </Button>
             </div>
-            <p className="max-w-[60ch] text-lg text-ink">
-              Your plan for October is ready, and <mark className="highlight">the Meridian draft is waiting on you</mark>. Everything else is filed.
-            </p>
-            <p className="max-w-[60ch] text-lg text-ink">
-              Where a stamp lands on a highlight the inks overprint to red-orange:{" "}
-              <span className="relative inline-block">
-                <mark className="highlight">Youth Development 2027</mark>
-                <InkStamp label="Approved" size="sm" rotate={-7} className="absolute -right-6 -top-5" />
-              </span>
+            <p className="max-w-[60ch] text-lg leading-loose text-ink">
+              Your plan for October is ready, and <mark className="circled">the Meridian draft</mark> is waiting on you. The sidebar says <mark className="circled circled-b font-semibold tnum">3</mark> and nothing else does.
             </p>
           </div>
         </Section>
 
-        <Section id="duotone" title="Duotone" description="Any photograph becomes a two-ink plate: shadows in blue, highlights in pink or yellow, halftone over the top.">
-          <div className="grid gap-6 md:grid-cols-2">
-            <Plate image={plates.trust} inks="blue-pink" sizes="(min-width: 768px) 40vw, 100vw" />
-            <Plate image={plates.trust} inks="blue-yellow" sizes="(min-width: 768px) 40vw, 100vw" />
-          </div>
+        <Section id="meadow" title="Meadow" description="The Inbox grows one flower per approved item each month. A grant marked Won fills the whole screen with one.">
+          <Meadow seed="design" className="h-40" flowers={meadowFlowers(7, "design").map((f, i) => ({ key: `${f.slug}-${i}`, flower: f }))} />
         </Section>
 
-        <Section id="wordmark" title="Wordmark" description="The name printed twice, pink under blue, slightly out of register.">
+        <Section id="wordmark" title="Wordmark" description="The name in the headline face, a little more informal than the headlines. No drawn logo yet.">
           <div className="flex flex-col items-start gap-8">
             <Wordmark size="xl" />
             <Wordmark size="md" />
           </div>
         </Section>
 
-        <Section id="button" title="Button" description="One primary action per screen. Square corners, poster type, and the label says what happens.">
+        <Section id="button" title="Button" description="One primary action per screen. The text face, softly rounded, and the label says what happens. Never an arrow.">
           <div className="flex flex-col divide-y divide-rule border-y border-rule">
             {(["primary", "secondary", "ghost", "danger", "danger-ghost", "link"] as const).map((v) => (
               <div key={v} className="flex flex-wrap items-center gap-4 py-4">
@@ -277,7 +250,7 @@ export function DesignView() {
           </div>
         </Section>
 
-        <Section id="form" title="Form" description="Fields as printed on a carbon form: a square box with an ink rule and the label above it.">
+        <Section id="form" title="Form" description="White fields with a border that reads at 3:1, the label above, and the error said in words.">
           <div className="grid max-w-3xl gap-6 md:grid-cols-2">
             <Field id="d-default" label="Default" hint="Helper text goes here.">
               <Input placeholder="Placeholder" />
@@ -343,7 +316,7 @@ export function DesignView() {
           </div>
         </Section>
 
-        <Section id="sheet" title="Sheet" description="A sheet of paper is a white rectangle with one ink rule. A raised sheet adds the one hard shadow in the system.">
+        <Section id="sheet" title="Sheet" description="A sheet of paper is white with one hairline. A raised sheet lies on top of the page with a soft lift.">
           <div className="grid gap-8 md:grid-cols-2">
             <div className="sheet p-5">
               <p className="text-base text-ink">A sheet sits flat on the page, for a form or a plan that belongs to this screen.</p>
@@ -354,7 +327,7 @@ export function DesignView() {
           </div>
         </Section>
 
-        <Section id="tag" title="Tag" description="Sentence case inside a square rule, used only where a status is a fact.">
+        <Section id="tag" title="Tag" description="Sentence case inside a thin rule, used only where a status is a fact. Waiting on you is circled instead.">
           <div className="flex flex-col gap-5">
             <div className="flex flex-wrap gap-2">
               {tagTones.map((t) => (
@@ -362,7 +335,6 @@ export function DesignView() {
                   {t.label}
                 </Badge>
               ))}
-              <Badge className="tag-pink">Won</Badge>
             </div>
             <div className="flex flex-wrap gap-2">
               {stageOrder.map((s) => (
@@ -377,7 +349,7 @@ export function DesignView() {
           </div>
         </Section>
 
-        <Section id="tabs" title="Tabs" description="A row of plain words. The current one is bold with an ink rule under it.">
+        <Section id="tabs" title="Tabs" description="A row of plain words. The current one is bold with an ink line under it.">
           <div className="flex flex-col gap-8">
             <Tabs defaultValue="a">
               <TabsList aria-label="Line tabs">
@@ -429,7 +401,7 @@ export function DesignView() {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-            <Button variant="secondary" onClick={() => toast({ title: "Draft approved", description: "It is in Review on your pipeline now.", action: { label: "Undo", onClick: () => {} } })}>
+            <Button variant="secondary" onClick={() => toast({ title: "Draft approved", description: "It is in Review on your pipeline now.", tone: "success", action: { label: "Undo", onClick: () => {} } })}>
               Approval toast
             </Button>
             <Button variant="secondary" onClick={() => toast({ title: "Could not copy", description: "Select the text and copy it yourself.", tone: "warning" })}>
@@ -447,9 +419,9 @@ export function DesignView() {
           </div>
         </Section>
 
-        <Section id="states" title="Empty and loading" description="Nothing here is a sentence inside a dashed rule. Loading is a plain block of paper tint.">
+        <Section id="states" title="Empty and loading" description="Nothing here is a sentence next to a small drawing: a sun when you are caught up, a seedling when something is still coming. Loading is a plain block of paper tint.">
           <div className="grid gap-8 md:grid-cols-2">
-            <EmptyState title="You are caught up" description="New drafts, funders, and schedules land here as they are ready." action={<Button variant="secondary">Show everything</Button>} />
+            <EmptyState art="sun" title="You are caught up" description="New drafts, funders, and schedules land here as they are ready." action={<Button variant="secondary">Show everything</Button>} />
             <EmptyState size="sm" title="No funders here" description="Try another filter." />
             <div className="flex flex-col md:col-span-2">
               <SkeletonCard />
@@ -458,7 +430,7 @@ export function DesignView() {
           </div>
         </Section>
 
-        <Section id="table" title="Table" description="A heavy rule on top, hairlines between rows, no frame. Numbers are right-aligned and tabular.">
+        <Section id="table" title="Table" description="Hairlines between rows, a tinted header, no frame. Numbers are right-aligned and tabular.">
           <DataTable
             caption="Sample funders"
             columns={[
@@ -472,7 +444,7 @@ export function DesignView() {
           />
         </Section>
 
-        <Section id="product" title="Product" description="Fit score, citations, verified sources, and the Inbox item, before and after the stamp.">
+        <Section id="product" title="Product" description="Fit score, citations, verified sources, and the Inbox item, waiting and approved.">
           <div className="flex flex-col gap-10">
             <div className="flex flex-wrap items-end gap-10">
               <FitScore score={94} size="lg" />

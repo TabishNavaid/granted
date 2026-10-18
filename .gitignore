@@ -44,7 +44,7 @@ next-env.d.ts
 /test-results
 /playwright-report
 
-# local cache for Grants.gov and model results
+# local cache for Grants.gov and model results, and downloaded originals for scripts/clean-drawing
 /.cache
 
 # keep the example env file

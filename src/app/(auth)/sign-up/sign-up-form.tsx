@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
 
-const linkClass = "font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-pink";
+const linkClass = "font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-corn";
 
 export function SignUpForm({ magicLink }: { magicLink: boolean }) {
   const router = useRouter();
@@ -55,7 +55,7 @@ export function SignUpForm({ magicLink }: { magicLink: boolean }) {
         </Field>
         {magicLink ? (
           error ? (
-            <p role="alert" className="border-l-[6px] border-burgundy py-1 pl-4 text-base text-ink">
+            <p role="alert" className="border-l-[6px] border-alert py-1 pl-4 text-base text-ink">
               {error}
             </p>
           ) : null

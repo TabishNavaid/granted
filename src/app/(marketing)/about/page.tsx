@@ -27,7 +27,7 @@ export default function AboutPage() {
           ))}
         </div>
       </section>
-      <section className="border-t-2 border-ink">
+      <section className="border-t border-rule">
         <div className="mx-auto max-w-[75rem] px-4 py-14 sm:px-6 lg:grid lg:grid-cols-[1fr_1.4fr] lg:gap-20 lg:px-10 lg:py-20">
           <div>
             <h2 className="max-w-[14ch] font-display text-3xl text-ink lg:text-4xl">{founderNote.heading}</h2>
@@ -43,7 +43,7 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-      <section className="border-t-2 border-ink">
+      <section className="border-t border-rule">
         <div className="mx-auto flex max-w-[75rem] flex-wrap items-center justify-between gap-6 px-4 py-12 sm:px-6 lg:px-10">
           <p className="max-w-[40ch] text-lg text-ink">Questions, or an organization that should try it first?</p>
           <Button asChild variant="secondary">

@@ -1,9 +1,9 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-/** A form field as printed on a carbon form: a square box with an ink rule. */
+/** A field: white, softly rounded, with a border that still reads at 3:1. */
 export const inputClasses =
-  "flex h-11 w-full border-[1.5px] border-ink bg-paper px-3 py-2 text-base text-ink transition-colors placeholder:text-ink-muted focus-visible:outline-3 focus-visible:outline-focus focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed aria-invalid:border-burgundy";
+  "flex h-11 w-full rounded-md border-[1.5px] border-rule-strong bg-paper px-3 py-2 text-base text-ink transition-colors hover:border-ink placeholder:text-ink-muted focus-visible:outline-3 focus-visible:outline-focus focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed aria-invalid:border-alert";
 
 const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
   ({ className, type = "text", ...props }, ref) => (
