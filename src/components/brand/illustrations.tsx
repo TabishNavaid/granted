@@ -6,87 +6,6 @@ import { cn } from "@/lib/utils";
  * same drawing works on paper and on night. Flames are always marigold.
  */
 
-const rough = (
-  <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="7" result="noise" />
-    <feDisplacementMap in="SourceGraphic" in2="noise" scale="6" xChannelSelector="R" yChannelSelector="G" />
-  </filter>
-);
-
-/** The dawn: night sky giving way to marigold at the horizon, hills, and a lantern-lit path. */
-export function DawnScene({ className, lanterns = true, anchor = "bottom" }: { className?: string; lanterns?: boolean; anchor?: "top" | "bottom" }) {
-  const stars = [
-    [120, 90, 1.6], [260, 50, 1], [410, 130, 1.3], [560, 40, 1], [720, 100, 1.8], [880, 60, 1], [1040, 140, 1.4], [1210, 70, 1], [1330, 150, 1.6], [180, 210, 1], [980, 220, 1.1], [1390, 30, 1],
-  ];
-  return (
-    <svg viewBox="0 0 1440 900" preserveAspectRatio={anchor === "top" ? "xMidYMin slice" : "xMidYMax slice"} className={cn("block h-full w-full", className)} aria-hidden>
-      <defs>
-        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#1b1838" />
-          <stop offset="0.45" stopColor="#362c62" />
-          <stop offset="0.72" stopColor="#8a4e5f" />
-          <stop offset="0.9" stopColor="#d9884b" />
-          <stop offset="1" stopColor="#f2ab3a" />
-        </linearGradient>
-        <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0" stopColor="#ffe39a" />
-          <stop offset="0.5" stopColor="#f2ab3a" stopOpacity="0.9" />
-          <stop offset="1" stopColor="#f2ab3a" stopOpacity="0" />
-        </radialGradient>
-        <radialGradient id="lamp" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0" stopColor="#ffe39a" stopOpacity="0.9" />
-          <stop offset="1" stopColor="#f2ab3a" stopOpacity="0" />
-        </radialGradient>
-        {rough}
-      </defs>
-      <rect width="1440" height="900" fill="url(#sky)" />
-      {stars.map(([x, y, r], i) => (
-        <circle key={i} cx={x} cy={y} r={r} fill="#f4ecdd" opacity={0.5 + (i % 3) * 0.15} />
-      ))}
-      <circle cx="1010" cy="640" r="220" fill="url(#sun)" opacity="0.9" />
-      <g filter="url(#rough)">
-        <path d="M-20 700 C 200 640, 380 690, 560 660 S 900 600, 1120 650 S 1360 700, 1460 660 V 920 H -20 Z" fill="#4b3a6e" opacity="0.95" />
-        <path d="M-20 760 C 160 720, 360 780, 540 740 S 860 700, 1080 760 S 1320 800, 1460 740 V 920 H -20 Z" fill="#3a2d5c" />
-        <path d="M-20 820 C 240 790, 420 850, 640 820 S 980 790, 1200 840 S 1380 860, 1460 830 V 920 H -20 Z" fill="#2a2350" />
-      </g>
-      {/* the path */}
-      <path d="M 400 905 C 520 860, 560 850, 700 820 S 880 790, 960 760 S 1040 730, 1060 700" stroke="#f4ecdd" strokeOpacity="0.55" strokeWidth="14" strokeLinecap="round" fill="none" filter="url(#rough)" />
-      <path d="M 400 905 C 520 860, 560 850, 700 820 S 880 790, 960 760 S 1040 730, 1060 700" stroke="#f2ab3a" strokeOpacity="0.35" strokeWidth="4" strokeDasharray="2 18" strokeLinecap="round" fill="none" />
-      {lanterns
-        ? [
-            [520, 846, 1],
-            [760, 802, 0.85],
-            [960, 752, 0.7],
-          ].map(([x, y, s], i) => (
-            <g key={i} transform={`translate(${x} ${y}) scale(${s})`}>
-              <circle r="46" fill="url(#lamp)" opacity="0.8" />
-              <line x1="0" y1="0" x2="0" y2="-60" stroke="#f4ecdd" strokeOpacity="0.7" strokeWidth="2.5" />
-              <g transform="translate(-10 -92) scale(0.65)">
-                <path d="M9 10h14l1.5 3.5H7.5z M9 13.5h14v13a7 7 0 0 1-14 0z M11 35h10 M12 6a4 4 0 0 1 8 0" stroke="#f4ecdd" strokeWidth="2.2" fill="none" strokeLinejoin="round" strokeLinecap="round" />
-                <path d="M16 17c-2.3 3-3.8 4.6-3.8 7.2a3.8 3.8 0 0 0 7.6 0c0-2.6-1.5-4.2-3.8-7.2z" fill="#ffe39a" />
-              </g>
-            </g>
-          ))
-        : null}
-    </svg>
-  );
-}
-
-/** A quieter horizon for section breaks: a sun arc with a few rays. */
-export function HorizonRule({ className }: { className?: string }) {
-  return (
-    <div className={cn("flex items-center gap-4", className)} aria-hidden>
-      <span className="h-px flex-1 bg-border" />
-      <svg viewBox="0 0 48 24" className="h-6 w-12 text-glow" fill="none">
-        <path d="M8 20a16 16 0 0 1 32 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        <path d="M24 2v4M10 8l2.5 2.5M38 8l-2.5 2.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        <path d="M2 21h44" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
-      </svg>
-      <span className="h-px flex-1 bg-border" />
-    </div>
-  );
-}
-
 /** A letter with a wax seal: the mark of something approved. */
 export function SealedLetter({ className, size = 64, open = false }: { className?: string; size?: number; open?: boolean }) {
   return (
@@ -155,15 +74,6 @@ export function Sunrise({ className, size = 120 }: { className?: string; size?: 
       <path d="M6 58h108" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
       <path d="M20 66c10-3 70-3 80 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.5" />
     </svg>
-  );
-}
-
-/** A clearly marked place for a real photo of community work. */
-export function PhotoSlot({ className, label = "Photo slot: your community, when you have one" }: { className?: string; label?: string }) {
-  return (
-    <div className={cn("photo-slot flex items-center justify-center rounded-lg p-6 text-center", className)}>
-      <p className="font-hand text-xl text-fg-subtle">{label}</p>
-    </div>
   );
 }
 

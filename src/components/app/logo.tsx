@@ -2,7 +2,16 @@ import Link from "next/link";
 import { PRODUCT_NAME } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
-/** The lantern mark. Strokes take the current text color; the flame is always marigold. */
+/**
+ * The brand mark slot. Renders public/brand/mark.svg. The wordmark is typographic
+ * for now; set showMark on Logo once the hand-drawn lantern mark lands in that file.
+ */
+export function BrandMark({ className }: { className?: string }) {
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src="/brand/mark.svg" alt="" aria-hidden className={cn("inline-block size-[1em]", className)} />;
+}
+
+/** Small lantern used only as a status marker: lit means something is waiting on you. */
 export function LanternMark({ className, lit = true }: { className?: string; lit?: boolean }) {
   return (
     <svg viewBox="0 0 32 40" className={cn("inline-block size-[1.15em]", className)} aria-hidden fill="none">
@@ -19,12 +28,12 @@ export function LanternMark({ className, lit = true }: { className?: string; lit
   );
 }
 
-export function Logo({ className, href = "/", size = "md", tone = "ink" }: { className?: string; href?: string; size?: "sm" | "md" | "lg"; tone?: "ink" | "paper" }) {
+export function Logo({ className, href = "/", size = "md", tone = "ink", showMark = false }: { className?: string; href?: string; size?: "sm" | "md" | "lg"; tone?: "ink" | "paper"; showMark?: boolean }) {
   return (
     <Link
       href={href}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-md font-display tracking-tight",
+        "inline-flex items-center gap-2 rounded-md font-display tracking-tight",
         tone === "ink" ? "text-fg" : "text-night-fg",
         size === "sm" && "text-lg",
         size === "md" && "text-xl",
@@ -33,8 +42,9 @@ export function Logo({ className, href = "/", size = "md", tone = "ink" }: { cla
       )}
       aria-label={`${PRODUCT_NAME} home`}
     >
-      <LanternMark />
+      {showMark ? <BrandMark /> : null}
       <span>{PRODUCT_NAME}</span>
+      <span aria-hidden className="mb-[0.55em] inline-block size-[0.28em] rounded-full bg-glow" />
     </Link>
   );
 }

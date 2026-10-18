@@ -1,5 +1,7 @@
 import { Logo } from "@/components/app/logo";
-import { DawnScene, SealedLetter } from "@/components/brand/illustrations";
+import { SealedLetter } from "@/components/brand/illustrations";
+import { Painting, PaintingCredit } from "@/components/brand/painting";
+import { picks } from "@/lib/art";
 import { PRODUCT_NAME } from "@/lib/brand";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -12,9 +14,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
       </main>
       <aside className="relative isolate hidden flex-col justify-between overflow-hidden bg-night p-12 text-night-fg lg:flex" aria-label={`Why ${PRODUCT_NAME}`}>
-        <div className="absolute inset-0 -z-10">
-          <DawnScene lanterns={false} />
-        </div>
+        <Painting painting={picks.trust} grade="soft" className="-z-10" />
+        <PaintingCredit painting={picks.trust} className="absolute bottom-3 right-4" />
         <p className="text-sm font-semibold text-glow">Nothing leaves without you</p>
         <blockquote className="max-w-md">
           <p className="font-display text-3xl leading-snug">“I answered four questions on a Tuesday and had a proposal I would have taken a week to write.”</p>

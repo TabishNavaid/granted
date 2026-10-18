@@ -28,7 +28,9 @@ import { AgentMark, MilestoneBadge, StageBadge } from "@/components/app/badges";
 import { InboxItemCard, type InboxContext } from "@/components/app/inbox-item";
 import * as seed from "@/lib/mock/data";
 import { stageOrder } from "@/lib/agents/meta";
-import { DawnScene, HorizonRule, LanternGlyph, MarginNote, PhotoSlot, SealedLetter, Seedling, Sunrise } from "@/components/brand/illustrations";
+import { LanternGlyph, MarginNote, SealedLetter, Seedling, Sunrise } from "@/components/brand/illustrations";
+import { Painting, PaintingCredit } from "@/components/brand/painting";
+import { picks } from "@/lib/art";
 import { LanternMark } from "@/components/app/logo";
 import { PRODUCT_NAME } from "@/lib/brand";
 import type { MilestoneKind } from "@/lib/types";
@@ -124,15 +126,18 @@ export function DesignView() {
         <Section id="brand" title="Brand" description={`${PRODUCT_NAME} is a lantern on the path. Night for depth, marigold for light, terracotta for the one action, paper for the ground. A lit lantern means something waits on you; a sealed letter means you approved it.`}>
           <div className="grid gap-6 md:grid-cols-[1fr_1fr]">
             <div className="overflow-hidden rounded-2xl border border-border">
-              <div className="h-56">
-                <DawnScene />
+              <div className="relative isolate h-56 bg-night text-night-fg">
+                <Painting painting={picks.hero} className="-z-10" />
+                <p className="absolute left-4 top-4 font-display text-2xl">Night, graded.</p>
+                <PaintingCredit painting={picks.hero} className="absolute bottom-2 right-3" />
               </div>
-              <p className="px-4 py-2 text-xs text-fg-subtle">DawnScene, the hero and closing backdrop. Anchors to the top or the bottom.</p>
+              <p className="px-4 py-2 text-xs text-fg-subtle">A public domain painting under the shared grade. Pick finals on /art-review.</p>
             </div>
             <div className="flex flex-col gap-4">
               <div className="flex flex-wrap items-center gap-6 rounded-2xl border border-border bg-surface p-5">
-                <span className="inline-flex items-center gap-2 font-display text-3xl text-fg"><LanternMark /> {PRODUCT_NAME}</span>
-                <span className="inline-flex items-center gap-2 rounded-xl bg-night px-4 py-2 font-display text-2xl text-night-fg"><LanternMark /> {PRODUCT_NAME}</span>
+                <span className="inline-flex items-center gap-2 font-display text-3xl text-fg">{PRODUCT_NAME}<span aria-hidden className="mb-3 size-2 rounded-full bg-glow" /></span>
+                <span className="inline-flex items-center gap-2 rounded-xl bg-night px-4 py-2 font-display text-2xl text-night-fg">{PRODUCT_NAME}<span aria-hidden className="mb-2 size-1.5 rounded-full bg-glow" /></span>
+                <span className="inline-flex items-center gap-2 text-sm text-fg-subtle"><LanternMark className="size-5 text-glow-text" /> lantern = waiting on you</span>
               </div>
               <div className="flex flex-wrap items-end gap-6 rounded-2xl border border-border bg-surface p-5 text-fg">
                 <figure className="flex flex-col items-center gap-1 text-xs text-fg-subtle"><LanternGlyph size={56} /> lit</figure>
@@ -143,9 +148,7 @@ export function DesignView() {
               </div>
               <div className="flex flex-wrap items-center gap-6 rounded-2xl border border-border bg-surface p-5">
                 <MarginNote>you have got this</MarginNote>
-                <PhotoSlot className="h-20 flex-1" />
               </div>
-              <HorizonRule />
             </div>
           </div>
         </Section>

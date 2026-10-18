@@ -23,6 +23,7 @@ const routes: { path: string; heading: RegExp }[] = [
   { path: "/connections", heading: /^connections$/i },
   { path: "/social", heading: /^social$/i },
   { path: "/design", heading: /tokens and components/i },
+  { path: "/art-review", heading: /paintings for/i },
 ];
 
 for (const r of routes) {
