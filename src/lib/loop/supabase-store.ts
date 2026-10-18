@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { AgentRun, Fact, Match, MissingFact, Section } from "@/lib/types";
+import type { AgentRun, Application, Fact, Funder, Match, MissingFact, Opportunity, Section } from "@/lib/types";
 import { adminClient } from "@/lib/supabase/clients";
 import type { SessionContext } from "@/lib/supabase/session";
 import { map } from "@/lib/services/supabase";
@@ -69,6 +69,10 @@ export function makeSupabaseStore(s: SessionContext): LoopStore {
       if (!rows.length) return [];
       return many(await db.from("matches").upsert(rows, { onConflict: "org_id,opportunity_id" }).select("*"), "matches").map(map.match) as Match[];
     },
+    async upsertMatch(m) {
+      const { data: prev } = await db.from("matches").select("status").eq("org_id", orgId).eq("opportunity_id", m.opportunityId).maybeSingle();
+      return map.match(must(await db.from("matches").upsert({ org_id: orgId, opportunity_id: m.opportunityId, fit_score: m.fitScore, reasons: m.reasons, cautions: m.cautions, eligibility_checks: m.eligibilityChecks, status: (prev?.status as string | undefined) ?? "new", dismiss_reason: null }, { onConflict: "org_id,opportunity_id" }).select("*").single(), "match"));
+    },
     async noticeTextFor(opportunityId) {
       const { data } = await db.from("opportunities").select("notice_text").eq("id", opportunityId).maybeSingle();
       return (data?.notice_text as string | null) ?? null;
@@ -128,6 +132,65 @@ export function makeSupabaseStore(s: SessionContext): LoopStore {
     },
     async updateRun(id, patch) {
       await db.from("agent_runs").update(map.runRow(patch)).eq("id", id);
+    },
+    async listBoilerplates() {
+      return many(await db.from("boilerplates").select("*").eq("org_id", orgId), "boilerplates").map(map.boilerplate);
+    },
+    async listApplications() {
+      const apps = many(await db.from("applications").select("*").eq("org_id", orgId), "applications").map(map.application) as Application[];
+      const oppIds = [...new Set(apps.map((a) => a.opportunityId))];
+      const opps = oppIds.length ? many(await db.from("opportunities").select("*").in("id", oppIds), "opportunities").map(map.opportunity) as Opportunity[] : [];
+      const funderIds = [...new Set(opps.map((o) => o.funderId))];
+      const funders = funderIds.length ? many(await db.from("funders").select("*").in("id", funderIds), "funders").map(map.funder) as Funder[] : [];
+      const outcomes = apps.length ? many(await db.from("outcomes").select("*").in("application_id", apps.map((a) => a.id)), "outcomes") : [];
+      return apps.flatMap((application) => {
+        const opportunity = opps.find((o) => o.id === application.opportunityId);
+        const funder = opportunity ? funders.find((f) => f.id === opportunity.funderId) : undefined;
+        if (!opportunity || !funder) return [];
+        const out = outcomes.find((o) => o.application_id === application.id);
+        return [{ application, opportunity, funder, awardAmount: out?.award_amount == null ? null : Number(out.award_amount) }];
+      });
+    },
+    async listDismissals() {
+      const rows = many(await db.from("matches").select("dismiss_reason, opportunities(title)").eq("org_id", orgId).eq("status", "dismissed").not("dismiss_reason", "is", null), "dismissals");
+      return rows.map((r) => ({ title: String((Array.isArray(r.opportunities) ? (r.opportunities[0] as Row | undefined)?.title : (r.opportunities as Row | null)?.title) ?? ""), reason: String(r.dismiss_reason) }));
+    },
+    async saveVersion(sectionId, bodyHtml, note, byName) {
+      return map.version(must(await db.from("section_versions").insert({ section_id: sectionId, body_html: bodyHtml, note, by_name: byName }).select("*").single(), "version"));
+    },
+    async saveReviewerCheck(check) {
+      return map.review(must(await db.from("reviewer_checks").insert({ application_id: check.applicationId, overall: check.overall, criteria: check.criteria, summary: check.summary }).select("*").single(), "review"));
+    },
+    async getBudget(applicationId) {
+      const { data } = await db.from("budgets").select("*").eq("application_id", applicationId).maybeSingle();
+      return data ? map.budget(data) : null;
+    },
+    async saveBudget(applicationId, lines, justification) {
+      return map.budget(must(await db.from("budgets").upsert({ org_id: orgId, application_id: applicationId, lines, justification, updated_at: new Date().toISOString() }, { onConflict: "application_id" }).select("*").single(), "budget"));
+    },
+    async addSection(applicationId, section) {
+      return map.section(must(await db.from("sections").insert({ application_id: applicationId, requirement_id: section.requirementId, title: section.title, body_html: section.bodyHtml, word_limit: section.wordLimit, status: section.status, order: section.order }).select("*").single(), "section"));
+    },
+    async addEmailDraft(draft) {
+      return map.emailDraft(must(await db.from("email_drafts").insert({ org_id: orgId, application_id: draft.applicationId, funder_id: draft.funderId || null, contact_id: draft.contactId, kind: draft.kind, subject: draft.subject, body: draft.body, to: draft.to, to_name: draft.toName, status: draft.status, follow_up_at: draft.followUpAt }).select("*").single(), "email draft"));
+    },
+    async getOrgContact(id) {
+      const { data } = await db.from("org_contacts").select("*").eq("id", id).eq("org_id", orgId).maybeSingle();
+      return data ? map.orgContact(data) : null;
+    },
+    async saveCampaign(campaign) {
+      return map.campaign(must(await db.from("social_campaigns").upsert({ org_id: orgId, month: campaign.month, theme: campaign.theme, posts: campaign.posts, status: campaign.status }, { onConflict: "org_id,month" }).select("*").single(), "campaign"));
+    },
+    async getDocumentText(id) {
+      const { data } = await db.from("documents").select("*").eq("id", id).eq("org_id", orgId).maybeSingle();
+      return data ? { document: map.document(data), text: String(data.extracted_text ?? "") } : null;
+    },
+    async replaceDocumentFacts(documentId, facts) {
+      await db.from("facts").delete().eq("org_id", orgId).eq("source_document_id", documentId);
+      const rows = facts.map((f) => ({ ...factRow(orgId, f), source_document_id: documentId }));
+      const created = rows.length ? (many(await db.from("facts").insert(rows).select("*"), "facts").map(map.fact) as Fact[]) : [];
+      await db.from("documents").update({ status: "ready", fact_count: created.length }).eq("id", documentId);
+      return created;
     },
   };
 }

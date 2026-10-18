@@ -288,7 +288,7 @@ async function findMatchesInner(store: LoopStore, jobId?: string): Promise<LoopR
       const matches: Omit<Match, "id" | "orgId" | "createdAt" | "isNew">[] = [];
       for (const m of result.matches) {
         const stored = await store.upsertOpportunity(m.opportunity, m.funder, m.noticeText);
-        matches.push({ opportunityId: stored.opportunity.id, fitScore: m.fitScore, reasons: m.reasons, cautions: m.cautions, eligibilityChecks: m.eligibilityChecks, status: "new" });
+        matches.push({ opportunityId: stored.opportunity.id, fitScore: m.fitScore, reasons: m.reasons, cautions: m.cautions, eligibilityChecks: m.eligibilityChecks, status: "new", dismissReason: null });
       }
       await store.replaceMatches(matches);
       await store.updateOrg({ onboardingStep: "matches" });

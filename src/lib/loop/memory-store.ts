@@ -70,6 +70,16 @@ export const memoryStore: LoopStore = {
     state.matches = next;
     return structuredClone(next);
   },
+  async upsertMatch(m) {
+    const prev = state.matches.find((x) => x.opportunityId === m.opportunityId);
+    if (prev) {
+      Object.assign(prev, { fitScore: m.fitScore, reasons: m.reasons, cautions: m.cautions, eligibilityChecks: m.eligibilityChecks, createdAt: now() });
+      return structuredClone(prev);
+    }
+    const next: Match = { ...m, id: newId("match"), orgId: state.org.id, isNew: true, createdAt: now() };
+    state.matches.unshift(next);
+    return structuredClone(next);
+  },
   async noticeTextFor(opportunityId) {
     return noticeTexts.get(opportunityId) ?? null;
   },
@@ -128,5 +138,81 @@ export const memoryStore: LoopStore = {
   async updateRun(id, patch) {
     const r = state.runs.find((x) => x.id === id);
     if (r) Object.assign(r, patch);
+  },
+  async listBoilerplates() {
+    return structuredClone(state.boilerplates);
+  },
+  async listApplications() {
+    return state.applications.flatMap((application) => {
+      const opportunity = state.opportunities.find((o) => o.id === application.opportunityId);
+      const funder = opportunity ? state.funders.find((f) => f.id === opportunity.funderId) : null;
+      if (!opportunity || !funder) return [];
+      const outcome = state.outcomes.find((o) => o.applicationId === application.id);
+      return [structuredClone({ application, opportunity, funder, awardAmount: outcome?.awardAmount ?? null })];
+    });
+  },
+  async listDismissals() {
+    return state.matches
+      .filter((m) => m.status === "dismissed" && m.dismissReason)
+      .map((m) => ({ title: state.opportunities.find((o) => o.id === m.opportunityId)?.title ?? "", reason: m.dismissReason! }));
+  },
+  async saveVersion(sectionId, bodyHtml, note, byName) {
+    const v = { id: newId("ver"), sectionId, bodyHtml, note, byName, createdAt: now() };
+    state.sectionVersions.unshift(v);
+    state.sectionVersions = state.sectionVersions.filter((x) => x.sectionId !== sectionId || state.sectionVersions.filter((y) => y.sectionId === sectionId).indexOf(x) < 30);
+    return structuredClone(v);
+  },
+  async saveReviewerCheck(check) {
+    const c = { ...check, id: newId("review"), createdAt: now() };
+    state.reviewerChecks.unshift(c);
+    return structuredClone(c);
+  },
+  async getBudget(applicationId) {
+    return structuredClone(state.budgets.find((b) => b.applicationId === applicationId) ?? null);
+  },
+  async saveBudget(applicationId, lines, justification) {
+    let b = state.budgets.find((x) => x.applicationId === applicationId);
+    if (!b) {
+      b = { id: newId("budget"), orgId: state.org.id, applicationId, lines: [], justification: "", updatedAt: now() };
+      state.budgets.push(b);
+    }
+    Object.assign(b, { lines, justification, updatedAt: now() });
+    return structuredClone(b);
+  },
+  async addSection(applicationId, section) {
+    const s: Section = { ...section, id: newId("sec"), applicationId, updatedAt: now() };
+    state.sections.push(s);
+    return structuredClone(s);
+  },
+  async addEmailDraft(draft) {
+    const e = { ...draft, id: newId("email"), orgId: state.org.id, createdAt: now() };
+    state.emailDrafts.unshift(e);
+    return structuredClone(e);
+  },
+  async getOrgContact(id) {
+    return structuredClone(state.orgContacts.find((c) => c.id === id) ?? null);
+  },
+  async saveCampaign(campaign) {
+    const i = state.socialCampaigns.findIndex((c) => c.month === campaign.month);
+    const c = { ...campaign, id: i >= 0 ? state.socialCampaigns[i].id : newId("camp"), orgId: state.org.id, createdAt: now() };
+    if (i >= 0) state.socialCampaigns[i] = c;
+    else state.socialCampaigns.unshift(c);
+    return structuredClone(c);
+  },
+  async getDocumentText(id) {
+    const document = state.documents.find((d) => d.id === id);
+    if (!document) return null;
+    return { document: structuredClone(document), text: state.documentTexts[id] ?? "" };
+  },
+  async replaceDocumentFacts(documentId, facts) {
+    state.facts = state.facts.filter((f) => f.sourceDocumentId !== documentId);
+    const created = facts.map((f) => ({ ...toFact(f, newId("fact")), sourceDocumentId: documentId }));
+    state.facts.push(...created);
+    const d = state.documents.find((x) => x.id === documentId);
+    if (d) {
+      d.factCount = created.length;
+      d.status = "ready";
+    }
+    return structuredClone(created);
   },
 };

@@ -34,6 +34,7 @@ const USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/
 const FETCH_TIMEOUT_MS = 15_000;
 const MAX_BYTES = 8_000_000;
 const MAX_TEXT_PER_PAGE = 14_000;
+const MAX_PDF_CHARS_LONG = 40_000;
 const MAX_PDF_TEXT = 20_000;
 const POLITE_DELAY_MS = 350;
 
@@ -133,12 +134,12 @@ export function parseHtml(html: string, baseUrl: string): ParsedHtml {
   return { title, text, links };
 }
 
-async function pdfToText(buf: Buffer): Promise<string> {
+export async function pdfToText(buf: Buffer, opts: { pages?: number; maxChars?: number } = {}): Promise<string> {
   const { PDFParse } = await import("pdf-parse");
   const parser = new PDFParse({ data: new Uint8Array(buf) });
   try {
-    const result = await parser.getText({ last: 12 });
-    return cleanText(result.text).slice(0, MAX_PDF_TEXT);
+    const result = await parser.getText({ last: opts.pages ?? 12 });
+    return cleanText(result.text).slice(0, opts.maxChars ?? (opts.pages ? MAX_PDF_CHARS_LONG : MAX_PDF_TEXT));
   } finally {
     await parser.destroy().catch(() => undefined);
   }
@@ -252,4 +253,22 @@ export function sourceLabelFor(url: string): string {
   } catch {
     return url;
   }
+}
+
+/** One page or PDF to text, for guidelines links. Returns null when it cannot be read. */
+export async function fetchPageText(url: string, maxChars = 24_000): Promise<{ url: string; title: string; text: string } | null> {
+  const res = await fetchWithLimits(url);
+  if (!res.ok) return null;
+  const isPdf = /application\/pdf/i.test(res.contentType) || /\.pdf(\?|$)/i.test(res.finalUrl);
+  if (isPdf) {
+    try {
+      const text = await pdfToText(res.body);
+      return { url: res.finalUrl, title: decodeURIComponent(new URL(res.finalUrl).pathname.split("/").pop() ?? "PDF"), text: text.slice(0, maxChars) };
+    } catch {
+      return null;
+    }
+  }
+  if (!/text\/html|application\/xhtml/i.test(res.contentType)) return null;
+  const parsed = parseHtml(res.body.toString("utf8"), res.finalUrl);
+  return { url: res.finalUrl, title: parsed.title, text: parsed.text.slice(0, maxChars) };
 }

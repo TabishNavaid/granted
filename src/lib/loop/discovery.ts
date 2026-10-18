@@ -16,9 +16,16 @@ import { contains, truncate } from "./text";
  * line must appear in the notice. Reasons that fail are dropped; a match with no
  * surviving reason is dropped too.
  */
+export interface Dismissal {
+  title: string;
+  reason: string;
+}
+
 export interface DiscoveryInput {
   org: Organization;
   facts: Fact[];
+  /** Notices the user set aside before, with their reasons, so similar ones score lower. */
+  dismissed?: Dismissal[];
   /** Fetch this many full notices at most. Each one costs a second of throttle. */
   maxDetails?: number;
   /** Called as each stage finishes, with a short note for the progress screen. */
@@ -272,6 +279,32 @@ export async function runDiscovery(input: DiscoveryInput): Promise<DiscoveryResu
 
   // 5. Score.
   t = Date.now();
+  const scoredOut = await scoreNotices({ candidates, org: input.org, facts: input.facts, dismissed: input.dismissed ?? [] });
+  tally(scoredOut);
+  const matches = scoredOut.matches;
+  droppedIneligible += scoredOut.droppedIneligible;
+  const droppedUnsupported = scoredOut.droppedUnsupported;
+  matches.sort((a, b) => b.fitScore - a.fitScore);
+  tools.push({ name: "score_fit", summary: `${candidates.length} scored, ${matches.length} kept, ${droppedUnsupported} dropped for reasons we could not verify`, durationMs: Date.now() - t });
+
+  return { matches, searches: searchLog, screened, read: keepIds.length, droppedIneligible, droppedUnsupported, tools, sources, usage, costUsd, models: [...models], durationMs: Date.now() - started };
+}
+
+export interface ScoreInput {
+  candidates: { id: string; detail: gg.OpportunityDetail; text: string }[];
+  org: Organization;
+  facts: Fact[];
+  dismissed: Dismissal[];
+}
+
+/** One model call scores every candidate; code checks each reason before it can be shown. */
+export async function scoreNotices(input: ScoreInput): Promise<{ matches: ScoredMatch[]; droppedIneligible: number; droppedUnsupported: number; usage: TokenUsage; costUsd: number; model: string }> {
+  const ai = getAi();
+  const { candidates } = input;
+  const summary = profileSummary(input.org, input.facts);
+  const dismissedNote = input.dismissed.length
+    ? `\n\nThe director set these aside before, with reasons. Score anything with the same problem low and say why in a caution:\n${input.dismissed.map((d) => `- "${d.title}": ${d.reason}`).join("\n")}`
+    : "";
   const scored = await ai.generateJson<{ scores: { id: string; eligible: boolean; ineligibleReason: string; fitScore: number; reasons: { text: string; factId: string; noticeQuote: string }[]; cautions: string[] }[] }>({
     tier: "standard",
     label: "score_fit",
@@ -282,15 +315,14 @@ Rules:
 - Mark eligible=false only when the notice itself rules this organization out, and quote the line.
 - Be honest. 80 or more means a strong fit a director should act on. 65 to 79 is good. Under 50 means probably not worth the hours.
 - Never invent deadlines, amounts, or facts. Everything comes from the profile or the notice.`,
-    prompt: `${summary}\n\n${candidates.map((c) => `=== NOTICE id=${c.id} ===\n${c.text}`).join("\n\n")}`,
+    prompt: `${summary}${dismissedNote}\n\n${candidates.map((c) => `=== NOTICE id=${c.id} ===\n${c.text}`).join("\n\n")}`,
     schema: scoreSchema,
     maxOutputTokens: 8192,
   });
-  tally(scored);
-
   const factIds = new Set(input.facts.map((f) => f.id));
   const checkedAt = new Date().toISOString();
   const matches: ScoredMatch[] = [];
+  let droppedIneligible = 0;
   let droppedUnsupported = 0;
   for (const s of scored.data.scores) {
     const c = candidates.find((x) => x.id === String(s.id));
@@ -311,9 +343,7 @@ Rules:
       {
         label: "501(c)(3) nonprofits may apply",
         passed: types.some((x) => x.id === gg.ELIGIBILITY.nonprofit501c3),
-        detail: types.some((x) => x.id === gg.ELIGIBILITY.nonprofit501c3)
-          ? "Listed under eligible applicant types on Grants.gov."
-          : "Not listed by name. The notice says to read its additional eligibility information.",
+        detail: types.some((x) => x.id === gg.ELIGIBILITY.nonprofit501c3) ? "Listed under eligible applicant types on Grants.gov." : "Not listed by name. The notice says to read its additional eligibility information.",
       },
       {
         label: opportunity.forecasted ? "Not open yet" : "Still open",
@@ -322,18 +352,7 @@ Rules:
       },
     ];
     if (n?.applicantEligibilityDesc) eligibilityChecks.push({ label: "Agency's own eligibility note", passed: false, detail: truncate(n.applicantEligibilityDesc.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(), 220) });
-    matches.push({
-      opportunity,
-      funder,
-      fitScore: Math.max(0, Math.min(100, Math.round(s.fitScore))),
-      reasons: reasons.slice(0, 3),
-      cautions: (s.cautions ?? []).map((x) => x.trim()).filter(Boolean).slice(0, 3),
-      eligibilityChecks,
-      noticeText: c.text,
-    });
+    matches.push({ opportunity, funder, fitScore: Math.max(0, Math.min(100, Math.round(s.fitScore))), reasons: reasons.slice(0, 3), cautions: (s.cautions ?? []).map((x) => x.trim()).filter(Boolean).slice(0, 3), eligibilityChecks, noticeText: c.text });
   }
-  matches.sort((a, b) => b.fitScore - a.fitScore);
-  tools.push({ name: "score_fit", summary: `${candidates.length} scored, ${matches.length} kept, ${droppedUnsupported} dropped for reasons we could not verify`, durationMs: Date.now() - t });
-
-  return { matches, searches: searchLog, screened, read: keepIds.length, droppedIneligible, droppedUnsupported, tools, sources, usage, costUsd, models: [...models], durationMs: Date.now() - started };
+  return { matches, droppedIneligible, droppedUnsupported, usage: scored.usage, costUsd: scored.costUsd, model: scored.model };
 }

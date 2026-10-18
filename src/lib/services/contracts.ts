@@ -1,5 +1,18 @@
 import type {
+  ContactKind,
+  EmailKind,
   AgentRun,
+  Budget,
+  ContactNote,
+  IntegrationConnection,
+  OrgContact,
+  ProposalMode,
+  ReviewerCheck,
+  SavedSearch,
+  SearchCandidate,
+  SectionVersion,
+  SocialCampaign,
+  SocialPost,
   Application,
   ApplicationStage,
   ApplicationView,
@@ -38,7 +51,11 @@ export interface OrgService {
   update(patch: Partial<Organization>): Promise<Organization>;
   listMembers(): Promise<Member[]>;
   inviteMember(email: string, role: Member["role"]): Promise<Member>;
+  updateMemberRole(id: string, role: Member["role"]): Promise<Member>;
+  removeMember(id: string): Promise<void>;
   currentUser(): Promise<Member>;
+  /** Delete the workspace and everything in it. */
+  deleteWorkspace(): Promise<void>;
 }
 
 export interface KnowledgeService {
@@ -50,6 +67,10 @@ export interface KnowledgeService {
   listDocuments(): Promise<Document[]>;
   addDocument(file: { name: string; size: number; type: string }): Promise<Document>;
   removeDocument(id: string): Promise<void>;
+  /** Read a document's extracted text and turn it into facts waiting for review. */
+  extractDocument(id: string): Promise<LoopResult<{ factCount: number; droppedCount: number }>>;
+  addBoilerplate(input: { type: Boilerplate["type"]; title: string; body: string }): Promise<Boilerplate>;
+  removeBoilerplate(id: string): Promise<void>;
 }
 
 export interface OpportunityService {
@@ -58,7 +79,16 @@ export interface OpportunityService {
   getMatchByOpportunity(opportunityId: string): Promise<MatchView | null>;
   getOpportunity(id: string): Promise<{ opportunity: Opportunity; funder: Funder; contacts: Contact[] } | null>;
   setMatchStatus(id: string, status: MatchView["status"]): Promise<MatchView>;
-  startApplication(opportunityId: string): Promise<Application>;
+  /** Set aside with a reason. The reason is shown to the scorer next time so similar notices rank lower. */
+  dismiss(id: string, reason: string): Promise<MatchView>;
+  startApplication(opportunityId: string, mode?: ProposalMode): Promise<Application>;
+  listSavedSearches(): Promise<SavedSearch[]>;
+  saveSearch(input: { name: string; keyword: string; fundingCategories: string[] }): Promise<SavedSearch>;
+  deleteSavedSearch(id: string): Promise<void>;
+  /** Run a keyword search on Grants.gov now and return open notices nonprofits can apply for, unscored. */
+  runSearch(input: { keyword: string; fundingCategories: string[]; savedSearchId?: string }): Promise<LoopResult<{ candidates: SearchCandidate[]; hitCount: number }>>;
+  /** Read and score chosen notices against the confirmed profile; they join the matches list. */
+  scoreCandidates(externalIds: string[]): Promise<LoopResult<{ added: number; dropped: number }>>;
 }
 
 export interface ApplicationService {
@@ -71,6 +101,63 @@ export interface ApplicationService {
   skipMissingFact(id: string): Promise<MissingFact>;
   moveStage(id: string, stage: ApplicationStage): Promise<ApplicationView>;
   logOutcome(id: string, result: OutcomeResult, awardAmount: number | null, feedback: string | null): Promise<ApplicationView>;
+  setMode(id: string, mode: ProposalMode): Promise<ApplicationView>;
+  setAskAmount(id: string, askAmount: number | null): Promise<ApplicationView>;
+  listVersions(sectionId: string): Promise<SectionVersion[]>;
+  restoreVersion(versionId: string): Promise<Section>;
+  /** Inline AI action on a section or a selection. Citation and gap chips come back unchanged. */
+  revise(input: { sectionId: string; html: string; action: "rewrite" | "shorten" | "expand" | "tone"; tone?: "plain" | "warm" | "formal" | "confident"; wordLimit?: number | null }): Promise<LoopResult<{ html: string; note: string }>>;
+  runReviewerCheck(id: string): Promise<LoopResult<ReviewerCheck>>;
+  getReviewerCheck(id: string): Promise<ReviewerCheck | null>;
+  getBudget(id: string): Promise<Budget | null>;
+  saveBudget(id: string, lines: Budget["lines"], justification: string): Promise<Budget>;
+  writeBudgetJustification(id: string): Promise<LoopResult<Budget>>;
+  /** Put the budget table and justification into the draft as a section. */
+  addBudgetSection(id: string): Promise<Section>;
+}
+
+export interface OutreachService {
+  list(): Promise<EmailDraft[]>;
+  get(id: string): Promise<EmailDraft | null>;
+  draft(input: { kind: EmailKind; applicationId: string | null; funderId: string | null; contactId: string | null; to: string | null; toName: string | null; notes: string }): Promise<LoopResult<EmailDraft>>;
+  update(id: string, patch: Partial<Pick<EmailDraft, "subject" | "body" | "to" | "toName" | "status" | "followUpAt">>): Promise<EmailDraft>;
+  /** The user sent it themselves (copied, or opened in their mail app). Sets a follow-up reminder when asked. */
+  markSent(id: string, via: "manual", followUpDays: number | null): Promise<EmailDraft>;
+  /** Send from the user's own connected account. Only after explicit approval in the UI; refused when nothing is connected. */
+  send(id: string, via: "gmail" | "outlook", followUpDays: number | null): Promise<LoopResult<EmailDraft>>;
+  remove(id: string): Promise<void>;
+}
+
+export interface ContactsService {
+  list(): Promise<OrgContact[]>;
+  add(input: Omit<OrgContact, "id" | "orgId" | "createdAt" | "lastTouchAt" | "source">): Promise<OrgContact>;
+  update(id: string, patch: Partial<Omit<OrgContact, "id" | "orgId" | "createdAt">>): Promise<OrgContact>;
+  remove(id: string): Promise<void>;
+  importRows(rows: { name: string; organization?: string; role?: string; email?: string; phone?: string; kind?: ContactKind; relationship?: string }[]): Promise<{ added: number; skipped: number }>;
+  listNotes(contactId: string): Promise<ContactNote[]>;
+  addNote(contactId: string, input: Pick<ContactNote, "kind" | "note" | "nextStep">): Promise<ContactNote>;
+  /** A draft the board member or partner can send to make an introduction to a funder. */
+  draftIntroRequest(contactId: string, applicationId: string | null): Promise<LoopResult<EmailDraft>>;
+}
+
+export interface SocialService {
+  listCampaigns(): Promise<SocialCampaign[]>;
+  getCampaign(id: string): Promise<SocialCampaign | null>;
+  generate(month: string): Promise<LoopResult<SocialCampaign>>;
+  updatePost(campaignId: string, postId: string, patch: Partial<Pick<SocialPost, "text" | "date" | "status" | "platform">>): Promise<SocialCampaign>;
+  approve(campaignId: string): Promise<SocialCampaign>;
+  /** Plain text or CSV of the month's posts for pasting into a scheduler. */
+  exportCampaign(id: string, format: "text" | "csv"): Promise<string>;
+}
+
+export interface IntegrationsService {
+  status(): Promise<{ id: string; name: string; required: boolean; present: boolean; unlocks: string; envVars: string[]; howTo: string; docsUrl: string }[]>;
+  connections(): Promise<IntegrationConnection[]>;
+  /** Where to send the browser to connect a provider. Refused when the provider's keys are missing. */
+  connectUrl(provider: "google" | "microsoft", purpose: "gmail" | "calendar" | "outlook"): Promise<LoopResult<{ url: string }>>;
+  disconnect(provider: "google" | "microsoft"): Promise<void>;
+  /** Push every open milestone to the connected Google Calendar. */
+  syncCalendar(): Promise<LoopResult<{ pushed: number }>>;
 }
 
 export interface InboxService {
@@ -90,6 +177,11 @@ export interface CalendarService {
   listEvents(): Promise<CalendarEvent[]>;
   listMilestones(applicationId?: string): Promise<Milestone[]>;
   toggleMilestone(id: string, done: boolean): Promise<Milestone>;
+  assignMilestone(id: string, assigneeId: string | null): Promise<Milestone>;
+  /** Backward-plan milestones from the application's deadline. Replaces unfinished ones that were planned before. */
+  planMilestones(applicationId: string, options?: { boardReview?: boolean; hours?: number }): Promise<Milestone[]>;
+  /** The private ICS feed address for this workspace. */
+  icsUrl(): Promise<string>;
 }
 
 export interface ActivityService {
@@ -100,7 +192,13 @@ export interface ActivityService {
 export interface BillingService {
   getSubscription(): Promise<Subscription>;
   listInvoices(): Promise<Invoice[]>;
+  /** Without Stripe: switches the plan in place (free only, or demo). With Stripe: use checkoutUrl instead. */
   changePlan(plan: Subscription["plan"]): Promise<Subscription>;
+  /** Stripe Checkout for a paid plan, when Stripe is connected. */
+  checkoutUrl(plan: "starter" | "growth"): Promise<LoopResult<{ url: string }>>;
+  portalUrl(): Promise<LoopResult<{ url: string }>>;
+  /** Can this workspace do one more of these under its plan? */
+  canUse(what: "proposal" | "match"): Promise<{ ok: boolean; message: string | null }>;
   getNotificationSettings(): Promise<NotificationSettings>;
   updateNotificationSettings(patch: Partial<NotificationSettings>): Promise<NotificationSettings>;
 }
@@ -139,6 +237,8 @@ export interface LoopService {
   confirmProfile(input: { keptFactIds: string[]; factEdits: Record<string, string>; org: { mission?: string; serviceArea?: string; name?: string } }): Promise<LoopResult<{ confirmed: number; removed: number }>>;
   findMatches(jobId?: string): Promise<LoopResult<{ matchCount: number; screened: number; read: number; runId: string; fromCache: boolean }>>;
   draftLetter(applicationId: string): Promise<LoopResult<{ sectionCount: number; openQuestions: number; issues: number; wordCount: number; runId: string }>>;
+  /** Full proposal: read the funder's guidelines into a requirements checklist, then draft every section from confirmed facts. */
+  draftProposal(applicationId: string, jobId?: string): Promise<LoopResult<{ sectionCount: number; requirementCount: number; openQuestions: number; issues: number; wordCount: number; runId: string }>>;
 }
 
 export interface Services {
@@ -152,4 +252,8 @@ export interface Services {
   billing: BillingService;
   auth: AuthService;
   loop: LoopService;
+  outreach: OutreachService;
+  contacts: ContactsService;
+  social: SocialService;
+  integrations: IntegrationsService;
 }

@@ -5,6 +5,11 @@
  */
 import type {
   AgentRun,
+  Budget,
+  ContactNote,
+  OrgContact,
+  SavedSearch,
+  SocialCampaign,
   Application,
   Boilerplate,
   ComplianceCheck,
@@ -50,6 +55,7 @@ export const organization: Organization = {
   staffCount: 4,
   volunteerCount: 23,
   onboardingStep: "done",
+  calendarToken: "demo-calendar-token",
   createdAt: "2026-09-02T14:12:00Z",
 };
 
@@ -184,26 +190,26 @@ const okChecks = (extra: { label: string; detail: string; passed?: boolean }[] =
 ];
 
 export const matches: Match[] = [
-  { id: "match_meridian", orgId: ORG_ID, opportunityId: "opp_meridian_2027", fitScore: 94, status: "applying", isNew: false, createdAt: "2026-09-05T09:00:00Z", reasons: ["Meridian funded you in 2024 and asks past grantees to reapply.", "Their focus on youth ages 10 to 18 in southwest Ohio matches your three programs exactly.", "Typical award of $25K to $40K sits inside your usual ask."], cautions: ["They prefer a short update on 2024 outcomes early in the narrative."], eligibilityChecks: okChecks([{ label: "Montgomery County", detail: "All programs run in Dayton" }, { label: "Budget under $2M", detail: "$342K" }, { label: "Two years of operations", detail: "Founded 2016" }]) },
-  { id: "match_mvct", orgId: ORG_ID, opportunityId: "opp_mvct_fall", fitScore: 89, status: "applying", isNew: false, createdAt: "2026-09-05T09:00:00Z", reasons: ["Your community foundation; they know East Dayton and fund basic needs and education.", "Four short questions, so this is about two hours of work.", "Family Navigators is a strong fit for their basic needs priority."], cautions: ["Awards rarely exceed $20K for first-time responsive grants."], eligibilityChecks: okChecks([{ label: "Montgomery County residents", detail: "100% of students live in Dayton" }]) },
-  { id: "match_brightwater", orgId: ORG_ID, opportunityId: "opp_brightwater_stem", fitScore: 84, status: "applying", isNew: false, createdAt: "2026-09-12T09:00:00Z", reasons: ["Summer Launch pairs students with engineers, which is exactly what Brightwater describes.", "Their Dayton plant is 6 miles from Belmont High School.", "They fund at $30K to $50K for programs of your size."], cautions: ["Brightwater requires AI disclosure in the cover letter.", "They want employer letters of support."], eligibilityChecks: okChecks([{ label: "Within 50 miles of a facility", detail: "Dayton plant, 6 miles" }, { label: "Majority ages 13 to 19", detail: "All participants are 14 to 18" }]) },
-  { id: "match_larkspur", orgId: ORG_ID, opportunityId: "opp_larkspur_loi", fitScore: 78, status: "new", isNew: true, createdAt: "2026-10-15T09:00:00Z", reasons: ["Your 94% graduation rate against the 81% district rate is the kind of outcome they highlight.", "A two-page letter is low effort for a possible $75K or more.", "Budget of $342K clears their $250K floor."], cautions: ["Larkspur funds few first-time applicants. Treat this as relationship building.", "They look for college enrollment data, which you do not track yet."], eligibilityChecks: okChecks([{ label: "Majority free or reduced lunch", detail: "Partner schools are 100% CEP" }, { label: "Budget $250K to $5M", detail: "$342K" }]) },
-  { id: "match_threerivers", orgId: ORG_ID, opportunityId: "opp_threerivers", fitScore: 76, status: "new", isNew: true, createdAt: "2026-10-15T09:00:00Z", reasons: ["Family Navigators directly addresses housing and family stability.", "Dayton health systems rarely fund youth programs, so there is little competition from peers."], cautions: ["You will need to frame outcomes in health terms, which is new for you."], eligibilityChecks: okChecks([{ label: "Dayton metro", detail: "Yes" }, { label: "Named social driver of health", detail: "Housing stability and family income" }]) },
-  { id: "match_pemberton", orgId: ORG_ID, opportunityId: "opp_pemberton", fitScore: 72, status: "saved", isNew: false, createdAt: "2026-09-20T09:00:00Z", reasons: ["Summer Launch pays teens directly, which Pemberton requires.", "Ohio is in their footprint."], cautions: ["Two-stage process and a heavier application.", "They prefer programs serving 100 or more youth a year; Summer Launch serves 60."], eligibilityChecks: okChecks([{ label: "Midwest state", detail: "Ohio" }, { label: "Pays participants directly", detail: "$12/hour stipends" }]) },
-  { id: "match_nyoo", orgId: ORG_ID, opportunityId: "opp_nyoo_pathways", fitScore: 58, status: "new", isNew: true, createdAt: "2026-10-15T09:00:00Z", reasons: ["After-School Studio already runs inside district buildings.", "Award size would double your budget."], cautions: ["Requires a formal district partnership agreement and a 20% match in year three.", "Federal reporting is heavy for a four-person team. Consider it for next year."], eligibilityChecks: okChecks([{ label: "Formal district partnership", detail: "You have a data-sharing agreement, not a formal MOU", passed: false }, { label: "Title I school", detail: "Belmont and Stivers are Title I" }, { label: "20% match by year three", detail: "Not yet confirmed", passed: false }]) },
-  { id: "match_oalc_2027", orgId: ORG_ID, opportunityId: "opp_oalc_2027", fitScore: 61, status: "new", isNew: false, createdAt: "2026-10-01T09:00:00Z", reasons: ["Studio programming in music and screen printing fits creative youth development."], cautions: ["Last year's application was declined because no teaching artist was under contract.", "Deadline is far out; revisit in March."], eligibilityChecks: okChecks([{ label: "Teaching artist on staff or contract", detail: "Not currently", passed: false }]) },
-  { id: "match_mvct_spring", orgId: ORG_ID, opportunityId: "opp_mvct_spring", fitScore: 85, status: "new", isNew: false, createdAt: "2026-10-01T09:00:00Z", reasons: ["Same application as the fall round, so most of the work is reusable."], cautions: ["Rolling deadline. We will suggest timing after the fall decision."], eligibilityChecks: okChecks([{ label: "Montgomery County residents", detail: "Yes" }]) },
+  { id: "match_meridian", orgId: ORG_ID, opportunityId: "opp_meridian_2027", fitScore: 94, status: "applying", isNew: false, dismissReason: null, createdAt: "2026-09-05T09:00:00Z", reasons: ["Meridian funded you in 2024 and asks past grantees to reapply.", "Their focus on youth ages 10 to 18 in southwest Ohio matches your three programs exactly.", "Typical award of $25K to $40K sits inside your usual ask."], cautions: ["They prefer a short update on 2024 outcomes early in the narrative."], eligibilityChecks: okChecks([{ label: "Montgomery County", detail: "All programs run in Dayton" }, { label: "Budget under $2M", detail: "$342K" }, { label: "Two years of operations", detail: "Founded 2016" }]) },
+  { id: "match_mvct", orgId: ORG_ID, opportunityId: "opp_mvct_fall", fitScore: 89, status: "applying", isNew: false, dismissReason: null, createdAt: "2026-09-05T09:00:00Z", reasons: ["Your community foundation; they know East Dayton and fund basic needs and education.", "Four short questions, so this is about two hours of work.", "Family Navigators is a strong fit for their basic needs priority."], cautions: ["Awards rarely exceed $20K for first-time responsive grants."], eligibilityChecks: okChecks([{ label: "Montgomery County residents", detail: "100% of students live in Dayton" }]) },
+  { id: "match_brightwater", orgId: ORG_ID, opportunityId: "opp_brightwater_stem", fitScore: 84, status: "applying", isNew: false, dismissReason: null, createdAt: "2026-09-12T09:00:00Z", reasons: ["Summer Launch pairs students with engineers, which is exactly what Brightwater describes.", "Their Dayton plant is 6 miles from Belmont High School.", "They fund at $30K to $50K for programs of your size."], cautions: ["Brightwater requires AI disclosure in the cover letter.", "They want employer letters of support."], eligibilityChecks: okChecks([{ label: "Within 50 miles of a facility", detail: "Dayton plant, 6 miles" }, { label: "Majority ages 13 to 19", detail: "All participants are 14 to 18" }]) },
+  { id: "match_larkspur", orgId: ORG_ID, opportunityId: "opp_larkspur_loi", fitScore: 78, status: "new", isNew: true, dismissReason: null, createdAt: "2026-10-15T09:00:00Z", reasons: ["Your 94% graduation rate against the 81% district rate is the kind of outcome they highlight.", "A two-page letter is low effort for a possible $75K or more.", "Budget of $342K clears their $250K floor."], cautions: ["Larkspur funds few first-time applicants. Treat this as relationship building.", "They look for college enrollment data, which you do not track yet."], eligibilityChecks: okChecks([{ label: "Majority free or reduced lunch", detail: "Partner schools are 100% CEP" }, { label: "Budget $250K to $5M", detail: "$342K" }]) },
+  { id: "match_threerivers", orgId: ORG_ID, opportunityId: "opp_threerivers", fitScore: 76, status: "new", isNew: true, dismissReason: null, createdAt: "2026-10-15T09:00:00Z", reasons: ["Family Navigators directly addresses housing and family stability.", "Dayton health systems rarely fund youth programs, so there is little competition from peers."], cautions: ["You will need to frame outcomes in health terms, which is new for you."], eligibilityChecks: okChecks([{ label: "Dayton metro", detail: "Yes" }, { label: "Named social driver of health", detail: "Housing stability and family income" }]) },
+  { id: "match_pemberton", orgId: ORG_ID, opportunityId: "opp_pemberton", fitScore: 72, status: "saved", isNew: false, dismissReason: null, createdAt: "2026-09-20T09:00:00Z", reasons: ["Summer Launch pays teens directly, which Pemberton requires.", "Ohio is in their footprint."], cautions: ["Two-stage process and a heavier application.", "They prefer programs serving 100 or more youth a year; Summer Launch serves 60."], eligibilityChecks: okChecks([{ label: "Midwest state", detail: "Ohio" }, { label: "Pays participants directly", detail: "$12/hour stipends" }]) },
+  { id: "match_nyoo", orgId: ORG_ID, opportunityId: "opp_nyoo_pathways", fitScore: 58, status: "new", isNew: true, dismissReason: null, createdAt: "2026-10-15T09:00:00Z", reasons: ["After-School Studio already runs inside district buildings.", "Award size would double your budget."], cautions: ["Requires a formal district partnership agreement and a 20% match in year three.", "Federal reporting is heavy for a four-person team. Consider it for next year."], eligibilityChecks: okChecks([{ label: "Formal district partnership", detail: "You have a data-sharing agreement, not a formal MOU", passed: false }, { label: "Title I school", detail: "Belmont and Stivers are Title I" }, { label: "20% match by year three", detail: "Not yet confirmed", passed: false }]) },
+  { id: "match_oalc_2027", orgId: ORG_ID, opportunityId: "opp_oalc_2027", fitScore: 61, status: "new", isNew: false, dismissReason: null, createdAt: "2026-10-01T09:00:00Z", reasons: ["Studio programming in music and screen printing fits creative youth development."], cautions: ["Last year's application was declined because no teaching artist was under contract.", "Deadline is far out; revisit in March."], eligibilityChecks: okChecks([{ label: "Teaching artist on staff or contract", detail: "Not currently", passed: false }]) },
+  { id: "match_mvct_spring", orgId: ORG_ID, opportunityId: "opp_mvct_spring", fitScore: 85, status: "new", isNew: false, dismissReason: null, createdAt: "2026-10-01T09:00:00Z", reasons: ["Same application as the fall round, so most of the work is reusable."], cautions: ["Rolling deadline. We will suggest timing after the fall decision."], eligibilityChecks: okChecks([{ label: "Montgomery County residents", detail: "Yes" }]) },
 ];
 
 export const applications: Application[] = [
-  { id: "app_meridian", orgId: ORG_ID, opportunityId: "opp_meridian_2027", matchId: "match_meridian", stage: "drafting", askAmount: 40000, ownerId: CURRENT_USER_ID, submittedAt: null, createdAt: "2026-09-08T10:00:00Z", updatedAt: "2026-10-16T17:40:00Z" },
-  { id: "app_mvct", orgId: ORG_ID, opportunityId: "opp_mvct_fall", matchId: "match_mvct", stage: "review", askAmount: 20000, ownerId: "user_priya", submittedAt: null, createdAt: "2026-09-10T10:00:00Z", updatedAt: "2026-10-15T12:00:00Z" },
-  { id: "app_brightwater", orgId: ORG_ID, opportunityId: "opp_brightwater_stem", matchId: "match_brightwater", stage: "researching", askAmount: 45000, ownerId: CURRENT_USER_ID, submittedAt: null, createdAt: "2026-09-28T10:00:00Z", updatedAt: "2026-10-14T09:00:00Z" },
-  { id: "app_larkspur", orgId: ORG_ID, opportunityId: "opp_larkspur_loi", matchId: "match_larkspur", stage: "discovered", askAmount: 75000, ownerId: null, submittedAt: null, createdAt: "2026-10-15T10:00:00Z", updatedAt: "2026-10-15T10:00:00Z" },
-  { id: "app_threerivers", orgId: ORG_ID, opportunityId: "opp_threerivers", matchId: "match_threerivers", stage: "discovered", askAmount: 30000, ownerId: null, submittedAt: null, createdAt: "2026-10-15T10:00:00Z", updatedAt: "2026-10-15T10:00:00Z" },
-  { id: "app_cedar", orgId: ORG_ID, opportunityId: "opp_cedar_fall", matchId: null, stage: "submitted", askAmount: 10000, ownerId: "user_priya", submittedAt: "2026-09-28T15:20:00Z", createdAt: "2026-09-06T10:00:00Z", updatedAt: "2026-09-28T15:20:00Z" },
-  { id: "app_hollis", orgId: ORG_ID, opportunityId: "opp_hollis_2026", matchId: null, stage: "won", askAmount: 12000, ownerId: CURRENT_USER_ID, submittedAt: "2026-06-10T15:20:00Z", createdAt: "2026-05-20T10:00:00Z", updatedAt: "2026-08-14T10:00:00Z" },
-  { id: "app_oalc", orgId: ORG_ID, opportunityId: "opp_oalc_2026", matchId: null, stage: "lost", askAmount: 20000, ownerId: CURRENT_USER_ID, submittedAt: "2026-04-28T15:20:00Z", createdAt: "2026-03-15T10:00:00Z", updatedAt: "2026-07-20T10:00:00Z" },
+  { id: "app_meridian", orgId: ORG_ID, opportunityId: "opp_meridian_2027", matchId: "match_meridian", stage: "drafting", mode: "proposal", askAmount: 40000, ownerId: CURRENT_USER_ID, submittedAt: null, createdAt: "2026-09-08T10:00:00Z", updatedAt: "2026-10-16T17:40:00Z" },
+  { id: "app_mvct", orgId: ORG_ID, opportunityId: "opp_mvct_fall", matchId: "match_mvct", stage: "review", mode: "proposal", askAmount: 20000, ownerId: "user_priya", submittedAt: null, createdAt: "2026-09-10T10:00:00Z", updatedAt: "2026-10-15T12:00:00Z" },
+  { id: "app_brightwater", orgId: ORG_ID, opportunityId: "opp_brightwater_stem", matchId: "match_brightwater", stage: "researching", mode: "proposal", askAmount: 45000, ownerId: CURRENT_USER_ID, submittedAt: null, createdAt: "2026-09-28T10:00:00Z", updatedAt: "2026-10-14T09:00:00Z" },
+  { id: "app_larkspur", orgId: ORG_ID, opportunityId: "opp_larkspur_loi", matchId: "match_larkspur", stage: "discovered", mode: "proposal", askAmount: 75000, ownerId: null, submittedAt: null, createdAt: "2026-10-15T10:00:00Z", updatedAt: "2026-10-15T10:00:00Z" },
+  { id: "app_threerivers", orgId: ORG_ID, opportunityId: "opp_threerivers", matchId: "match_threerivers", stage: "discovered", mode: "proposal", askAmount: 30000, ownerId: null, submittedAt: null, createdAt: "2026-10-15T10:00:00Z", updatedAt: "2026-10-15T10:00:00Z" },
+  { id: "app_cedar", orgId: ORG_ID, opportunityId: "opp_cedar_fall", matchId: null, stage: "submitted", mode: "proposal", askAmount: 10000, ownerId: "user_priya", submittedAt: "2026-09-28T15:20:00Z", createdAt: "2026-09-06T10:00:00Z", updatedAt: "2026-09-28T15:20:00Z" },
+  { id: "app_hollis", orgId: ORG_ID, opportunityId: "opp_hollis_2026", matchId: null, stage: "won", mode: "proposal", askAmount: 12000, ownerId: CURRENT_USER_ID, submittedAt: "2026-06-10T15:20:00Z", createdAt: "2026-05-20T10:00:00Z", updatedAt: "2026-08-14T10:00:00Z" },
+  { id: "app_oalc", orgId: ORG_ID, opportunityId: "opp_oalc_2026", matchId: null, stage: "lost", mode: "proposal", askAmount: 20000, ownerId: CURRENT_USER_ID, submittedAt: "2026-04-28T15:20:00Z", createdAt: "2026-03-15T10:00:00Z", updatedAt: "2026-07-20T10:00:00Z" },
 ];
 
 export const outcomes: Outcome[] = [
@@ -282,7 +288,7 @@ export const milestones: Milestone[] = [
 ];
 
 export const emailDrafts: EmailDraft[] = [
-  { id: "email_brightwater_intro", orgId: ORG_ID, applicationId: "app_brightwater", funderId: "funder_brightwater", contactId: "contact_brightwater", kind: "question", subject: "Question about STEM Futures eligibility for a summer program", body: `Hi Tomas,
+  { id: "email_brightwater_intro", orgId: ORG_ID, applicationId: "app_brightwater", funderId: "funder_brightwater", contactId: "contact_brightwater", to: null, toName: null, status: "draft", sentAt: null, sentVia: null, followUpAt: null, createdAt: "2026-10-15T14:20:05Z", kind: "question", subject: "Question about STEM Futures eligibility for a summer program", body: `Hi Tomas,
 
 I run Riverbend Youth Collective, a small nonprofit in East Dayton. Our Summer Launch program pairs 60 high school students with engineers from local employers for six weeks of hands-on projects and a paid first job.
 
@@ -296,7 +302,7 @@ Happy to send our one-page program summary if useful. Thank you for your time.
 Dana Okafor
 Executive Director, Riverbend Youth Collective
 (937) 555-0142` },
-  { id: "email_hollis_thanks", orgId: ORG_ID, applicationId: "app_hollis", funderId: "funder_hollis", contactId: "contact_hollis", kind: "thank_you", subject: "Thank you from Riverbend Youth Collective", body: `Dear friends at the Hollis & Marsh Charitable Fund,
+  { id: "email_hollis_thanks", orgId: ORG_ID, applicationId: "app_hollis", funderId: "funder_hollis", contactId: "contact_hollis", to: null, toName: null, status: "draft", sentAt: null, sentVia: null, followUpAt: null, createdAt: "2026-10-15T14:20:05Z", kind: "thank_you", subject: "Thank you from Riverbend Youth Collective", body: `Dear friends at the Hollis & Marsh Charitable Fund,
 
 Thank you for your $12,000 grant to After-School Studio. It arrived the week school started, and it is already paying stipends for our lead tutors at Belmont.
 
@@ -366,3 +372,49 @@ export const notificationSettings: NotificationSettings = {
   inboxAlerts: true,
   reminderDaysBefore: 3,
 };
+
+export const savedSearches: SavedSearch[] = [
+  { id: "search_mentoring", orgId: ORG_ID, name: "Youth mentoring", keyword: "mentoring", fundingCategories: ["ED"], createdAt: "2026-10-01T09:00:00Z", lastRunAt: "2026-10-15T09:00:00Z" },
+  { id: "search_afterschool", orgId: ORG_ID, name: "After-school programs", keyword: "afterschool", fundingCategories: [], createdAt: "2026-10-01T09:00:00Z", lastRunAt: null },
+];
+
+export const orgContacts: OrgContact[] = [
+  { id: "oc_marcus", orgId: ORG_ID, name: "Marcus Bell", organization: "Bell Hardware", role: "Owner and board member", email: "marcus.bell@example.com", phone: null, kind: "board", relationship: "On our board since 2019. Knows the Meridian family through the Dayton Chamber.", funderId: "funder_meridian", source: "manual", lastTouchAt: "2026-10-02T15:00:00Z", createdAt: "2026-09-05T10:00:00Z" },
+  { id: "oc_lena", orgId: ORG_ID, name: "Lena Okoro", organization: "Dayton Public Schools", role: "Director of Family Engagement", email: null, phone: null, kind: "partner", relationship: "Our district partner for the data-sharing agreement.", funderId: null, source: "manual", lastTouchAt: "2026-09-20T15:00:00Z", createdAt: "2026-09-05T10:00:00Z" },
+  { id: "oc_priya_board", orgId: ORG_ID, name: "Harold Finch", organization: "Miami Valley Community Trust", role: "Trustee", email: null, phone: null, kind: "board", relationship: "Priya's former colleague. Sits on the Trust's responsive grants committee.", funderId: "funder_mvct", source: "csv", lastTouchAt: null, createdAt: "2026-09-12T10:00:00Z" },
+];
+
+export const contactNotes: ContactNote[] = [
+  { id: "cn_1", orgId: ORG_ID, contactId: "oc_marcus", kind: "meeting", note: "Coffee after the board meeting. He offered to mention us to Elaine at Meridian before we reapply.", nextStep: "Send him the one-page summary by Oct 20.", happenedAt: "2026-10-02T15:00:00Z" },
+];
+
+export const socialCampaigns: SocialCampaign[] = [
+  {
+    id: "camp_2026_11",
+    orgId: ORG_ID,
+    month: "2026-11",
+    theme: "Show the work behind the Meridian and Miami Valley applications: studios, tutors, and one family story.",
+    status: "draft",
+    createdAt: "2026-10-28T09:00:00Z",
+    posts: [
+      { id: "post_1", platform: "instagram", date: "2026-11-03", text: "Four afternoons a week, 140 students, one hot meal each. After-School Studio is back at Belmont and Stivers. Here is what Tuesday looks like.", tiedTo: { kind: "application", id: "app_meridian", label: "Meridian Youth Development 2027" }, status: "draft" },
+      { id: "post_2", platform: "linkedin", date: "2026-11-10", text: "94% of the seniors in our after-school program graduated on time last year, against a district rate of 81%. The difference is not talent. It is the hours between 3 and 7 pm, and the adults who show up for them.", tiedTo: { kind: "program", id: null, label: "After-School Studio" }, status: "draft" },
+      { id: "post_3", platform: "facebook", date: "2026-11-17", text: "Family Navigators worked with 85 families this year on housing, benefits, and enrollment. 79 of their students stayed in school through June. Thank you to the two navigators who made every call.", tiedTo: { kind: "program", id: null, label: "Family Navigators" }, status: "draft" },
+    ],
+  },
+];
+
+export const budgets: Budget[] = [
+  {
+    id: "budget_meridian",
+    orgId: ORG_ID,
+    applicationId: "app_meridian",
+    updatedAt: "2026-10-16T17:40:00Z",
+    justification: "",
+    lines: [
+      { id: "bl_1", category: "personnel", item: "Lead tutor stipends", amount: 24000, note: "Stipends for lead tutors so small groups stay at one to four." },
+      { id: "bl_2", category: "supplies", item: "Meals and transportation", amount: 9000, note: "Meals and bus passes for 20 additional students." },
+      { id: "bl_3", category: "equipment", item: "Woodworking studio equipment", amount: 7000, note: "Benches, hand tools, and safety gear for the third studio track." },
+    ],
+  },
+];

@@ -1,6 +1,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
   AgentRun,
+  Budget,
+  ContactNote,
+  OrgContact,
+  ReviewerCheck,
+  SavedSearch,
+  SectionVersion,
+  SocialCampaign,
   Application,
   ApplicationView,
   Boilerplate,
@@ -30,7 +37,10 @@ import { wordCount } from "@/lib/format";
 import { runtimeMode } from "@/lib/env";
 import { adminClient, createUserClient } from "@/lib/supabase/clients";
 import { getSession, requireSession, type SessionContext } from "@/lib/supabase/session";
-import type { Services } from "./contracts";
+import type { LoopResult, Services } from "./contracts";
+import { checkUse, exportCampaign, icsUrlFor, usageThisMonth, withUsage } from "./shared";
+import { planMilestones as planFromDeadline } from "@/lib/loop/milestones";
+import { BUDGET_CATEGORY_LABEL, budgetTotal } from "@/lib/loop/budget";
 
 /**
  * The Supabase adapter. Every method resolves the signed-in user's
@@ -71,6 +81,7 @@ export const map = {
     staffCount: num(r.staff_count),
     volunteerCount: num(r.volunteer_count),
     onboardingStep: (r.onboarding_step as Organization["onboardingStep"]) ?? "start",
+    calendarToken: str(r.calendar_token),
     createdAt: iso(r.created_at),
   }),
   orgPatch: (p: Partial<Organization>): Row => {
@@ -132,7 +143,7 @@ export const map = {
     sizeBytes: Number(r.size_bytes ?? 0),
     status: r.status as Document["status"],
     pageCount: num(r.page_count),
-    factCount,
+    factCount: factCount || Number(r.fact_count ?? 0),
     uploadedAt: iso(r.uploaded_at),
   }),
   boilerplate: (r: Row): Boilerplate => ({
@@ -225,6 +236,7 @@ export const map = {
       eligibilityChecks: (r.eligibility_checks as Match["eligibilityChecks"]) ?? [],
       status: r.status as Match["status"],
       isNew: r.status === "new" && Date.now() - new Date(createdAt).getTime() < 7 * 24 * 3600 * 1000,
+      dismissReason: (r.dismiss_reason as string | null) ?? null,
       createdAt,
     };
   },
@@ -234,6 +246,7 @@ export const map = {
     opportunityId: str(r.opportunity_id),
     matchId: (r.match_id as string | null) ?? null,
     stage: r.stage as Application["stage"],
+    mode: (r.mode as Application["mode"]) ?? "letter",
     askAmount: num(r.ask_amount),
     ownerId: (r.owner_id as string | null) ?? null,
     submittedAt: r.submitted_at ? iso(r.submitted_at) : null,
@@ -246,7 +259,23 @@ export const map = {
   check: (r: Row): ComplianceCheck => ({ id: str(r.id), applicationId: str(r.application_id), rule: str(r.rule), status: r.status as ComplianceCheck["status"], detail: str(r.detail), sectionId: (r.section_id as string | null) ?? null }),
   milestone: (r: Row): Milestone => ({ id: str(r.id), orgId: str(r.org_id), applicationId: str(r.application_id), title: str(r.title), dueDate: str(r.due_date).slice(0, 10), kind: r.kind as Milestone["kind"], assigneeId: (r.assignee_id as string | null) ?? null, done: Boolean(r.done) }),
   outcome: (r: Row): Outcome => ({ id: str(r.id), applicationId: str(r.application_id), result: r.result as Outcome["result"], awardAmount: num(r.award_amount), feedback: (r.feedback as string | null) ?? null, decidedAt: iso(r.decided_at) }),
-  emailDraft: (r: Row): EmailDraft => ({ id: str(r.id), orgId: str(r.org_id), applicationId: (r.application_id as string | null) ?? null, funderId: str(r.funder_id), contactId: (r.contact_id as string | null) ?? null, kind: r.kind as EmailDraft["kind"], subject: str(r.subject), body: str(r.body) }),
+  emailDraft: (r: Row): EmailDraft => ({
+    id: str(r.id),
+    orgId: str(r.org_id),
+    applicationId: (r.application_id as string | null) ?? null,
+    funderId: str(r.funder_id),
+    contactId: (r.contact_id as string | null) ?? null,
+    kind: r.kind as EmailDraft["kind"],
+    subject: str(r.subject),
+    body: str(r.body),
+    to: (r.to as string | null) ?? null,
+    toName: (r.to_name as string | null) ?? null,
+    status: (r.status as EmailDraft["status"]) ?? "draft",
+    sentAt: r.sent_at ? iso(r.sent_at) : null,
+    sentVia: (r.sent_via as EmailDraft["sentVia"]) ?? null,
+    followUpAt: r.follow_up_at ? iso(r.follow_up_at) : null,
+    createdAt: iso(r.created_at),
+  }),
   plan: (r: Row): MonthlyPlan => ({ id: str(r.id), orgId: str(r.org_id), month: str(r.month).slice(0, 7), summary: str(r.summary), items: (r.items as MonthlyPlan["items"]) ?? [], status: (r.status as MonthlyPlan["status"]) ?? "proposed" }),
   inbox: (r: Row): InboxItem => ({
     id: str(r.id),
@@ -300,6 +329,13 @@ export const map = {
     if (extra.models) out.models = extra.models;
     return out;
   },
+  version: (r: Row): SectionVersion => ({ id: str(r.id), sectionId: str(r.section_id), bodyHtml: str(r.body_html), note: str(r.note), byName: str(r.by_name), createdAt: iso(r.created_at) }),
+  review: (r: Row): ReviewerCheck => ({ id: str(r.id), applicationId: str(r.application_id), overall: Number(r.overall ?? 0), criteria: (r.criteria as ReviewerCheck["criteria"]) ?? [], summary: str(r.summary), createdAt: iso(r.created_at) }),
+  budget: (r: Row): Budget => ({ id: str(r.id), orgId: str(r.org_id), applicationId: str(r.application_id), lines: (r.lines as Budget["lines"]) ?? [], justification: str(r.justification), updatedAt: iso(r.updated_at) }),
+  orgContact: (r: Row): OrgContact => ({ id: str(r.id), orgId: str(r.org_id), name: str(r.name), organization: str(r.organization), role: str(r.role), email: (r.email as string | null) ?? null, phone: (r.phone as string | null) ?? null, kind: (r.kind as OrgContact["kind"]) ?? "other", relationship: str(r.relationship), funderId: (r.funder_id as string | null) ?? null, source: (r.source as OrgContact["source"]) ?? "manual", lastTouchAt: r.last_touch_at ? iso(r.last_touch_at) : null, createdAt: iso(r.created_at) }),
+  contactNote: (r: Row): ContactNote => ({ id: str(r.id), orgId: str(r.org_id), contactId: str(r.contact_id), kind: (r.kind as ContactNote["kind"]) ?? "note", note: str(r.note), nextStep: (r.next_step as string | null) ?? null, happenedAt: iso(r.happened_at) }),
+  campaign: (r: Row): SocialCampaign => ({ id: str(r.id), orgId: str(r.org_id), month: str(r.month), theme: str(r.theme), posts: (r.posts as SocialCampaign["posts"]) ?? [], status: (r.status as SocialCampaign["status"]) ?? "draft", createdAt: iso(r.created_at) }),
+  savedSearch: (r: Row): SavedSearch => ({ id: str(r.id), orgId: str(r.org_id), name: str(r.name), keyword: str(r.keyword), fundingCategories: (r.funding_categories as string[]) ?? [], createdAt: iso(r.created_at), lastRunAt: r.last_run_at ? iso(r.last_run_at) : null }),
   subscription: (r: Row | null, orgId: string): Subscription => ({
     id: str(r?.id, "sub"),
     orgId,
@@ -378,6 +414,11 @@ async function recomputeSectionChecks(db: SupabaseClient, section: Section) {
 export function makeSupabaseServices(): Services {
   const db = adminClient();
   const ctx = (): Promise<SessionContext> => requireSession();
+  const loopStore = async () => {
+    const s = await ctx();
+    const { makeSupabaseStore } = await import("@/lib/loop/supabase-store");
+    return { s, st: makeSupabaseStore(s) };
+  };
 
   const org = {
     async get() {
@@ -405,6 +446,21 @@ export function makeSupabaseServices(): Services {
       const s = await ctx();
       const { data: m } = await db.from("org_members").select("role").eq("org_id", s.orgId).eq("user_id", s.userId).maybeSingle();
       return { id: s.userId, orgId: s.orgId, fullName: s.fullName, email: s.email, role: (m?.role as Member["role"]) ?? "owner", status: "active" as const };
+    },
+    async updateMemberRole(id: string, role: Member["role"]) {
+      const s = await ctx();
+      // id is the user id for active members and the row id for invites.
+      await db.from("org_members").update({ role }).eq("org_id", s.orgId).or(`user_id.eq.${id},id.eq.${id}`);
+      return (await org.listMembers()).find((m) => m.id === id) ?? { id, orgId: s.orgId, fullName: "", email: "", role, status: "invited" as const };
+    },
+    async removeMember(id: string) {
+      const s = await ctx();
+      if (id === s.userId) return;
+      await db.from("org_members").delete().eq("org_id", s.orgId).or(`user_id.eq.${id},id.eq.${id}`);
+    },
+    async deleteWorkspace() {
+      const s = await ctx();
+      await db.from("organizations").delete().eq("id", s.orgId);
     },
   };
 
@@ -448,6 +504,19 @@ export function makeSupabaseServices(): Services {
       const s = await ctx();
       await db.from("documents").delete().eq("id", id).eq("org_id", s.orgId);
     },
+    async extractDocument(id: string) {
+      const { st } = await loopStore();
+      const { extractDocumentFacts } = await import("@/lib/loop/features");
+      return extractDocumentFacts(st, id);
+    },
+    async addBoilerplate(input: { type: Boilerplate["type"]; title: string; body: string }) {
+      const s = await ctx();
+      return map.boilerplate(must(await db.from("boilerplates").insert({ org_id: s.orgId, type: input.type, title: input.title, body: input.body }).select("*").single(), "boilerplate"));
+    },
+    async removeBoilerplate(id: string) {
+      const s = await ctx();
+      await db.from("boilerplates").delete().eq("id", id).eq("org_id", s.orgId);
+    },
   };
 
   const opportunities = {
@@ -480,13 +549,42 @@ export function makeSupabaseServices(): Services {
       const r = must(await db.from("matches").update({ status }).eq("id", id).eq("org_id", s.orgId).select("*").single(), "match");
       return (await toMatchViews(db, [map.match(r)]))[0];
     },
-    async startApplication(opportunityId: string) {
+    async dismiss(id: string, reason: string) {
+      const s = await ctx();
+      const r = must(await db.from("matches").update({ status: "dismissed", dismiss_reason: reason.trim() || null }).eq("id", id).eq("org_id", s.orgId).select("*").single(), "match");
+      return (await toMatchViews(db, [map.match(r)]))[0];
+    },
+    async listSavedSearches() {
+      const s = await ctx();
+      return many(await db.from("saved_searches").select("*").eq("org_id", s.orgId).order("created_at", { ascending: false }), "saved searches").map(map.savedSearch);
+    },
+    async saveSearch(input: { name: string; keyword: string; fundingCategories: string[] }) {
+      const s = await ctx();
+      return map.savedSearch(must(await db.from("saved_searches").insert({ org_id: s.orgId, name: input.name.trim() || input.keyword, keyword: input.keyword.trim(), funding_categories: input.fundingCategories }).select("*").single(), "saved search"));
+    },
+    async deleteSavedSearch(id: string) {
+      const s = await ctx();
+      await db.from("saved_searches").delete().eq("id", id).eq("org_id", s.orgId);
+    },
+    async runSearch(input: { keyword: string; fundingCategories: string[]; savedSearchId?: string }) {
+      const { s, st } = await loopStore();
+      const { customSearch } = await import("@/lib/loop/features");
+      const r = await customSearch(st, { keyword: input.keyword, fundingCategories: input.fundingCategories });
+      if (r.ok && input.savedSearchId) await db.from("saved_searches").update({ last_run_at: new Date().toISOString() }).eq("id", input.savedSearchId).eq("org_id", s.orgId);
+      return r;
+    },
+    async scoreCandidates(externalIds: string[]) {
+      const { st } = await loopStore();
+      const { scoreSelected } = await import("@/lib/loop/features");
+      return scoreSelected(st, externalIds);
+    },
+    async startApplication(opportunityId: string, mode?: Application["mode"]) {
       const s = await ctx();
       const { data: existing } = await db.from("applications").select("*").eq("org_id", s.orgId).eq("opportunity_id", opportunityId).maybeSingle();
       if (existing) return map.application(existing);
       const { data: match } = await db.from("matches").select("id").eq("org_id", s.orgId).eq("opportunity_id", opportunityId).maybeSingle();
       if (match) await db.from("matches").update({ status: "applying" }).eq("id", match.id);
-      const r = must(await db.from("applications").insert({ org_id: s.orgId, opportunity_id: opportunityId, match_id: match?.id ?? null, stage: "researching", owner_id: s.userId }).select("*").single(), "application");
+      const r = must(await db.from("applications").insert({ org_id: s.orgId, opportunity_id: opportunityId, match_id: match?.id ?? null, stage: "researching", mode: mode ?? "letter", owner_id: s.userId }).select("*").single(), "application");
       return map.application(r);
     },
   };
@@ -563,6 +661,71 @@ export function makeSupabaseServices(): Services {
       const r = must(await db.from("applications").update({ stage: result === "won" ? "won" : "lost" }).eq("id", id).eq("org_id", s.orgId).select("*").single(), "application");
       return (await toApplicationViews(db, [map.application(r)]))[0];
     },
+    async setMode(id: string, mode: Application["mode"]) {
+      const s = await ctx();
+      const r = must(await db.from("applications").update({ mode }).eq("id", id).eq("org_id", s.orgId).select("*").single(), "application");
+      return (await toApplicationViews(db, [map.application(r)]))[0];
+    },
+    async setAskAmount(id: string, askAmount: number | null) {
+      const s = await ctx();
+      const r = must(await db.from("applications").update({ ask_amount: askAmount }).eq("id", id).eq("org_id", s.orgId).select("*").single(), "application");
+      return (await toApplicationViews(db, [map.application(r)]))[0];
+    },
+    async listVersions(sectionId: string) {
+      await ctx();
+      return many(await db.from("section_versions").select("*").eq("section_id", sectionId).order("created_at", { ascending: false }).limit(30), "versions").map(map.version);
+    },
+    async restoreVersion(versionId: string) {
+      const s = await ctx();
+      const v = map.version(must(await db.from("section_versions").select("*").eq("id", versionId).single(), "version"));
+      const cur = map.section(must(await db.from("sections").select("*").eq("id", v.sectionId).single(), "section"));
+      await db.from("section_versions").insert({ section_id: cur.id, body_html: cur.bodyHtml, note: "Before restoring an earlier version", by_name: s.fullName || s.email });
+      const r = map.section(must(await db.from("sections").update({ body_html: v.bodyHtml, status: "edited" }).eq("id", cur.id).select("*").single(), "section"));
+      await recomputeSectionChecks(db, r);
+      return r;
+    },
+    async revise(input: { sectionId: string; html: string; action: "rewrite" | "shorten" | "expand" | "tone"; tone?: "plain" | "warm" | "formal" | "confident"; wordLimit?: number | null }) {
+      const { st } = await loopStore();
+      const { reviseSection } = await import("@/lib/loop/features");
+      return reviseSection(st, input);
+    },
+    async runReviewerCheck(id: string) {
+      const { st } = await loopStore();
+      const { runReviewer } = await import("@/lib/loop/features");
+      return runReviewer(st, id);
+    },
+    async getReviewerCheck(id: string) {
+      await ctx();
+      const { data } = await db.from("reviewer_checks").select("*").eq("application_id", id).order("created_at", { ascending: false }).limit(1).maybeSingle();
+      return data ? map.review(data) : null;
+    },
+    async getBudget(id: string) {
+      const { st } = await loopStore();
+      return st.getBudget(id);
+    },
+    async saveBudget(id: string, lines: Budget["lines"], justification: string) {
+      const { st } = await loopStore();
+      return st.saveBudget(id, lines, justification);
+    },
+    async writeBudgetJustification(id: string) {
+      const { st } = await loopStore();
+      const { budgetJustification } = await import("@/lib/loop/features");
+      return budgetJustification(st, id);
+    },
+    async addBudgetSection(id: string) {
+      const { st } = await loopStore();
+      const b = await st.getBudget(id);
+      if (!b) throw new Error("No budget yet");
+      const rows = b.lines.map((l) => `<li>${BUDGET_CATEGORY_LABEL[l.category]}: ${l.item}, $${l.amount.toLocaleString("en-US")}</li>`).join("");
+      const html = `<ul>${rows}</ul><p>Total request: $${budgetTotal(b.lines).toLocaleString("en-US")}.</p>${b.justification ? b.justification.split(/\n\n+/).map((p) => `<p>${p.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</p>`).join("") : ""}`;
+      const sections = await st.listSections(id);
+      const existing = sections.find((x) => x.title === "Budget and justification");
+      if (existing) {
+        await st.updateSection(existing.id, { bodyHtml: html, status: "edited" });
+        return { ...existing, bodyHtml: html, status: "edited" as const };
+      }
+      return st.addSection(id, { requirementId: null, title: "Budget and justification", bodyHtml: html, wordLimit: null, status: "edited", order: sections.length + 1 });
+    },
   };
 
   const inbox = {
@@ -635,6 +798,23 @@ export function makeSupabaseServices(): Services {
       const s = await ctx();
       return map.milestone(must(await db.from("milestones").update({ done, done_at: done ? new Date().toISOString() : null }).eq("id", id).eq("org_id", s.orgId).select("*").single(), "milestone"));
     },
+    async assignMilestone(id: string, assigneeId: string | null) {
+      const s = await ctx();
+      return map.milestone(must(await db.from("milestones").update({ assignee_id: assigneeId }).eq("id", id).eq("org_id", s.orgId).select("*").single(), "milestone"));
+    },
+    async planMilestones(applicationId: string, options?: { boardReview?: boolean; hours?: number }) {
+      const { s, st } = await loopStore();
+      const ctxApp = await st.getApplication(applicationId);
+      if (!ctxApp || !ctxApp.opportunity.deadline) return [];
+      await db.from("milestones").delete().eq("application_id", applicationId).eq("done", false);
+      const planned = planFromDeadline(ctxApp.opportunity.deadline, { boardReview: options?.boardReview, effort: ctxApp.opportunity.effort, mode: ctxApp.application.mode });
+      const rows = planned.map((p) => ({ org_id: s.orgId, application_id: applicationId, title: p.title, due_date: p.dueDate, kind: p.kind, assignee_id: ctxApp.application.ownerId }));
+      return many(await db.from("milestones").insert(rows).select("*"), "milestones").map(map.milestone);
+    },
+    async icsUrl() {
+      const o = await org.get();
+      return icsUrlFor(o.calendarToken);
+    },
   };
 
   const activity = {
@@ -653,7 +833,30 @@ export function makeSupabaseServices(): Services {
     async getSubscription() {
       const s = await ctx();
       const { data } = await db.from("subscriptions").select("*").eq("org_id", s.orgId).maybeSingle();
-      return map.subscription(data, s.orgId);
+      const [apps, matches] = await Promise.all([db.from("applications").select("*").eq("org_id", s.orgId), db.from("matches").select("*").eq("org_id", s.orgId)]);
+      return withUsage(map.subscription(data, s.orgId), usageThisMonth((apps.data ?? []).map(map.application), (matches.data ?? []).map(map.match)));
+    },
+    async checkoutUrl(plan: "starter" | "growth") {
+      const s = await ctx();
+      const { createCheckoutSession, stripeConnected } = await import("@/lib/integrations/stripe");
+      if (!stripeConnected()) return { ok: false as const, code: "no_ai" as const, error: "Stripe is not connected on this server yet. The Integrations page says how to add it." };
+      const { data } = await db.from("subscriptions").select("stripe_customer_id").eq("org_id", s.orgId).maybeSingle();
+      const base = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+      const r = await createCheckoutSession({ orgId: s.orgId, email: s.email, plan, customerId: (data?.stripe_customer_id as string | null) ?? null, successUrl: `${base}/settings?tab=billing&checkout=success`, cancelUrl: `${base}/settings?tab=billing&checkout=canceled` });
+      return r.ok ? { ok: true as const, data: { url: r.url } } : { ok: false as const, code: "failed" as const, error: r.message };
+    },
+    async portalUrl() {
+      const s = await ctx();
+      const { createPortalSession, stripeConnected } = await import("@/lib/integrations/stripe");
+      if (!stripeConnected()) return { ok: false as const, code: "no_ai" as const, error: "Stripe is not connected on this server yet." };
+      const { data } = await db.from("subscriptions").select("stripe_customer_id").eq("org_id", s.orgId).maybeSingle();
+      if (!data?.stripe_customer_id) return { ok: false as const, code: "failed" as const, error: "No billing account yet. Start a paid plan first." };
+      const base = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+      const r = await createPortalSession({ customerId: String(data.stripe_customer_id), returnUrl: `${base}/settings?tab=billing` });
+      return r.ok ? { ok: true as const, data: { url: r.url } } : { ok: false as const, code: "failed" as const, error: r.message };
+    },
+    async canUse(what: "proposal" | "match") {
+      return checkUse(await billing.getSubscription(), what);
     },
     async listInvoices() {
       await ctx();
@@ -661,7 +864,10 @@ export function makeSupabaseServices(): Services {
     },
     async changePlan(plan: Subscription["plan"]) {
       const s = await ctx();
-      const { data } = await db.from("subscriptions").upsert({ org_id: s.orgId, plan }, { onConflict: "org_id" }).select("*").single();
+      const { stripeConnected } = await import("@/lib/integrations/stripe");
+      // With Stripe connected, paid plans go through Checkout; only a downgrade to Free is switched here.
+      if (stripeConnected() && plan !== "free") return billing.getSubscription();
+      const { data } = await db.from("subscriptions").upsert({ org_id: s.orgId, plan, status: "active" }, { onConflict: "org_id" }).select("*").single();
       return map.subscription(data, s.orgId);
     },
     async getNotificationSettings() {
@@ -753,9 +959,186 @@ export function makeSupabaseServices(): Services {
       const { makeSupabaseStore } = await import("@/lib/loop/supabase-store");
       return draftLetterFor(makeSupabaseStore(s), applicationId);
     },
+    async draftProposal(applicationId: string, jobId?: string) {
+      const { st } = await loopStore();
+      const { draftProposalFor } = await import("@/lib/loop/features");
+      return draftProposalFor(st, applicationId, jobId);
+    },
   };
 
-  return { org, knowledge, opportunities, applications, inbox, calendar, activity, billing, auth, loop };
+  const outreach = {
+    async list() {
+      const s = await ctx();
+      return many(await db.from("email_drafts").select("*").eq("org_id", s.orgId).order("created_at", { ascending: false }), "email drafts").map(map.emailDraft);
+    },
+    async get(id: string) {
+      const s = await ctx();
+      const { data } = await db.from("email_drafts").select("*").eq("id", id).eq("org_id", s.orgId).maybeSingle();
+      return data ? map.emailDraft(data) : null;
+    },
+    async draft(input: { kind: EmailDraft["kind"]; applicationId: string | null; funderId: string | null; contactId: string | null; to: string | null; toName: string | null; notes: string }) {
+      const { st } = await loopStore();
+      const { draftOutreach } = await import("@/lib/loop/features");
+      return draftOutreach(st, input);
+    },
+    async update(id: string, patch: Partial<Pick<EmailDraft, "subject" | "body" | "to" | "toName" | "status" | "followUpAt">>) {
+      const s = await ctx();
+      const row: Row = {};
+      if (patch.subject !== undefined) row.subject = patch.subject;
+      if (patch.body !== undefined) row.body = patch.body;
+      if (patch.to !== undefined) row.to = patch.to;
+      if (patch.toName !== undefined) row.to_name = patch.toName;
+      if (patch.status !== undefined) row.status = patch.status;
+      if (patch.followUpAt !== undefined) row.follow_up_at = patch.followUpAt;
+      return map.emailDraft(must(await db.from("email_drafts").update(row).eq("id", id).eq("org_id", s.orgId).select("*").single(), "email draft"));
+    },
+    async markSent(id: string, via: "manual", followUpDays: number | null) {
+      return markSentVia(id, via, followUpDays);
+    },
+    async send(id: string, via: "gmail" | "outlook", followUpDays: number | null): Promise<LoopResult<EmailDraft>> {
+      const s = await ctx();
+      const e = await outreach.get(id);
+      if (!e) return { ok: false, code: "not_found", error: "We could not find that email." };
+      if (!e.to) return { ok: false, code: "failed", error: "Add a recipient address first." };
+      const { sendGmail } = await import("@/lib/integrations/gmail");
+      const { sendOutlook } = await import("@/lib/integrations/outlook");
+      const r = via === "gmail" ? await sendGmail(s.orgId, { to: e.to, subject: e.subject, text: e.body }) : await sendOutlook(s.orgId, { to: e.to, subject: e.subject, text: e.body });
+      if (!r.ok) return { ok: false, code: r.reason === "not_connected" ? "no_ai" : "failed", error: r.message };
+      return { ok: true, data: await markSentVia(id, via, followUpDays) };
+    },
+    async remove(id: string) {
+      const s = await ctx();
+      await db.from("email_drafts").delete().eq("id", id).eq("org_id", s.orgId);
+    },
+  };
+  async function markSentVia(id: string, via: "manual" | "gmail" | "outlook", followUpDays: number | null) {
+    const s = await ctx();
+    const e = await outreach.get(id);
+    if (!e) throw new Error("email draft not found");
+    let followUpAt: string | null = null;
+    if (followUpDays && e.applicationId) {
+      followUpAt = new Date(Date.now() + followUpDays * 864e5).toISOString().slice(0, 10);
+      await db.from("milestones").insert({ org_id: s.orgId, application_id: e.applicationId, title: `Follow up on "${e.subject}"`, due_date: followUpAt, kind: "follow_up", assignee_id: s.userId });
+    }
+    return map.emailDraft(must(await db.from("email_drafts").update({ status: "sent", sent_at: new Date().toISOString(), sent_via: via, follow_up_at: followUpAt }).eq("id", id).eq("org_id", s.orgId).select("*").single(), "email draft"));
+  }
+
+  const contacts = {
+    async list() {
+      const s = await ctx();
+      return many(await db.from("org_contacts").select("*").eq("org_id", s.orgId).order("name"), "contacts").map(map.orgContact);
+    },
+    async add(input: Omit<OrgContact, "id" | "orgId" | "createdAt" | "lastTouchAt" | "source">) {
+      const s = await ctx();
+      return map.orgContact(must(await db.from("org_contacts").insert({ org_id: s.orgId, name: input.name, organization: input.organization, role: input.role, email: input.email, phone: input.phone, kind: input.kind, relationship: input.relationship, funder_id: input.funderId, source: "manual" }).select("*").single(), "contact"));
+    },
+    async update(id: string, patch: Partial<Omit<OrgContact, "id" | "orgId" | "createdAt">>) {
+      const s = await ctx();
+      const row: Row = {};
+      const m: Record<string, string> = { name: "name", organization: "organization", role: "role", email: "email", phone: "phone", kind: "kind", relationship: "relationship", funderId: "funder_id", lastTouchAt: "last_touch_at" };
+      for (const [k, col] of Object.entries(m)) if ((patch as Record<string, unknown>)[k] !== undefined) row[col] = (patch as Record<string, unknown>)[k];
+      return map.orgContact(must(await db.from("org_contacts").update(row).eq("id", id).eq("org_id", s.orgId).select("*").single(), "contact"));
+    },
+    async remove(id: string) {
+      const s = await ctx();
+      await db.from("org_contacts").delete().eq("id", id).eq("org_id", s.orgId);
+    },
+    async importRows(rows: { name: string; organization?: string; role?: string; email?: string; phone?: string; kind?: OrgContact["kind"]; relationship?: string }[]) {
+      const s = await ctx();
+      const existing = await contacts.list();
+      const fresh = rows.filter((r) => r.name?.trim() && !existing.some((c) => c.name.toLowerCase() === r.name.trim().toLowerCase() && (c.email ?? "") === (r.email ?? "")));
+      if (fresh.length) await db.from("org_contacts").insert(fresh.map((r) => ({ org_id: s.orgId, name: r.name.trim(), organization: r.organization ?? "", role: r.role ?? "", email: r.email || null, phone: r.phone || null, kind: r.kind ?? "other", relationship: r.relationship ?? "", source: "csv" })));
+      return { added: fresh.length, skipped: rows.length - fresh.length };
+    },
+    async listNotes(contactId: string) {
+      const s = await ctx();
+      return many(await db.from("contact_notes").select("*").eq("org_id", s.orgId).eq("contact_id", contactId).order("happened_at", { ascending: false }), "notes").map(map.contactNote);
+    },
+    async addNote(contactId: string, input: Pick<ContactNote, "kind" | "note" | "nextStep">) {
+      const s = await ctx();
+      const n = map.contactNote(must(await db.from("contact_notes").insert({ org_id: s.orgId, contact_id: contactId, kind: input.kind, note: input.note, next_step: input.nextStep }).select("*").single(), "note"));
+      await db.from("org_contacts").update({ last_touch_at: n.happenedAt }).eq("id", contactId);
+      return n;
+    },
+    async draftIntroRequest(contactId: string, applicationId: string | null) {
+      const { st } = await loopStore();
+      const { draftIntro } = await import("@/lib/loop/features");
+      return draftIntro(st, contactId, applicationId);
+    },
+  };
+
+  const social = {
+    async listCampaigns() {
+      const s = await ctx();
+      return many(await db.from("social_campaigns").select("*").eq("org_id", s.orgId).order("month", { ascending: false }), "campaigns").map(map.campaign);
+    },
+    async getCampaign(id: string) {
+      const s = await ctx();
+      const { data } = await db.from("social_campaigns").select("*").eq("id", id).eq("org_id", s.orgId).maybeSingle();
+      return data ? map.campaign(data) : null;
+    },
+    async generate(month: string) {
+      const { st } = await loopStore();
+      const { generateMonth } = await import("@/lib/loop/features");
+      return generateMonth(st, month);
+    },
+    async updatePost(campaignId: string, postId: string, patch: Partial<Pick<SocialCampaign["posts"][number], "text" | "date" | "status" | "platform">>) {
+      const c = await social.getCampaign(campaignId);
+      if (!c) throw new Error("campaign not found");
+      const posts = c.posts.map((p) => (p.id === postId ? { ...p, ...patch } : p));
+      return map.campaign(must(await db.from("social_campaigns").update({ posts }).eq("id", campaignId).select("*").single(), "campaign"));
+    },
+    async approve(campaignId: string) {
+      const c = await social.getCampaign(campaignId);
+      if (!c) throw new Error("campaign not found");
+      const posts = c.posts.map((p) => (p.status === "draft" ? { ...p, status: "approved" as const } : p));
+      return map.campaign(must(await db.from("social_campaigns").update({ posts, status: "approved" }).eq("id", campaignId).select("*").single(), "campaign"));
+    },
+    async exportCampaign(id: string, format: "text" | "csv") {
+      const c = await social.getCampaign(id);
+      if (!c) throw new Error("campaign not found");
+      return exportCampaign(c, format);
+    },
+  };
+
+  const integrations = {
+    async status() {
+      await ctx();
+      const { integrationStatus } = await import("@/lib/integrations");
+      return integrationStatus();
+    },
+    async connections() {
+      const s = await ctx();
+      const { connectionStore, publicView } = await import("@/lib/integrations/store");
+      return (await connectionStore().list(s.orgId)).map(publicView);
+    },
+    async connectUrl(provider: "google" | "microsoft", purpose: "gmail" | "calendar" | "outlook") {
+      await ctx();
+      const { providerConnected } = await import("@/lib/integrations/oauth");
+      if (!providerConnected(provider)) return { ok: false as const, code: "no_ai" as const, error: `${provider === "google" ? "Google" : "Microsoft"} keys are not set on this server yet. The Integrations page says how to add them.` };
+      return { ok: true as const, data: { url: `/api/integrations/${provider}/connect?purpose=${purpose}` } };
+    },
+    async disconnect(provider: "google" | "microsoft") {
+      const s = await ctx();
+      const { connectionStore } = await import("@/lib/integrations/store");
+      await connectionStore().remove(s.orgId, provider);
+    },
+    async syncCalendar() {
+      const s = await ctx();
+      const { pushEvents } = await import("@/lib/integrations/google-calendar");
+      const ms = await calendar.listMilestones();
+      const apps = await applications.list();
+      const events = ms.filter((m) => !m.done).map((m) => {
+        const a = apps.find((x) => x.id === m.applicationId);
+        return { id: m.id, title: `${m.title}${a ? `: ${a.opportunity.title}` : ""}`, date: m.dueDate, description: a ? `${a.opportunity.title}. ${a.opportunity.sourceUrl}` : "" };
+      });
+      const r = await pushEvents(s.orgId, events);
+      if (!r.ok) return { ok: false as const, code: r.reason === "not_connected" ? ("no_ai" as const) : ("failed" as const), error: r.message };
+      return { ok: true as const, data: { pushed: r.pushed } };
+    },
+  };
+
+  return { org, knowledge, opportunities, applications, inbox, calendar, activity, billing, auth, loop, outreach, contacts, social, integrations };
 }
 
 export { getSession };

@@ -1,4 +1,4 @@
-import type { AgentRun, Application, Fact, FactCategory, FactStatus, Funder, Match, Member, MissingFact, Opportunity, Organization, Section, ComplianceCheck, Requirement } from "@/lib/types";
+import type { AgentRun, Application, Boilerplate, Budget, ComplianceCheck, Document, EmailDraft, Fact, FactCategory, FactStatus, Funder, Match, Member, MissingFact, Opportunity, OrgContact, Organization, Requirement, ReviewerCheck, Section, SectionVersion, SocialCampaign } from "@/lib/types";
 
 /**
  * What the real loop needs from persistence, and nothing more. Two
@@ -42,6 +42,8 @@ export interface LoopStore {
   upsertOpportunity(opportunity: Opportunity, funder: Funder, noticeText: string): Promise<{ opportunity: Opportunity; funder: Funder }>;
   /** Replace the org's matches. Keep status for an opportunity the user already saved, dismissed, or started. */
   replaceMatches(matches: Omit<Match, "id" | "orgId" | "createdAt" | "isNew">[]): Promise<Match[]>;
+  /** Add or refresh one match without touching the others. */
+  upsertMatch(match: Omit<Match, "id" | "orgId" | "createdAt" | "isNew">): Promise<Match>;
   noticeTextFor(opportunityId: string): Promise<string | null>;
 
   getApplication(id: string): Promise<{ application: Application; opportunity: Opportunity; funder: Funder } | null>;
@@ -57,4 +59,19 @@ export interface LoopStore {
 
   createRun(run: Omit<AgentRun, "id">): Promise<AgentRun>;
   updateRun(id: string, patch: Partial<AgentRun>): Promise<void>;
+
+  // ---- Phase 4 features ----
+  listBoilerplates(): Promise<Boilerplate[]>;
+  listApplications(): Promise<{ application: Application; opportunity: Opportunity; funder: Funder; awardAmount: number | null }[]>;
+  listDismissals(): Promise<{ title: string; reason: string }[]>;
+  saveVersion(sectionId: string, bodyHtml: string, note: string, byName: string): Promise<SectionVersion>;
+  saveReviewerCheck(check: Omit<ReviewerCheck, "id" | "createdAt">): Promise<ReviewerCheck>;
+  getBudget(applicationId: string): Promise<Budget | null>;
+  saveBudget(applicationId: string, lines: Budget["lines"], justification: string): Promise<Budget>;
+  addSection(applicationId: string, section: Omit<Section, "id" | "applicationId" | "updatedAt">): Promise<Section>;
+  addEmailDraft(draft: Omit<EmailDraft, "id" | "orgId" | "createdAt">): Promise<EmailDraft>;
+  getOrgContact(id: string): Promise<OrgContact | null>;
+  saveCampaign(campaign: Omit<SocialCampaign, "id" | "orgId" | "createdAt">): Promise<SocialCampaign>;
+  getDocumentText(id: string): Promise<{ document: Document; text: string } | null>;
+  replaceDocumentFacts(documentId: string, facts: NewFact[]): Promise<Fact[]>;
 }

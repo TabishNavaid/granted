@@ -30,6 +30,11 @@ export type OutcomeResult = "won" | "lost" | "no_response" | "withdrawn";
 export type EmailKind = "intro" | "question" | "loi_cover" | "thank_you" | "follow_up";
 export type PlanTier = "free" | "starter" | "growth";
 export type MemberRole = "owner" | "editor" | "reviewer";
+export type ProposalMode = "letter" | "proposal";
+export type EmailStatus = "draft" | "approved" | "sent";
+export type ContactKind = "board" | "staff" | "funder" | "partner" | "volunteer" | "other";
+export type SocialPlatform = "instagram" | "linkedin" | "facebook" | "x";
+export type BudgetCategory = "personnel" | "fringe" | "travel" | "equipment" | "supplies" | "contractual" | "other" | "indirect";
 
 // ---------- Tables ----------
 
@@ -53,6 +58,8 @@ export interface Organization {
   volunteerCount: number | null;
   /** Where the user is in setup, so they can leave and come back. */
   onboardingStep: OnboardingStep;
+  /** Secret in the ICS feed URL. */
+  calendarToken: string;
   createdAt: ISODate;
 }
 
@@ -174,6 +181,8 @@ export interface Match {
   eligibilityChecks: EligibilityCheck[];
   status: MatchStatus;
   isNew: boolean;
+  /** Why the user set it aside. Fed back into the next search so similar notices score lower. */
+  dismissReason: string | null;
   createdAt: ISODate;
 }
 
@@ -184,6 +193,8 @@ export interface Application {
   opportunityId: string;
   matchId: string | null;
   stage: ApplicationStage;
+  /** A one-page letter of inquiry, or a full proposal built from the funder's guidelines. */
+  mode: ProposalMode;
   askAmount: number | null;
   ownerId: string | null;
   submittedAt: ISODate | null;
@@ -274,6 +285,15 @@ export interface EmailDraft {
   kind: EmailKind;
   subject: string;
   body: string;
+  /** Recipient address when known. */
+  to: string | null;
+  toName: string | null;
+  status: EmailStatus;
+  sentAt: ISODate | null;
+  sentVia: "gmail" | "outlook" | "manual" | null;
+  /** When a follow-up reminder is due, if one was set. */
+  followUpAt: ISODate | null;
+  createdAt: ISODate;
 }
 
 export interface PlanItem {
@@ -388,6 +408,135 @@ export interface NotificationSettings {
   milestoneReminders: boolean;
   inboxAlerts: boolean;
   reminderDaysBefore: number;
+}
+
+/** saved_searches */
+export interface SavedSearch {
+  id: string;
+  orgId: string;
+  name: string;
+  keyword: string;
+  fundingCategories: string[];
+  createdAt: ISODate;
+  lastRunAt: ISODate | null;
+}
+
+/** A Grants.gov notice from a search, before anyone has scored it. Everything here is from the API. */
+export interface SearchCandidate {
+  externalId: string;
+  number: string;
+  title: string;
+  agency: string;
+  status: "posted" | "forecasted";
+  closeDate: string | null;
+  url: string;
+}
+
+/** section_versions */
+export interface SectionVersion {
+  id: string;
+  sectionId: string;
+  bodyHtml: string;
+  note: string;
+  byName: string;
+  createdAt: ISODate;
+}
+
+/** org_contacts: people the organization knows, as opposed to funder staff found on public pages. */
+export interface OrgContact {
+  id: string;
+  orgId: string;
+  name: string;
+  organization: string;
+  role: string;
+  email: string | null;
+  phone: string | null;
+  kind: ContactKind;
+  /** How the organization knows them, in their words. */
+  relationship: string;
+  funderId: string | null;
+  source: "manual" | "csv";
+  lastTouchAt: ISODate | null;
+  createdAt: ISODate;
+}
+
+/** contact_notes */
+export interface ContactNote {
+  id: string;
+  orgId: string;
+  contactId: string;
+  kind: "note" | "call" | "email" | "meeting" | "intro";
+  note: string;
+  nextStep: string | null;
+  happenedAt: ISODate;
+}
+
+export interface SocialPost {
+  id: string;
+  platform: SocialPlatform;
+  date: ISODate;
+  text: string;
+  /** What the post is about, so the user sees why it is on the calendar. */
+  tiedTo: { kind: "application" | "win" | "program" | "general"; id: string | null; label: string };
+  status: "draft" | "approved" | "skipped";
+}
+
+/** social_campaigns */
+export interface SocialCampaign {
+  id: string;
+  orgId: string;
+  /** YYYY-MM */
+  month: string;
+  theme: string;
+  posts: SocialPost[];
+  status: "draft" | "approved";
+  createdAt: ISODate;
+}
+
+export interface BudgetLine {
+  id: string;
+  category: BudgetCategory;
+  item: string;
+  amount: number;
+  note: string;
+}
+
+/** budgets */
+export interface Budget {
+  id: string;
+  orgId: string;
+  applicationId: string;
+  lines: BudgetLine[];
+  justification: string;
+  updatedAt: ISODate;
+}
+
+export interface ReviewCriterion {
+  criterion: string;
+  /** 1 to 5 */
+  score: number;
+  evidence: string;
+  fix: string;
+}
+
+/** reviewer_checks */
+export interface ReviewerCheck {
+  id: string;
+  applicationId: string;
+  overall: number;
+  criteria: ReviewCriterion[];
+  summary: string;
+  createdAt: ISODate;
+}
+
+/** integration_connections (tokens stay server-side and never reach the browser) */
+export interface IntegrationConnection {
+  id: string;
+  orgId: string;
+  provider: "google" | "microsoft";
+  accountEmail: string;
+  scopes: string[];
+  connectedAt: ISODate;
 }
 
 // ---------- Composite view models (what screens actually need) ----------
