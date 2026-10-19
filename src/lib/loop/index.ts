@@ -8,7 +8,9 @@ import { runDiscovery, type DiscoveryResult } from "./discovery";
 import { draftLetter, factIdsIn, gapIdsIn, htmlToMarkedText, redraftParagraph, renderLetter, renderParagraph, PARAGRAPH_KEYS, type LetterInput, type ParagraphKey, type RenderedCheck } from "./letter";
 import { extractProfile, type ProfileExtraction } from "./profile";
 import { recordRun } from "./runs";
-import { advanceJob, finishJob, noteJob, startJob } from "./progress";
+import { advanceJob, finishJob, logJob, noteJob, startJob } from "./progress";
+import { replayActive } from "@/lib/replay/active";
+import { matchFoundations, noticeTextFor as foundationNotice, toFunder as toFoundationFunder, toOpportunity as toFoundationOpportunity } from "@/lib/foundations";
 import type { LoopStore, NewFact } from "./store";
 import { wordCount } from "./text";
 
@@ -94,6 +96,7 @@ async function buildProfileInner(store: LoopStore, input: { websiteUrl: string; 
                 if (!job) return;
                 if (i === 0) advanceJob(job, `Found ${p.title || host}`);
                 else noteJob(job, `Read ${p.title || p.url}`);
+                logJob(job, { kind: "page", text: p.title || sourceLabelFor(p.url), detail: `${sourceLabelFor(p.url)}, ${wordCount(p.text).toLocaleString("en-US")} words${p.kind === "pdf" ? ", PDF" : ""}`, url: p.url });
               },
             }),
           (r) => `${r.pages.length} page${r.pages.length === 1 ? "" : "s"} read${r.skipped.length ? `, ${r.skipped.length} skipped` : ""}`,
@@ -102,7 +105,11 @@ async function buildProfileInner(store: LoopStore, input: { websiteUrl: string; 
         const extraction = await rec.step("extract_profile", () => extractProfile(crawl.pages), (r) => `${r.facts.length} facts kept, ${r.dropped.length} dropped for failing the source check`);
         if (job) advanceJob(job, `${extraction.facts.length + extraction.dropped.length} candidate facts`);
         return { crawl, extraction };
-      });
+      }, { bypass: replayActive() });
+      if (job && !fromCache) {
+        for (const f of value.extraction.facts) logJob(job, { kind: "fact", text: `${f.label}: ${f.value}`, detail: f.excerpt, url: f.sourceUrl });
+        for (const d of value.extraction.dropped) logJob(job, { kind: "dropped", text: `${d.fact.label}: ${d.fact.value}`, detail: `Set aside: ${d.reason}.` });
+      }
       if (fromCache) {
         rec.tool("cache", `Used the reading of ${host} from earlier today`, 0);
         if (job) {
@@ -150,7 +157,8 @@ async function buildProfileInner(store: LoopStore, input: { websiteUrl: string; 
       }
       await store.replaceReadFacts(newFacts);
       await store.updateOrg({ onboardingStep: "profile" });
-      if (job) advanceJob(job, `${newFacts.length} facts kept, ${dropped.length} set aside`);
+      const programCount = newFacts.length - facts.length;
+      if (job) advanceJob(job, `${facts.length} facts kept${programCount ? ` and ${programCount} program${programCount === 1 ? "" : "s"} noted` : ""}, ${dropped.length} set aside`);
       const summary = `Read ${value.crawl.pages.length} page${value.crawl.pages.length === 1 ? "" : "s"} on ${host} and found ${newFacts.length} fact${newFacts.length === 1 ? "" : "s"} for you to check.${dropped.length ? ` Set aside ${dropped.length} that did not pass the source check.` : ""}`;
       return { output: { pageCount: value.crawl.pages.length, factCount: newFacts.length, droppedCount: dropped.length, fromCache }, summary };
     });
@@ -208,6 +216,16 @@ export interface GapAnswers {
   budgetRange?: string;
   peopleServed?: string;
   location?: string;
+  /** One result, ideally with a number. */
+  result?: string;
+  /** Staff and volunteers, in their words. */
+  staff?: string;
+  /** Programs, comma separated. */
+  programs?: string;
+  /** Who the organization serves. */
+  populations?: string;
+  /** Anything a funder should know that the website does not say. */
+  note?: string;
 }
 
 /** Short answers from the director become facts stated by them; nothing is inferred from a range. */
@@ -235,6 +253,15 @@ export async function answerGaps(store: LoopStore, answers: GapAnswers): Promise
       }
       if (!(await store.getOrg()).serviceArea) orgPatch.serviceArea = loc;
     }
+    if (answers.result?.trim()) await add("A result we are proud of", answers.result.trim(), "outcomes");
+    if (answers.staff?.trim()) await add("Staff and volunteers", answers.staff.trim(), "people");
+    if (answers.programs?.trim()) for (const p of answers.programs.split(/[,;\n]/).map((x) => x.trim()).filter(Boolean).slice(0, 6)) await add("Program", p, "organization");
+    if (answers.populations?.trim()) {
+      await add("People we serve", answers.populations.trim(), "reach");
+      const org = await store.getOrg();
+      if (!org.populations.length) orgPatch.populations = answers.populations.split(/[,;]/).map((x) => x.trim()).filter(Boolean).slice(0, 6);
+    }
+    if (answers.note?.trim()) await add("From the director", answers.note.trim(), "organization");
     await store.updateOrg(orgPatch);
     return { ok: true, data: { added } };
   } catch (err) {
@@ -252,7 +279,7 @@ export interface FindMatchesOutput {
   fromCache: boolean;
 }
 
-export const MATCH_STEPS = ["Planning the searches", "Searching Grants.gov", "Reading the strongest notices in full", "Scoring each one against your facts"];
+export const MATCH_STEPS = ["Planning the searches", "Searching Grants.gov", "Reading the strongest notices in full", "Scoring each one against your facts", "Checking private foundations' IRS filings"];
 
 export async function findMatches(store: LoopStore, jobId?: string): Promise<LoopResult<FindMatchesOutput>> {
   if (jobId) startJob(jobId, MATCH_STEPS);
@@ -269,15 +296,20 @@ async function findMatchesInner(store: LoopStore, jobId?: string): Promise<LoopR
     const { output, run } = await recordRun(store, { agent: "discovery", title: "Search Grants.gov for open opportunities", trigger: "user" }, async (rec) => {
       // Same profile, same day: reuse the scoring rather than paying for it again.
       const fingerprint = createHash("sha1").update(JSON.stringify({ org: [org.name, org.mission, org.causes, org.populations, org.serviceArea], facts: facts.map((f) => [f.id, f.label, f.value]), day: new Date().toISOString().slice(0, 10) })).digest("hex");
-      const { value: result, fromCache } = await cached<DiscoveryResult>(`discovery:${store.orgId}:${fingerprint}`, 6 * HOURS, () =>
-        runDiscovery({
-          org,
-          facts,
-          onStage: (stage, detail) => {
-            if (jobId) advanceJob(jobId, detail);
-            void stage;
-          },
-        }),
+      const { value: result, fromCache } = await cached<DiscoveryResult>(
+        `discovery:${store.orgId}:${fingerprint}`,
+        6 * HOURS,
+        () =>
+          runDiscovery({
+            org,
+            facts,
+            onStage: (stage, detail) => {
+              if (jobId) advanceJob(jobId, detail);
+              void stage;
+            },
+            onEvent: (e) => logJob(jobId, e),
+          }),
+        { bypass: replayActive() },
       );
       if (fromCache) rec.tool("cache", "Used this morning's search; nothing about your profile changed", 0);
       else {
@@ -290,10 +322,26 @@ async function findMatchesInner(store: LoopStore, jobId?: string): Promise<LoopR
         const stored = await store.upsertOpportunity(m.opportunity, m.funder, m.noticeText);
         matches.push({ opportunityId: stored.opportunity.id, fitScore: m.fitScore, reasons: m.reasons, cautions: m.cautions, eligibilityChecks: m.eligibilityChecks, status: "new", dismissReason: null });
       }
-      await store.replaceMatches(matches);
+      if (jobId) advanceJob(jobId, `${result.matches.length} federal notice${result.matches.length === 1 ? "" : "s"} kept`);
+
+      // Private foundations from IRS 990-PF filings: plain code over public data, the same with or without keys.
+      const t = Date.now();
+      const fs = matchFoundations({ org, facts });
+      for (const m of fs.matches) {
+        const stored = await store.upsertOpportunity(toFoundationOpportunity(m.foundation), toFoundationFunder(m.foundation), foundationNotice(m.foundation));
+        matches.push({ opportunityId: stored.opportunity.id, fitScore: m.fitScore, reasons: m.reasons, cautions: m.cautions, eligibilityChecks: m.eligibilityChecks, status: "new", dismissReason: null });
+        logJob(jobId, { kind: "foundation", text: m.foundation.name, score: m.fitScore, detail: m.reasons[0] });
+      }
+      if (fs.closedToRequests) logJob(jobId, { kind: "note", text: `Set aside ${fs.closedToRequests} foundation${fs.closedToRequests === 1 ? "" : "s"} that fund this kind of work but give only to organizations they choose`, detail: "They still show up on funder pages and in peer research." });
+      rec.tool("match_foundations", `${fs.inState} of ${fs.screened} foundations give in your state; ${fs.matches.length} kept, ${fs.closedToRequests} take no unsolicited requests`, Date.now() - t);
+      rec.source("IRS Form 990-PF filings", "https://www.irs.gov/charities-non-profits/form-990-series-downloads", "database");
+      if (jobId) advanceJob(jobId, `${fs.matches.length} foundation${fs.matches.length === 1 ? "" : "s"} from ${fs.inState} that give in your state`);
+      const stored = await store.replaceMatches(matches);
       await store.updateOrg({ onboardingStep: "matches" });
+      const fresh = stored.filter((m) => m.isNew);
+      if (fresh.length) await store.addInboxItem({ agent: "discovery", type: "new_matches", title: `${fresh.length} new match${fresh.length === 1 ? "" : "es"}`, summary: `The strongest scored ${Math.max(...fresh.map((m) => m.fitScore))}. Each one says why it fits, with the line it relies on.`, payload: { type: "new_matches", matchIds: fresh.map((m) => m.id) }, priority: "normal", sourceCount: result.sources.length, agentRunId: null });
       const summary = matches.length
-        ? `Screened ${result.screened} notices, read ${result.read} in full, and kept ${matches.length} you can apply for. Set aside ${result.droppedIneligible} you are not eligible for and ${result.droppedUnsupported} we could not justify.`
+        ? `Screened ${result.screened} federal notices and read ${result.read} in full; kept ${result.matches.length}, and set aside ${result.droppedIneligible} you are not eligible for and ${result.droppedUnsupported} we could not justify. Added ${fs.matches.length} private foundations from their IRS filings.`
         : `Screened ${result.screened} notices and read ${result.read} in full, but none fit well enough to show you. We will keep looking.`;
       return { output: { matchCount: matches.length, screened: result.screened, read: result.read, fromCache }, summary };
     });
@@ -323,26 +371,44 @@ async function letterInput(store: LoopStore, applicationId: string): Promise<{ i
   return { input: { org, facts, userName: user.fullName || user.email, funderName: ctx.funder.name, opportunityTitle: ctx.opportunity.title, noticeText, deadline: ctx.opportunity.deadline }, facts, ctx };
 }
 
-export async function draftLetterFor(store: LoopStore, applicationId: string): Promise<LoopResult<DraftLetterOutput>> {
+export const LETTER_STEPS = ["Reading the notice and your confirmed facts", "Writing the letter", "Checking every citation and number"];
+
+export async function draftLetterFor(store: LoopStore, applicationId: string, jobId?: string): Promise<LoopResult<DraftLetterOutput>> {
+  if (jobId) startJob(jobId, LETTER_STEPS);
+  const r = await draftLetterInner(store, applicationId, jobId);
+  if (jobId) finishJob(jobId, r.ok ? "done" : "failed");
+  return r;
+}
+
+async function draftLetterInner(store: LoopStore, applicationId: string, jobId?: string): Promise<LoopResult<DraftLetterOutput>> {
   try {
     const li = await letterInput(store, applicationId);
     if (!li) return { ok: false, code: "not_found", error: "We could not find that application." };
     if (!li.facts.length) return { ok: false, code: "no_facts", error: "Confirm a few facts about your organization first. The letter can only say what you have confirmed." };
     const { output, run } = await recordRun(store, { agent: "proposal", title: `Draft a letter of inquiry for ${li.ctx.opportunity.title}`, trigger: "user" }, async (rec) => {
+      if (jobId) advanceJob(jobId, `${li.facts.length} confirmed facts, ${li.ctx.funder.name}`);
       const d = await rec.step("draft_letter", () => draftLetter(li.input), (r) => `${r.draft.paragraphs.length} paragraphs, ${r.draft.gaps.length} question${r.draft.gaps.length === 1 ? "" : "s"} raised by the writer`);
+      if (jobId) advanceJob(jobId, `${d.draft.paragraphs.length} paragraphs`);
       rec.tally(d);
       rec.source(li.ctx.opportunity.title, li.ctx.opportunity.sourceUrl, "web");
       for (const f of li.facts) if (f.sourceUrl) rec.source(factLabel(f), f.sourceUrl, "web");
       const t = Date.now();
       const gapIds = new Map<string, string>();
       const rendered = renderLetter(d.draft, { facts: li.facts, noticeText: li.input.noticeText, factLabel, gapId: (key) => gapIds.get(key) ?? (gapIds.set(key, store.newId("gap")), gapIds.get(key)!) });
+      if (jobId) {
+        for (const s of rendered.sections) {
+          const plain = s.bodyHtml.replace(/<span data-gap="[^"]*" data-label="([^"]*)"><\/span>/g, "[$1]").replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&quot;/g, '"').trim();
+          logJob(jobId, { kind: "section", text: s.title, detail: plain.length > 220 ? `${plain.slice(0, 218).trimEnd()}…` : plain });
+        }
+        for (const m of rendered.missingFacts) logJob(jobId, { kind: "question", text: m.question, detail: m.whyItMatters });
+      }
       rec.tool("validate_letter", `${rendered.issues.length === 0 ? "Every citation and number checked out" : `${rendered.issues.length} problem${rendered.issues.length === 1 ? "" : "s"} turned into questions`}; ${rendered.wordCount} words`, Date.now() - t);
       const sectionIds = rendered.sections.map(() => store.newId("sec"));
       await store.replaceLetter(applicationId, {
         requirements: [
           { title: "Letter of inquiry, about one page", kind: "section", detail: "Six short paragraphs: the request, who you are, the need, the plan, the fit, and a close.", wordLimit: 500, required: true, order: 1, satisfied: true },
           { title: "Every claim cites a confirmed fact", kind: "format", detail: "Citations are checked in code after drafting.", wordLimit: null, required: true, order: 2, satisfied: rendered.issues.length === 0 },
-          { title: "Read the full notice before applying", kind: "eligibility", detail: `The letter is based on the Grants.gov notice. Read the agency's own guidelines at ${li.ctx.opportunity.guidelinesUrl}`, wordLimit: null, required: true, order: 3, satisfied: false },
+          { title: li.ctx.funder.type === "federal" ? "Read the full notice before applying" : "Read the funder's own guidelines before applying", kind: "eligibility", detail: li.ctx.funder.type === "federal" ? `The letter is based on the Grants.gov notice. Read the agency's own guidelines at ${li.ctx.opportunity.guidelinesUrl}` : `The letter is based on what this foundation filed with the IRS. Check its current guidelines at ${li.ctx.opportunity.guidelinesUrl}`, wordLimit: null, required: true, order: 3, satisfied: false },
         ],
         sections: rendered.sections.map((s, i) => ({ id: sectionIds[i], title: s.title, bodyHtml: s.bodyHtml, wordLimit: s.wordLimit, status: s.status, order: s.order })),
         missingFacts: rendered.missingFacts.map((m) => ({ id: m.gapId, sectionId: sectionIds[m.sectionOrder - 1], question: m.question, whyItMatters: m.whyItMatters, suggestedLabel: m.suggestedLabel, status: "open", answer: null, gapKey: m.gapKey })),
@@ -350,6 +416,8 @@ export async function draftLetterFor(store: LoopStore, applicationId: string): P
       });
       await store.updateApplication(applicationId, { stage: "drafting" });
       const open = rendered.missingFacts.length;
+      await store.addInboxItem({ agent: "proposal", type: "proposal_draft", title: `Letter of inquiry for ${li.ctx.funder.name}`, summary: `${rendered.wordCount} words in ${rendered.sections.length} paragraphs, every claim cited.${open ? ` ${open} question${open === 1 ? "" : "s"} for you.` : ""}`, payload: { type: "proposal_draft", applicationId, sectionCount: rendered.sections.length, openQuestions: open }, priority: "high", sourceCount: rec.sources.length, agentRunId: null });
+      if (open) await store.addInboxItem({ agent: "proposal", type: "missing_facts", title: `${open} question${open === 1 ? "" : "s"} before the ${li.ctx.funder.name} letter is done`, summary: rendered.missingFacts.map((m) => m.question).slice(0, 2).join(" "), payload: { type: "missing_facts", applicationId, missingFactIds: rendered.missingFacts.map((m) => m.gapId) }, priority: "normal", sourceCount: 0, agentRunId: null });
       return { output: { sectionCount: rendered.sections.length, openQuestions: open, issues: rendered.issues.length, wordCount: rendered.wordCount }, summary: `Drafted a ${rendered.wordCount}-word letter in ${rendered.sections.length} paragraphs from ${li.facts.length} confirmed facts.${open ? ` ${open} question${open === 1 ? "" : "s"} for you before it is complete.` : " Nothing is waiting on you."}` };
     });
     return { ok: true, data: { ...output, runId: run.id } };

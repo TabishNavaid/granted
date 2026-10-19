@@ -8,9 +8,17 @@ import { formatDate } from "@/lib/format";
 
 /** A reviewer's read of the draft against the funder's criteria, with one fix per criterion. */
 export function ReviewerPanel({ check, onRun, running }: { check: ReviewerCheck | null; onRun: () => void; running: boolean }) {
+  // Without a model key the score comes from counting, and it says so.
+  const RULE_PREFIX = "Rule-based review";
+  const ruleBased = Boolean(check?.summary.startsWith(RULE_PREFIX));
+  const summary = ruleBased && check ? check.summary.slice(RULE_PREFIX.length).replace(/^[:.\s]+/, "") : check?.summary ?? "";
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-ink-muted">A second reader scores the draft the way a funder&apos;s panel would, against the criteria in the notice. It never adds a number; it tells you what to ask for.</p>
+      <p className="text-sm text-ink-muted">
+        {ruleBased
+          ? "No model key is set, so this score comes from counting, not from a reader. It never adds a number; it tells you what to ask for."
+          : "A second reader scores the draft the way a funder's panel would, against the criteria in the notice. It never adds a number; it tells you what to ask for."}
+      </p>
       <Button variant="secondary" size="sm" onClick={onRun} loading={running} className="w-fit">
         {check ? "Score it again" : "Score this draft"}
       </Button>
@@ -20,7 +28,8 @@ export function ReviewerPanel({ check, onRun, running }: { check: ReviewerCheck 
             <p className="font-display text-3xl text-ink tnum">
               {check.overall} <span className="font-body text-sm font-normal text-ink-muted">of 100</span>
             </p>
-            <p className="mt-1 text-sm text-ink">{check.summary}</p>
+            {ruleBased ? <p className="mt-1 text-sm font-semibold text-ink">Rule-based review</p> : null}
+            <p className="mt-1 text-sm text-ink">{ruleBased ? summary.charAt(0).toUpperCase() + summary.slice(1) : summary}</p>
             <p className="mt-1 text-xs text-ink-muted">Scored {formatDate(check.createdAt)}</p>
           </div>
           <ul className="border-t border-rule">

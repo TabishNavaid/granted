@@ -3,10 +3,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Screenshot } from "@/components/marketing/screenshot";
 import { Plate } from "@/components/marketing/plate";
+import { DEMO_HREF, DEMO_LABEL, DEMO_NOTE, DemoCta } from "@/components/marketing/demo-cta";
 import { Drawing } from "@/components/drawings/drawing";
 import { Meadow } from "@/components/drawings/meadow";
 import { drawing, plates } from "@/lib/drawings";
 import { faq, pricingTiers } from "@/content/site";
+import { checked, helpCosts, source } from "@/content/costs";
 import * as demo from "@/lib/mock/data";
 import { PRODUCT_NAME, PRODUCT_TAGLINE } from "@/lib/brand";
 
@@ -18,7 +20,7 @@ export const metadata: Metadata = {
 
 const problem = [
   "Most small nonprofits have nobody whose job is grants. The director writes proposals at night.",
-  "The databases that would help cost more each month than the organization can spare.",
+  "Hiring a grant writer costs more each month than the organization can spare.",
   "The AI tools that would help will write anything, including numbers that were never true.",
 ];
 
@@ -35,6 +37,10 @@ const trust = [
   "Your data stays in your workspace. On paid plans the AI provider does not train on it. One click deletes everything.",
   "The Activity screen shows each step an agent took, each page it read, and what it cost.",
 ];
+
+/** Footnotes for the cost section, numbered in the order they first appear. */
+const costSources = Array.from(new Set(helpCosts.flatMap((c) => c.sources)));
+const costNote = (id: string) => costSources.indexOf(id) + 1;
 
 /** The demo match the green section is about, straight from the demo workspace. */
 const featured = (() => {
@@ -85,11 +91,12 @@ export default function LandingPage() {
               <Button asChild size="lg">
                 <Link href="/sign-up">Find my first grants</Link>
               </Button>
-              <Button asChild size="lg" variant="secondary">
-                <Link href="#how">See how it works</Link>
+              <Button asChild size="lg" variant="secondary" className="h-auto min-h-12 max-w-full whitespace-normal py-2.5 text-center">
+                <Link href={DEMO_HREF}>{DEMO_LABEL}</Link>
               </Button>
             </div>
             <p className="mt-3 text-sm text-ink-muted">Free to start. First matches in about ten minutes.</p>
+            <p className="mt-1 text-sm text-ink-muted">{DEMO_NOTE}</p>
           </div>
           {lupine ? <Plate plate={lupine} eager className="w-[68%] max-w-[22rem] sm:w-full lg:mb-10 lg:max-w-none" /> : null}
         </div>
@@ -218,13 +225,71 @@ export default function LandingPage() {
         <Meadow seed="trust" count={11} mobileMax={6} onDark className="h-40 opacity-95 sm:h-56" />
       </section>
 
+      {/* What help costs: hiring a writer next to our plans. */}
+      <section id="costs" className="scroll-mt-16">
+        <div className="mx-auto grid max-w-[75rem] gap-10 px-4 pt-20 sm:px-6 lg:grid-cols-[1fr_1.6fr] lg:gap-20 lg:px-10 lg:pt-28">
+          <div>
+            <h2 className="max-w-[12ch] font-display text-4xl text-ink sm:text-5xl">What help costs</h2>
+            <p className="mt-5 max-w-[38ch] text-lg text-ink-muted">What hiring grant help typically costs, and what we charge. With either, you still review and submit.</p>
+          </div>
+          <div>
+            <dl className="border-t border-ink">
+              {helpCosts.map((c) => (
+                <div key={c.label} className="grid gap-1 border-b border-rule py-5 sm:grid-cols-[12rem_1fr] sm:gap-8">
+                  <dt className="font-semibold text-ink">{c.label}</dt>
+                  <dd>
+                    <span className="block font-display text-2xl text-ink tnum">
+                      {c.cost}
+                      {c.sources.length ? (
+                        <sup className="ml-0.5 font-body text-xs">
+                          {c.sources.map((id, i) => (
+                            <span key={id}>
+                              {i > 0 ? ", " : null}
+                              <a href={`#cost-source-${costNote(id)}`} className="text-ink-muted underline underline-offset-2 hover:text-ink" aria-label={`${costNote(id)}, source: ${source(id).publisher}`}>
+                                {costNote(id)}
+                              </a>
+                            </span>
+                          ))}
+                        </sup>
+                      ) : null}
+                    </span>
+                    <span className="mt-1 block max-w-[52ch] text-base text-ink-muted">{c.detail}</span>
+                  </dd>
+                </div>
+              ))}
+              <div className="grid gap-1 border-b border-rule bg-panel-sage/60 px-3 py-5 sm:-mx-3 sm:grid-cols-[12rem_1fr] sm:gap-8">
+                <dt className="font-semibold text-ink">{PRODUCT_NAME}</dt>
+                <dd>
+                  <span className="block font-display text-2xl text-meadow tnum">$0, $29, or $79 a month</span>
+                  <span className="mt-1 block max-w-[52ch] text-base text-ink-muted">Free, Starter, or Growth. It finds the grants, drafts from your facts, and keeps the dates. It does not replace a writer&apos;s judgment or relationships.</span>
+                </dd>
+              </div>
+            </dl>
+            <ol className="mt-5 flex flex-col gap-1 text-xs leading-relaxed text-ink-muted">
+              {costSources.map((id) => {
+                const s = source(id);
+                return (
+                  <li key={id} id={`cost-source-${costNote(id)}`} className="scroll-mt-24">
+                    {costNote(id)}.{" "}
+                    <a href={s.url} className="underline underline-offset-2 hover:text-ink" rel="noopener noreferrer" target="_blank">
+                      {s.publisher}, {s.title}
+                    </a>
+                    . Accessed {checked.long}.
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+        </div>
+      </section>
+
       {/* Pricing */}
       <section id="pricing" className="scroll-mt-16">
         <div className="mx-auto max-w-[75rem] px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
           <SectionHeading plant="aster" className="max-w-[17ch]">
-            Priced for the organizations the big tools price out.
+            Priced for small organizations.
           </SectionHeading>
-          <p className="mt-6 max-w-[58ch] text-lg text-ink-muted">A grant writer costs a few thousand dollars a month. The big databases start near three hundred. We start at free and stay cheap on purpose.</p>
+          <p className="mt-6 max-w-[58ch] text-lg text-ink-muted">We start at free and stay cheap on purpose, so the organizations that need help most can afford to try it.</p>
           <div className="mt-14 border-t border-ink">
             {pricingTiers.map((t) => {
               const lead = t.name === "Starter";
@@ -291,11 +356,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-[75rem] px-4 pb-10 pt-20 sm:px-6 lg:px-10 lg:pt-28">
           <h2 className="max-w-[14ch] font-display text-5xl leading-[1.02] text-ink sm:text-6xl lg:text-[5.5rem]">Start with your website.</h2>
           <p className="mt-6 max-w-[44ch] text-lg text-ink-muted">Ten minutes to your first matches. Free, and nothing is sent without you.</p>
-          <div className="mt-8">
-            <Button asChild size="lg">
-              <Link href="/sign-up">Find my first grants</Link>
-            </Button>
-          </div>
+          <DemoCta className="mt-8" />
         </div>
         <Meadow seed="closing" count={12} mobileMax={7} className="h-40 opacity-90 sm:h-56" />
       </section>

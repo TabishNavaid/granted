@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes";
 import { ToastProvider } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { PRODUCT_DESCRIPTION, PRODUCT_NAME } from "@/lib/brand";
+import { siteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 // Headlines: a text serif with an optical size axis, so it is crisp and composed at display sizes.
@@ -12,6 +13,7 @@ const display = Newsreader({ subsets: ["latin"], axes: ["opsz"], style: ["normal
 const body = Atkinson_Hyperlegible_Next({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-atkinson", display: "swap", adjustFontFallback: false, fallback: ["Helvetica Neue", "Arial", "sans-serif"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
   title: { default: PRODUCT_NAME, template: `%s | ${PRODUCT_NAME}` },
   description: PRODUCT_DESCRIPTION,
 };

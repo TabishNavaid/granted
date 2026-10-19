@@ -38,6 +38,21 @@ import type {
   ProposalWorkspace,
   Section,
   Subscription,
+  AgentAutonomy,
+  AgentName,
+  BoilerplateVersion,
+  CopilotAnswer,
+  FunderProfile,
+  FunderSummary,
+  ImpactMetric,
+  LogicModelRow,
+  LossReason,
+  ReminderPreview,
+  ScholarshipMatch,
+  ScholarshipProfile,
+  VoiceProfile,
+  WinAnalytics,
+  WinKit,
 } from "@/lib/types";
 
 /**
@@ -56,6 +71,45 @@ export interface OrgService {
   currentUser(): Promise<Member>;
   /** Delete the workspace and everything in it. */
   deleteWorkspace(): Promise<void>;
+  /** Consultant mode: every organization this login can open, and which one is open now. */
+  listWorkspaces(): Promise<WorkspaceSummary[]>;
+  switchWorkspace(id: string): Promise<void>;
+  /** Add an organization this login manages (a consultant's new client). */
+  createWorkspace(name: string): Promise<WorkspaceSummary>;
+  /** How far each agent may go on its own. Nothing is ever sent or submitted without a click, at any level. */
+  getAutonomy(): Promise<Record<AgentName, AgentAutonomy>>;
+  setAutonomy(agent: AgentName, level: AgentAutonomy): Promise<Record<AgentName, AgentAutonomy>>;
+  /** Demo only: see the workspace as an editor or a board reviewer would. */
+  previewRole(role: Member["role"]): Promise<Member>;
+}
+
+export interface WorkspaceSummary {
+  id: string;
+  name: string;
+  /** A few words about it, e.g. "Food bank in western North Carolina". */
+  kind: string;
+  current: boolean;
+  /** True for the demo's sample organizations. */
+  sample: boolean;
+}
+
+export interface SampleInfo {
+  id: string;
+  label: string;
+  kind: string;
+  host: string;
+  history: boolean;
+}
+
+/** The public demo. Every method is inert outside demo mode. */
+export interface DemoService {
+  status(): Promise<{ active: boolean; replay: boolean; recordedOn: string; current: SampleInfo | null; samples: SampleInfo[] }>;
+  /** Which sample organization a pasted address refers to, if any. Never guesses beyond the samples. */
+  sampleFor(input: string): Promise<SampleInfo | null>;
+  /** Open a sample and start setup for it: a sample with no history starts empty again. */
+  startSetup(sampleId: string): Promise<void>;
+  /** Put the open sample back the way it started. */
+  reset(): Promise<void>;
 }
 
 export interface KnowledgeService {
@@ -67,10 +121,20 @@ export interface KnowledgeService {
   listDocuments(): Promise<Document[]>;
   addDocument(file: { name: string; size: number; type: string }): Promise<Document>;
   removeDocument(id: string): Promise<void>;
+  /** Change what kind of document it is, e.g. mark an upload as the W-9 a funder asks for. */
+  updateDocument(id: string, patch: { type: Document["type"] }): Promise<Document>;
   /** Read a document's extracted text and turn it into facts waiting for review. */
   extractDocument(id: string): Promise<LoopResult<{ factCount: number; droppedCount: number }>>;
   addBoilerplate(input: { type: Boilerplate["type"]; title: string; body: string }): Promise<Boilerplate>;
   removeBoilerplate(id: string): Promise<void>;
+  listBoilerplateVersions(id: string): Promise<BoilerplateVersion[]>;
+  restoreBoilerplateVersion(versionId: string): Promise<Boilerplate>;
+  /** Impact metrics logged month by month; the latest value of each is a fact drafts may cite. */
+  listMetrics(): Promise<ImpactMetric[]>;
+  addMetric(input: { label: string; unit: string; program: string | null }): Promise<ImpactMetric>;
+  logMetric(id: string, month: string, value: number, note: string | null): Promise<ImpactMetric>;
+  getVoice(): Promise<VoiceProfile>;
+  setVoiceNote(note: string): Promise<VoiceProfile>;
 }
 
 export interface OpportunityService {
@@ -100,7 +164,8 @@ export interface ApplicationService {
   answerMissingFact(id: string, answer: string): Promise<MissingFact>;
   skipMissingFact(id: string): Promise<MissingFact>;
   moveStage(id: string, stage: ApplicationStage): Promise<ApplicationView>;
-  logOutcome(id: string, result: OutcomeResult, awardAmount: number | null, feedback: string | null): Promise<ApplicationView>;
+  /** Log a decision. A win drafts a thank-you, a grant-win kit, and a report reminder; a decline drafts a feedback request. */
+  logOutcome(id: string, result: OutcomeResult, awardAmount: number | null, feedback: string | null, details?: { lossReasons?: LossReason[]; lessons?: string | null }): Promise<ApplicationView>;
   setMode(id: string, mode: ProposalMode): Promise<ApplicationView>;
   setAskAmount(id: string, askAmount: number | null): Promise<ApplicationView>;
   listVersions(sectionId: string): Promise<SectionVersion[]>;
@@ -114,6 +179,45 @@ export interface ApplicationService {
   writeBudgetJustification(id: string): Promise<LoopResult<Budget>>;
   /** Put the budget table and justification into the draft as a section. */
   addBudgetSection(id: string): Promise<Section>;
+  /** A suggested ask from the funder's typical grants and this budget, with the reasoning. */
+  recommendAsk(id: string): Promise<{ amount: number; low: number; high: number; why: string[] } | null>;
+  logicModel(id: string): Promise<LogicModelRow[]>;
+  addLogicModelSection(id: string): Promise<Section>;
+  /** A concept note assembled from confirmed facts, no model needed. */
+  draftConceptNote(id: string): Promise<LoopResult<{ sectionCount: number; openQuestions: number }>>;
+  /** Won applications whose sections can seed a new draft. */
+  listReusable(): Promise<{ id: string; title: string; funder: string; awardAmount: number | null; sectionCount: number }[]>;
+  reuseFrom(id: string, sourceApplicationId: string): Promise<LoopResult<{ sectionCount: number }>>;
+  /** Run the compliance checks again against the current draft and documents. */
+  runChecks(id: string): Promise<ProposalWorkspace["complianceChecks"]>;
+  winKit(id: string): Promise<WinKit | null>;
+}
+
+export interface AnalyticsService {
+  summary(): Promise<WinAnalytics>;
+}
+
+export interface FunderService {
+  list(): Promise<FunderSummary[]>;
+  get(id: string): Promise<FunderProfile | null>;
+  /** Search the private foundation directory (IRS 990-PF filings). */
+  directory(query: string, state: string | null): Promise<FunderSummary[]>;
+  /** Foundations that funded organizations like this one, which it has not matched yet. */
+  fundersLikeYou(): Promise<{ funder: Funder; peers: string[] }[]>;
+  /** Organizations funded by the same foundations, for advice or a joint application. */
+  peers(): Promise<FunderProfile["peers"]>;
+  /** Score a directory foundation against the profile and add it to Opportunities. */
+  addToMatches(funderId: string): Promise<MatchView | null>;
+}
+
+export interface CopilotService {
+  ask(question: string): Promise<CopilotAnswer>;
+}
+
+export interface ScholarshipService {
+  getProfile(): Promise<ScholarshipProfile | null>;
+  saveProfile(profile: ScholarshipProfile): Promise<ScholarshipProfile>;
+  matches(): Promise<ScholarshipMatch[]>;
 }
 
 export interface OutreachService {
@@ -138,6 +242,8 @@ export interface ContactsService {
   addNote(contactId: string, input: Pick<ContactNote, "kind" | "note" | "nextStep">): Promise<ContactNote>;
   /** A draft the board member or partner can send to make an introduction to a funder. */
   draftIntroRequest(contactId: string, applicationId: string | null): Promise<LoopResult<EmailDraft>>;
+  /** People in this network whose names appear among a funder's officers or trustees, or who are linked to a funder. */
+  overlaps(): Promise<{ contact: OrgContact; funderId: string; funderName: string; how: string }[]>;
 }
 
 export interface SocialService {
@@ -148,6 +254,8 @@ export interface SocialService {
   approve(campaignId: string): Promise<SocialCampaign>;
   /** Plain text or CSV of the month's posts for pasting into a scheduler. */
   exportCampaign(id: string, format: "text" | "csv"): Promise<string>;
+  /** Three posts timed before an application's deadline, so funders who look you up see recent work. */
+  planCredibility(applicationId: string): Promise<SocialCampaign>;
 }
 
 export interface IntegrationsService {
@@ -158,6 +266,8 @@ export interface IntegrationsService {
   disconnect(provider: "google" | "microsoft"): Promise<void>;
   /** Push every open milestone to the connected Google Calendar. */
   syncCalendar(): Promise<LoopResult<{ pushed: number }>>;
+  /** This week's digest as it would be emailed. */
+  digestPreview(): Promise<{ subject: string; body: string; to: string; canSend: boolean }>;
 }
 
 export interface InboxService {
@@ -171,6 +281,8 @@ export interface InboxService {
   setPlanDecision(planId: string, opportunityId: string, decision: PlanItem["decision"]): Promise<MonthlyPlan>;
   getEmailDraft(id: string): Promise<EmailDraft | null>;
   updateEmailDraft(id: string, patch: Partial<Pick<EmailDraft, "subject" | "body">>): Promise<EmailDraft>;
+  /** The planner: propose next month's applications from matches, deadlines, effort, and past outcomes. */
+  planNextMonth(): Promise<MonthlyPlan>;
 }
 
 export interface CalendarService {
@@ -182,6 +294,8 @@ export interface CalendarService {
   planMilestones(applicationId: string, options?: { boardReview?: boolean; hours?: number }): Promise<Milestone[]>;
   /** The private ICS feed address for this workspace. */
   icsUrl(): Promise<string>;
+  /** Reminder emails before each milestone: what would go out, when, and to whom. */
+  reminderOutbox(): Promise<{ reminders: ReminderPreview[]; canSend: boolean }>;
 }
 
 export interface ActivityService {
@@ -223,6 +337,8 @@ export interface RuntimeInfo {
   demo: boolean;
   /** A model key is set, so the agents can run (against the in-memory store in demo mode). */
   ai: boolean;
+  /** The demo with no model key: agents replay recorded runs of the sample organizations. */
+  replay: boolean;
   persistence: "memory" | "supabase";
   /** Google OAuth keys are present. */
   googleAuth: boolean;
@@ -232,11 +348,11 @@ export interface LoopService {
   runtime(): Promise<RuntimeInfo>;
   buildProfile(input: { websiteUrl: string; ein: string | null; jobId?: string }): Promise<LoopResult<{ pageCount: number; factCount: number; droppedCount: number; runId: string; fromCache: boolean }>>;
   /** Live steps for a running job, or null when this server has no record of it. */
-  progress(jobId: string): Promise<{ jobId: string; status: "running" | "done" | "failed"; steps: { label: string; state: "done" | "active" | "pending"; detail?: string }[] } | null>;
-  answerGaps(answers: { budgetRange?: string; peopleServed?: string; location?: string }): Promise<LoopResult<{ added: number }>>;
+  progress(jobId: string): Promise<{ jobId: string; status: "running" | "done" | "failed"; steps: { label: string; state: "done" | "active" | "pending"; detail?: string }[]; events: import("@/lib/loop/progress").JobEvent[] } | null>;
+  answerGaps(answers: { budgetRange?: string; peopleServed?: string; location?: string; result?: string; staff?: string; programs?: string; populations?: string; note?: string }): Promise<LoopResult<{ added: number }>>;
   confirmProfile(input: { keptFactIds: string[]; factEdits: Record<string, string>; org: { mission?: string; serviceArea?: string; name?: string } }): Promise<LoopResult<{ confirmed: number; removed: number }>>;
   findMatches(jobId?: string): Promise<LoopResult<{ matchCount: number; screened: number; read: number; runId: string; fromCache: boolean }>>;
-  draftLetter(applicationId: string): Promise<LoopResult<{ sectionCount: number; openQuestions: number; issues: number; wordCount: number; runId: string }>>;
+  draftLetter(applicationId: string, jobId?: string): Promise<LoopResult<{ sectionCount: number; openQuestions: number; issues: number; wordCount: number; runId: string }>>;
   /** Full proposal: read the funder's guidelines into a requirements checklist, then draft every section from confirmed facts. */
   draftProposal(applicationId: string, jobId?: string): Promise<LoopResult<{ sectionCount: number; requirementCount: number; openQuestions: number; issues: number; wordCount: number; runId: string }>>;
 }
@@ -252,6 +368,11 @@ export interface Services {
   billing: BillingService;
   auth: AuthService;
   loop: LoopService;
+  demo: DemoService;
+  analytics: AnalyticsService;
+  funders: FunderService;
+  copilot: CopilotService;
+  scholarships: ScholarshipService;
   outreach: OutreachService;
   contacts: ContactsService;
   social: SocialService;

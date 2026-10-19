@@ -10,11 +10,16 @@ import { Logo } from "./logo";
 import { Avatar } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import type { WorkspaceSummary } from "@/lib/services";
+import { WorkspaceSwitcher } from "./workspace-switcher";
+import { DemoTag, type DemoInfo } from "./demo-tag";
 
 interface SidebarProps {
   orgName: string;
   userName: string;
   pendingCount: number;
+  workspaces: WorkspaceSummary[];
+  demo: DemoInfo | null;
 }
 
 /** A nav item is a word. The current page is bold on a pale tint. */
@@ -27,7 +32,6 @@ function NavLink({ item, active, badge, onNavigate }: { item: NavItem; active: b
       className={cn("relative flex items-center gap-3 rounded-md py-2 pl-3 pr-3 text-base transition-colors hover:bg-paper-tint hover:text-ink", active ? "bg-paper-tint font-semibold text-ink" : "text-ink-muted")}
     >
       <span className="flex-1 truncate">{item.label}</span>
-      {item.comingSoon ? <span className="text-xs text-ink-muted">Soon</span> : null}
       {badge ? (
         <span className="count" aria-label={`${badge} waiting for you`}>
           {badge}
@@ -37,13 +41,17 @@ function NavLink({ item, active, badge, onNavigate }: { item: NavItem; active: b
   );
 }
 
-function NavBody({ orgName, userName, pendingCount, onNavigate }: SidebarProps & { onNavigate?: () => void }) {
+function NavBody({ orgName, userName, pendingCount, workspaces, demo, onNavigate }: SidebarProps & { onNavigate?: () => void }) {
   const pathname = usePathname();
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/") || (href === "/pipeline" && pathname.startsWith("/applications"));
   return (
     <div className="flex h-full flex-col bg-paper text-ink">
-      <div className="px-6 pb-6 pt-6">
-        <Logo href="/inbox" size="sm" />
+      <div className="px-6 pb-4 pt-6">
+        <div className="flex items-center justify-between gap-3">
+          <Logo href="/inbox" size="sm" />
+          {demo ? <DemoTag demo={demo} /> : null}
+        </div>
+        <WorkspaceSwitcher className="mt-5" orgName={orgName} workspaces={workspaces} demo={Boolean(demo)} onNavigate={onNavigate} />
       </div>
       <nav aria-label="Primary" className="flex-1 overflow-y-auto px-3">
         <ul className="flex flex-col">
@@ -91,7 +99,10 @@ export function MobileTopBar(props: SidebarProps) {
   const [open, setOpen] = React.useState(false);
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-rule bg-paper px-4 text-ink lg:hidden">
-      <Logo href="/inbox" size="sm" />
+      <div className="flex items-center gap-3">
+        <Logo href="/inbox" size="sm" />
+        {props.demo ? <DemoTag demo={props.demo} /> : null}
+      </div>
       <div className="flex items-center gap-3">
         {props.pendingCount ? (
           <Link href="/inbox" className="inline-flex min-h-6 items-center text-sm font-semibold tnum" aria-label={`${props.pendingCount} waiting in your Inbox`}>

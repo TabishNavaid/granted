@@ -1,4 +1,5 @@
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { siteUrl } from "@/lib/site-url";
 import { connectionStore } from "@/lib/integrations/store";
 
 /**
@@ -79,7 +80,7 @@ export function mergeScopes(...lists: (string[] | undefined)[]): string[] {
 
 /** Where the provider sends the user back. This exact URL must be registered with the provider. */
 export function callbackUrl(provider: Provider): string {
-  const base = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+  const base = siteUrl();
   return `${base}/api/integrations/${provider}/callback`;
 }
 

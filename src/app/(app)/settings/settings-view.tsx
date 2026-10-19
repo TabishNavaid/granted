@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import type { Invoice, Member, NotificationSettings, Organization, PlanTier, Subscription } from "@/lib/types";
+import type { AgentAutonomy, AgentName, Invoice, Member, NotificationSettings, Organization, PlanTier, ReminderPreview, Subscription } from "@/lib/types";
 import { services } from "@/lib/services";
 import { cn } from "@/lib/utils";
 import { formatDate, formatMoney } from "@/lib/format";
@@ -17,6 +17,12 @@ import { Progress } from "@/components/ui/progress";
 import { DataTable, type Column } from "@/components/ui/data-table";
 import { Avatar } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/toast";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AgentsTab } from "./agents-tab";
+import { ReminderOutbox } from "./reminder-outbox";
+import { PreviewRole } from "./preview-role";
+
+type Digest = { subject: string; body: string; to: string; canSend: boolean };
 
 const plans: { tier: PlanTier; name: string; price: string; who: string; includes: string[] }[] = [
   { tier: "free", name: "Free", price: "$0", who: "Try it out", includes: ["Profile and knowledge base", "5 matches a month", "1 drafted letter of inquiry"] },
@@ -24,10 +30,32 @@ const plans: { tier: PlanTier; name: string; price: string; who: string; include
   { tier: "growth", name: "Growth", price: "$79", who: "Orgs $250K to $1M", includes: ["Everything in Starter", "Unlimited proposals", "Connections and Social (coming)", "3 seats"] },
 ];
 
-export function SettingsView({ org, members: initialMembers, subscription: initialSub, invoices, notifications: initialNotif, initialTab, stripe, icsUrl, currentUserId }: { org: Organization; members: Member[]; subscription: Subscription; invoices: Invoice[]; notifications: NotificationSettings; initialTab?: string; stripe: boolean; icsUrl: string; currentUserId: string }) {
+interface SettingsViewProps {
+  org: Organization;
+  members: Member[];
+  subscription: Subscription;
+  invoices: Invoice[];
+  notifications: NotificationSettings;
+  initialTab?: string;
+  stripe: boolean;
+  icsUrl: string;
+  currentUserId: string;
+  currentRole: Member["role"];
+  autonomy: Record<AgentName, AgentAutonomy>;
+  outbox: { reminders: ReminderPreview[]; canSend: boolean };
+  demo: boolean;
+}
+
+export function SettingsView({ org, members: initialMembers, subscription: initialSub, invoices, notifications: initialNotif, initialTab, stripe, icsUrl, currentUserId, currentRole, autonomy, outbox: initialOutbox, demo }: SettingsViewProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const [tab, setTab] = React.useState(initialTab && ["workspace", "team", "notifications", "billing"].includes(initialTab) ? initialTab : "workspace");
+  const [tab, setTab] = React.useState(initialTab && ["workspace", "team", "agents", "notifications", "billing"].includes(initialTab) ? initialTab : "workspace");
+  const [outbox, setOutbox] = React.useState(initialOutbox);
+  const [digest, setDigest] = React.useState<Digest | null>(null);
+  const [digestLoading, setDigestLoading] = React.useState(false);
+  const [inviteLink, setInviteLink] = React.useState<{ email: string; url: string } | null>(null);
+  const [linkCopied, setLinkCopied] = React.useState(false);
+  const [inviting, setInviting] = React.useState(false);
   const [members, setMembers] = React.useState(initialMembers);
   const [sub, setSub] = React.useState(initialSub);
   const [notif, setNotif] = React.useState(initialNotif);
@@ -36,7 +64,33 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
 
   const updateNotif = async (patch: Partial<NotificationSettings>) => {
     setNotif((n) => ({ ...n, ...patch }));
-    await services.billing.updateNotificationSettings(patch);
+    try {
+      await services.billing.updateNotificationSettings(patch);
+      setOutbox(await services.calendar.reminderOutbox());
+    } catch (err) {
+      toast({ title: "Not saved", description: err instanceof Error ? err.message : "Try again in a moment.", tone: "warning" });
+    }
+  };
+
+  const openDigest = async () => {
+    setDigestLoading(true);
+    try {
+      setDigest(await services.integrations.digestPreview());
+    } catch (err) {
+      toast({ title: "Could not build the digest", description: err instanceof Error ? err.message : "Try again in a moment.", tone: "warning" });
+    } finally {
+      setDigestLoading(false);
+    }
+  };
+
+  const copyInvite = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 1500);
+    } catch {
+      toast({ title: "Could not copy", description: "Select the link and copy it by hand.", tone: "warning" });
+    }
   };
 
   const invoiceColumns: Column<Invoice>[] = [
@@ -56,11 +110,12 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
 
   return (
     <PageContainer>
-      <PageHeader title="Settings" description="Workspace, team, notifications, and billing." />
+      <PageHeader title="Settings" description="Workspace, team, agents, notifications, and billing." />
       <Tabs value={tab} onValueChange={setTab} className="mt-6">
         <TabsList variant="line" aria-label="Settings sections">
           <TabsTrigger value="workspace">Workspace</TabsTrigger>
           <TabsTrigger value="team">Team</TabsTrigger>
+          <TabsTrigger value="agents">Agents</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="billing">Billing</TabsTrigger>
           <TabsTrigger value="integrations" asChild>
@@ -131,8 +186,12 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
                     <Select
                       value={m.role}
                       onValueChange={async (v) => {
-                        const next = await services.org.updateMemberRole(m.id, v as Member["role"]);
-                        setMembers((l) => l.map((x) => (x.id === m.id ? { ...x, role: next.role } : x)));
+                        try {
+                          const next = await services.org.updateMemberRole(m.id, v as Member["role"]);
+                          setMembers((l) => l.map((x) => (x.id === m.id ? { ...x, role: next.role } : x)));
+                        } catch (err) {
+                          toast({ title: "Role not changed", description: err instanceof Error ? err.message : "Try again in a moment.", tone: "warning" });
+                        }
                       }}
                     >
                       <SelectTrigger id={`role-${m.id}`} className="h-9 w-32">
@@ -148,9 +207,14 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
                         variant="ghost"
                         size="sm"
                         onClick={async () => {
-                          await services.org.removeMember(m.id);
-                          setMembers((l) => l.filter((x) => x.id !== m.id));
-                          toast({ title: "Removed", description: `${m.email} no longer has access.`, tone: "info" });
+                          try {
+                            await services.org.removeMember(m.id);
+                            setMembers((l) => l.filter((x) => x.id !== m.id));
+                            if (inviteLink?.email === m.email) setInviteLink(null);
+                            toast({ title: "Removed", description: `${m.email} no longer has access.`, tone: "info" });
+                          } catch (err) {
+                            toast({ title: "Not removed", description: err instanceof Error ? err.message : "Try again in a moment.", tone: "warning" });
+                          }
                         }}
                       >
                         Remove
@@ -166,10 +230,22 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
             onSubmit={async (e) => {
               e.preventDefault();
               if (!inviteEmail.includes("@")) return;
-              const m = await services.org.inviteMember(inviteEmail, inviteRole);
-              setMembers((l) => [...l, m]);
-              setInviteEmail("");
-              toast({ title: "Invitation sent", description: `${m.email} can join as ${inviteRole}.` });
+              setInviting(true);
+              try {
+                const m = await services.org.inviteMember(inviteEmail, inviteRole);
+                setMembers((l) => [...l, m]);
+                setInviteEmail("");
+                if (demo) {
+                  setInviteLink({ email: m.email, url: `${window.location.origin}/sign-up?invite=${encodeURIComponent(m.email)}` });
+                  toast({ title: "Invite ready", description: `Share the sign-up link with ${m.email}.` });
+                } else {
+                  toast({ title: "Invitation sent", description: `${m.email} can join as ${inviteRole === "reviewer" ? "a board reviewer" : "an editor"}.` });
+                }
+              } catch (err) {
+                toast({ title: "Could not invite", description: err instanceof Error ? err.message : "Try again in a moment.", tone: "warning" });
+              } finally {
+                setInviting(false);
+              }
             }}
           >
             <Field id="invite-email" label="Invite a teammate" className="flex-1">
@@ -187,11 +263,33 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
                 </SelectContent>
               </Select>
             </div>
-            <Button type="submit" variant="secondary" className="h-11">
-              Send invite
+            <Button type="submit" variant="secondary" className="h-11" loading={inviting}>
+              {demo ? "Create invite" : "Send invite"}
             </Button>
           </form>
+          {inviteLink ? (
+            <div className="mt-4 max-w-xl border-l-[6px] border-ink py-2 pl-4">
+              <p className="text-base font-semibold text-ink">Sign-up link for {inviteLink.email}</p>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <code className="min-w-0 flex-1 truncate bg-paper-tint px-2 py-1 text-xs text-ink">{inviteLink.url}</code>
+                <Button variant="secondary" size="sm" onClick={() => copyInvite(inviteLink.url)}>
+                  {linkCopied ? "Copied" : "Copy link"}
+                </Button>
+              </div>
+              <p className="mt-2 text-sm text-ink-muted">Invite emails send once email is set up. Until then, send this link yourself.</p>
+            </div>
+          ) : null}
           <p className="mt-3 max-w-[60ch] text-sm text-ink-muted">Reviewers can approve things in the Inbox but cannot edit drafts. Board members usually want exactly this. Assign milestones to teammates from the Calendar.</p>
+          {demo ? (
+            <PreviewRole
+              role={currentRole}
+              onChanged={(m) => setMembers((l) => l.map((x) => (x.id === m.id ? { ...x, role: m.role } : x)))}
+            />
+          ) : null}
+        </TabsContent>
+
+        <TabsContent value="agents">
+          <AgentsTab initial={autonomy} isOwner={currentRole === "owner"} />
         </TabsContent>
 
         <TabsContent value="notifications">
@@ -222,6 +320,9 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
               </a>
               .
             </p>
+            <Button variant="secondary" size="sm" className="mt-3" loading={digestLoading} onClick={openDigest}>
+              Preview this week&rsquo;s digest
+            </Button>
           </div>
           <div className="max-w-lg border-t border-rule">
             {[
@@ -256,6 +357,13 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
               </Select>
             </div>
           </div>
+          <section aria-labelledby="reminder-emails-title" className="mt-12 max-w-2xl">
+            <h2 id="reminder-emails-title" className="font-display text-2xl text-ink">
+              Reminder emails
+            </h2>
+            <p className="mt-1 text-sm text-ink-muted">What goes out before each milestone, and when. It follows the settings above.</p>
+            <ReminderOutbox reminders={outbox.reminders} canSend={outbox.canSend} enabled={notif.milestoneReminders} className="mt-3" />
+          </section>
         </TabsContent>
 
         <TabsContent value="billing">
@@ -348,6 +456,41 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
           </div>
         </TabsContent>
       </Tabs>
+      <Dialog open={!!digest} onOpenChange={(o) => !o && setDigest(null)}>
+        <DialogContent size="lg">
+          {digest ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>This week&rsquo;s digest</DialogTitle>
+                <DialogDescription>
+                  {digest.canSend ? "This is the email as it goes out this week." : "This is the email as it would read. Sending needs email set up first."}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="border-y border-rule">
+                <dl className="flex flex-col gap-1 border-b border-rule py-2.5 text-sm">
+                  <div className="flex gap-1.5">
+                    <dt className="text-ink-muted">To</dt>
+                    <dd className="min-w-0 truncate font-semibold text-ink">{digest.to || "You"}</dd>
+                  </div>
+                  <div className="flex gap-1.5">
+                    <dt className="text-ink-muted">Subject</dt>
+                    <dd className="font-semibold text-ink">{digest.subject}</dd>
+                  </div>
+                </dl>
+                <p className="whitespace-pre-line py-4 text-base leading-relaxed text-ink">{digest.body}</p>
+              </div>
+              <DialogFooter>
+                {!digest.canSend ? (
+                  <Button variant="secondary" asChild>
+                    <a href="/settings/integrations">Set up email</a>
+                  </Button>
+                ) : null}
+                <Button onClick={() => setDigest(null)}>Close</Button>
+              </DialogFooter>
+            </>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </PageContainer>
   );
 }

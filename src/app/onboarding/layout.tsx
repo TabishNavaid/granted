@@ -6,8 +6,7 @@ import { OnboardingSteps } from "./steps";
 export const dynamic = "force-dynamic";
 
 export default async function OnboardingLayout({ children }: { children: React.ReactNode }) {
-  const runtime = await services.loop.runtime();
-  const demo = runtime.demo && !runtime.ai;
+  const demo = await services.demo.status();
   return (
     <div className="flex min-h-screen flex-col">
       <header className="border-b border-rule bg-paper">
@@ -16,14 +15,14 @@ export default async function OnboardingLayout({ children }: { children: React.R
           <span className="text-base text-ink-muted">Setup</span>
         </div>
       </header>
-      {demo ? (
+      {demo.active ? (
         <div className="border-b border-rule bg-paper-tint">
           <p className="mx-auto max-w-4xl px-4 py-2.5 text-sm text-ink sm:px-6">
-            This is a demo. Setup walks through a sample organization, Riverbend Youth Collective, because no model key is set on this server.{" "}
-            <Link href="/settings/integrations" className="font-semibold underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
-              See what to connect
+            <span className="mr-2 inline-flex items-center rounded-sm border border-rule-strong px-1.5 text-xs font-semibold text-ink-muted">Demo data</span>
+            {demo.replay ? "Setup runs on fictional sample organizations and replays a recorded run through the live code. Grants.gov notices and foundation filings are real." : "Setup runs live against a fictional sample organization."}{" "}
+            <Link href="/inbox" className="font-semibold underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
+              Skip to the sample workspace
             </Link>
-            .
           </p>
         </div>
       ) : null}

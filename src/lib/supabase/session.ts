@@ -1,4 +1,12 @@
+import { cookies } from "next/headers";
 import { adminClient, createUserClient } from "./clients";
+
+const ACTIVE_ORG_COOKIE = "fl_org";
+
+/** Remember which organization a consultant has open. Checked against memberships on every request. */
+export async function setActiveOrg(orgId: string) {
+  (await cookies()).set(ACTIVE_ORG_COOKIE, orgId, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 365 });
+}
 
 export interface SessionContext {
   userId: string;
@@ -24,8 +32,15 @@ export async function getSession(): Promise<SessionContext | null> {
   const email = user.email ?? "";
   const fullName = (user.user_metadata?.full_name as string | undefined) ?? "";
   await db.from("profiles").upsert({ id: user.id, email, full_name: fullName || null }, { onConflict: "id" });
-  const { data: membership } = await db.from("org_members").select("org_id").eq("user_id", user.id).eq("status", "active").limit(1).maybeSingle();
-  if (membership?.org_id) return { userId: user.id, email, fullName, orgId: membership.org_id as string };
+  // An invite to this address becomes a membership the first time its owner signs in.
+  if (email) await db.from("org_members").update({ user_id: user.id, status: "active" }).is("user_id", null).eq("status", "invited").ilike("invited_email", email);
+  const { data: memberships } = await db.from("org_members").select("org_id").eq("user_id", user.id).eq("status", "active");
+  if (memberships?.length) {
+    // Consultant mode: the organization chosen last, if this login still belongs to it.
+    const chosen = (await cookies()).get(ACTIVE_ORG_COOKIE)?.value;
+    const orgId = (memberships.find((m) => m.org_id === chosen) ?? memberships[0]).org_id as string;
+    return { userId: user.id, email, fullName, orgId };
+  }
 
   // First sign-in: make the workspace.
   const orgName = ((user.user_metadata?.org_name as string | undefined) ?? "").trim() || (email.split("@")[1] ?? "Your organization");

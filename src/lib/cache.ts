@@ -13,7 +13,7 @@ export interface CacheBackend {
   set(key: string, value: unknown, expiresAt: number): Promise<void>;
 }
 
-const memory = new Map<string, { value: unknown; expiresAt: number }>();
+const memory = ((globalThis as typeof globalThis & { __firstlightCache?: Map<string, { value: unknown; expiresAt: number }> }).__firstlightCache ??= new Map<string, { value: unknown; expiresAt: number }>());
 let backend: CacheBackend | null = null;
 
 export function registerCacheBackend(b: CacheBackend | null) {

@@ -354,7 +354,7 @@ export function EmailPreview({ draft, funderName }: { draft: EmailDraft; funderN
       <dl className="flex flex-wrap gap-x-6 gap-y-1 border-b border-rule py-2.5 text-sm">
         <div className="flex gap-1.5">
           <dt className="text-ink-muted">To</dt>
-          <dd className="font-semibold text-ink">{funderName ?? "Funder"}</dd>
+          <dd className="font-semibold text-ink">{draft.toName ? `${draft.toName}${funderName ? `, ${funderName}` : ""}` : draft.to ?? funderName ?? "Funder"}</dd>
         </div>
         <div className="flex gap-1.5">
           <dt className="text-ink-muted">Subject</dt>

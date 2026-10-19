@@ -2,9 +2,13 @@ import { differenceInCalendarDays, format, formatDistanceToNowStrict, isPast, pa
 
 export function formatMoney(amount: number | null | undefined, opts: { compact?: boolean } = {}) {
   if (amount == null) return "Not listed";
+  if (opts.compact && amount >= 1_000_000) {
+    const m = amount / 1_000_000;
+    return `$${Number.isInteger(m) ? m : m.toFixed(1).replace(/\.0$/, "")}M`;
+  }
   if (opts.compact && amount >= 1000) {
     const k = amount / 1000;
-    return `$${k % 1 === 0 ? k : k.toFixed(1)}K`;
+    return `$${Number.isInteger(k) ? k : k.toFixed(1).replace(/\.0$/, "")}K`;
   }
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(amount);
 }

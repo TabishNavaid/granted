@@ -62,7 +62,7 @@ export function ProfileStep({ org, facts, documents, real, alreadyConfirmed }: P
   };
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[1fr_18rem]">
+    <div className="grid gap-10 lg:grid-cols-[1fr_18rem] [&>*]:min-w-0">
       <div>
         <h1 className="font-display text-h1 text-ink">Does this look right?</h1>
         <p className="mt-4 max-w-[60ch] text-lg text-ink-muted">This is what we'll say about you. Uncheck anything that's off and we'll leave it out. Open a source to read the exact passage.</p>
@@ -149,7 +149,7 @@ export function ProfileStep({ org, facts, documents, real, alreadyConfirmed }: P
                         <Pencil />
                       </Button>
                     ) : null}
-                    <CitationChip label={chip.label} sourceTitle={chip.sourceTitle} excerpt={f.sourceExcerpt} page={f.sourcePage} url={chip.url} className="mt-1.5" />
+                    <CitationChip label={chip.label} sourceTitle={chip.sourceTitle} excerpt={f.sourceExcerpt} page={f.sourcePage} url={chip.url} className="mt-1.5 min-w-0 max-w-[9rem] shrink sm:max-w-[16rem]" />
                   </li>
                 );
               })}

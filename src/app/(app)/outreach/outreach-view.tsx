@@ -24,9 +24,10 @@ const kindLabel: Record<EmailKind, string> = {
   loi_cover: "Cover note",
   thank_you: "Thank-you",
   follow_up: "Follow-up",
+  feedback_request: "Feedback request after a decline",
 };
 
-const kindOrder: EmailKind[] = ["intro", "question", "loi_cover", "thank_you", "follow_up"];
+const kindOrder: EmailKind[] = ["intro", "question", "loi_cover", "thank_you", "follow_up", "feedback_request"];
 
 const followUpOptions: { value: string; label: string }[] = [
   { value: "none", label: "No reminder" },

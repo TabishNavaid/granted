@@ -29,9 +29,11 @@ export function isDemoMode() {
   return !hasSupabase();
 }
 
-export type RuntimeMode = { demo: boolean; ai: boolean; persistence: "memory" | "supabase"; googleAuth: boolean };
+/** `replay`: the demo with no model key, where the agents replay recorded runs of the sample organizations (src/lib/replay). */
+export type RuntimeMode = { demo: boolean; ai: boolean; replay: boolean; persistence: "memory" | "supabase"; googleAuth: boolean };
 
 export function runtimeMode(): RuntimeMode {
   const demo = isDemoMode();
-  return { demo, ai: hasAi(), persistence: demo ? "memory" : "supabase", googleAuth: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) && !demo };
+  const ai = hasAi();
+  return { demo, ai, replay: demo && !ai, persistence: demo ? "memory" : "supabase", googleAuth: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) && !demo };
 }

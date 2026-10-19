@@ -9,7 +9,7 @@ const resume: Record<string, string> = { ein: "/onboarding/ein", reading: "/onbo
 
 /** The first question. A returning user is sent to the step they left on. */
 export default async function OnboardingStartPage({ searchParams }: { searchParams: Promise<{ restart?: string }> }) {
-  const [{ restart }, org] = await Promise.all([searchParams, services.org.get()]);
+  const [{ restart }, org, demo] = await Promise.all([searchParams, services.org.get(), services.demo.status()]);
   if (!restart && org.onboardingStep !== "start" && org.onboardingStep !== "done" && resume[org.onboardingStep]) redirect(resume[org.onboardingStep]);
-  return <WebsiteStep initialUrl={org.onboardingStep === "done" ? "" : org.websiteUrl} />;
+  return <WebsiteStep initialUrl={org.onboardingStep === "done" || demo.active ? "" : org.websiteUrl} demo={demo.active ? { samples: demo.samples } : null} />;
 }

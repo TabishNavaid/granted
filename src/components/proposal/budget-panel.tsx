@@ -6,7 +6,7 @@ import type { Budget, BudgetCategory, BudgetLine } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BUDGET_CATEGORY_LABEL, budgetTotal } from "@/lib/loop/budget";
+import { BUDGET_CATEGORY_LABEL, budgetTotal } from "@/lib/budget";
 import { formatMoney } from "@/lib/format";
 
 const categories = Object.keys(BUDGET_CATEGORY_LABEL) as BudgetCategory[];

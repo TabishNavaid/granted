@@ -1,11 +1,10 @@
 import type { LucideIcon } from "lucide-react";
-import { Activity, CalendarDays, Compass, Inbox, KanbanSquare, Library, Mail, Megaphone, Settings, Users } from "lucide-react";
+import { Activity, BarChart3, CalendarDays, Compass, Inbox, KanbanSquare, Landmark, Library, Mail, Megaphone, MessageSquareText, Settings, Users } from "lucide-react";
 
 export interface NavItem {
   href: string;
   label: string;
   icon: LucideIcon;
-  comingSoon?: boolean;
 }
 
 export const primaryNav: NavItem[] = [
@@ -19,7 +18,10 @@ export const primaryNav: NavItem[] = [
 ];
 
 export const secondaryNav: NavItem[] = [
+  { href: "/funders", label: "Funders", icon: Landmark },
   { href: "/connections", label: "Connections", icon: Users },
   { href: "/social", label: "Social", icon: Megaphone },
+  { href: "/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/ask", label: "Ask", icon: MessageSquareText },
   { href: "/settings", label: "Settings", icon: Settings },
 ];

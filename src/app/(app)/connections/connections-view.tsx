@@ -16,6 +16,7 @@ import { DataTable, type Column } from "@/components/ui/data-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/components/ui/toast";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { PeerOrganizations, WhoKnowsWhom, type Overlap, type Peer } from "./network-sections";
 
 const kindLabel: Record<ContactKind, string> = {
   board: "Board member",
@@ -44,11 +45,13 @@ type Filter = "all" | "board" | "funder" | "partner";
 
 const NO_APPLICATION = "none";
 
-export function ConnectionsView({ contacts: initial, applications, demo }: { contacts: OrgContact[]; applications: ApplicationView[]; demo: boolean }) {
+export function ConnectionsView({ contacts: initial, applications, demo, overlaps: initialOverlaps, peers }: { contacts: OrgContact[]; applications: ApplicationView[]; demo: boolean; overlaps: Overlap[]; peers: Peer[] }) {
   const { toast } = useToast();
   const [contacts, setContacts] = React.useState(initial);
   const [filter, setFilter] = React.useState<Filter>("all");
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
+  const [introApplicationId, setIntroApplicationId] = React.useState<string | null>(null);
+  const [overlaps, setOverlaps] = React.useState(initialOverlaps);
   const [adding, setAdding] = React.useState(false);
   const [importing, setImporting] = React.useState(false);
   const fileRef = React.useRef<HTMLInputElement>(null);
@@ -57,14 +60,27 @@ export function ConnectionsView({ contacts: initial, applications, demo }: { con
   const selected = contacts.find((c) => c.id === selectedId) ?? null;
   const visible = filter === "all" ? contacts : contacts.filter((c) => c.kind === filter);
 
-  const open = (c: OrgContact) => {
+  const open = (c: OrgContact, applicationId: string | null = null) => {
     setSelectedId(c.id);
+    setIntroApplicationId(applicationId);
     requestAnimationFrame(() => {
       detailRef.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     });
   };
 
-  const reload = async () => setContacts(await services.contacts.list());
+  const reload = async () => {
+    const [list, next] = await Promise.all([services.contacts.list(), services.contacts.overlaps().catch(() => null)]);
+    setContacts(list);
+    if (next) setOverlaps(next);
+  };
+
+  // Open the person's record with the application for that funder already chosen, so the intro request is one click away.
+  const askIntro = (o: Overlap) => {
+    const c = contacts.find((x) => x.id === o.contact.id) ?? o.contact;
+    if (!contacts.some((x) => x.id === c.id)) setContacts((list) => [c, ...list]);
+    const app = applications.find((a) => a.funder.id === o.funderId && !["won", "lost"].includes(a.stage)) ?? applications.find((a) => a.funder.id === o.funderId);
+    open(c, app?.id ?? null);
+  };
 
   const importFile = (file: File) => {
     setImporting(true);
@@ -178,9 +194,10 @@ export function ConnectionsView({ contacts: initial, applications, demo }: { con
       {selected ? (
         <div ref={detailRef} className="mt-10 scroll-mt-16 lg:scroll-mt-6">
           <ContactDetail
-            key={selected.id}
+            key={`${selected.id}-${introApplicationId ?? "none"}`}
             contact={selected}
             applications={applications}
+            initialApplicationId={introApplicationId}
             onClose={() => setSelectedId(null)}
             onChange={(next) => setContacts((list) => list.map((c) => (c.id === next.id ? next : c)))}
             onRemoved={() => {
@@ -191,6 +208,9 @@ export function ConnectionsView({ contacts: initial, applications, demo }: { con
           />
         </div>
       ) : null}
+
+      <WhoKnowsWhom overlaps={overlaps} onAskIntro={askIntro} onImport={() => fileRef.current?.click()} />
+      <PeerOrganizations peers={peers} />
 
       {adding ? (
         <AddPersonDialog
@@ -206,7 +226,7 @@ export function ConnectionsView({ contacts: initial, applications, demo }: { con
   );
 }
 
-function ContactDetail({ contact, applications, onClose, onChange, onRemoved }: { contact: OrgContact; applications: ApplicationView[]; onClose: () => void; onChange: (c: OrgContact) => void; onRemoved: () => void }) {
+function ContactDetail({ contact, applications, initialApplicationId, onClose, onChange, onRemoved }: { contact: OrgContact; applications: ApplicationView[]; initialApplicationId?: string | null; onClose: () => void; onChange: (c: OrgContact) => void; onRemoved: () => void }) {
   const { toast } = useToast();
   const [editing, setEditing] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
@@ -228,7 +248,7 @@ function ContactDetail({ contact, applications, onClose, onChange, onRemoved }: 
   const [nextStep, setNextStep] = React.useState("");
   const [addingNote, setAddingNote] = React.useState(false);
 
-  const [applicationId, setApplicationId] = React.useState<string>(NO_APPLICATION);
+  const [applicationId, setApplicationId] = React.useState<string>(initialApplicationId ?? NO_APPLICATION);
   const [drafting, setDrafting] = React.useState(false);
   const [draft, setDraft] = React.useState<EmailDraft | null>(null);
   const [draftError, setDraftError] = React.useState<string | null>(null);

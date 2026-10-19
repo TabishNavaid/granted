@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Pencil, Trash2 } from "lucide-react";
-import type { Boilerplate, Document, Fact, Organization } from "@/lib/types";
+import type { Boilerplate, Document, Fact, ImpactMetric, Organization, VoiceProfile } from "@/lib/types";
 import { services } from "@/lib/services";
 import { cn } from "@/lib/utils";
 import { formatDate, relativeTime, wordCount } from "@/lib/format";
@@ -17,6 +17,9 @@ import { DataTable, type Column } from "@/components/ui/data-table";
 import { useToast } from "@/components/ui/toast";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ImpactTab } from "./impact-tab";
+import { VoiceTab } from "./voice-tab";
+import { BoilerplateVersionsDialog } from "./boilerplate-versions";
 
 const docTypeLabel: Record<Document["type"], string> = {
   annual_report: "Annual report",
@@ -25,16 +28,37 @@ const docTypeLabel: Record<Document["type"], string> = {
   budget: "Budget",
   board_list: "Board list",
   determination_letter: "IRS letter",
+  w9: "W-9",
+  audit: "Audit or financial review",
   other: "Other",
 };
 
-export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates: initialBp, documents: initialDocs, initialTab }: { org: Organization; facts: Fact[]; boilerplates: Boilerplate[]; documents: Document[]; initialTab?: string }) {
+const uploadTypes: Document["type"][] = ["annual_report", "past_proposal", "form_990", "budget", "board_list", "determination_letter", "w9", "audit", "other"];
+
+/** A best guess at the document type from its file name, used when the director leaves the kind on "guess". */
+function guessType(name: string): Document["type"] {
+  if (/990/.test(name)) return "form_990";
+  if (/w-?9/i.test(name)) return "w9";
+  if (/audit|financial[ _-]?(statement|review)/i.test(name)) return "audit";
+  if (/determination|501c3|irs[ _-]?letter/i.test(name)) return "determination_letter";
+  if (/board/i.test(name)) return "board_list";
+  if (/annual|report/i.test(name)) return "annual_report";
+  if (/proposal|loi/i.test(name)) return "past_proposal";
+  if (/budget/i.test(name)) return "budget";
+  return "other";
+}
+
+const tabs = ["overview", "facts", "impact", "voice", "boilerplate", "documents"];
+
+export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates: initialBp, documents: initialDocs, metrics, voice, initialTab }: { org: Organization; facts: Fact[]; boilerplates: Boilerplate[]; documents: Document[]; metrics: ImpactMetric[]; voice: VoiceProfile; initialTab?: string }) {
   const { toast } = useToast();
   const [org, setOrg] = React.useState(initialOrg);
   const [facts, setFacts] = React.useState(initialFacts);
   const [bps, setBps] = React.useState(initialBp);
   const [docs, setDocs] = React.useState(initialDocs);
-  const [tab, setTab] = React.useState(initialTab && ["overview", "facts", "boilerplate", "documents"].includes(initialTab) ? initialTab : "overview");
+  const [tab, setTab] = React.useState(initialTab && tabs.includes(initialTab) ? initialTab : "overview");
+  const [versionsFor, setVersionsFor] = React.useState<Boilerplate | null>(null);
+  const [uploadType, setUploadType] = React.useState<Document["type"] | "guess">("guess");
   const [editing, setEditing] = React.useState(false);
   const [editingFact, setEditingFact] = React.useState<Fact | null>(null);
   const [editingBp, setEditingBp] = React.useState<Boilerplate | null>(null);
@@ -55,7 +79,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
       setUploading(file.name);
       const fd = new FormData();
       fd.append("file", file);
-      fd.append("type", /990/.test(file.name) ? "form_990" : /annual|report/i.test(file.name) ? "annual_report" : /proposal|loi/i.test(file.name) ? "past_proposal" : /budget/i.test(file.name) ? "budget" : "other");
+      fd.append("type", uploadType === "guess" ? guessType(file.name) : uploadType);
       try {
         const r = await fetch("/api/documents/upload", { method: "POST", body: fd });
         const data = (await r.json()) as { ok: boolean; error?: string; document?: Document; extraction?: { ok: boolean; factCount?: number; error?: string } };
@@ -129,6 +153,8 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
           <TabsTrigger value="facts">
             Facts {needsReview ? <span className="count">{needsReview}</span> : null}
           </TabsTrigger>
+          <TabsTrigger value="impact">Impact</TabsTrigger>
+          <TabsTrigger value="voice">Voice</TabsTrigger>
           <TabsTrigger value="boilerplate">Boilerplate</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
         </TabsList>
@@ -229,9 +255,17 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
           <DataTable columns={factColumns} rows={[...facts].sort((a, b) => (a.status === "confirmed" ? 1 : 0) - (b.status === "confirmed" ? 1 : 0))} rowKey={(f) => f.id} caption="Organization facts and their sources" />
         </TabsContent>
 
+        <TabsContent value="impact">
+          <ImpactTab initial={metrics} onFactsChanged={async () => setFacts(await services.knowledge.listFacts())} />
+        </TabsContent>
+
+        <TabsContent value="voice">
+          <VoiceTab initial={voice} onAddBoilerplate={() => { setTab("boilerplate"); setAddingBp(true); }} />
+        </TabsContent>
+
         <TabsContent value="boilerplate">
           <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-            <p className="max-w-[65ch] text-base text-ink-muted">Paragraphs you will use again and again, in your own words. Every edit saves a new version, so nothing is lost. Claims in them still need a confirmed fact before they go into a draft.</p>
+            <p className="max-w-[65ch] text-base text-ink-muted">Paragraphs you will use again and again, in your own words. Every edit keeps the text it replaced as a version, so nothing is lost. Claims in them still need a confirmed fact before they go into a draft.</p>
             <Button variant="secondary" size="sm" onClick={() => setAddingBp(true)}>
               Add a paragraph
             </Button>
@@ -252,13 +286,20 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
                     <Button variant="ghost" size="sm" onClick={() => setEditingBp(b)}>
                       Edit
                     </Button>
+                    <Button variant="ghost" size="sm" onClick={() => setVersionsFor(b)} aria-label={`Versions of ${b.title}`}>
+                      Versions
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon-sm"
                       aria-label={`Remove ${b.title}`}
                       onClick={async () => {
-                        await services.knowledge.removeBoilerplate(b.id);
-                        setBps((l) => l.filter((x) => x.id !== b.id));
+                        try {
+                          await services.knowledge.removeBoilerplate(b.id);
+                          setBps((l) => l.filter((x) => x.id !== b.id));
+                        } catch (err) {
+                          toast({ title: "Could not remove it", description: err instanceof Error ? err.message : "Try again in a moment.", tone: "warning" });
+                        }
                       }}
                     >
                       <Trash2 />
@@ -294,19 +335,58 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
             className={cn("flex flex-col items-center justify-center rounded-lg border-2 border-dashed px-6 py-10 text-center transition-colors", dragOver ? "border-ink-deep bg-paper-tint" : "border-rule-strong bg-paper")}
           >
             <p className="font-display text-xl text-ink">Drop a document here</p>
-            <p className="mt-2 max-w-[48ch] text-base text-ink-muted">Annual reports, old proposals, 990s, budgets. PDF, Word, or plain text up to 25 MB. We read the text and pull out facts with the passage each one came from.</p>
+            <p className="mt-2 max-w-[48ch] text-base text-ink-muted">Annual reports, old proposals, 990s, budgets, a W-9, your audit. PDF, Word, or plain text up to 25 MB. We read the text and pull out facts with the passage each one came from.</p>
+            <div className="mt-5 flex w-full max-w-xs flex-col gap-1.5 text-left">
+              <label htmlFor="doc-type" className="text-sm font-semibold text-ink">
+                What kind of document
+              </label>
+              <select id="doc-type" value={uploadType} onChange={(e) => setUploadType(e.target.value as Document["type"] | "guess")} className="h-10 rounded-md border-[1.5px] border-rule-strong bg-paper px-3 text-base text-ink">
+                <option value="guess">Guess from the file name</option>
+                {uploadTypes.map((t) => (
+                  <option key={t} value={t}>
+                    {docTypeLabel[t]}
+                  </option>
+                ))}
+              </select>
+            </div>
             <input ref={fileRef} type="file" multiple accept=".pdf,.docx,.txt,.md" className="sr-only" id="doc-upload" aria-label="Choose documents" onChange={(e) => e.target.files && addFiles(e.target.files)} />
-            <Button variant="secondary" className="mt-5" loading={!!uploading} onClick={() => fileRef.current?.click()}>
+            <Button variant="secondary" className="mt-4" loading={!!uploading} onClick={() => fileRef.current?.click()}>
               {uploading ? `Reading ${uploading}` : "Choose files"}
             </Button>
           </div>
-          <ul className="mt-8 border-t border-rule">
+          <p className="mt-4 max-w-[65ch] text-sm text-ink-muted">Documents marked as a W-9, an audit or financial review, an IRS letter, a board list, or a budget count toward matching attachment requirements when a proposal&rsquo;s compliance checks run.</p>
+          <ul className="mt-6 border-t border-rule">
             {docs.map((d) => (
               <li key={d.id} className="flex items-center gap-4 border-b border-rule py-3">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-base font-semibold text-ink">{d.title}</p>
                   <p className="flex flex-wrap gap-x-4 text-sm text-ink-muted">
-                    <span>{docTypeLabel[d.type]}</span>
+                    <span>
+                      <label htmlFor={`doctype-${d.id}`} className="sr-only">
+                        Kind of document for {d.title}
+                      </label>
+                      <select
+                        id={`doctype-${d.id}`}
+                        value={d.type}
+                        className="-ml-0.5 rounded-sm border border-transparent bg-transparent pr-1 text-sm text-ink-muted hover:border-rule focus-visible:outline-2 focus-visible:outline-focus"
+                        onChange={async (e) => {
+                          const type = e.target.value as Document["type"];
+                          try {
+                            const next = await services.knowledge.updateDocument(d.id, { type });
+                            setDocs((l) => l.map((x) => (x.id === d.id ? next : x)));
+                            toast({ title: `Marked as ${docTypeLabel[type]}` });
+                          } catch (err) {
+                            toast({ title: "Could not change it", description: err instanceof Error ? err.message : "Try again.", tone: "warning" });
+                          }
+                        }}
+                      >
+                        {(Object.keys(docTypeLabel) as Document["type"][]).map((t) => (
+                          <option key={t} value={t}>
+                            {docTypeLabel[t]}
+                          </option>
+                        ))}
+                      </select>
+                    </span>
                     <span className="tnum">{(d.sizeBytes / 1_000_000).toFixed(1)} MB</span>
                     {d.pageCount ? <span className="tnum">{d.pageCount} pages</span> : null}
                     <span>Uploaded {formatDate(d.uploadedAt)}</span>
@@ -351,10 +431,14 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
             onSubmit={async (e) => {
               e.preventDefault();
               const fd = new FormData(e.currentTarget);
-              const b = await services.knowledge.addBoilerplate({ type: String(fd.get("type")) as Boilerplate["type"], title: String(fd.get("title")), body: String(fd.get("body")) });
-              setBps((l) => [b, ...l]);
-              setAddingBp(false);
-              toast({ title: "Paragraph saved" });
+              try {
+                const b = await services.knowledge.addBoilerplate({ type: String(fd.get("type")) as Boilerplate["type"], title: String(fd.get("title")), body: String(fd.get("body")) });
+                setBps((l) => [b, ...l]);
+                setAddingBp(false);
+                toast({ title: "Paragraph saved" });
+              } catch (err) {
+                toast({ title: "Could not save it", description: err instanceof Error ? err.message : "Try again in a moment.", tone: "warning" });
+              }
             }}
           >
             <Field id="bp-type" label="Kind">
@@ -454,16 +538,20 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
               onSubmit={async (e) => {
                 e.preventDefault();
                 const body = String(new FormData(e.currentTarget).get("body"));
-                const next = await services.knowledge.updateBoilerplate(editingBp.id, body);
-                setBps((l) => l.map((b) => (b.id === next.id ? next : b)));
-                setEditingBp(null);
-                toast({ title: `Saved as version ${next.version}` });
+                try {
+                  const next = await services.knowledge.updateBoilerplate(editingBp.id, body);
+                  setBps((l) => l.map((b) => (b.id === next.id ? next : b)));
+                  setEditingBp(null);
+                  toast({ title: `Saved as version ${next.version}`, description: `Version ${editingBp.version} is kept under Versions.` });
+                } catch (err) {
+                  toast({ title: "Could not save it", description: err instanceof Error ? err.message : "Try again in a moment.", tone: "warning" });
+                }
               }}
             >
               <DialogHeader>
                 <DialogTitle>{editingBp.title}</DialogTitle>
                 <DialogDescription>
-                  Version {editingBp.version}. Saving creates version {editingBp.version + 1}; older versions are kept.
+                  Version {editingBp.version}. Saving creates version {editingBp.version + 1} and keeps this text under Versions.
                 </DialogDescription>
               </DialogHeader>
               <Field id="bp-body" label="Text" hint={`${wordCount(editingBp.body)} words`}>
@@ -477,6 +565,15 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
           ) : null}
         </DialogContent>
       </Dialog>
+      <BoilerplateVersionsDialog
+        key={versionsFor?.id ?? "none"}
+        boilerplate={versionsFor}
+        onClose={() => setVersionsFor(null)}
+        onRestored={(next) => {
+          setBps((l) => l.map((b) => (b.id === next.id ? next : b)));
+          setVersionsFor(next);
+        }}
+      />
     </PageContainer>
   );
 }

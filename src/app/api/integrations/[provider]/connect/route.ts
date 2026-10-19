@@ -1,9 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { siteUrl } from "@/lib/site-url";
 import { currentOrg } from "@/lib/integrations/current-org";
 import { authorizeUrl, callbackUrl, isProvider, isPurpose, purposesFor, providerConnected } from "@/lib/integrations/oauth";
 import { connectionStore } from "@/lib/integrations/store";
 
-const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+const SITE = siteUrl();
 const settings = (query: Record<string, string>) => NextResponse.redirect(`${SITE}/settings/integrations?${new URLSearchParams(query)}`, 302);
 
 /** Starts the OAuth dance for a provider. The browser lands here from a "Connect" link and leaves for the provider. */

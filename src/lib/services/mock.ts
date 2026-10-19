@@ -23,6 +23,11 @@ import { planMilestones as planFromDeadline } from "@/lib/loop/milestones";
 import { BUDGET_CATEGORY_LABEL, budgetTotal } from "@/lib/loop/budget";
 import { reviseText as demoRevise } from "@/lib/agents";
 import type { LoopResult } from "./contracts";
+import { sessionTable } from "./demo-session";
+import { sampleById, sampleForInput, samples, type SampleOrg } from "@/lib/mock/samples";
+import { shiftSeedDates } from "@/lib/mock/dates";
+import { DEFAULT_AUTONOMY, makeFeatureServices } from "./mock-features";
+import type { BoilerplateVersion, ScholarshipProfile } from "@/lib/types";
 
 /**
  * In-memory mock adapter. State lives for the life of the page (or server
@@ -32,44 +37,149 @@ import type { LoopResult } from "./contracts";
 
 const clone = <T>(v: T): T => structuredClone(v);
 
-export const state = {
-  org: clone(seed.organization),
-  members: clone(seed.members),
-  documents: clone(seed.documents),
-  facts: clone(seed.facts),
-  boilerplates: clone(seed.boilerplates),
-  funders: clone(seed.funders),
-  contacts: clone(seed.contacts),
-  opportunities: clone(seed.opportunities),
-  matches: clone(seed.matches),
-  applications: clone(seed.applications),
-  outcomes: clone(seed.outcomes),
-  requirements: clone(seed.requirements),
-  sections: clone(seed.sections),
-  missingFacts: clone(seed.missingFacts),
-  complianceChecks: clone(seed.complianceChecks),
-  milestones: clone(seed.milestones),
-  emailDrafts: clone(seed.emailDrafts),
-  plans: [clone(seed.monthlyPlan)] as MonthlyPlan[],
-  inbox: clone(seed.inboxItems),
-  runs: clone(seed.agentRuns),
-  savedSearches: clone(seed.savedSearches),
-  orgContacts: clone(seed.orgContacts),
-  contactNotes: clone(seed.contactNotes),
-  socialCampaigns: clone(seed.socialCampaigns),
-  budgets: clone(seed.budgets),
-  sectionVersions: [] as SectionVersion[],
-  reviewerChecks: [] as ReviewerCheck[],
-  documentTexts: {} as Record<string, string>,
-  subscription: clone(seed.subscription),
-  invoices: clone(seed.invoices),
-  notifications: clone(seed.notificationSettings),
-};
+function seededState() {
+  return shiftSeedDates({
+    org: clone(seed.organization),
+    members: clone(seed.members),
+    documents: clone(seed.documents),
+    facts: clone(seed.facts),
+    boilerplates: clone(seed.boilerplates),
+    funders: clone(seed.funders),
+    contacts: clone(seed.contacts),
+    opportunities: clone(seed.opportunities),
+    matches: clone(seed.matches),
+    applications: clone(seed.applications),
+    outcomes: clone(seed.outcomes),
+    requirements: clone(seed.requirements),
+    sections: clone(seed.sections),
+    missingFacts: clone(seed.missingFacts),
+    complianceChecks: clone(seed.complianceChecks),
+    milestones: clone(seed.milestones),
+    emailDrafts: clone(seed.emailDrafts),
+    plans: [clone(seed.monthlyPlan)] as MonthlyPlan[],
+    inbox: clone(seed.inboxItems),
+    runs: clone(seed.agentRuns),
+    savedSearches: clone(seed.savedSearches),
+    orgContacts: clone(seed.orgContacts),
+    contactNotes: clone(seed.contactNotes),
+    socialCampaigns: clone(seed.socialCampaigns),
+    budgets: clone(seed.budgets),
+    sectionVersions: [] as SectionVersion[],
+    reviewerChecks: [] as ReviewerCheck[],
+    documentTexts: {} as Record<string, string>,
+    subscription: clone(seed.subscription),
+    invoices: clone(seed.invoices),
+    notifications: clone(seed.notificationSettings),
+    metrics: clone(seed.impactMetrics),
+    voiceNote: seed.voiceNote,
+    autonomy: { ...DEFAULT_AUTONOMY },
+    boilerplateVersions: [] as BoilerplateVersion[],
+    scholarshipProfile: null as ScholarshipProfile | null,
+  });
+}
+
+export type DemoState = ReturnType<typeof seededState>;
+
+/** A sample organization that has not been set up yet: no facts, no matches, no history. */
+function blankState(sample: SampleOrg): DemoState {
+  const base = seededState();
+  const orgId = sample.org.id;
+  return {
+    ...base,
+    org: { ...clone(sample.org), createdAt: now() },
+    members: clone(sample.members),
+    documents: [],
+    facts: [],
+    boilerplates: [],
+    matches: [],
+    applications: [],
+    outcomes: [],
+    requirements: [],
+    sections: [],
+    missingFacts: [],
+    complianceChecks: [],
+    milestones: [],
+    emailDrafts: [],
+    plans: [],
+    inbox: [],
+    runs: [],
+    savedSearches: [],
+    orgContacts: [],
+    contactNotes: [],
+    socialCampaigns: [],
+    budgets: [],
+    metrics: [],
+    voiceNote: "",
+    subscription: { ...base.subscription, id: `sub_${orgId}`, orgId, plan: "free", usage: { proposalsThisMonth: 0, proposalLimit: 1, matchesThisMonth: 0, matchLimit: 5 } },
+    invoices: [],
+  };
+}
+
+/** Organizations a visitor added in consultant mode, by id. Names only; their contents live in the visitor's session. */
+const addedWorkspaces = ((globalThis as typeof globalThis & { __firstlightAddedWorkspaces?: Map<string, string> }).__firstlightAddedWorkspaces ??= new Map<string, string>());
+
+const workspaces = sessionTable<DemoState>((id) => {
+  const sample = sampleById(id);
+  if (sample) return sample.history ? seededState() : blankState(sample);
+  const name = addedWorkspaces.get(id);
+  if (name) {
+    const base = samples[1];
+    return blankState({ ...base, id, label: name, history: false, org: { ...base.org, id, name, websiteUrl: "", calendarToken: `demo-calendar-${id}` }, members: base.members.map((mm) => ({ ...mm, orgId: id, fullName: "You", email: "you@example.org" })) });
+  }
+  return seededState();
+}, seed.ORG_ID);
+
+const sampleInfo = (s: SampleOrg) => ({ id: s.id, label: s.label, kind: s.kind, host: s.host, history: s.history });
+
+export const demoWorkspaces = workspaces;
+
+/**
+ * The current visitor's current workspace. Reads and writes go to the
+ * session the request runs in (see ./demo-session.ts), so this behaves like
+ * one plain object everywhere it is used.
+ */
+export const state: DemoState = new Proxy({} as DemoState, {
+  get: (_t, key) => Reflect.get(workspaces.workspace(), key),
+  set: (_t, key, value) => Reflect.set(workspaces.workspace(), key, value),
+  has: (_t, key) => Reflect.has(workspaces.workspace(), key),
+  ownKeys: () => Reflect.ownKeys(workspaces.workspace()),
+  getOwnPropertyDescriptor: (_t, key) => Reflect.getOwnPropertyDescriptor(workspaces.workspace(), key),
+});
 
 export const now = () => new Date().toISOString();
 const delay = (ms = 0) => new Promise((r) => setTimeout(r, ms));
 let idCounter = 1000;
 export const newId = (prefix: string) => `${prefix}_${++idCounter}`;
+
+/** Team, billing, and deleting the workspace belong to the owner (roles: owner, editor, board reviewer). */
+function requireOwner() {
+  const me = state.members.find((m) => m.id === seed.CURRENT_USER_ID);
+  if (me && me.role !== "owner") throw new Error("Only the workspace owner can change the team, billing, or the workspace itself.");
+}
+
+/** Board reviewers read, comment, and approve sections; they do not change drafts or plans. */
+function requireEditor() {
+  const me = state.members.find((m) => m.id === seed.CURRENT_USER_ID);
+  if (me?.role === "reviewer") throw new Error("Board reviewers can read and approve sections but cannot change this. Ask the owner or an editor.");
+}
+
+/** A plain email from the open organization's own confirmed facts, for the demo without a model key. Labelled as a template. */
+function demoEmailBody(input: { kind: string; toName: string | null; notes: string }, opportunityTitle: string | null) {
+  const me = state.members.find((m) => m.id === seed.CURRENT_USER_ID);
+  const reach = state.facts.find((f) => f.status === "confirmed" && f.category === "reach");
+  const where = state.org.serviceArea || [state.org.city, state.org.state].filter(Boolean).join(", ");
+  const about = `I lead ${state.org.name}${where ? `, which serves ${where}` : ""}.${reach ? ` ${reach.label}: ${reach.value}.` : ""}`;
+  const middle = opportunityTitle
+    ? input.kind === "thank_you"
+      ? `Thank you for your support through ${opportunityTitle}. It makes a real difference to our work.`
+      : input.kind === "follow_up"
+        ? `I am following up on our application to ${opportunityTitle}. Is there anything else you need from us?`
+        : input.kind === "feedback_request"
+          ? `Thank you for reviewing our application to ${opportunityTitle}. If you can share any feedback that would make a future request stronger, we would be grateful.`
+          : `We are preparing an application to ${opportunityTitle} and want to make sure we are a good fit before we go further.`
+    : "I would welcome a short conversation about whether our work fits your priorities.";
+  return `Hello${input.toName ? ` ${input.toName.split(" ")[0]}` : ""},\n\n${about}\n\n${middle}${input.notes ? `\n\n${input.notes}` : ""}\n\nThanks,\n${me?.fullName || state.org.name}\n\n(Template draft. With a model key, this is written for the funder from your facts.)`;
+}
 
 function notFound(what: string, id: string): never {
   throw new Error(`${what} ${id} not found`);
@@ -120,8 +230,11 @@ function touchSection(s: Section) {
   if (req) req.satisfied = words > 0;
 }
 
+const features = makeFeatureServices({ state, newId, now, currentUserId: seed.CURRENT_USER_ID, toApplicationView, toMatchView });
+
 export const mockServices: Services = {
   org: {
+    ...features.org,
     async get() {
       return clone(state.org);
     },
@@ -133,6 +246,7 @@ export const mockServices: Services = {
       return clone(state.members);
     },
     async inviteMember(email, role) {
+      requireOwner();
       const m: Member = { id: newId("user"), orgId: state.org.id, fullName: "", email, role, status: "invited" };
       state.members.push(m);
       return clone(m);
@@ -141,20 +255,69 @@ export const mockServices: Services = {
       return clone(state.members.find((m) => m.id === seed.CURRENT_USER_ID)!);
     },
     async updateMemberRole(id, role) {
+      requireOwner();
       const m = state.members.find((x) => x.id === id) ?? notFound("member", id);
       m.role = role;
       return clone(m);
     },
     async removeMember(id) {
+      requireOwner();
       state.members = state.members.filter((m) => m.id !== id || m.id === seed.CURRENT_USER_ID);
     },
     async deleteWorkspace() {
+      requireOwner();
       await delay(400);
-      // The demo resets itself rather than deleting Riverbend.
+      // The demo puts the sample back rather than deleting it.
+      workspaces.reset();
+    },
+    async listWorkspaces() {
+      const current = workspaces.currentWorkspaceId();
+      const opened = new Set(workspaces.openedWorkspaceIds());
+      const list = samples.map((s) => ({ id: s.id, name: s.label, kind: s.kind, current: s.id === current, sample: true }));
+      for (const [id, name] of addedWorkspaces) if (opened.has(id)) list.push({ id, name, kind: "Added in this demo", current: id === current, sample: false });
+      return list;
+    },
+    async switchWorkspace(id) {
+      if (!sampleById(id) && !addedWorkspaces.has(id)) throw new Error(`workspace ${id} not found`);
+      workspaces.switchTo(id);
+    },
+    async createWorkspace(name) {
+      const id = newId("org_client");
+      addedWorkspaces.set(id, name.trim() || "New organization");
+      workspaces.switchTo(id);
+      return { id, name: addedWorkspaces.get(id)!, kind: "Added in this demo", current: true, sample: false };
+    },
+  },
+
+  analytics: features.analytics,
+  funders: features.funders,
+  copilot: features.copilot,
+  scholarships: features.scholarships,
+
+  demo: {
+    async status() {
+      const mode = runtimeMode();
+      const sample = sampleById(state.org.id);
+      return { active: mode.demo, replay: mode.replay, recordedOn: "2026-10-18", current: sample ? sampleInfo(sample) : null, samples: samples.map(sampleInfo) };
+    },
+    async sampleFor(input) {
+      const s = sampleForInput(input);
+      return s ? sampleInfo(s) : null;
+    },
+    async startSetup(sampleId) {
+      const s = sampleById(sampleId);
+      if (!s) throw new Error(`sample ${sampleId} not found`);
+      const w = s.history ? workspaces.switchTo(s.id) : (workspaces.switchTo(s.id), workspaces.reset(s.id));
+      w.org.websiteUrl = `https://${s.host}`;
+      w.org.onboardingStep = "ein";
+    },
+    async reset() {
+      workspaces.reset();
     },
   },
 
   knowledge: {
+    ...features.knowledge,
     async listFacts() {
       return clone(state.facts);
     },
@@ -171,14 +334,6 @@ export const mockServices: Services = {
     },
     async listBoilerplates() {
       return clone(state.boilerplates);
-    },
-    async updateBoilerplate(id, body) {
-      const b = state.boilerplates.find((x) => x.id === id) ?? notFound("boilerplate", id);
-      b.body = body;
-      b.version += 1;
-      b.wordCount = wordCount(body);
-      b.updatedAt = now();
-      return clone(b);
     },
     async listDocuments() {
       return clone(state.documents);
@@ -204,6 +359,12 @@ export const mockServices: Services = {
         d.factCount = 2;
         d.pageCount = 5;
       }, 2500);
+      return clone(d);
+    },
+    async updateDocument(id, patch) {
+      requireEditor();
+      const d = state.documents.find((x) => x.id === id) ?? notFound("document", id);
+      d.type = patch.type;
       return clone(d);
     },
     async removeDocument(id) {
@@ -313,6 +474,7 @@ export const mockServices: Services = {
   },
 
   applications: {
+    ...features.applications,
     async list() {
       return state.applications.map(toApplicationView);
     },
@@ -333,14 +495,6 @@ export const mockServices: Services = {
         documents: state.documents,
       });
     },
-    async updateSection(id, bodyHtml) {
-      const s = state.sections.find((x) => x.id === id) ?? notFound("section", id);
-      s.bodyHtml = bodyHtml;
-      if (s.status === "empty" && bodyHtml.replace(/<[^>]+>/g, "").trim()) s.status = "edited";
-      else if (s.status === "drafted") s.status = "edited";
-      touchSection(s);
-      return clone(s);
-    },
     async setSectionStatus(id, status) {
       const s = state.sections.find((x) => x.id === id) ?? notFound("section", id);
       s.status = status;
@@ -348,8 +502,9 @@ export const mockServices: Services = {
       return clone(s);
     },
     async answerMissingFact(id, answer) {
+      requireEditor();
       const m = state.missingFacts.find((x) => x.id === id) ?? notFound("missing fact", id);
-      if (m.gapKey && hasAi()) {
+      if (m.gapKey && (hasAi() || runtimeMode().replay)) {
         const { answerAndRedraft } = await import("@/lib/loop");
         const { memoryStore } = await import("@/lib/loop/memory-store");
         const r = await answerAndRedraft(memoryStore, id, answer);
@@ -367,7 +522,7 @@ export const mockServices: Services = {
         sourceDocumentId: null,
         sourceUrl: null,
         sourceLabel: "You",
-        sourceExcerpt: `Answered by Dana Okafor in the Meridian proposal workspace.`,
+        sourceExcerpt: `Answered by ${state.members.find((x) => x.id === seed.CURRENT_USER_ID)?.fullName || "you"} in the proposal workspace.`,
         sourcePage: null,
         confidence: 1,
         status: "confirmed",
@@ -396,22 +551,6 @@ export const mockServices: Services = {
       m.status = "skipped";
       return clone(m);
     },
-    async moveStage(id, stage) {
-      const a = state.applications.find((x) => x.id === id) ?? notFound("application", id);
-      a.stage = stage;
-      a.updatedAt = now();
-      if (stage === "submitted" && !a.submittedAt) a.submittedAt = now();
-      return toApplicationView(a);
-    },
-    async logOutcome(id, result, awardAmount, feedback) {
-      const a = state.applications.find((x) => x.id === id) ?? notFound("application", id);
-      a.stage = result === "won" ? "won" : "lost";
-      a.updatedAt = now();
-      const existing = state.outcomes.find((o) => o.applicationId === id);
-      if (existing) Object.assign(existing, { result, awardAmount, feedback, decidedAt: now() });
-      else state.outcomes.push({ id: newId("out"), applicationId: id, result, awardAmount, feedback, decidedAt: now() });
-      return toApplicationView(a);
-    },
     async setMode(id, mode) {
       const a = state.applications.find((x) => x.id === id) ?? notFound("application", id);
       a.mode = mode;
@@ -419,6 +558,7 @@ export const mockServices: Services = {
       return toApplicationView(a);
     },
     async setAskAmount(id, askAmount) {
+      requireEditor();
       const a = state.applications.find((x) => x.id === id) ?? notFound("application", id);
       a.askAmount = askAmount;
       a.updatedAt = now();
@@ -428,6 +568,7 @@ export const mockServices: Services = {
       return clone(state.sectionVersions.filter((v) => v.sectionId === sectionId));
     },
     async restoreVersion(versionId) {
+      requireEditor();
       const v = state.sectionVersions.find((x) => x.id === versionId) ?? notFound("version", versionId);
       const s = state.sections.find((x) => x.id === v.sectionId) ?? notFound("section", v.sectionId);
       const user = state.members.find((m) => m.id === seed.CURRENT_USER_ID)!;
@@ -438,6 +579,7 @@ export const mockServices: Services = {
       return clone(s);
     },
     async revise(input) {
+      requireEditor();
       const user = state.members.find((m) => m.id === seed.CURRENT_USER_ID)!;
       state.sectionVersions.unshift({ id: newId("ver"), sectionId: input.sectionId, bodyHtml: input.html, note: `Before ${input.action}`, byName: user.fullName, createdAt: now() });
       if (!hasAi()) {
@@ -449,19 +591,8 @@ export const mockServices: Services = {
     },
     async runReviewerCheck(id) {
       if (!hasAi()) {
-        const check: ReviewerCheck = {
-          id: newId("review"),
-          applicationId: id,
-          overall: 72,
-          summary: "Demo review. The need and the approach are clear and well cited. Reviewers will look for a current waitlist number, a named evaluation partner or a clear in-house plan, and a sustainability paragraph, which is still empty.",
-          criteria: [
-            { criterion: "Statement of need", score: 4, evidence: "Cites the district graduation rate of 81% and the program rate of 94%.", fix: "Answer the waitlist question so the demand claim has a number." },
-            { criterion: "Program design", score: 4, evidence: "Four afternoons a week, meals, tutoring, studios: concrete and sequenced.", fix: "Say how many lead tutors the stipends cover; the number is still a gap." },
-            { criterion: "Evaluation", score: 3, evidence: "Attendance and grades through the district data agreement.", fix: "Say plainly that evaluation is done in-house, since there is no outside partner." },
-            { criterion: "Sustainability", score: 1, evidence: "The section is empty.", fix: "Write two sentences on district contracts and the share of revenue they cover." },
-          ],
-          createdAt: now(),
-        };
+        const r = features.ruleReview(id);
+        const check: ReviewerCheck = { id: newId("review"), applicationId: id, overall: r.overall, summary: r.summary, criteria: r.criteria, createdAt: now() };
         state.reviewerChecks.unshift(check);
         return { ok: true, data: clone(check) };
       }
@@ -475,6 +606,7 @@ export const mockServices: Services = {
       return clone(state.budgets.find((b) => b.applicationId === id) ?? null);
     },
     async saveBudget(id, lines, justification) {
+      requireEditor();
       return (await store()).saveBudget(id, lines, justification);
     },
     async writeBudgetJustification(id) {
@@ -504,6 +636,7 @@ export const mockServices: Services = {
   },
 
   inbox: {
+    ...features.inbox,
     async list() {
       return clone([...state.inbox].sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
     },
@@ -557,6 +690,7 @@ export const mockServices: Services = {
   },
 
   calendar: {
+    ...features.calendar,
     async listEvents() {
       const events: CalendarEvent[] = state.milestones.map((m) => {
         const a = state.applications.find((x) => x.id === m.applicationId);
@@ -581,6 +715,7 @@ export const mockServices: Services = {
       return clone(m);
     },
     async planMilestones(applicationId, options) {
+      requireEditor();
       const a = state.applications.find((x) => x.id === applicationId) ?? notFound("application", applicationId);
       const opp = state.opportunities.find((o) => o.id === a.opportunityId) ?? notFound("opportunity", a.opportunityId);
       if (!opp.deadline) return [];
@@ -622,6 +757,7 @@ export const mockServices: Services = {
       return clone(state.invoices);
     },
     async changePlan(plan) {
+      requireOwner();
       state.subscription.plan = plan;
       state.subscription.usage.proposalLimit = plan === "free" ? 1 : plan === "starter" ? 3 : null;
       state.subscription.usage.matchLimit = plan === "free" ? 5 : null;
@@ -664,49 +800,19 @@ export const mockServices: Services = {
     async runtime() {
       return runtimeMode();
     },
+    // The loop always runs the agent code. Without a model key the model, the
+    // website reader, and Grants.gov answer from a recorded run (src/lib/replay).
     async buildProfile(input) {
-      if (!hasAi()) {
-        // Scripted so the progress screen has something honest to show: the demo workspace is already built.
-        const { startJob, advanceJob, finishJob } = await import("@/lib/loop/progress");
-        const { PROFILE_STEPS } = await import("@/lib/loop");
-        if (input.jobId) startJob(input.jobId, PROFILE_STEPS);
-        for (const note of ["Demo workspace", "6 pages in the demo", "15 facts", "Every fact has a source"]) {
-          await delay(700);
-          if (input.jobId) advanceJob(input.jobId, note);
-        }
-        if (input.jobId) finishJob(input.jobId, "done");
-        state.org.onboardingStep = "profile";
-        return { ok: true, data: { pageCount: 6, factCount: state.facts.length, droppedCount: 0, runId: "run_profile_onboard", fromCache: true } };
-      }
       const { buildProfile } = await import("@/lib/loop");
-      const { memoryStore } = await import("@/lib/loop/memory-store");
-      return buildProfile(memoryStore, input);
+      return buildProfile(await store(), input);
     },
     async confirmProfile(input) {
-      if (!hasAi()) {
-        await delay(600);
-        return { ok: true, data: { confirmed: input.keptFactIds.length, removed: 0 } };
-      }
       const { confirmProfile } = await import("@/lib/loop");
-      const { memoryStore } = await import("@/lib/loop/memory-store");
-      return confirmProfile(memoryStore, input);
+      return confirmProfile(await store(), input);
     },
     async findMatches(jobId) {
-      if (!hasAi()) {
-        const { startJob, advanceJob, finishJob } = await import("@/lib/loop/progress");
-        const { MATCH_STEPS } = await import("@/lib/loop");
-        if (jobId) startJob(jobId, MATCH_STEPS);
-        for (const note of ["youth development, mentoring, afterschool", "412 notices screened", "24 read in full", `${state.matches.length} kept`]) {
-          await delay(600);
-          if (jobId) advanceJob(jobId, note);
-        }
-        if (jobId) finishJob(jobId, "done");
-        state.org.onboardingStep = "matches";
-        return { ok: true, data: { matchCount: state.matches.length, screened: 412, read: 24, runId: "run_discovery_w42", fromCache: true } };
-      }
       const { findMatches } = await import("@/lib/loop");
-      const { memoryStore } = await import("@/lib/loop/memory-store");
-      return findMatches(memoryStore, jobId);
+      return findMatches(await store(), jobId);
     },
     async answerGaps(answers) {
       const { answerGaps } = await import("@/lib/loop");
@@ -717,22 +823,20 @@ export const mockServices: Services = {
       const { readJob } = await import("@/lib/loop/progress");
       return readJob(jobId);
     },
-    async draftLetter(applicationId) {
+    async draftLetter(applicationId, jobId) {
+      requireEditor();
       const limit = await mockServices.billing.canUse("proposal");
       if (!limit.ok) return { ok: false, code: "failed", error: limit.message ?? "Your plan's limit for this month is used up." };
-      if (!hasAi()) {
-        await delay(2000);
-        const secs = state.sections.filter((s) => s.applicationId === applicationId).length;
-        const open = state.missingFacts.filter((m) => m.applicationId === applicationId && m.status === "open").length;
-        return { ok: true, data: { sectionCount: secs, openQuestions: open, issues: 0, wordCount: 0, runId: "run_proposal_meridian" } };
-      }
       const { draftLetterFor } = await import("@/lib/loop");
-      const { memoryStore } = await import("@/lib/loop/memory-store");
-      return draftLetterFor(memoryStore, applicationId);
+      return draftLetterFor(await store(), applicationId, jobId);
     },
     async draftProposal(applicationId, jobId) {
+      requireEditor();
       const limit = await mockServices.billing.canUse("proposal");
       if (!limit.ok) return { ok: false, code: "failed", error: limit.message ?? "Your plan's limit for this month is used up." };
+      if (!hasAi() && !state.sections.some((x) => x.applicationId === applicationId)) {
+        return { ok: false, code: "no_ai", error: "The demo has one recorded full proposal, Riverbend's Meridian application. Drafting a new full proposal needs a model key. A letter of inquiry works here." };
+      }
       if (!hasAi()) {
         const { startJob, advanceJob, finishJob } = await import("@/lib/loop/progress");
         const { PROPOSAL_STEPS } = await import("@/lib/loop/features");
@@ -772,8 +876,8 @@ export const mockServices: Services = {
           funderId: funder?.id ?? "",
           contactId: input.contactId,
           kind: input.kind,
-          subject: opp ? `${input.kind === "thank_you" ? "Thank you" : input.kind === "follow_up" ? "Following up" : "A question"} about ${opp.title}` : "Hello from Riverbend Youth Collective",
-          body: `Hello${input.toName ? ` ${input.toName.split(" ")[0]}` : ""},\n\nI run Riverbend Youth Collective, a small nonprofit in East Dayton. We served 214 young people last year through after-school tutoring, a summer STEM and first-job program, and family navigators.${opp ? `\n\nWe are preparing an application to ${opp.title} and want to make sure we are a fit before we ask our partners for letters.` : ""}${input.notes ? `\n\n${input.notes}` : ""}\n\nThanks,\nDana Okafor\n\n(Demo draft, no model key.)`,
+          subject: opp ? `${input.kind === "thank_you" ? "Thank you" : input.kind === "follow_up" ? "Following up" : input.kind === "feedback_request" ? "Thank you, and one question" : "A question"} about ${opp.title}` : `Hello from ${state.org.name}`,
+          body: demoEmailBody(input, opp?.title ?? null),
           to: input.to,
           toName: input.toName,
           status: "draft",
@@ -824,6 +928,7 @@ export const mockServices: Services = {
   },
 
   contacts: {
+    ...features.contacts,
     async list() {
       return clone([...state.orgContacts].sort((a, b) => a.name.localeCompare(b.name)));
     },
@@ -876,6 +981,7 @@ export const mockServices: Services = {
   },
 
   social: {
+    ...features.social,
     async listCampaigns() {
       return clone([...state.socialCampaigns].sort((a, b) => b.month.localeCompare(a.month)));
     },
@@ -887,7 +993,12 @@ export const mockServices: Services = {
         const existing = state.socialCampaigns.find((c) => c.month === month);
         if (existing) return { ok: true, data: clone(existing) };
         const base = seed.socialCampaigns[0];
-        const c = { ...clone(base), id: newId("camp"), month, status: "draft" as const, createdAt: now(), posts: base.posts.map((p, i) => ({ ...p, id: `post_${i + 1}`, date: `${month}-${String(3 + i * 7).padStart(2, "0")}`, status: "draft" as const })) };
+        // Riverbend has a written sample month; any other organization gets posts built from its own confirmed facts.
+        const posts =
+          state.org.id === seed.ORG_ID
+            ? base.posts.map((p, i) => ({ ...p, id: `post_${i + 1}`, date: `${month}-${String(3 + i * 7).padStart(2, "0")}`, status: "draft" as const }))
+            : (await import("@/lib/features")).credibilityPosts({ org: state.org, facts: state.facts, deadline: `${month}-24`, applicationId: "", label: "" }).map((p) => ({ ...p, tiedTo: { kind: "general" as const, id: null, label: state.org.name } }));
+        const c = { ...clone(base), orgId: state.org.id, theme: state.org.id === seed.ORG_ID ? base.theme : `A month of plain, true posts about ${state.org.name}, from its confirmed facts. Template posts; with a model key they are written for each platform.`, id: newId("camp"), month, status: "draft" as const, createdAt: now(), posts };
         state.socialCampaigns.unshift(c);
         return { ok: true, data: clone(c) };
       }
@@ -913,6 +1024,7 @@ export const mockServices: Services = {
   },
 
   integrations: {
+    ...features.integrations,
     async status() {
       const { integrationStatus } = await import("@/lib/integrations");
       return integrationStatus();

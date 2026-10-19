@@ -8,7 +8,7 @@ export type ISODate = string;
 
 // ---------- Enums (match Postgres enums) ----------
 
-export type DocumentType = "annual_report" | "past_proposal" | "form_990" | "budget" | "board_list" | "determination_letter" | "other";
+export type DocumentType = "annual_report" | "past_proposal" | "form_990" | "budget" | "board_list" | "determination_letter" | "w9" | "audit" | "other";
 export type DocumentStatus = "uploaded" | "extracting" | "ready" | "failed";
 export type FactCategory = "reach" | "outcomes" | "finance" | "organization" | "geography" | "people";
 export type FactStatus = "confirmed" | "needs_review" | "stale";
@@ -21,16 +21,16 @@ export type RequirementKind = "section" | "attachment" | "format" | "eligibility
 export type SectionStatus = "drafted" | "edited" | "approved" | "needs_facts" | "empty";
 export type MissingFactStatus = "open" | "answered" | "skipped";
 export type ComplianceStatus = "pass" | "warn" | "fail";
-export type MilestoneKind = "deadline" | "draft_due" | "board_review" | "budget_signoff" | "submit" | "follow_up";
+export type MilestoneKind = "deadline" | "draft_due" | "board_review" | "budget_signoff" | "submit" | "follow_up" | "report_due";
 export type AgentName = "profile" | "discovery" | "planner" | "proposal" | "outreach" | "calendar";
 export type InboxItemType = "monthly_plan" | "proposal_draft" | "email_draft" | "new_matches" | "milestones" | "missing_facts" | "profile_update";
 export type InboxStatus = "pending" | "approved" | "rejected" | "edited";
 export type AgentRunStatus = "queued" | "running" | "succeeded" | "failed";
 export type OutcomeResult = "won" | "lost" | "no_response" | "withdrawn";
-export type EmailKind = "intro" | "question" | "loi_cover" | "thank_you" | "follow_up";
+export type EmailKind = "intro" | "question" | "loi_cover" | "thank_you" | "follow_up" | "feedback_request";
 export type PlanTier = "free" | "starter" | "growth";
 export type MemberRole = "owner" | "editor" | "reviewer";
-export type ProposalMode = "letter" | "proposal";
+export type ProposalMode = "letter" | "proposal" | "concept_note";
 export type EmailStatus = "draft" | "approved" | "sent";
 export type ContactKind = "board" | "staff" | "funder" | "partner" | "volunteer" | "other";
 export type SocialPlatform = "instagram" | "linkedin" | "facebook" | "x";
@@ -138,6 +138,8 @@ export interface Funder {
   aiPolicy: string | null;
   lastVerifiedAt: ISODate;
   recentGrantees: { name: string; amount: number; year: number }[];
+  /** See Opportunity.sourceNote. */
+  sourceNote?: string;
 }
 
 export interface EligibilityRule {
@@ -162,6 +164,8 @@ export interface Opportunity {
   effort: "low" | "medium" | "high";
   /** True when the funder has only announced the opportunity and has not opened it yet. */
   forecasted: boolean;
+  /** How old the source is, when that matters more than when we read it, e.g. "IRS Form 990-PF, tax year 2024". */
+  sourceNote?: string;
 }
 
 export interface EligibilityCheck {
@@ -389,7 +393,13 @@ export interface Outcome {
   awardAmount: number | null;
   feedback: string | null;
   decidedAt: ISODate;
+  /** Why it was declined, from a fixed list, when the funder said or the director judged. */
+  lossReasons?: LossReason[];
+  /** What the director wants the next application to do differently. */
+  lessons?: string | null;
 }
+
+export type LossReason = "fit" | "budget_size" | "competition" | "eligibility" | "outcomes_data" | "timing" | "relationship" | "writing" | "unknown";
 
 /** subscriptions */
 export interface Subscription {
@@ -581,4 +591,168 @@ export interface CalendarEvent {
   funderName: string;
   done: boolean;
   assigneeId: string | null;
+}
+
+
+// ---------- Complete demo: analytics, funders, knowledge, planning ----------
+
+/** One measure a program tracks month by month. The latest entry is also a fact a draft may cite. */
+export interface ImpactMetric {
+  id: string;
+  orgId: string;
+  label: string;
+  unit: string;
+  program: string | null;
+  entries: { month: string; value: number; note: string | null }[];
+  factId: string | null;
+}
+
+/** How the organization writes, measured from its own text, plus a note in its own words that drafting follows. */
+export interface VoiceProfile {
+  note: string;
+  sampleWords: number;
+  avgSentenceWords: number;
+  usesWe: boolean;
+  contractions: boolean;
+  readingGrade: number;
+  commonPhrases: string[];
+  sources: string[];
+}
+
+export type AgentAutonomy = "draft" | "schedule" | "act";
+
+export interface BoilerplateVersion {
+  id: string;
+  boilerplateId: string;
+  version: number;
+  body: string;
+  savedAt: ISODate;
+}
+
+export interface WinAnalytics {
+  decided: number;
+  won: number;
+  lost: number;
+  noResponse: number;
+  winRate: number | null;
+  dollarsWon: number;
+  dollarsAsked: number;
+  pending: number;
+  pendingAsk: number;
+  /** Rows the page shows as small tables. `n` is how many decided applications sit behind each rate. */
+  byFunderType: AnalyticsRow[];
+  byAskSize: AnalyticsRow[];
+  byRelationship: AnalyticsRow[];
+  bySection: AnalyticsRow[];
+  byFunder: AnalyticsRow[];
+  lossReasons: { reason: LossReason; label: string; count: number }[];
+  lessons: { applicationTitle: string; funder: string; lessons: string; decidedAt: ISODate }[];
+  /** Plain sentences about what the numbers suggest, each with its sample size. Never stronger than the data. */
+  findings: string[];
+  timeline: { month: string; asked: number; won: number }[];
+}
+
+export interface AnalyticsRow {
+  label: string;
+  decided: number;
+  won: number;
+  winRate: number | null;
+  dollarsWon: number;
+}
+
+export interface FunderSummary {
+  funder: Funder;
+  /** "applied", "matched", or "directory": how this workspace knows the funder. */
+  relation: "applied" | "matched" | "directory";
+  applications: number;
+  won: number;
+  dollarsWon: number;
+  fitScore: number | null;
+  acceptsUnsolicited: boolean | null;
+}
+
+export interface FunderProfile {
+  funder: Funder;
+  /** Filled for private foundations read from IRS 990-PF filings. */
+  filing: {
+    taxYear: number;
+    ein: string;
+    city: string;
+    state: string;
+    assets: number | null;
+    totalGiving: number | null;
+    grantCount: number;
+    grantMedian: number | null;
+    grantMin: number | null;
+    grantMax: number | null;
+    acceptsUnsolicited: boolean | null;
+    application: { contact: string | null; howTo: string | null; deadlines: string | null; restrictions: string | null } | null;
+    granteeStates: { state: string; count: number }[];
+    granteeCities: { city: string; state: string; count: number }[];
+    grantees: { name: string; city: string; state: string; amount: number; purpose: string }[];
+    officers: { name: string; title: string }[];
+    irsUrl: string;
+  } | null;
+  opportunities: Opportunity[];
+  match: MatchView | null;
+  history: { application: Application; opportunityTitle: string; outcome: Outcome | null }[];
+  contacts: Contact[];
+  /** People in the director's own network linked to this funder, or whose names appear among its officers. */
+  connections: { contactId: string; name: string; role: string; how: string }[];
+  peers: { name: string; city: string; state: string; sharedFunders: { funderId: string; name: string; amount: number; purpose: string; year: number }[] }[];
+  recommendedAsk: { amount: number; low: number; high: number; why: string[] } | null;
+}
+
+export interface ScholarshipProfile {
+  state: string;
+  level: "high_school" | "undergraduate" | "graduate" | "adult";
+  field: string;
+  hometown: string;
+}
+
+export interface ScholarshipMatch {
+  funderId: string;
+  name: string;
+  city: string;
+  state: string;
+  taxYear: number;
+  totalScholarships: number;
+  awards: number;
+  typicalAward: number | null;
+  /** Schools or places past awards went, as filed. Individual recipients are never named. */
+  pastRecipients: { name: string; city: string; state: string; amount: number }[];
+  application: { contact: string | null; howTo: string | null; deadlines: string | null; restrictions: string | null } | null;
+  reasons: string[];
+  cautions: string[];
+  irsUrl: string;
+}
+
+export interface ReminderPreview {
+  milestoneId: string;
+  sendOn: ISODate;
+  to: string;
+  subject: string;
+  body: string;
+  status: "scheduled" | "due" | "sent";
+}
+
+export interface CopilotAnswer {
+  answer: string;
+  /** Where the answer came from: screens and records in the workspace. */
+  sources: { label: string; href: string }[];
+  /** "rules" in the demo and without a model key; "model" when a key is set. */
+  engine: "rules" | "model";
+  suggestions: string[];
+}
+
+export interface WinKit {
+  post: string;
+  newsletter: string;
+  thankYou: { subject: string; body: string };
+}
+
+export interface LogicModelRow {
+  column: "inputs" | "activities" | "outputs" | "outcomes";
+  text: string;
+  factId: string | null;
 }

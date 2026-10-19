@@ -1,7 +1,9 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { isDemoMode } from "@/lib/env";
 import { mockServices } from "./mock";
+import { DEMO_COOKIE, runInSession } from "./demo-session";
 import type { Services } from "./contracts";
 
 type Domain = keyof Services;
@@ -25,7 +27,15 @@ async function current(): Promise<Services> {
 }
 
 export async function invoke(domain: Domain, method: string, args: unknown[]): Promise<unknown> {
-  const services = await current();
+  if (isDemoMode()) {
+    // Each demo visitor has their own copy of the sample workspaces.
+    const sid = (await cookies()).get(DEMO_COOKIE)?.value;
+    return runInSession(sid, () => call(mockServices, domain, method, args));
+  }
+  return call(await current(), domain, method, args);
+}
+
+function call(services: Services, domain: Domain, method: string, args: unknown[]): Promise<unknown> {
   const svc = services[domain] as unknown as Record<string, (...a: unknown[]) => Promise<unknown>>;
   const fn = svc[method];
   if (typeof fn !== "function") throw new Error(`Unknown service method ${domain}.${method}`);

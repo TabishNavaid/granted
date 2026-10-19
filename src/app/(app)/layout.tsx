@@ -4,8 +4,8 @@ import { services } from "@/lib/services";
 export const dynamic = "force-dynamic";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const [org, user, pending] = await Promise.all([services.org.get(), services.org.currentUser(), services.inbox.pendingCount()]);
-  const props = { orgName: org.name, userName: user.fullName, pendingCount: pending };
+  const [org, user, pending, workspaces, demo] = await Promise.all([services.org.get(), services.org.currentUser(), services.inbox.pendingCount(), services.org.listWorkspaces(), services.demo.status()]);
+  const props = { orgName: org.name, userName: user.fullName, pendingCount: pending, workspaces, demo: demo.active ? { replay: demo.replay, recordedOn: demo.recordedOn, current: demo.current, orgName: org.name } : null };
   return (
     <div className="flex min-h-screen flex-col lg:flex-row">
       <a

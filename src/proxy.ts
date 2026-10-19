@@ -15,8 +15,18 @@ function demo() {
   return !keys;
 }
 
+const DEMO_COOKIE = "fl_demo";
+
 export async function proxy(request: NextRequest) {
-  if (demo()) return NextResponse.next();
+  if (demo()) {
+    // Give each demo visitor their own sample workspaces (see src/lib/services/demo-session.ts).
+    if (request.cookies.get(DEMO_COOKIE)) return NextResponse.next();
+    const id = crypto.randomUUID().replace(/-/g, "");
+    request.cookies.set(DEMO_COOKIE, id);
+    const response = NextResponse.next({ request });
+    response.cookies.set(DEMO_COOKIE, id, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 12 });
+    return response;
+  }
   let response = NextResponse.next({ request });
   const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
     cookies: {

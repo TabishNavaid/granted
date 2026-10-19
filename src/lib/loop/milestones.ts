@@ -19,7 +19,7 @@ function minus(iso: string, days: number): Date {
 }
 const ymd = (d: Date) => d.toISOString().slice(0, 10);
 
-export function planMilestones(deadline: string, opts: { boardReview?: boolean; effort?: "low" | "medium" | "high"; mode?: "letter" | "proposal"; today?: string } = {}): PlannedMilestone[] {
+export function planMilestones(deadline: string, opts: { boardReview?: boolean; effort?: "low" | "medium" | "high"; mode?: "letter" | "proposal" | "concept_note"; today?: string } = {}): PlannedMilestone[] {
   const today = opts.today ?? new Date().toISOString().slice(0, 10);
   const long = opts.effort === "high" || opts.mode === "proposal";
   const plan: { kind: MilestoneKind; title: string; daysBefore: number }[] = long

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronDown, PanelLeft, PanelRight } from "lucide-react";
 import type { ApplicationStage, Budget, BudgetLine, Member, ProposalWorkspace, ReviewerCheck, SectionVersion } from "@/lib/types";
 import { services } from "@/lib/services";
@@ -24,18 +24,22 @@ import { ExportDialog } from "@/components/proposal/export-dialog";
 import { ReviewerPanel } from "@/components/proposal/reviewer-panel";
 import { BudgetPanel } from "@/components/proposal/budget-panel";
 import { VersionsDialog } from "@/components/proposal/versions-dialog";
+import { AskSuggestion, LogicModelDialog, ReuseDialog, WinKitDialog } from "@/components/proposal/feature-dialogs";
 import { ProgressSteps, type JobView } from "@/components/app/progress-steps";
-import { newJobId, watchJob } from "@/lib/progress-client";
+import { finalJob, newJobId, watchJob } from "@/lib/progress-client";
 import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { stageMeta, stageOrder } from "@/lib/agents/meta";
 
+const LETTER_FALLBACK: JobView = { status: "running", steps: [{ label: "Reading the notice and your confirmed facts", state: "active" }, { label: "Writing the letter", state: "pending" }, { label: "Checking every citation and number", state: "pending" }] };
+const MODE_LABEL: Record<ProposalWorkspace["application"]["mode"], string> = { letter: "Letter of inquiry", proposal: "Full proposal", concept_note: "Concept note" };
 const PROPOSAL_FALLBACK: JobView = { status: "running", steps: [{ label: "Reading the funder's guidelines", state: "active" }, { label: "Building the requirements checklist", state: "pending" }, { label: "Drafting every section from your facts", state: "pending" }, { label: "Checking every citation and number", state: "pending" }] };
 
-export function Workspace({ initial, members, orgName, demo, reviewer: initialReviewer, budget: initialBudget }: { initial: ProposalWorkspace; members: Member[]; orgName: string; demo: boolean; reviewer: ReviewerCheck | null; budget: Budget | null }) {
+export function Workspace({ initial, members, orgName, demo, reviewer: initialReviewer, budget: initialBudget, role }: { initial: ProposalWorkspace; members: Member[]; orgName: string; demo: boolean; reviewer: ReviewerCheck | null; budget: Budget | null; role: Member["role"] }) {
   const router = useRouter();
   const { toast } = useToast();
+  const params = useSearchParams();
   const [ws, setWs] = React.useState(initial);
   const [activeId, setActiveId] = React.useState(initial.sections[0]?.id ?? "");
   const [panel, setPanel] = React.useState<"questions" | "checks" | "sources" | "reviewer" | "budget">(initial.missingFacts.some((m) => m.status === "open") ? "questions" : "checks");
@@ -53,7 +57,12 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
   const [highlightGap, setHighlightGap] = React.useState<string | null>(null);
   const [exportOpen, setExportOpen] = React.useState(false);
   const [checking, setChecking] = React.useState(false);
-  const [drafting, setDrafting] = React.useState(false);
+  const [drafting, setDrafting] = React.useState<false | "letter" | "proposal" | "concept">(false);
+  const [logicOpen, setLogicOpen] = React.useState(false);
+  const [reuseOpen, setReuseOpen] = React.useState(false);
+  const [kitOpen, setKitOpen] = React.useState(false);
+  // Board reviewers read and approve sections; everything that changes the draft is hidden for them.
+  const readOnly = role === "reviewer";
   const [leftOpen, setLeftOpen] = React.useState(true);
   const [rightOpen, setRightOpen] = React.useState(true);
   // Between 1024 and 1280px there is no room for both side panels and a readable editor, so the checklist starts closed.
@@ -86,12 +95,20 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
     setSaved("saving");
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
-      await services.applications.updateSection(active.id, html);
+      try {
+        await services.applications.updateSection(active.id, html);
+      } catch (err) {
+        setSaved("idle");
+        failed("We could not save that change", err);
+        return;
+      }
       setSaved("saved");
       const next = await services.applications.getWorkspace(app.id);
       if (next) setWs((w) => ({ ...w, requirements: next.requirements, complianceChecks: next.complianceChecks, sections: w.sections.map((s) => (s.id === active.id ? s : next.sections.find((n) => n.id === s.id) ?? s)) }));
     }, 700);
   };
+
+  const failed = (title: string, err: unknown) => toast({ title, description: err instanceof Error ? err.message : "Try again in a moment.", tone: "warning" });
 
   const answer = async (id: string, value: string) => {
     try {
@@ -101,59 +118,90 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
       return;
     }
     await reload();
-    toast({ title: "Answer saved", description: demo ? "The gap is filled, and it cites you as the source." : "Saved as a fact you stated. The paragraph was rewritten to cite it." });
+    toast({ title: "Answer saved", description: "Saved as a fact you stated. It is in the letter now and cites you as the source." });
     setHighlightGap(null);
   };
   const skip = async (id: string) => {
-    await services.applications.skipMissingFact(id);
+    try {
+      await services.applications.skipMissingFact(id);
+    } catch (err) {
+      return failed("We could not skip that", err);
+    }
     await reload();
   };
 
   const rerun = async () => {
     setChecking(true);
-    await new Promise((r) => setTimeout(r, 900));
-    await reload();
-    setChecking(false);
-    toast({ title: "Checks updated", description: "We looked over the word counts and required items again." });
+    try {
+      const checks = await services.applications.runChecks(app.id);
+      setWs((w) => ({ ...w, complianceChecks: checks }));
+      const failing = checks.filter((c) => c.status === "fail").length;
+      toast({ title: "Checks updated", description: failing ? `${failing} check${failing === 1 ? "" : "s"} failed against the current draft and documents.` : "Word counts, required items, citations, and open questions checked against the current draft." });
+    } catch (err) {
+      failed("We could not run the checks", err);
+    } finally {
+      setChecking(false);
+    }
   };
 
   const approveSection = async () => {
     if (!active) return;
     const approving = active.status !== "approved";
+    let next;
+    try {
+      next = await services.applications.setSectionStatus(active.id, approving ? "approved" : "edited");
+    } catch (err) {
+      return failed("We could not change the approval", err);
+    }
     setJustApproved(approving ? active.id : null);
-    const next = await services.applications.setSectionStatus(active.id, approving ? "approved" : "edited");
     setWs((w) => ({ ...w, sections: w.sections.map((s) => (s.id === next.id ? { ...s, status: next.status } : s)) }));
   };
 
   const moveStage = async (stage: ApplicationStage) => {
-    const next = await services.applications.moveStage(app.id, stage);
+    let next;
+    try {
+      next = await services.applications.moveStage(app.id, stage);
+    } catch (err) {
+      return failed("We could not move it", err);
+    }
     setWs((w) => ({ ...w, application: next }));
-    toast({ title: `Moved to ${stageMeta[stage].label}` });
+    toast(stage === "submitted" && !app.submittedAt ? { title: "Moved to Submitted", description: "A follow-up reminder is on the calendar for 30 days from today, and a follow-up email is drafted in Outreach." } : { title: `Moved to ${stageMeta[stage].label}` });
     router.refresh();
   };
 
-  const draftNow = async (mode: "letter" | "proposal" = app.mode) => {
-    setDrafting(true);
+  const drainedRef = React.useRef<(() => void) | null>(null);
+  const onDrained = React.useCallback(() => {
+    drainedRef.current?.();
+    drainedRef.current = null;
+  }, []);
+  const draftNow = async (mode: "letter" | "proposal" = app.mode === "proposal" ? "proposal" : "letter") => {
+    setDrafting(mode);
+    const jobId = newJobId();
+    setJob(mode === "proposal" ? PROPOSAL_FALLBACK : LETTER_FALLBACK);
+    const stop = watchJob(jobId, setJob);
     let r: Awaited<ReturnType<typeof services.loop.draftLetter>> | Awaited<ReturnType<typeof services.loop.draftProposal>>;
-    if (mode === "proposal") {
-      const jobId = newJobId();
-      setJob(PROPOSAL_FALLBACK);
-      const stop = watchJob(jobId, setJob);
-      r = await services.loop.draftProposal(app.id, jobId);
+    try {
+      r = mode === "proposal" ? await services.loop.draftProposal(app.id, jobId) : await services.loop.draftLetter(app.id, jobId);
+    } catch (err) {
       stop();
+      setDrafting(false);
       setJob(null);
-    } else {
-      r = await services.loop.draftLetter(app.id);
+      return failed("We could not write the draft", err);
     }
-    setDrafting(false);
+    stop();
     if (!r.ok) {
+      setDrafting(false);
+      setJob(null);
       toast({ title: "We could not write the draft", description: r.error, tone: "warning" });
       return;
     }
-    if (demo) {
-      toast({ title: "Draft requested", description: "The draft will land in your Inbox when it is ready for you.", tone: "info" });
-      return;
-    }
+    const last = await finalJob(jobId, mode === "proposal" ? PROPOSAL_FALLBACK : LETTER_FALLBACK);
+    setJob(last);
+    // Let every paragraph and question arrive in the feed before the editor replaces it.
+    if (last.events?.length) await new Promise<void>((res) => (drainedRef.current = res));
+    await new Promise((res) => setTimeout(res, 1200));
+    setDrafting(false);
+    setJob(null);
     const next = await reload();
     if (next?.sections[0]) setActiveId(next.sections[0].id);
     setPanel(r.data.openQuestions ? "questions" : "checks");
@@ -164,20 +212,78 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
     router.refresh();
   };
 
+  const draftConcept = async () => {
+    setDrafting("concept");
+    try {
+      const r = await services.applications.draftConceptNote(app.id);
+      if (!r.ok) return toast({ title: "We could not write the concept note", description: r.error, tone: "warning" });
+      const next = await reload();
+      if (next?.sections[0]) setActiveId(next.sections[0].id);
+      setPanel(r.data.openQuestions ? "questions" : "checks");
+      toast({ title: "Concept note written", description: `${r.data.sectionCount} short sections from your confirmed facts.${r.data.openQuestions ? ` ${r.data.openQuestions} question${r.data.openQuestions === 1 ? "" : "s"} where a fact is missing.` : ""}` });
+      router.refresh();
+    } catch (err) {
+      failed("We could not write the concept note", err);
+    } finally {
+      setDrafting(false);
+    }
+  };
+  const afterReuse = async () => {
+    const next = await reload();
+    if (next?.sections[0]) setActiveId(next.sections[0].id);
+    setPanel(next?.missingFacts.some((m) => m.status === "open") ? "questions" : "checks");
+    router.refresh();
+  };
+  const afterLogicModel = async (sectionId: string) => {
+    await reload();
+    setActiveId(sectionId);
+  };
+
+  // Arriving from "Draft a letter" in setup: start writing at once, with the progress on screen.
+  const autoStarted = React.useRef(false);
+  React.useEffect(() => {
+    if (autoStarted.current || readOnly || initial.sections.length || params.get("draft") !== "letter") return;
+    const t = setTimeout(() => {
+      if (autoStarted.current) return;
+      autoStarted.current = true;
+      router.replace(`/applications/${initial.application.id}`, { scroll: false });
+      void draftNow("letter");
+    }, 0);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const runReviewer = async () => {
     setPanelBusy("reviewer");
-    const r = await services.applications.runReviewerCheck(app.id);
+    let r;
+    try {
+      r = await services.applications.runReviewerCheck(app.id);
+    } catch (err) {
+      setPanelBusy(null);
+      return failed("Could not score the draft", err);
+    }
     setPanelBusy(null);
     if (!r.ok) return toast({ title: "Could not score the draft", description: r.error, tone: "warning" });
     setReviewer(r.data);
-    toast({ title: `Scored ${r.data.overall} of 100`, description: "One fix per criterion is in the Reviewer panel." });
+    toast({ title: `Scored ${r.data.overall} of 100`, description: r.data.summary.startsWith("Rule-based review") ? "A rule-based count of words, citations, and open questions. One fix per part is in the Reviewer panel." : "One fix per criterion is in the Reviewer panel." });
   };
   const saveBudget = async (lines: BudgetLine[], justification: string) => {
-    setBudget(await services.applications.saveBudget(app.id, lines, justification));
+    try {
+      setBudget(await services.applications.saveBudget(app.id, lines, justification));
+    } catch (err) {
+      failed("We could not save the budget", err);
+    }
   };
   const justify = async () => {
     setPanelBusy("justify");
-    const r = await services.applications.writeBudgetJustification(app.id);
+    let r;
+    try {
+      r = await services.applications.writeBudgetJustification(app.id);
+    } catch (err) {
+      setPanelBusy(null);
+      failed("Could not write it", err);
+      return null;
+    }
     setPanelBusy(null);
     if (!r.ok) {
       toast({ title: "Could not write it", description: r.error, tone: "warning" });
@@ -189,7 +295,13 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
   };
   const addBudgetSection = async () => {
     setPanelBusy("section");
-    const sec = await services.applications.addBudgetSection(app.id);
+    let sec;
+    try {
+      sec = await services.applications.addBudgetSection(app.id);
+    } catch (err) {
+      setPanelBusy(null);
+      return failed("We could not add the budget", err);
+    }
     setPanelBusy(null);
     await reload();
     setActiveId(sec.id);
@@ -203,21 +315,36 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
     setVersionsLoading(false);
   };
   const restore = async (versionId: string) => {
-    await services.applications.restoreVersion(versionId);
+    try {
+      await services.applications.restoreVersion(versionId);
+    } catch (err) {
+      return failed("We could not restore it", err);
+    }
     setVersionsOpen(false);
     await reload();
     toast({ title: "Version restored", description: "The text it replaced is saved as a version too." });
   };
   const planMilestones = async () => {
-    const ms = await services.calendar.planMilestones(app.id, { boardReview: true });
+    let ms;
+    try {
+      ms = await services.calendar.planMilestones(app.id, { boardReview: true });
+    } catch (err) {
+      return failed("We could not plan the milestones", err);
+    }
     toast({ title: ms.length ? `${ms.length} milestones planned` : "No deadline to plan from", description: ms.length ? "Worked back from the deadline. See them on the Calendar." : "This notice has no posted deadline." });
     router.refresh();
   };
   const saveAsk = async () => {
     const n = Number(askValue.replace(/[^0-9.]/g, ""));
-    const next = await services.applications.setAskAmount(app.id, Number.isFinite(n) && n > 0 ? Math.round(n) : null);
+    let next;
+    try {
+      next = await services.applications.setAskAmount(app.id, Number.isFinite(n) && n > 0 ? Math.round(n) : null);
+    } catch (err) {
+      return failed("We could not save the ask", err);
+    }
     setWs((w) => ({ ...w, application: next }));
     setAskOpen(false);
+    toast({ title: next.askAmount ? `Ask set to ${formatMoney(next.askAmount)}` : "Ask cleared", description: next.askAmount ? "The draft and budget use this amount as written." : "The draft will ask you for the amount instead of guessing." });
   };
 
   const onCitationClick = (factId: string) => {
@@ -246,24 +373,40 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
           </div>
         </header>
         <div className="mt-10 border-t border-rule pt-6">
-          <h2 className="font-display text-2xl text-ink">No draft yet</h2>
+          <h2 className="font-display text-2xl text-ink">{drafting ? (drafting === "letter" ? "Writing the letter" : drafting === "concept" ? "Writing the concept note" : "Drafting the proposal") : "No draft yet"}</h2>
           <p className="mt-2 max-w-[65ch] text-base text-ink-muted">
             {demo
-              ? "We will read the guidelines, build the checklist, and write every section from your facts. Anything we cannot source becomes a question for you instead of a guess. The finished draft arrives in your Inbox."
-              : "We will write a one-page letter of inquiry from your confirmed facts and this notice's own text. Every claim carries its source. Anything we cannot source becomes a question for you instead of a guess."}
+              ? "Write a one-page letter of inquiry from the confirmed facts and this funder's own text. Every claim carries its source, and anything we cannot source becomes a question instead of a guess. The demo replays recorded letters for each sample's strongest matches."
+              : "We will write a one-page letter of inquiry from your confirmed facts and this funder's own text. Every claim carries its source. Anything we cannot source becomes a question for you instead of a guess."}
           </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Button onClick={() => draftNow("letter")} loading={drafting && !job} disabled={drafting}>
-              {drafting && !job ? "Writing from your facts" : "Write a letter of inquiry"}
-            </Button>
-            <Button variant="secondary" onClick={() => draftNow("proposal")} loading={!!job} disabled={drafting}>
-              {job ? "Drafting the proposal" : "Write the full proposal"}
-            </Button>
-          </div>
-          <p className="mt-3 max-w-[60ch] text-sm text-ink-muted">A letter is one page and takes about half a minute. The full proposal reads the funder&apos;s guidelines into a checklist first and takes a minute or two.</p>
+          {readOnly ? (
+            <p className="mt-5 max-w-[60ch] text-sm text-ink-muted">You are reading as a board reviewer. The owner or an editor starts the draft; you can read and approve sections once it is written.</p>
+          ) : (
+            <>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Button onClick={() => draftNow("letter")} loading={drafting === "letter"} disabled={Boolean(drafting)}>
+                  {drafting === "letter" ? "Writing from your facts" : "Write a letter of inquiry"}
+                </Button>
+                <Button variant="secondary" onClick={() => draftNow("proposal")} loading={drafting === "proposal"} disabled={Boolean(drafting)}>
+                  {drafting === "proposal" ? "Drafting the proposal" : "Write the full proposal"}
+                </Button>
+                <Button variant="secondary" onClick={draftConcept} loading={drafting === "concept"} disabled={Boolean(drafting)}>
+                  Write a concept note
+                </Button>
+              </div>
+              <p className="mt-3 max-w-[60ch] text-sm text-ink-muted">A letter is one page and takes about half a minute. The full proposal reads the funder&apos;s guidelines into a checklist first and takes a minute or two. A concept note is a short outline assembled straight from your confirmed facts, with no model, so it is ready in a second.</p>
+              <p className="mt-4 text-sm text-ink-muted">
+                Or{" "}
+                <button type="button" onClick={() => setReuseOpen(true)} disabled={Boolean(drafting)} className="inline-flex min-h-6 items-center font-semibold text-ink underline decoration-[1.5px] underline-offset-4 disabled:opacity-50">
+                  start from a past winning application
+                </button>
+                .
+              </p>
+            </>
+          )}
           {job ? (
-            <div className="mt-6 max-w-xl" aria-live="polite">
-              <ProgressSteps job={job} />
+            <div className="mt-6 max-w-2xl" aria-live="polite">
+              <ProgressSteps job={job} onDrained={onDrained} />
             </div>
           ) : null}
           <div className="mt-10 grid gap-8 opacity-60 sm:grid-cols-3" aria-hidden>
@@ -277,6 +420,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
             </div>
           </div>
         </div>
+        <ReuseDialog applicationId={app.id} open={reuseOpen} onOpenChange={setReuseOpen} onDone={afterReuse} />
       </PageContainer>
     );
   }
@@ -292,10 +436,11 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
             <h1 className="truncate font-display text-xl text-ink">{app.opportunity.title}</h1>
             <p className="flex flex-wrap items-center gap-x-4 text-sm text-ink-muted">
               <span>{app.funder.name}</span>
-              <span>{app.mode === "proposal" ? "Full proposal" : "Letter of inquiry"}</span>
+              <span>{MODE_LABEL[app.mode] ?? "Letter of inquiry"}</span>
               {/* The amount is a fact, so it is plain text. Only the control that changes it looks clickable. */}
               <span className="inline-flex min-h-6 items-center gap-2">
                 {app.askAmount ? <span className="tnum">Asking {formatMoney(app.askAmount)}</span> : null}
+                {readOnly ? null : (
                 <button
                   type="button"
                   onClick={() => setAskOpen(true)}
@@ -304,6 +449,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
                 >
                   {app.askAmount ? "Change" : "Set the ask"}
                 </button>
+                )}
               </span>
               {app.opportunity.deadline ? (
                 <>
@@ -318,6 +464,9 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
             <span className="hidden text-sm text-ink-muted sm:inline" aria-live="polite">
               {saved === "saving" ? "Saving" : saved === "saved" ? "Saved" : ""}
             </span>
+            {readOnly ? (
+              <StageBadge stage={app.stage} />
+            ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="secondary" size="sm">
@@ -334,6 +483,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="secondary" size="sm">
@@ -341,14 +491,35 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onSelect={planMilestones}>Plan milestones from the deadline</DropdownMenuItem>
+                {readOnly ? null : <DropdownMenuItem onSelect={planMilestones}>Plan milestones from the deadline</DropdownMenuItem>}
                 <DropdownMenuItem asChild>
                   <Link href="/calendar">Open the calendar</Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                {app.mode === "letter" ? <DropdownMenuItem onSelect={() => draftNow("proposal")}>Write the full proposal instead</DropdownMenuItem> : <DropdownMenuItem onSelect={() => draftNow("letter")}>Write a letter of inquiry instead</DropdownMenuItem>}
+                <DropdownMenuItem
+                  onSelect={() => {
+                    setPanel("checks");
+                    setRightOpen(true);
+                    void rerun();
+                  }}
+                >
+                  Run checks again
+                </DropdownMenuItem>
+                {app.stage === "won" ? <DropdownMenuItem onSelect={() => setKitOpen(true)}>Grant-win kit</DropdownMenuItem> : null}
+                {readOnly ? null : (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => setLogicOpen(true)}>Add a logic model</DropdownMenuItem>
+                    {app.mode !== "proposal" ? <DropdownMenuItem onSelect={() => draftNow("proposal")}>Write the full proposal instead</DropdownMenuItem> : null}
+                    {app.mode !== "letter" ? <DropdownMenuItem onSelect={() => draftNow("letter")}>Write a letter of inquiry instead</DropdownMenuItem> : null}
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
+            {app.stage === "won" ? (
+              <Button variant="secondary" size="sm" onClick={() => setKitOpen(true)}>
+                Grant-win kit
+              </Button>
+            ) : null}
             <Button size="sm" onClick={() => setExportOpen(true)}>
               Export
             </Button>
@@ -395,7 +566,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
           {active ? (
             <>
               <div className="flex flex-1 flex-col">
-                <SectionEditor key={active.id} section={active} facts={ws.facts} onChange={onChange} onCitationClick={onCitationClick} onGapClick={onGapClick} onVersions={openVersions} />
+                <SectionEditor key={active.id} section={active} facts={ws.facts} onChange={onChange} onCitationClick={onCitationClick} onGapClick={onGapClick} onVersions={readOnly ? undefined : openVersions} readOnly={readOnly} />
               </div>
               <div className="relative flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-rule bg-paper px-5 py-3 sm:px-10">
                 <p className="text-sm text-ink-muted">
@@ -441,7 +612,11 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
                 <TabsTrigger value="budget">Budget</TabsTrigger>
               </TabsList>
               <TabsContent value="questions">
-                <QuestionsPanel questions={ws.missingFacts} sections={ws.sections} highlightId={highlightGap} onAnswer={answer} onSkip={skip} />
+                {readOnly ? <p className="mb-3 text-sm text-ink-muted">The owner or an editor answers these.</p> : null}
+                <fieldset disabled={readOnly} className="min-w-0">
+                  <legend className="sr-only">Open questions</legend>
+                  <QuestionsPanel questions={ws.missingFacts} sections={ws.sections} highlightId={highlightGap} onAnswer={answer} onSkip={skip} />
+                </fieldset>
               </TabsContent>
               <TabsContent value="checks">
                 <CompliancePanel checks={ws.complianceChecks} onRerun={rerun} running={checking} onJump={(id) => setActiveId(id)} />
@@ -453,20 +628,26 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
                 <ReviewerPanel check={reviewer} onRun={runReviewer} running={panelBusy === "reviewer"} />
               </TabsContent>
               <TabsContent value="budget">
-                <BudgetPanel budget={budget} onSave={saveBudget} onJustify={justify} onAddSection={addBudgetSection} busy={panelBusy} />
+                {readOnly ? <p className="mb-3 text-sm text-ink-muted">Read only for board reviewers.</p> : null}
+                <fieldset disabled={readOnly} className="min-w-0">
+                  <legend className="sr-only">Budget</legend>
+                  <BudgetPanel budget={budget} onSave={saveBudget} onJustify={justify} onAddSection={addBudgetSection} busy={panelBusy} />
+                </fieldset>
               </TabsContent>
             </Tabs>
           </div>
         </aside>
       </div>
 
+      <LogicModelDialog applicationId={app.id} open={logicOpen} onOpenChange={setLogicOpen} onAdded={afterLogicModel} />
+      <WinKitDialog applicationId={app.id} open={kitOpen} onOpenChange={setKitOpen} />
       <ExportDialog open={exportOpen} onOpenChange={setExportOpen} app={app} sections={ws.sections} orgName={orgName} />
       <VersionsDialog open={versionsOpen} onOpenChange={setVersionsOpen} versions={versions} onRestore={restore} loading={versionsLoading} />
       <Dialog open={!!job} onOpenChange={() => undefined}>
         <DialogContent size="md">
           <DialogHeader>
-            <DialogTitle>Drafting the full proposal</DialogTitle>
-            <DialogDescription>A minute or two. The current sections are replaced when it finishes.</DialogDescription>
+            <DialogTitle>{drafting === "letter" ? "Writing the letter of inquiry" : "Drafting the full proposal"}</DialogTitle>
+            <DialogDescription>{drafting === "letter" ? "About half a minute." : "A minute or two."} The current sections are replaced when it finishes.</DialogDescription>
           </DialogHeader>
           {job ? <ProgressSteps job={job} /> : null}
         </DialogContent>
@@ -480,6 +661,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
           <Field id="ask" label="Ask amount" optional>
             <Input inputMode="numeric" className="tnum" value={askValue} onChange={(e) => setAskValue(e.target.value)} placeholder="40000" />
           </Field>
+          <AskSuggestion applicationId={app.id} open={askOpen} onUse={(n) => setAskValue(String(n))} />
           <DialogFooter>
             <Button variant="ghost" onClick={() => setAskOpen(false)}>
               Cancel

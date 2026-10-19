@@ -1,9 +1,11 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import type { MatchView, SavedSearch } from "@/lib/types";
 import { PageContainer, PageHeader } from "@/components/app/page-header";
-import { OpportunityCard } from "@/components/app/opportunity-card";
+import { OpportunityCard, hardEligibilityFails } from "@/components/app/opportunity-card";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -24,11 +26,14 @@ export function OpportunitiesView({ matches, demo, savedSearches }: { matches: M
   const [deadline, setDeadline] = React.useState<Deadline>("any");
   const [amount, setAmount] = React.useState<Amount>("any");
   const [category, setCategory] = React.useState("any");
+  const [showIneligible, setShowIneligible] = React.useState(false);
   const categories = Array.from(new Set(matches.flatMap((m) => m.funder.focusAreas))).sort();
+  // A match that fails a check that would rule you out is hidden by default. Anything already in the pipeline stays.
+  const mayNotQualify = (m: MatchView) => m.status !== "applying" && hardEligibilityFails(m).length > 0;
 
-  const filtered = matches.filter((m) => {
+  const passesFilters = (m: MatchView) => {
     if (scope === "new" && !m.isNew) return false;
-    if (scope === "eligible" && !m.eligibilityChecks.every((c) => c.passed)) return false;
+    if (scope === "eligible" && (hardEligibilityFails(m).length > 0 || m.eligibilityChecks.some((c) => !c.passed && c.label.startsWith("Not open yet")))) return false;
     if (scope === "pipeline" && m.status !== "applying") return false;
     if (deadline === "open" && m.opportunity.forecasted) return false;
     if (deadline !== "any" && deadline !== "open") {
@@ -41,7 +46,10 @@ export function OpportunitiesView({ matches, demo, savedSearches }: { matches: M
     }
     if (category !== "any" && !m.funder.focusAreas.includes(category)) return false;
     return true;
-  });
+  };
+  const inFilters = matches.filter(passesFilters);
+  const hiddenCount = inFilters.filter(mayNotQualify).length;
+  const filtered = showIneligible ? inFilters : inFilters.filter((m) => !mayNotQualify(m));
   const sorted = [...filtered].sort((a, b) => {
     if (sort === "fit") return b.fitScore - a.fitScore;
     if (sort === "amount") return (b.opportunity.amountMax ?? 0) - (a.opportunity.amountMax ?? 0);
@@ -59,13 +67,13 @@ export function OpportunitiesView({ matches, demo, savedSearches }: { matches: M
         description={
           matches.length
             ? demo
-              ? `${matches.length} funders you can apply to, ranked by fit. We last looked on ${formatDate(lastScan)} and we'll look again Monday.`
-              : `${matches.length} open federal notice${matches.length === 1 ? "" : "s"} from Grants.gov you can apply for, ranked by fit against your confirmed facts. We last looked on ${formatDate(lastScan)}.`
-            : "Nothing here yet. Confirm your profile, then search Grants.gov for open notices that fit."
+              ? `${matches.length} funders you can apply to, federal and private, ranked by fit against the confirmed facts. Last searched ${formatDate(lastScan)}.`
+              : `${matches.length} funders you can apply to: open federal notices from Grants.gov and private foundations from their IRS filings, ranked by fit against your confirmed facts. Last searched ${formatDate(lastScan)}.`
+            : "Nothing here yet. Confirm your profile, then search Grants.gov and the foundation filings for funders that fit."
         }
         actions={demo ? undefined : <FindMatchesButton label={matches.length ? "Search again" : "Search Grants.gov now"} size="sm" />}
       />
-      <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mt-6 flex flex-col gap-4 2xl:flex-row 2xl:items-end 2xl:justify-between">
         <Tabs value={scope} onValueChange={(v) => setScope(v as Scope)}>
           <TabsList variant="pill" aria-label="Filter matches">
             <TabsTrigger value="all">All</TabsTrigger>
@@ -142,6 +150,15 @@ export function OpportunitiesView({ matches, demo, savedSearches }: { matches: M
         </div>
       </div>
 
+      {hiddenCount ? (
+        <p className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm text-ink-muted">
+          <span>{showIneligible ? `Showing ${hiddenCount} that fail${hiddenCount === 1 ? "s" : ""} an eligibility check.` : `${hiddenCount} hidden because ${hiddenCount === 1 ? "it fails" : "they fail"} an eligibility check.`}</span>
+          <Button variant="link" size="sm" onClick={() => setShowIneligible((v) => !v)} aria-pressed={showIneligible}>
+            {showIneligible ? "Hide them" : `Show ${hiddenCount} you may not be eligible for`}
+          </Button>
+        </p>
+      ) : null}
+
       {sorted.length === 0 ? (
         <EmptyState
           className="mt-6"
@@ -159,7 +176,31 @@ export function OpportunitiesView({ matches, demo, savedSearches }: { matches: M
         </ul>
       )}
 
-      {demo ? null : <SearchPanel saved={savedSearches} />}
+      <section aria-labelledby="more-places" className="mt-10 border-t border-rule pt-5">
+        <h2 id="more-places" className="font-display text-xl text-ink">
+          Other places to look
+        </h2>
+        <ul className="mt-3 flex flex-col gap-2 text-base">
+          <li>
+            <Link href="/funders" className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
+              The funder directory
+            </Link>
+            <span className="text-ink-muted">: private foundations from their IRS 990-PF filings, with past grants and who they fund.</span>
+          </li>
+          <li>
+            <Link href="/scholarships" className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
+              Looking for a scholarship for yourself?
+            </Link>
+            <span className="text-ink-muted"> Foundations that give to students, matched to where you live and what you study.</span>
+          </li>
+        </ul>
+      </section>
+
+      {demo ? (
+        <p className="mt-8 max-w-[65ch] text-sm text-ink-muted">In the demo, the Grants.gov searches are recorded runs, so a custom search is not available here. The foundation directory on the Funders page is searchable now.</p>
+      ) : (
+        <SearchPanel saved={savedSearches} />
+      )}
     </PageContainer>
   );
 }

@@ -1,0 +1,12 @@
+# Render blueprint for the public demo: one free web service, no environment
+# variables. The demo keeps each visitor's sample workspaces in this one
+# process's memory, which a single always-on instance suits.
+services:
+  - type: web
+    name: firstlight-demo
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    autoDeploy: true

@@ -8,14 +8,17 @@ import type { LoopStore, NewFact } from "./store";
  * without Supabase (DEMO_MODE with a GEMINI_API_KEY). State resets with the
  * server process.
  */
-const noticeTexts = new Map<string, string>();
+// Keyed by opportunity id, which is the same in every session. On globalThis so every copy of this module shares it.
+const noticeTexts = ((globalThis as typeof globalThis & { __firstlightNotices?: Map<string, string> }).__firstlightNotices ??= new Map<string, string>());
 
 function toFact(f: NewFact, id: string): Fact {
   return { id, orgId: state.org.id, label: f.label, value: f.value, category: f.category, sourceDocumentId: null, sourceUrl: f.sourceUrl, sourceLabel: f.sourceLabel, sourceExcerpt: f.sourceExcerpt, sourcePage: null, confidence: f.confidence, status: f.status, lastConfirmedAt: now() };
 }
 
 export const memoryStore: LoopStore = {
-  orgId: state.org.id,
+  get orgId() {
+    return state.org.id;
+  },
   newId,
   async getOrg() {
     return structuredClone(state.org);
@@ -31,7 +34,8 @@ export const memoryStore: LoopStore = {
     return structuredClone(state.facts);
   },
   async replaceReadFacts(facts) {
-    state.facts = state.facts.filter((f) => f.sourceLabel === "You");
+    // Facts the director stated or that came from an uploaded document stay; only the old reading of the site goes.
+    state.facts = state.facts.filter((f) => f.sourceLabel === "You" || f.sourceDocumentId != null);
     const created = facts.map((f) => toFact(f, newId("fact")));
     state.facts.push(...created);
     return structuredClone(created);
@@ -66,8 +70,10 @@ export const memoryStore: LoopStore = {
       const prev = keep.get(m.opportunityId);
       return { ...m, id: prev?.id ?? newId("match"), orgId: state.org.id, status: prev?.status ?? "new", isNew: !prev, createdAt: now() };
     });
-    // Seeded demo matches go away once real ones exist; the user asked for their own.
-    state.matches = next;
+    // A match the director already saved, dismissed, or started stays even if this search did not find it again.
+    const found = new Set(next.map((m) => m.opportunityId));
+    const decided = state.matches.filter((m) => m.status !== "new" && !found.has(m.opportunityId));
+    state.matches = [...next, ...decided];
     return structuredClone(next);
   },
   async upsertMatch(m) {
@@ -129,6 +135,11 @@ export const memoryStore: LoopStore = {
   async replaceChecks(applicationId, checks) {
     state.complianceChecks = state.complianceChecks.filter((c) => c.applicationId !== applicationId);
     state.complianceChecks.push(...checks.map((c) => ({ ...c, id: newId("cc"), applicationId })));
+  },
+  async addInboxItem(item) {
+    const row = { ...item, id: newId("inbox"), orgId: state.org.id, status: "pending" as const, createdAt: now(), resolvedAt: null, rejectionReason: null };
+    state.inbox.unshift(row);
+    return structuredClone(row);
   },
   async createRun(run) {
     const r = { ...run, id: newId("run") };

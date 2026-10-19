@@ -24,6 +24,7 @@ const KIND_ASK: Record<EmailDraftInput["kind"], string> = {
   loi_cover: "A brief cover note to accompany a letter of inquiry, two paragraphs at most.",
   thank_you: "A sincere thank-you after an award or a meeting, four to six sentences.",
   follow_up: "A polite follow-up on an earlier email or application, three to five sentences, with one clear question.",
+  feedback_request: "A gracious note after a declined application thanking the funder for its review and asking, in one sentence, whether it can share any feedback that would strengthen a future request. Four to six sentences. No complaint, no argument with the decision.",
   intro_request: "An email the organization's board member or partner can send to someone they know at the funder, introducing the organization and asking for a brief conversation. Write it in the board member's voice, first person, mentioning how they know the organization.",
 };
 

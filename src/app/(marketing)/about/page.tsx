@@ -2,10 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PageIntro } from "@/components/marketing/page-intro";
+import { SectionHeading } from "@/components/marketing/section-heading";
 import { founderNote } from "@/content/site";
+import { fullFaq } from "@/content/faq";
 import { PRODUCT_NAME } from "@/lib/brand";
 
-export const metadata: Metadata = { title: "About", description: `Why ${PRODUCT_NAME} exists, and a note from the founders.`, alternates: { canonical: "/about" } };
+export const metadata: Metadata = {
+  title: "About",
+  description: `Why ${PRODUCT_NAME} exists, a note from the founders, and plain answers about data, accuracy, AI, sending, privacy, price, and who it is for.`,
+  alternates: { canonical: "/about" },
+};
 
 const mission = [
   "Small nonprofits apply for the same grants as organizations with a development office. The process assumes someone has a free week to research funders and write. At a small nonprofit, that someone is usually the director, working after hours.",
@@ -43,12 +49,62 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+
+      <section id="questions" className="scroll-mt-16 border-t border-rule">
+        <div className="mx-auto max-w-[75rem] px-4 py-14 sm:px-6 lg:grid lg:grid-cols-[1fr_1.4fr] lg:gap-20 lg:px-10 lg:py-20">
+          <div className="lg:sticky lg:top-24 lg:self-start">
+            <SectionHeading plant="wind-poppy" className="max-w-[12ch] text-4xl sm:text-5xl">
+              Questions, answered plainly.
+            </SectionHeading>
+            <p className="mt-5 max-w-[36ch] text-base text-ink-muted">
+              Something missing? The{" "}
+              <Link href="/security" className="font-semibold text-ink underline underline-offset-4">
+                security page
+              </Link>{" "}
+              covers data handling in more detail, and you can{" "}
+              <Link href="/contact" className="font-semibold text-ink underline underline-offset-4">
+                write to us
+              </Link>
+              .
+            </p>
+          </div>
+          <div className="mt-10 lg:mt-0">
+            {fullFaq.map((g) => (
+              <div key={g.group} className="mt-12 first:mt-0">
+                <h3 className="font-display text-2xl text-ink">{g.group}</h3>
+                <div className="mt-4 border-t border-ink">
+                  {g.items.map((f) => (
+                    <details key={f.q} className="group border-b border-rule py-5">
+                      <summary className="flex cursor-pointer list-none items-baseline justify-between gap-4 rounded-sm font-display text-xl text-ink [&::-webkit-details-marker]:hidden">
+                        {f.q}
+                        <span className="font-body text-base text-ink-muted group-open:hidden" aria-hidden>
+                          Show
+                        </span>
+                        <span className="hidden font-body text-base text-ink-muted group-open:inline" aria-hidden>
+                          Hide
+                        </span>
+                      </summary>
+                      <p className="mt-3 max-w-[60ch] text-base text-ink-muted">{f.a}</p>
+                    </details>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="border-t border-rule">
         <div className="mx-auto flex max-w-[75rem] flex-wrap items-center justify-between gap-6 px-4 py-12 sm:px-6 lg:px-10">
           <p className="max-w-[40ch] text-lg text-ink">Questions, or an organization that should try it first?</p>
-          <Button asChild variant="secondary">
-            <Link href="/contact">Write to us</Link>
-          </Button>
+          <div className="flex flex-wrap gap-3">
+            <Button asChild variant="secondary">
+              <Link href="/contact">Write to us</Link>
+            </Button>
+            <Button asChild variant="ghost">
+              <Link href="/onboarding">Try the demo</Link>
+            </Button>
+          </div>
         </div>
       </section>
     </>

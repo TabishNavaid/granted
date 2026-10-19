@@ -2,6 +2,7 @@ import { getAi, type JsonSchema, type TokenUsage } from "@/lib/ai";
 import * as gg from "@/lib/grantsgov";
 import type { EligibilityCheck, Fact, Funder, Opportunity, Organization, SourceUsed, ToolCall } from "@/lib/types";
 import { contains, truncate } from "./text";
+import type { JobEvent } from "./progress";
 
 /**
  * Discovery against Grants.gov.
@@ -30,6 +31,8 @@ export interface DiscoveryInput {
   maxDetails?: number;
   /** Called as each stage finishes, with a short note for the progress screen. */
   onStage?: (stage: "plan" | "search" | "read" | "score", detail: string) => void;
+  /** Called for each search, notice, and score, for the live feed. */
+  onEvent?: (event: Omit<JobEvent, "id">) => void;
 }
 
 export interface ScoredMatch {
@@ -216,6 +219,7 @@ export async function runDiscovery(input: DiscoveryInput): Promise<DiscoveryResu
   for (const s of searches) {
     const { result, fromCache } = await gg.search({ keyword: s.keyword, oppStatuses: "forecasted|posted", eligibilities: gg.ELIGIBILITY.nonprofit501c3, fundingCategories: s.fundingCategories.join("|"), rows: 50 });
     searchLog.push({ keyword: s.keyword, fundingCategories: s.fundingCategories, hits: result.hitCount, fromCache });
+    input.onEvent?.({ kind: "search", text: `Searched Grants.gov for "${s.keyword}"${s.fundingCategories.length ? ` in ${s.fundingCategories.map((c) => gg.FUNDING_CATEGORIES[c] ?? c).join(" and ")}` : ""}`, detail: `${result.hitCount.toLocaleString("en-US")} notice${result.hitCount === 1 ? "" : "s"} open to 501(c)(3) nonprofits` });
     for (const h of result.oppHits) if (!hits.has(h.id)) hits.set(h.id, h);
   }
   const screened = hits.size;
@@ -252,6 +256,7 @@ export async function runDiscovery(input: DiscoveryInput): Promise<DiscoveryResu
   });
   tally(triage);
   const keepIds = triage.data.keep.map((k) => k.id).filter((id) => hits.has(id)).slice(0, maxDetails);
+  input.onEvent?.({ kind: "note", text: `Kept ${keepIds.length} of ${live.length} open notices to read in full`, detail: "Research grants for universities, notices for governments only, and work far from yours were set aside by title." });
   tools.push({ name: "triage_titles", summary: `${keepIds.length} of ${live.length} worth reading in full`, durationMs: Date.now() - t });
 
   // 4. Fetch details, throttled, and apply the hard filters in code.
@@ -263,8 +268,10 @@ export async function runDiscovery(input: DiscoveryInput): Promise<DiscoveryResu
       const { detail } = await gg.fetchOpportunity(id);
       if (!gg.isStillOpen(detail, today) || !gg.nonprofitMayApply(detail)) {
         droppedIneligible++;
+        input.onEvent?.({ kind: "dropped", text: detail.opportunityTitle, detail: !gg.isStillOpen(detail, today) ? "Set aside: it has closed." : "Set aside: nonprofits are not among the eligible applicants." });
         continue;
       }
+      input.onEvent?.({ kind: "notice", text: detail.opportunityTitle, detail: `${gg.notice(detail)?.agencyName ?? detail.owningAgencyCode}${gg.deadlineOf(detail) ? `, due ${gg.deadlineOf(detail)}` : ""}`, url: gg.opportunityPageUrl(id) });
       candidates.push({ id, detail, text: gg.opportunityText(detail, 2_600) });
       sources.push({ label: truncate(detail.opportunityTitle, 80), url: gg.opportunityPageUrl(id), documentId: null, kind: "web" });
     } catch {
@@ -280,6 +287,8 @@ export async function runDiscovery(input: DiscoveryInput): Promise<DiscoveryResu
   // 5. Score.
   t = Date.now();
   const scoredOut = await scoreNotices({ candidates, org: input.org, facts: input.facts, dismissed: input.dismissed ?? [] });
+  for (const m of [...scoredOut.matches].sort((a, b) => b.fitScore - a.fitScore)) input.onEvent?.({ kind: "score", text: m.opportunity.title, score: m.fitScore, detail: m.reasons[0] });
+  for (const d of scoredOut.dropped) input.onEvent?.({ kind: "dropped", text: d.title, detail: `Set aside: ${d.reason}` });
   tally(scoredOut);
   const matches = scoredOut.matches;
   droppedIneligible += scoredOut.droppedIneligible;
@@ -298,7 +307,7 @@ export interface ScoreInput {
 }
 
 /** One model call scores every candidate; code checks each reason before it can be shown. */
-export async function scoreNotices(input: ScoreInput): Promise<{ matches: ScoredMatch[]; droppedIneligible: number; droppedUnsupported: number; usage: TokenUsage; costUsd: number; model: string }> {
+export async function scoreNotices(input: ScoreInput): Promise<{ matches: ScoredMatch[]; dropped: { title: string; reason: string }[]; droppedIneligible: number; droppedUnsupported: number; usage: TokenUsage; costUsd: number; model: string }> {
   const ai = getAi();
   const { candidates } = input;
   const summary = profileSummary(input.org, input.facts);
@@ -322,6 +331,7 @@ Rules:
   const factIds = new Set(input.facts.map((f) => f.id));
   const checkedAt = new Date().toISOString();
   const matches: ScoredMatch[] = [];
+  const dropped: { title: string; reason: string }[] = [];
   let droppedIneligible = 0;
   let droppedUnsupported = 0;
   for (const s of scored.data.scores) {
@@ -329,11 +339,13 @@ Rules:
     if (!c) continue;
     if (!s.eligible) {
       droppedIneligible++;
+      dropped.push({ title: c.detail.opportunityTitle, reason: s.ineligibleReason?.trim() || "the notice rules out an organization like yours." });
       continue;
     }
     const reasons = (s.reasons ?? []).filter((r) => factIds.has(r.factId) && r.noticeQuote && contains(c.text, r.noticeQuote)).map((r) => r.text.trim());
     if (!reasons.length) {
       droppedUnsupported++;
+      dropped.push({ title: c.detail.opportunityTitle, reason: "no reason could be tied to one of your facts and a line of the notice." });
       continue;
     }
     const { opportunity, funder } = gg.toOpportunity(c.detail, checkedAt);
@@ -354,5 +366,5 @@ Rules:
     if (n?.applicantEligibilityDesc) eligibilityChecks.push({ label: "Agency's own eligibility note", passed: false, detail: truncate(n.applicantEligibilityDesc.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(), 220) });
     matches.push({ opportunity, funder, fitScore: Math.max(0, Math.min(100, Math.round(s.fitScore))), reasons: reasons.slice(0, 3), cautions: (s.cautions ?? []).map((x) => x.trim()).filter(Boolean).slice(0, 3), eligibilityChecks, noticeText: c.text });
   }
-  return { matches, droppedIneligible, droppedUnsupported, usage: scored.usage, costUsd: scored.costUsd, model: scored.model };
+  return { matches, dropped, droppedIneligible, droppedUnsupported, usage: scored.usage, costUsd: scored.costUsd, model: scored.model };
 }

@@ -1,4 +1,4 @@
-import type { AgentRun, Application, Boilerplate, Budget, ComplianceCheck, Document, EmailDraft, Fact, FactCategory, FactStatus, Funder, Match, Member, MissingFact, Opportunity, OrgContact, Organization, Requirement, ReviewerCheck, Section, SectionVersion, SocialCampaign } from "@/lib/types";
+import type { InboxItem, AgentRun, Application, Boilerplate, Budget, ComplianceCheck, Document, EmailDraft, Fact, FactCategory, FactStatus, Funder, Match, Member, MissingFact, Opportunity, OrgContact, Organization, Requirement, ReviewerCheck, Section, SectionVersion, SocialCampaign } from "@/lib/types";
 
 /**
  * What the real loop needs from persistence, and nothing more. Two
@@ -56,6 +56,9 @@ export interface LoopStore {
   updateMissingFact(id: string, patch: Partial<Pick<MissingFact, "status" | "answer">>): Promise<void>;
   addMissingFacts(applicationId: string, items: (Omit<MissingFact, "applicationId"> & { id: string })[]): Promise<void>;
   replaceChecks(applicationId: string, checks: Omit<ComplianceCheck, "id" | "applicationId">[]): Promise<void>;
+
+  /** Put an agent's output in the Inbox for the director to approve. */
+  addInboxItem(item: Pick<InboxItem, "agent" | "type" | "title" | "summary" | "payload" | "priority" | "sourceCount" | "agentRunId">): Promise<InboxItem>;
 
   createRun(run: Omit<AgentRun, "id">): Promise<AgentRun>;
   updateRun(id: string, patch: Partial<AgentRun>): Promise<void>;

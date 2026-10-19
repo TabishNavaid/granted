@@ -12,7 +12,7 @@ export function watchJob(jobId: string, onUpdate: (job: JobView) => void, everyM
     try {
       const r = await fetch(`/api/progress/${jobId}`, { cache: "no-store" });
       const p = (await r.json()) as JobView | null;
-      if (alive && p) onUpdate({ status: p.status, steps: p.steps });
+      if (alive && p) onUpdate({ status: p.status, steps: p.steps, events: p.events });
     } catch {
       // keep the fallback view
     }
@@ -22,4 +22,16 @@ export function watchJob(jobId: string, onUpdate: (job: JobView) => void, everyM
   return () => {
     alive = false;
   };
+}
+
+/** One last read after the run returns, so the feed has every event, then marked done. */
+export async function finalJob(jobId: string, fallback: JobView): Promise<JobView> {
+  try {
+    const r = await fetch(`/api/progress/${jobId}`, { cache: "no-store" });
+    const p = (await r.json()) as JobView | null;
+    if (p) return { status: "done", steps: p.steps.map((s) => ({ ...s, state: "done" })), events: p.events };
+  } catch {
+    // fall through
+  }
+  return { ...fallback, status: "done", steps: fallback.steps.map((s) => ({ ...s, state: "done" })) };
 }

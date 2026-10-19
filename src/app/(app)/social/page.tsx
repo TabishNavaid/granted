@@ -5,6 +5,6 @@ import { SocialView } from "./social-view";
 export const metadata: Metadata = { title: "Social" };
 
 export default async function SocialPage() {
-  const [campaigns, runtime] = await Promise.all([services.social.listCampaigns(), services.loop.runtime()]);
-  return <SocialView campaigns={campaigns} demo={runtime.demo && !runtime.ai} />;
+  const [campaigns, runtime, applications] = await Promise.all([services.social.listCampaigns(), services.loop.runtime(), services.applications.list()]);
+  return <SocialView campaigns={campaigns} demo={runtime.demo && !runtime.ai} applications={applications} />;
 }

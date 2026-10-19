@@ -25,6 +25,8 @@ interface SectionEditorProps {
   onCitationClick: (factId: string) => void;
   onGapClick: (gapId: string) => void;
   onVersions?: () => void;
+  /** Board reviewers read and approve; they cannot change the text. */
+  readOnly?: boolean;
 }
 
 function ToolbarButton({ label, active, onClick, children, disabled }: { label: string; active?: boolean; onClick: () => void; children: React.ReactNode; disabled?: boolean }) {
@@ -51,7 +53,7 @@ function ToolbarButton({ label, active, onClick, children, disabled }: { label: 
   );
 }
 
-export function SectionEditor({ section, facts, onChange, onCitationClick, onGapClick, onVersions }: SectionEditorProps) {
+export function SectionEditor({ section, facts, onChange, onCitationClick, onGapClick, onVersions, readOnly = false }: SectionEditorProps) {
   const { toast } = useToast();
   const [busy, setBusy] = React.useState<string | null>(null);
   const [words, setWords] = React.useState(0);
@@ -62,6 +64,7 @@ export function SectionEditor({ section, facts, onChange, onCitationClick, onGap
 
   const editor = useEditor({
     immediatelyRender: false,
+    editable: !readOnly,
     // Toolbar pressed states follow the selection, so the editor must re-render on every transaction.
     shouldRerenderOnTransaction: true,
     extensions: [
@@ -108,6 +111,10 @@ export function SectionEditor({ section, facts, onChange, onCitationClick, onGap
     },
     onCreate: ({ editor }) => setWords(editor.storage.characterCount.words()),
   });
+
+  React.useEffect(() => {
+    if (editor && editor.isEditable === readOnly) editor.setEditable(!readOnly, false);
+  }, [editor, readOnly]);
 
   // Swap content when the active section changes.
   const lastSection = React.useRef(section.id);
@@ -160,6 +167,16 @@ export function SectionEditor({ section, facts, onChange, onCitationClick, onGap
 
   return (
     <div className="flex flex-1 flex-col">
+      {readOnly ? (
+        <div className="sticky top-0 z-10 flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-rule bg-paper px-5 py-2.5 sm:px-10">
+          <p className="text-sm text-ink-muted">You are reading as a board reviewer. You can approve sections; the owner or an editor makes changes.</p>
+          {onVersions ? (
+            <Button variant="ghost" size="sm" onClick={onVersions}>
+              Versions
+            </Button>
+          ) : null}
+        </div>
+      ) : (
       <div role="toolbar" aria-label="Formatting and revision" className="sticky top-0 z-10 flex flex-wrap items-center gap-1 border-b border-rule bg-paper px-3 py-2">
         <ToolbarButton label="Bold" active={editor?.isActive("bold")} onClick={() => editor?.chain().focus().toggleBold().run()}>
           <Bold />
@@ -241,6 +258,7 @@ export function SectionEditor({ section, facts, onChange, onCitationClick, onGap
           </DropdownMenu>
         </div>
       </div>
+      )}
 
       <div className="relative flex-1 px-5 py-6 sm:px-10 sm:py-8">
         {busy ? (

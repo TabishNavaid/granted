@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import { replayActive } from "@/lib/replay/active";
 
 /**
  * Reads an organization's public website: the homepage plus the most relevant
@@ -167,6 +168,7 @@ function scoreLink(link: { href: string; text: string }, home: URL): number {
 }
 
 export async function crawlSite(input: string, opts: { maxPages?: number; onPage?: (page: CrawledPage, index: number) => void } = {}): Promise<CrawlResult> {
+  if (replayActive()) return (await import("@/lib/replay")).replayCrawl(input, opts);
   const maxPages = opts.maxPages ?? 8;
   const homepage = normalizeUrl(input);
   const home = new URL(homepage);

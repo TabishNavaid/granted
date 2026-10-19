@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { EmailDraft, InboxItem, MonthlyPlan, PlanItem } from "@/lib/types";
 import { services } from "@/lib/services";
 import { useToast } from "@/components/ui/toast";
@@ -34,10 +36,13 @@ interface Props {
   firstName: string;
 }
 
-export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, firstName }: Props) {
+export function InboxView({ items: initial, plan: initialPlan, planItemId: initialPlanItemId, ctx, firstName }: Props) {
   const { toast } = useToast();
+  const router = useRouter();
   const [items, setItems] = React.useState(initial);
   const [plan, setPlan] = React.useState(initialPlan);
+  const [planItemId, setPlanItemId] = React.useState(initialPlanItemId);
+  const [planning, setPlanning] = React.useState(false);
   const [leaving, setLeaving] = React.useState<Record<string, Leaving>>({});
   const [filter, setFilter] = React.useState<Filter>("all");
   const [showResolved, setShowResolved] = React.useState(false);
@@ -105,8 +110,34 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
     if (!plan) return;
     setPlan(await services.inbox.setPlanDecision(plan.id, opportunityId, decision));
   };
+  const planNextMonth = async () => {
+    setPlanning(true);
+    try {
+      const next = await services.inbox.planNextMonth();
+      const list = await services.inbox.list();
+      const item = list.find((i) => i.payload.type === "monthly_plan" && i.payload.planId === next.id) ?? null;
+      setItems((current) => {
+        const known = new Set(current.map((i) => i.id));
+        return [...list.filter((i) => !known.has(i.id) && i.type !== "email_draft"), ...current];
+      });
+      setPlan(next);
+      setPlanItemId(item?.id ?? null);
+      router.refresh();
+      toast({
+        title: "Plan ready in your Inbox",
+        description: next.items.length ? `${next.items.length} application${next.items.length === 1 ? "" : "s"} proposed. Keep, skip, or swap each one.` : "There are no matches to plan from yet. Run setup to find funders first.",
+        tone: next.items.length ? "success" : "info",
+      });
+    } catch (err) {
+      toast({ title: "Could not plan the month", description: err instanceof Error ? err.message : "Try again in a moment.", tone: "warning" });
+    } finally {
+      setPlanning(false);
+    }
+  };
+
   const approvePlan = async () => {
     if (!planItemId) return;
+    const before = plan;
     const next = await services.inbox.approve(planItemId);
     withLeave(planItemId, "seal", () => {
       update(next);
@@ -121,13 +152,14 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
         label: "Undo",
         onClick: async () => {
           await undo(planItemId);
-          setPlan(initialPlan);
+          setPlan(before);
         },
       },
     });
   };
   const skipPlan = async () => {
     if (!planItemId) return;
+    const before = plan;
     const next = await services.inbox.reject(planItemId, "Skipped this month");
     withLeave(planItemId, "dismiss", () => {
       update(next);
@@ -141,13 +173,14 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
         label: "Undo",
         onClick: async () => {
           await undo(planItemId);
-          setPlan(initialPlan);
+          setPlan(before);
         },
       },
     });
   };
 
   const totalPending = pending.length + (plan ? 1 : 0);
+  const brandNew = items.length === 0 && !plan;
   const summary =
     totalPending === 0
       ? "Nothing is waiting on you."
@@ -164,13 +197,38 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
       <div ref={liveRef} aria-live="polite" className="sr-only" />
       <header className="border-b border-rule pb-7">
         <p className="text-base text-ink-muted">{new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</p>
-        <h1 className="mt-1 font-display text-h1 text-ink">{totalPending === 0 ? `Nothing waiting on you, ${firstName}.` : "Waiting on you"}</h1>
+        <div className="mt-1 flex flex-wrap items-end justify-between gap-4">
+          <h1 className="font-display text-h1 text-ink">{totalPending === 0 ? (firstName ? `Nothing waiting on you, ${firstName}.` : "Nothing waiting on you.") : "Waiting on you"}</h1>
+          {!brandNew ? (
+            <Button variant="secondary" onClick={planNextMonth} loading={planning}>
+              {plan && plan.month === nextMonthKey() ? "Plan next month again" : "Plan next month"}
+            </Button>
+          ) : null}
+        </div>
         {totalPending > 0 ? (
           <p className="mt-3 max-w-[60ch] text-lg text-ink-muted">
-            {firstName}, here is {summary}
+            {firstName ? `${firstName}, here is ${summary}` : `Here is ${summary}`}
           </p>
         ) : null}
       </header>
+
+      {brandNew ? (
+        <EmptyState
+          className="mt-8"
+          title="Your Inbox is empty for now"
+          description="Drafts, new funders, and monthly plans land here once setup has read your website and found matches. You can also ask the planner for next month now. Nothing is sent or submitted without you."
+          action={
+            <div className="flex flex-wrap gap-3">
+              <Button asChild>
+                <Link href="/onboarding">Run setup</Link>
+              </Button>
+              <Button variant="secondary" onClick={planNextMonth} loading={planning}>
+                Plan next month
+              </Button>
+            </div>
+          }
+        />
+      ) : null}
 
       {plan && planItemId ? (
         <div className="mt-8">
@@ -178,98 +236,107 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId, ctx, 
         </div>
       ) : null}
 
-      <div className="mt-10 flex flex-wrap items-end justify-between gap-4">
-        <h2 className="font-display text-3xl text-ink">Read and decide</h2>
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
-          <TabsList variant="pill" aria-label="Filter inbox" className="-mx-4 px-4 sm:mx-0 sm:px-0">
-            {filters.map((f) => (
-              <TabsTrigger key={f.value} value={f.value}>
-                {f.label}
-                {counts[f.value] > 0 ? <span className="text-sm font-normal text-ink-muted tnum">{counts[f.value]}</span> : null}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-      </div>
+      {brandNew ? null : (
+        <>
+          <div className="mt-10 flex flex-wrap items-end justify-between gap-4">
+            <h2 className="font-display text-3xl text-ink">Read and decide</h2>
+            <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
+              <TabsList variant="pill" aria-label="Filter inbox" className="-mx-4 px-4 sm:mx-0 sm:px-0">
+                {filters.map((f) => (
+                  <TabsTrigger key={f.value} value={f.value}>
+                    {f.label}
+                    {counts[f.value] > 0 ? <span className="text-sm font-normal text-ink-muted tnum">{counts[f.value]}</span> : null}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          </div>
 
-      {visible.length === 0 ? (
-        <EmptyState
-          className="mt-6"
-            title={filter === "all" ? "You are caught up" : `No ${active.label.toLowerCase()} waiting`}
-          description={filter === "all" ? "New drafts, funders, and schedules land here as they are ready. Nothing is sent or submitted without you." : "Try another filter."}
-          action={
-            filter !== "all" ? (
-              <Button variant="secondary" onClick={() => setFilter("all")}>
-                Show everything
-              </Button>
-            ) : undefined
-          }
-        />
-      ) : filter !== "all" ? (
-        <ul className="mt-4 border-t border-rule">
-          {visible.map((item) => (
-            <li key={item.id}>
-              <InboxItemCard item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <div className="mt-4 flex flex-col gap-12">
-          {decide.length ? (
-            <Group title="Read and approve" hint="Written for you. Take a few minutes with each one.">
-              {decide.map((item) => (
-                <li key={item.id}>
-                  <InboxItemCard item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
-                </li>
-              ))}
-            </Group>
-          ) : null}
-          {answer.length ? (
-            <Group title="Quick answers" hint="Facts that are not in your documents. About a minute each.">
-              {answer.map((item) => (
-                <li key={item.id}>
-                  <InboxItemCard item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
-                </li>
-              ))}
-            </Group>
-          ) : null}
-          {glance.length ? (
-            <Group title="At a glance" hint="Say yes from the row, or open one for the details.">
-              {glance.map((item) => (
-                <li key={item.id}>
-                  <CompactInboxRow item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
-                </li>
-              ))}
-            </Group>
-          ) : null}
-        </div>
-      )}
-
-      <section aria-labelledby="resolved-title" className="mt-16 border-t border-rule pt-6">
-        <div className="flex items-baseline justify-between gap-3">
-          <h2 id="resolved-title" className="font-display text-2xl text-ink">
-            Done <span className="ml-1 font-body text-base font-normal text-ink-muted tnum">{resolved.length}</span>
-          </h2>
-          <Button variant="ghost" size="sm" onClick={() => setShowResolved((s) => !s)} aria-expanded={showResolved}>
-            {showResolved ? "Hide" : "Show"}
-          </Button>
-        </div>
-        {showResolved ? (
-          resolved.length === 0 ? (
-            <p className="mt-4 text-base text-ink-muted">Nothing done yet. Your first approval goes here.</p>
-          ) : (
+          {visible.length === 0 ? (
+            <EmptyState
+              className="mt-6"
+                title={filter === "all" ? "You are caught up" : `No ${active.label.toLowerCase()} waiting`}
+              description={filter === "all" ? "New drafts, funders, and schedules land here as they are ready. Nothing is sent or submitted without you." : "Try another filter."}
+              action={
+                filter !== "all" ? (
+                  <Button variant="secondary" onClick={() => setFilter("all")}>
+                    Show everything
+                  </Button>
+                ) : undefined
+              }
+            />
+          ) : filter !== "all" ? (
             <ul className="mt-4 border-t border-rule">
-              {resolved.map((item) => (
+              {visible.map((item) => (
                 <li key={item.id}>
-                  <CompactInboxRow item={item} ctx={ctx} onApprove={approve} onReject={reject} />
+                  <InboxItemCard item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
                 </li>
               ))}
             </ul>
-          )
-        ) : null}
-      </section>
+          ) : (
+            <div className="mt-4 flex flex-col gap-12">
+              {decide.length ? (
+                <Group title="Read and approve" hint="Written for you. Take a few minutes with each one.">
+                  {decide.map((item) => (
+                    <li key={item.id}>
+                      <InboxItemCard item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
+                    </li>
+                  ))}
+                </Group>
+              ) : null}
+              {answer.length ? (
+                <Group title="Quick answers" hint="Facts that are not in your documents. About a minute each.">
+                  {answer.map((item) => (
+                    <li key={item.id}>
+                      <InboxItemCard item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
+                    </li>
+                  ))}
+                </Group>
+              ) : null}
+              {glance.length ? (
+                <Group title="At a glance" hint="Say yes from the row, or open one for the details.">
+                  {glance.map((item) => (
+                    <li key={item.id}>
+                      <CompactInboxRow item={item} ctx={ctx} leaving={leaving[item.id]} onApprove={approve} onReject={reject} />
+                    </li>
+                  ))}
+                </Group>
+              ) : null}
+            </div>
+          )}
+
+          <section aria-labelledby="resolved-title" className="mt-16 border-t border-rule pt-6">
+            <div className="flex items-baseline justify-between gap-3">
+              <h2 id="resolved-title" className="font-display text-2xl text-ink">
+                Done <span className="ml-1 font-body text-base font-normal text-ink-muted tnum">{resolved.length}</span>
+              </h2>
+              <Button variant="ghost" size="sm" onClick={() => setShowResolved((s) => !s)} aria-expanded={showResolved}>
+                {showResolved ? "Hide" : "Show"}
+              </Button>
+            </div>
+            {showResolved ? (
+              resolved.length === 0 ? (
+                <p className="mt-4 text-base text-ink-muted">Nothing done yet. Your first approval goes here.</p>
+              ) : (
+                <ul className="mt-4 border-t border-rule">
+                  {resolved.map((item) => (
+                    <li key={item.id}>
+                      <CompactInboxRow item={item} ctx={ctx} onApprove={approve} onReject={reject} />
+                    </li>
+                  ))}
+                </ul>
+              )
+            ) : null}
+          </section>
+        </>
+      )}
     </PageContainer>
   );
+}
+
+function nextMonthKey() {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString().slice(0, 7);
 }
 
 function Group({ title, hint, children }: { title: string; hint: string; children: React.ReactNode }) {

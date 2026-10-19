@@ -17,5 +17,7 @@ export default defineConfig({
         url: `http://localhost:${port}`,
         reuseExistingServer: true,
         timeout: 120_000,
+        // Recorded runs replay ten times faster under test.
+        env: { REPLAY_SPEED: process.env.REPLAY_SPEED ?? "10" },
       },
 });

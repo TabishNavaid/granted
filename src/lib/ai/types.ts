@@ -57,7 +57,7 @@ export interface AiProvider {
 export class AiError extends Error {
   constructor(
     message: string,
-    public readonly code: "rate_limited" | "no_key" | "bad_response" | "failed",
+    public readonly code: "rate_limited" | "no_key" | "bad_response" | "failed" | "not_recorded",
     public readonly retryAfterMs?: number,
   ) {
     super(message);

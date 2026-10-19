@@ -5,6 +5,6 @@ import { ConnectionsView } from "./connections-view";
 export const metadata: Metadata = { title: "Connections" };
 
 export default async function ConnectionsPage() {
-  const [contacts, applications, runtime] = await Promise.all([services.contacts.list(), services.applications.list(), services.loop.runtime()]);
-  return <ConnectionsView contacts={contacts} applications={applications} demo={runtime.demo && !runtime.ai} />;
+  const [contacts, applications, runtime, overlaps, peers] = await Promise.all([services.contacts.list(), services.applications.list(), services.loop.runtime(), services.contacts.overlaps(), services.funders.peers()]);
+  return <ConnectionsView contacts={contacts} applications={applications} demo={runtime.demo && !runtime.ai} overlaps={overlaps} peers={peers} />;
 }

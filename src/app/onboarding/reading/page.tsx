@@ -6,7 +6,7 @@ import { ReadingStep } from "./reading-step";
 export const metadata: Metadata = { title: "Reading your website" };
 
 export default async function ReadingPage() {
-  const org = await services.org.get();
+  const [org, demo] = await Promise.all([services.org.get(), services.demo.status()]);
   if (!org.websiteUrl) redirect("/onboarding");
-  return <ReadingStep websiteUrl={org.websiteUrl} ein={org.ein || null} />;
+  return <ReadingStep websiteUrl={org.websiteUrl} ein={org.ein || null} recordedOn={demo.replay ? demo.recordedOn : null} />;
 }

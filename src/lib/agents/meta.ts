@@ -54,4 +54,5 @@ export const milestoneMeta: Record<MilestoneKind, { label: string; tone: "neutra
   budget_signoff: { label: "Budget sign-off", tone: "neutral" },
   submit: { label: "Submit", tone: "accent" },
   follow_up: { label: "Follow up", tone: "neutral" },
+  report_due: { label: "Report due", tone: "warning" },
 };

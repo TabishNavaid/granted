@@ -15,11 +15,24 @@ const funderTypeLabel = {
   family_fund: "Family fund",
 };
 
+/**
+ * Checks that are notes rather than verdicts: the agency's own eligibility text to read, a notice that is not open
+ * yet, or a filing that does not say whether the foundation takes applications. Failing one does not rule you out.
+ */
+const INFORMATIONAL_CHECK = /^(Agency's own eligibility note|Not open yet|Applications not ruled out)/;
+
+/** Eligibility checks that failed and would rule the organization out, as opposed to notes to read. */
+export function hardEligibilityFails(match: Pick<MatchView, "eligibilityChecks">) {
+  return match.eligibilityChecks.filter((c) => !c.passed && !INFORMATIONAL_CHECK.test(c.label));
+}
+
 /** One funder, as a row on a list. Hairlines between rows, no card. */
 export function OpportunityCard({ match, className }: { match: MatchView; className?: string }) {
   const { opportunity, funder } = match;
   const dl = deadlineLabel(opportunity.deadline);
-  const failed = match.eligibilityChecks.filter((c) => !c.passed);
+  const failed = hardEligibilityFails(match);
+  const toRead = match.eligibilityChecks.filter((c) => !c.passed && INFORMATIONAL_CHECK.test(c.label));
+  const privateFoundation = funder.type === "private_foundation" || opportunity.id.startsWith("pf_");
   return (
     <article aria-labelledby={`opp-${match.id}`} className={cn("grid gap-5 border-t border-rule py-6 sm:grid-cols-[6.5rem_1fr] sm:gap-8", className)}>
       <div className="flex items-start gap-4 sm:block">
@@ -31,7 +44,7 @@ export function OpportunityCard({ match, className }: { match: MatchView; classN
           {match.isNew ? <span className="font-semibold text-ink">New this week</span> : null}
           {match.status === "applying" ? <span className="font-semibold text-ink">In your pipeline</span> : null}
           {match.status === "saved" ? <span className="font-semibold text-ink">Saved</span> : null}
-          <span>{funderTypeLabel[funder.type]}</span>
+          <span>{privateFoundation ? "Private foundation" : funderTypeLabel[funder.type]}</span>
           {opportunity.forecasted ? <span>Forecasted, not open yet</span> : null}
         </p>
         <h3 id={`opp-${match.id}`} className="mt-1.5 font-display text-2xl leading-tight text-ink">
@@ -55,7 +68,7 @@ export function OpportunityCard({ match, className }: { match: MatchView; classN
           </div>
           <div className="col-span-2 sm:col-span-1">
             <dt className="text-xs text-ink-muted">Eligibility</dt>
-            <dd className={cn("font-semibold", failed.length ? "text-alert" : "text-ink")}>{failed.length ? `${failed.length} check${failed.length === 1 ? "" : "s"} to confirm` : "Looks eligible"}</dd>
+            <dd className={cn("font-semibold", failed.length ? "text-alert" : "text-ink")}>{failed.length ? `${failed.length} check${failed.length === 1 ? "" : "s"} to confirm` : toRead.length ? `${toRead.length} note${toRead.length === 1 ? "" : "s"} to read` : "Looks eligible"}</dd>
           </div>
         </dl>
 
@@ -69,7 +82,7 @@ export function OpportunityCard({ match, className }: { match: MatchView; classN
         </ul>
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-          <VerifiedSource url={opportunity.sourceUrl} verifiedAt={opportunity.lastVerifiedAt} />
+          <VerifiedSource url={opportunity.sourceUrl} verifiedAt={opportunity.lastVerifiedAt} note={opportunity.sourceNote} label={opportunity.sourceNote ? "IRS filing" : undefined} />
           <Button asChild variant="secondary" size="sm">
             <Link href={`/opportunities/${opportunity.id}`}>Read the details</Link>
           </Button>

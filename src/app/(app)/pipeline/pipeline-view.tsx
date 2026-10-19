@@ -3,7 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { GripVertical, MoreHorizontal } from "lucide-react";
-import type { ApplicationStage, ApplicationView, Member, OutcomeResult } from "@/lib/types";
+import type { ApplicationStage, ApplicationView, LossReason, Member, OutcomeResult } from "@/lib/types";
+import { LOSS_REASON_LABEL } from "@/lib/features/analytics";
 import { services } from "@/lib/services";
 import { stageMeta, stageOrder } from "@/lib/agents/meta";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Field } from "@/components/ui/label";
 import { Input, Textarea } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { WonMeadow } from "@/components/drawings/won-meadow";
 
 export function PipelineView({ initial, members, orgName }: { initial: ApplicationView[]; members: Member[]; orgName: string }) {
@@ -36,10 +39,19 @@ export function PipelineView({ initial, members, orgName }: { initial: Applicati
       return;
     }
     setApps((list) => list.map((a) => (a.id === app.id ? { ...a, stage } : a)));
-    const next = await services.applications.moveStage(app.id, stage);
+    let next: ApplicationView;
+    try {
+      next = await services.applications.moveStage(app.id, stage);
+    } catch (err) {
+      setApps((list) => list.map((a) => (a.id === app.id ? app : a)));
+      toast({ title: "We could not move it", description: err instanceof Error ? err.message : "Try again in a moment.", tone: "warning" });
+      return;
+    }
     setApps((list) => list.map((a) => (a.id === app.id ? next : a)));
     if (liveRef.current) liveRef.current.textContent = `${app.opportunity.title} moved to ${stageMeta[stage].label}.`;
-    toast({ title: `Moved to ${stageMeta[stage].label}`, description: app.opportunity.title });
+    // Only the first move to Submitted sets the reminder and drafts the email.
+    const firstSubmit = stage === "submitted" && !app.submittedAt;
+    toast({ title: `Moved to ${stageMeta[stage].label}`, description: firstSubmit ? `${app.opportunity.title}. A follow-up reminder is on the calendar for 30 days out, and a follow-up email is drafted in Outreach.` : app.opportunity.title });
   };
 
   const totals = {
@@ -100,18 +112,30 @@ export function PipelineView({ initial, members, orgName }: { initial: Applicati
           })}
         </ol>
       </div>
-      <p className="max-w-[65ch] text-sm text-ink-muted">Drag an application, or use its menu. When you mark one Submitted, we'll set a follow-up reminder so it doesn't drift.</p>
+      <p className="max-w-[65ch] text-sm text-ink-muted">Drag an application, or use its menu. When you mark one Submitted, we put a follow-up reminder on the calendar 30 days out and draft a follow-up email for you to send yourself, so it does not drift.</p>
 
       {outcomeFor ? (
         <OutcomeDialog
           app={outcomeFor}
           onClose={() => setOutcomeFor(null)}
-          onSave={async (result, amount, feedback) => {
-            const next = await services.applications.logOutcome(outcomeFor.id, result, amount, feedback);
+          onSave={async (result, amount, feedback, details) => {
+            let next: ApplicationView;
+            try {
+              next = await services.applications.logOutcome(outcomeFor.id, result, amount, feedback, details);
+            } catch (err) {
+              toast({ title: "We could not save the outcome", description: err instanceof Error ? err.message : "Try again in a moment.", tone: "warning" });
+              return;
+            }
             setApps((list) => list.map((a) => (a.id === next.id ? next : a)));
             setOutcomeFor(null);
-            if (result === "won") setWon(next);
-            else toast({ title: "Outcome saved", description: "It stays with the application, along with what the funder said." });
+            if (result === "won") {
+              setWon(next);
+              toast({ title: "Win logged", description: "A thank-you email is drafted in Outreach and the Inbox, the grant-win kit is ready on the draft's page, and a report reminder about a year out is on the calendar." });
+            } else if (result === "lost") {
+              toast({ title: "Outcome saved", description: "A short email asking the funder for feedback is drafted in Outreach and the Inbox, for you to send yourself." });
+            } else {
+              toast({ title: "Outcome saved", description: "It stays with the application, along with what the funder said." });
+            }
           }}
         />
       ) : null}
@@ -186,6 +210,12 @@ function PipelineCard({ app, members, dragging, onDragStart, onDragEnd, onMove }
       ) : null}
       {!done && app.nextMilestone ? <p className="mt-2 truncate text-sm text-ink-muted">Next: {app.nextMilestone.title}</p> : null}
       {app.stage === "lost" && app.outcome?.feedback ? <p className="mt-2 line-clamp-2 text-sm text-ink-muted">{app.outcome.feedback}</p> : null}
+      {app.stage === "lost" && app.outcome?.lessons ? (
+        <p className="mt-2 line-clamp-3 text-sm text-ink">
+          <span className="font-semibold">Next time: </span>
+          {app.outcome.lessons}
+        </p>
+      ) : null}
       {owner ? (
         <div className="mt-3 flex items-center gap-2 text-sm text-ink-muted">
           <Avatar name={owner.fullName} size="sm" />
@@ -196,14 +226,20 @@ function PipelineCard({ app, members, dragging, onDragStart, onDragEnd, onMove }
   );
 }
 
-function OutcomeDialog({ app, onClose, onSave }: { app: ApplicationView; onClose: () => void; onSave: (r: OutcomeResult, amount: number | null, feedback: string | null) => Promise<void> }) {
+const LOSS_REASONS = Object.keys(LOSS_REASON_LABEL) as LossReason[];
+
+function OutcomeDialog({ app, onClose, onSave }: { app: ApplicationView; onClose: () => void; onSave: (r: OutcomeResult, amount: number | null, feedback: string | null, details: { lossReasons: LossReason[]; lessons: string | null }) => Promise<void> }) {
   const [result, setResult] = React.useState<OutcomeResult>(app.stage === "won" ? "won" : "lost");
   const [amount, setAmount] = React.useState(app.askAmount ? String(app.askAmount) : "");
   const [feedback, setFeedback] = React.useState("");
+  const [reasons, setReasons] = React.useState<LossReason[]>([]);
+  const [lessons, setLessons] = React.useState("");
   const [saving, setSaving] = React.useState(false);
+  const declined = result === "lost" || result === "no_response";
+  const toggle = (r: LossReason, on: boolean) => setReasons((list) => (on ? [...list.filter((x) => x !== r), r] : list.filter((x) => x !== r)));
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent size="sm">
+      <DialogContent size="md">
         <DialogHeader>
           <DialogTitle>Log the outcome</DialogTitle>
           <DialogDescription>
@@ -231,6 +267,27 @@ function OutcomeDialog({ app, onClose, onSave }: { app: ApplicationView; onClose
         <Field id="outcome-feedback" label="What the funder said" optional>
           <Textarea value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Anything they said, even one sentence." className="min-h-20" />
         </Field>
+        {declined ? (
+          <>
+            <fieldset className="flex flex-col gap-2">
+              <legend className="text-base font-semibold text-ink">Why it was declined</legend>
+              <p className="text-sm text-ink-muted">Pick any that apply, from what they said or your own judgment. These feed the win analytics.</p>
+              <ul className="mt-1 flex flex-col gap-2">
+                {LOSS_REASONS.map((r) => (
+                  <li key={r} className="flex items-start gap-3">
+                    <Checkbox id={`loss-${r}`} checked={reasons.includes(r)} onCheckedChange={(v) => toggle(r, v === true)} />
+                    <Label htmlFor={`loss-${r}`} className="pt-0.5 text-sm font-normal">
+                      {LOSS_REASON_LABEL[r]}
+                    </Label>
+                  </li>
+                ))}
+              </ul>
+            </fieldset>
+            <Field id="outcome-lessons" label="What would you do differently next time?" optional>
+              <Textarea value={lessons} onChange={(e) => setLessons(e.target.value)} placeholder="One or two sentences for whoever writes the next one." className="min-h-20" />
+            </Field>
+          </>
+        ) : null}
         <DialogFooter>
           <Button variant="ghost" onClick={onClose}>
             Cancel
@@ -239,7 +296,7 @@ function OutcomeDialog({ app, onClose, onSave }: { app: ApplicationView; onClose
             loading={saving}
             onClick={async () => {
               setSaving(true);
-              await onSave(result, result === "won" && amount ? Number(amount) : null, feedback.trim() || null);
+              await onSave(result, result === "won" && amount ? Number(amount) : null, feedback.trim() || null, declined ? { lossReasons: reasons, lessons: lessons.trim() || null } : { lossReasons: [], lessons: null });
               setSaving(false);
             }}
           >

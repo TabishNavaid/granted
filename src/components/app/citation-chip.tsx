@@ -28,7 +28,7 @@ export function CitationChip({ label, excerpt, sourceTitle, url, page, verifiedA
     <PopoverPrimitive.Root>
       <PopoverPrimitive.Trigger asChild>
         <button type="button" className={cn("cite-chip max-w-full hover:border-ink", size === "md" && "text-[0.85em]", className)}>
-          <span className="truncate">{label}</span>
+          <span className="min-w-0 truncate">{label}</span>
         </button>
       </PopoverPrimitive.Trigger>
       <PopoverPrimitive.Portal>
@@ -53,7 +53,7 @@ export function CitationChip({ label, excerpt, sourceTitle, url, page, verifiedA
 }
 
 /** "meridianfamilyfdn.org, checked 3 days ago" as two plain pieces of information. */
-export function VerifiedSource({ url, verifiedAt, className, label }: { url: string; verifiedAt: string; className?: string; label?: string }) {
+export function VerifiedSource({ url, verifiedAt, className, label, note }: { url: string; verifiedAt: string; className?: string; label?: string; note?: string }) {
   let host = url;
   try {
     host = new URL(url).hostname.replace(/^www\./, "");
@@ -65,7 +65,13 @@ export function VerifiedSource({ url, verifiedAt, className, label }: { url: str
       <a href={url} target="_blank" rel="noreferrer" className="text-ink underline decoration-[1px] underline-offset-2 hover:decoration-ink">
         {label ?? host}
       </a>
-      , checked <time dateTime={verifiedAt}>{relativeTime(verifiedAt)}</time>
+      {note ? (
+        <>, {note}</>
+      ) : (
+        <>
+          , checked <time dateTime={verifiedAt}>{relativeTime(verifiedAt)}</time>
+        </>
+      )}
     </p>
   );
 }

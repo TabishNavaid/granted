@@ -2,9 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, isSameDay, isSameMonth, isToday, parseISO, startOfMonth, startOfWeek, subMonths } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { ApplicationView, CalendarEvent, Member, MilestoneKind } from "@/lib/types";
+import type { ApplicationView, CalendarEvent, Member, MilestoneKind, ReminderPreview } from "@/lib/types";
 import { services } from "@/lib/services";
 import { milestoneMeta } from "@/lib/agents/meta";
 import { cn } from "@/lib/utils";
@@ -15,15 +16,38 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { MilestoneBadge } from "@/components/app/badges";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ReminderOutbox } from "../settings/reminder-outbox";
+import { YearView, type OpenDeadline } from "./year-view";
 
-export function CalendarView({ initial, applications, reminderDays, members, icsUrl }: { initial: CalendarEvent[]; applications: ApplicationView[]; reminderDays: number; members: Member[]; icsUrl: string }) {
+type Mode = "month" | "year" | "list";
+
+interface CalendarViewProps {
+  initial: CalendarEvent[];
+  applications: ApplicationView[];
+  reminderDays: number;
+  remindersOn: boolean;
+  members: Member[];
+  icsUrl: string;
+  openDeadlines: OpenDeadline[];
+  outbox: { reminders: ReminderPreview[]; canSend: boolean };
+  initialView: Mode;
+}
+
+export function CalendarView({ initial, applications, reminderDays, remindersOn, members, icsUrl, openDeadlines, outbox, initialView }: CalendarViewProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const assign = async (e: CalendarEvent, assigneeId: string | null) => {
     setEvents((list) => list.map((x) => (x.id === e.id ? { ...x, assigneeId } : x)));
     await services.calendar.assignMilestone(e.id, assigneeId);
   };
   const [events, setEvents] = React.useState(initial);
   const [month, setMonth] = React.useState(() => startOfMonth(new Date()));
-  const [mode, setMode] = React.useState<"month" | "list">("month");
+  const [mode, setModeState] = React.useState<Mode>(initialView);
+  const setMode = (next: Mode) => {
+    setModeState(next);
+    router.replace(next === "month" ? pathname : `${pathname}?view=${next}`, { scroll: false });
+  };
+  const [showReminders, setShowReminders] = React.useState(false);
   const [selected, setSelected] = React.useState<Date | null>(null);
   const [copied, setCopied] = React.useState(false);
 
@@ -47,11 +71,12 @@ export function CalendarView({ initial, applications, reminderDays, members, ics
     <PageContainer width="wide">
       <PageHeader
         title="Calendar"
-        description={`Every deadline, with the milestones we planned backward from it. The weekly digest lists the next two weeks. Reminder emails ${reminderDays} days ahead are not sending yet.`}
+        description={`Every deadline, with the milestones we planned backward from it. The weekly digest lists the next two weeks. ${!remindersOn ? "Reminder emails are turned off." : outbox.canSend ? `Reminder emails go out ${reminderDays} days ahead.` : `Reminder emails ${reminderDays} days ahead are scheduled and send once email is set up.`}`}
         actions={
-          <Tabs value={mode} onValueChange={(v) => setMode(v as typeof mode)}>
+          <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
             <TabsList variant="pill" aria-label="Calendar view">
               <TabsTrigger value="month">Month</TabsTrigger>
+              <TabsTrigger value="year">Year</TabsTrigger>
               <TabsTrigger value="list">List</TabsTrigger>
             </TabsList>
           </Tabs>
@@ -139,6 +164,8 @@ export function CalendarView({ initial, applications, reminderDays, members, ics
             ) : null}
           </aside>
         </div>
+      ) : mode === "year" ? (
+        <YearView events={events} applications={applications} openDeadlines={openDeadlines} appTitle={appTitle} />
       ) : (
         <div className="mt-8 flex flex-col gap-10">
           {Object.keys(grouped).length === 0 ? (
@@ -155,6 +182,19 @@ export function CalendarView({ initial, applications, reminderDays, members, ics
           )}
         </div>
       )}
+      <section aria-labelledby="cal-reminders-title" className="mt-12 max-w-2xl border-t border-rule pt-6">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <h2 id="cal-reminders-title" className="font-display text-2xl text-ink">
+            Reminders <span className="ml-1 font-body text-base font-normal text-ink-muted tnum">{outbox.reminders.length}</span>
+          </h2>
+          <Button variant="ghost" size="sm" onClick={() => setShowReminders((s) => !s)} aria-expanded={showReminders} aria-controls="cal-reminders">
+            {showReminders ? "Hide" : "Show what goes out"}
+          </Button>
+        </div>
+        <div id="cal-reminders" hidden={!showReminders}>
+          <ReminderOutbox reminders={outbox.reminders} canSend={outbox.canSend} enabled={remindersOn} className="mt-2" />
+        </div>
+      </section>
       <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ink-muted">
         <p>
           Change reminder timing in{" "}

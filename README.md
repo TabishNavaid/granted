@@ -8,12 +8,15 @@ Next.js (App Router) · TypeScript · Tailwind CSS v4 · Supabase · Gemini · P
 
 - **Onboarding from a website.** Crawls up to eight pages (PDFs included), extracts a profile and facts, and keeps only facts whose quoted excerpt is actually on the page and whose numbers appear in that excerpt.
 - **Discovery on Grants.gov.** Keyword planning, hard eligibility filters, and fit scores whose reasons point to a fact and a quoted line of the notice. Requests are throttled to one per second and cached for six hours.
+- **Private foundations from IRS 990-PF filings.** 390 foundations in Ohio, Kentucky, and North Carolina (public domain IRS data; see [docs/foundations-data.md](docs/foundations-data.md)), matched in plain code beside Grants.gov, with funder pages, trustees, peer organizations, "funders like you", suggested asks, and scholarship matching.
 - **Grounded drafting.** Letters and proposal sections cite confirmed facts only. Unknown citations and unsourced numbers become highlighted gaps with a question attached; answering one saves the fact and redrafts the paragraph.
 - **Proposal workspace.** TipTap editor with citation and gap nodes, reviewer check, budget, versions, milestones, and DOCX export.
 - **Integrations.** Gmail and Outlook sending, Google Calendar push and an ICS feed, Stripe Checkout and portal, and a weekly digest through Resend.
 - **Cost tracking.** Every model call is logged with token counts and cost on the Activity screen.
 
-With no keys set, every screen runs on in-memory sample data (demo mode).
+- **Learning and planning.** Win analytics from logged outcomes, decline reasons and lessons, a monthly planner that learns from them, an annual plan, impact metrics, a voice profile, and an Ask screen that answers from the workspace.
+
+With no keys set, the app runs as a public demo: three fictional sample organizations, each visitor in their own session, and the agents replaying recorded runs through the live code (`src/lib/replay`). Grants.gov notices and foundation filings in the demo are real. To host it for free, see [docs/deploy-demo.md](docs/deploy-demo.md).
 
 ## Getting started
 
@@ -38,7 +41,10 @@ npm run loop -- riverbendyouth.org   # run onboarding, discovery, and the letter
 | `npm run build` / `npm start` | Production build and server. |
 | `npm run lint` | ESLint. |
 | `npx tsc --noEmit` | Type check. |
-| `npm test` | Playwright: smoke, route crawl, axe accessibility, and responsive suites. Starts a dev server on 3100 unless `BASE_URL` is set. |
+| `npm test` | Playwright: smoke, route crawl, axe accessibility, responsive, demo flow, and plain-code logic suites. Starts a dev server on 3100 (recorded runs at ten times speed) unless `BASE_URL` is set. |
+| `npx tsx --tsconfig tsconfig.json scripts/replay/check-letters.ts` | Runs every sample's recorded setup and letters through the live validators (set `REPLAY_SPEED=500`). |
+| `npx tsx --tsconfig tsconfig.json scripts/replay/probe-foundations.ts` | Prints each sample's foundation matches with the grant behind each score, and the top three new matches, which need recorded letters (set `REPLAY_SPEED=500`). |
+| `python3 -I scripts/foundations/build_foundations.py ...` | Rebuilds the foundation dataset from IRS files; see docs/foundations-data.md. |
 | `npm run loop -- <domain>` | The real loop end to end, printed as a report. |
 | `npm run drawings` | Rebuilds `public/drawings` from `scripts/drawings.json`. |
 

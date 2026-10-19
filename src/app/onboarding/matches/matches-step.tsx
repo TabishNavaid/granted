@@ -7,16 +7,15 @@ import type { MatchView } from "@/lib/types";
 import { services } from "@/lib/services";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
-import { useToast } from "@/components/ui/toast";
 import { OpportunityCard } from "@/components/app/opportunity-card";
+import { newestFirst } from "@/lib/matches";
 import { ProgressSteps, type JobView } from "@/components/app/progress-steps";
-import { newJobId, watchJob } from "@/lib/progress-client";
+import { finalJob, newJobId, watchJob } from "@/lib/progress-client";
 
-const FALLBACK: JobView = { status: "running", steps: [{ label: "Planning the searches", state: "active" }, { label: "Searching Grants.gov", state: "pending" }, { label: "Reading the strongest notices in full", state: "pending" }, { label: "Scoring each one against your facts", state: "pending" }] };
+const FALLBACK: JobView = { status: "running", steps: [{ label: "Planning the searches", state: "active" }, { label: "Searching Grants.gov", state: "pending" }, { label: "Reading the strongest notices in full", state: "pending" }, { label: "Scoring each one against your facts", state: "pending" }, { label: "Checking private foundations' IRS filings", state: "pending" }] };
 
 export function MatchesStep({ initial, total, demo }: { initial: MatchView[] | null; total: number; demo: boolean }) {
   const router = useRouter();
-  const { toast } = useToast();
   const [matches, setMatches] = React.useState<MatchView[] | null>(initial);
   const [count, setCount] = React.useState(total);
   const [job, setJob] = React.useState<JobView>(FALLBACK);
@@ -24,25 +23,38 @@ export function MatchesStep({ initial, total, demo }: { initial: MatchView[] | n
   const [attempt, setAttempt] = React.useState(0);
   const [starting, setStarting] = React.useState<string | null>(null);
 
+  const pending = React.useRef<MatchView[] | null>(null);
+  const onDrained = React.useCallback(() => {
+    setTimeout(() => setMatches(pending.current ?? []), 1400);
+  }, []);
+  const run = React.useRef<{ attempt: number; jobId: string; result: ReturnType<typeof services.loop.findMatches> } | null>(null);
   React.useEffect(() => {
     if (matches !== null) return;
     let alive = true;
-    const jobId = newJobId();
+    // Started once per attempt, so a second render pass watches the same search.
+    if (!run.current || run.current.attempt !== attempt) {
+      const id = newJobId();
+      run.current = { attempt, jobId: id, result: services.loop.findMatches(id) };
+    }
+    const { jobId, result } = run.current;
     const stop = watchJob(jobId, (j) => {
       if (alive) setJob(j);
     });
     (async () => {
-      const r = await services.loop.findMatches(jobId);
+      const r = await result;
       if (!alive) return;
       stop();
       if (!r.ok) {
         setFailure(r.error);
         return;
       }
-      const list = await services.opportunities.listMatches();
+      const [list, last] = await Promise.all([services.opportunities.listMatches(), finalJob(jobId, FALLBACK)]);
       if (!alive) return;
       setCount(list.length);
-      setMatches(list.slice(0, 3));
+      pending.current = newestFirst(list).slice(0, 3);
+      setJob(last);
+      // Show the matches once the feed has played out every search and score.
+      if (!last.events?.length) setMatches(pending.current);
     })();
     return () => {
       alive = false;
@@ -53,11 +65,10 @@ export function MatchesStep({ initial, total, demo }: { initial: MatchView[] | n
 
   const draft = async (m: MatchView) => {
     setStarting(m.id);
-    const app = await services.opportunities.startApplication(m.opportunity.id);
+    const app = await services.opportunities.startApplication(m.opportunity.id, "letter");
     await services.org.update({ onboardingStep: "done" });
-    const r = await services.loop.draftLetter(app.id);
-    if (!r.ok) toast({ title: "The letter will have to wait", description: r.error, tone: "warning" });
-    router.push(`/applications/${app.id}`);
+    // The workspace writes the letter with its progress on screen.
+    router.push(`/applications/${app.id}?draft=letter`);
   };
   const finish = async () => {
     await services.org.update({ onboardingStep: "done" });
@@ -92,9 +103,9 @@ export function MatchesStep({ initial, total, demo }: { initial: MatchView[] | n
     return (
       <div className="max-w-2xl">
         <h1 className="font-display text-h1 text-ink">Looking for grants you can apply for.</h1>
-        <p className="mt-4 max-w-[52ch] text-lg text-ink-muted">About a minute. We search Grants.gov, read the strongest notices in full, and keep only the ones we can tie to your facts.</p>
+        <p className="mt-4 max-w-[52ch] text-lg text-ink-muted">About a minute. We search Grants.gov, read the strongest notices in full, check private foundations&apos; IRS filings, and keep only what we can tie to your facts.</p>
         <div className="mt-10" aria-live="polite">
-          <ProgressSteps job={job} />
+          <ProgressSteps job={job} onDrained={onDrained} />
         </div>
       </div>
     );
@@ -105,10 +116,8 @@ export function MatchesStep({ initial, total, demo }: { initial: MatchView[] | n
       <h1 className="font-display text-h1 text-ink">{matches.length === 0 ? "Nothing strong enough yet." : matches.length === 1 ? "One place to start." : `${matches.length === 2 ? "Two" : "Three"} places to start.`}</h1>
       <p className="mt-4 max-w-[60ch] text-lg text-ink-muted">
         {matches.length === 0
-          ? "Grants.gov lists federal funding only, and most small organizations win foundation and local money first. We keep looking, and you can search again any time from Opportunities."
-          : demo
-            ? "These are the strongest fits in the demo workspace. Each one says why it fits in plain words. Pick one and we will draft a letter from the confirmed facts."
-            : `We kept ${count} you can apply for and these are the strongest. Each one says why it fits in plain words. Pick one and we will draft a letter from your confirmed facts.`}
+          ? "Nothing in Grants.gov or the foundation filings we hold fit well enough yet. We keep looking, and you can search again any time from Opportunities."
+          : `We kept ${count} you can apply for, federal and private, and these are the strongest. Each one says why it fits in plain words. Pick one and we will draft a letter from ${demo ? "the" : "your"} confirmed facts.`}
       </p>
       {matches.length ? (
         <ul className="mt-8 border-b border-rule">

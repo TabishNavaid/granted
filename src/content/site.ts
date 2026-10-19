@@ -20,7 +20,7 @@ export type PricingTier = {
 export const faq: FaqItem[] = [
   {
     q: "Does it make things up?",
-    a: `It is built not to. ${PRODUCT_NAME} only names funders found in Grants.gov records or on a page it fetched. Each claim in a draft links to the sentence it came from on your website or in your documents. If a fact is missing, the draft leaves a placeholder and asks you. A model can still misread a source. Check the citations before sending.`,
+    a: `It is built not to. ${PRODUCT_NAME} only names funders found in Grants.gov records, in public IRS filings, or on a page it fetched. Each claim in a draft links to the sentence it came from on your website or in your documents. If a fact is missing, the draft leaves a placeholder and asks you. A model can still misread a source. Check the citations before sending.`,
   },
   {
     q: "Will funders know AI helped, and do we have to disclose it?",
@@ -36,7 +36,7 @@ export const faq: FaqItem[] = [
   },
   {
     q: "What sources does it search?",
-    a: `Federal funding notices from Grants.gov. That covers federal agencies, not private foundations or corporate giving. Foundation data is next, likely starting from public IRS Form 990 filings. If most of your funding comes from local foundations, ${PRODUCT_NAME} will be more useful for drafting than for discovery until then.`,
+    a: `Federal funding notices from Grants.gov, and the public IRS Form 990-PF filings of a few hundred private foundations in Ohio, Kentucky, and North Carolina. Foundations in other states and corporate giving programs are not covered yet. If most of your funding comes from foundations elsewhere, ${PRODUCT_NAME} will be more useful for drafting and deadlines than for discovery until then.`,
   },
   {
     q: "How much time does it really save?",
@@ -62,7 +62,7 @@ export const founderNote: {
     "I spent [a period of time] volunteering with [the organization where I volunteered] in [city]. The person running it did programs, finance, and every grant application alone, mostly after hours. There was money to apply for. There were no hours to apply for it.",
     "Grant writers cost more than most small organizations can spend. The research tools are priced for development offices. The AI tools we tried wrote confident drafts with invented numbers. When a funder is reading, that is worse than no draft.",
     `So we built ${PRODUCT_NAME} around one rule: every fact comes from your own documents or a real funding notice, with a link to where it came from. Nothing goes out until you approve it. It writes a draft and keeps a calendar. It does not speak for you.`,
-    "It is early. The federal listings are in. Foundation data is next. We are building it with [number] organizations who tell us what is wrong every week. If you run a small nonprofit and want to be one of them, write to us at [founders@yourdomain].",
+    "It is early. The federal listings are in. Foundation data from public IRS 990-PF filings now covers Ohio, Kentucky, and North Carolina, and more states come next. We are building it with [number] organizations who tell us what is wrong every week. If you run a small nonprofit and want to be one of them, write to us at [founders@yourdomain].",
   ],
   signoff: `[Name] and [Name], founders of ${PRODUCT_NAME}`,
 };
@@ -101,7 +101,7 @@ export const securitySections: Section[] = [
   {
     heading: "A source on every fact",
     body: [
-      "Funders come only from Grants.gov records or a page the assistant fetched, each with a link and a last-checked date. The assistant does not name a funder from memory.",
+      "Funders come only from Grants.gov records, public IRS 990-PF filings, or a page the assistant fetched, each with a link and a last-checked date or the tax year it covers. The assistant does not name a funder from memory.",
       "Claims in a draft link to the sentence in your website or document they came from. When a fact is missing, the draft shows a placeholder and asks you. It does not fill in a plausible number.",
     ],
   },

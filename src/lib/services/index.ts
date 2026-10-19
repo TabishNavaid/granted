@@ -23,10 +23,15 @@ export const services: Services = {
   billing: domain("billing"),
   auth: domain("auth"),
   loop: domain("loop"),
+  demo: domain("demo"),
+  analytics: domain("analytics"),
+  funders: domain("funders"),
+  copilot: domain("copilot"),
+  scholarships: domain("scholarships"),
   outreach: domain("outreach"),
   contacts: domain("contacts"),
   social: domain("social"),
   integrations: domain("integrations"),
 };
 
-export type { Services } from "./contracts";
+export type { Services, WorkspaceSummary, SampleInfo } from "./contracts";

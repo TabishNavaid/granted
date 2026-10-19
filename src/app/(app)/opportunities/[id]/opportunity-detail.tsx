@@ -23,9 +23,12 @@ interface Props {
   contacts: Contact[];
   match: MatchView | null;
   application: ApplicationView | null;
+  recommendedAsk?: { amount: number; low: number; high: number; why: string[] } | null;
 }
 
-export function OpportunityDetail({ opportunity, funder, contacts, match, application }: Props) {
+const funderHref = (id: string) => `/funders/${encodeURIComponent(id)}`;
+
+export function OpportunityDetail({ opportunity, funder, contacts, match, application, recommendedAsk = null }: Props) {
   const router = useRouter();
   const { toast } = useToast();
   const [starting, setStarting] = React.useState(false);
@@ -65,11 +68,15 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
       <div className="mt-6 grid gap-10 lg:grid-cols-[1fr_20rem] lg:gap-12">
         <div className="min-w-0">
           <header>
-            <p className="text-base text-ink-muted">{funder.name}</p>
+            <p className="text-base text-ink-muted">
+              <Link href={funderHref(funder.id)} className="underline decoration-[1px] underline-offset-4 hover:text-ink hover:decoration-ink">
+                {funder.name}
+              </Link>
+            </p>
             <h1 className="mt-1 font-display text-h1 text-ink">{opportunity.title}</h1>
             <p className="mt-4 max-w-[65ch] text-lg text-ink-muted">{opportunity.summary}</p>
             <div className="mt-4 flex flex-wrap items-baseline gap-x-6 gap-y-1">
-              <VerifiedSource url={opportunity.sourceUrl} verifiedAt={opportunity.lastVerifiedAt} />
+              <VerifiedSource url={opportunity.sourceUrl} verifiedAt={opportunity.lastVerifiedAt} note={opportunity.sourceNote} label={opportunity.sourceNote ? "IRS filing" : undefined} />
               <a href={opportunity.guidelinesUrl} target="_blank" rel="noreferrer" className="text-xs text-ink underline decoration-[1px] underline-offset-2 hover:decoration-ink">
                 Read the guidelines
               </a>
@@ -190,8 +197,13 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
                 <p className="mt-0.5 text-ink-muted">{funder.aiPolicy}</p>
               </div>
             ) : null}
+            <p className="mt-5">
+              <Link href={funderHref(funder.id)} className="text-base font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
+                Funder profile and past grants
+              </Link>
+            </p>
             <div className="mt-4">
-              <VerifiedSource url={funder.sourceUrl} verifiedAt={funder.lastVerifiedAt} label={`Funder page: ${new URL(funder.sourceUrl).hostname.replace(/^www\./, "")}`} />
+              <VerifiedSource url={funder.sourceUrl} verifiedAt={funder.lastVerifiedAt} note={funder.sourceNote} label={funder.sourceNote ? "IRS filing" : `Funder page: ${new URL(funder.sourceUrl).hostname.replace(/^www\./, "")}`} />
             </div>
           </section>
 
@@ -237,6 +249,12 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
                       <dd className="font-semibold text-ink tnum">{formatMoney(application.askAmount)}</dd>
                     </div>
                   ) : null}
+                  {!application.askAmount && recommendedAsk ? (
+                    <div className="flex items-center justify-between gap-4 border-b border-rule py-2.5 text-base">
+                      <dt className="text-ink-muted">Suggested ask</dt>
+                      <dd className="font-semibold text-ink tnum">{formatMoney(recommendedAsk.amount)}</dd>
+                    </div>
+                  ) : null}
                   {application.nextMilestone ? (
                     <div className="flex items-start justify-between gap-4 border-b border-rule py-2.5 text-base">
                       <dt className="text-ink-muted">Next</dt>
@@ -253,7 +271,19 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
               </>
             ) : (
               <>
-                <p className="mt-2 text-base text-ink-muted">We'll write a one-page letter of inquiry from your confirmed facts and this notice's own text. Every claim carries its source, and anything we don't know becomes a question for you.</p>
+                {recommendedAsk ? (
+                  <div className="mt-4 border-y border-rule py-3 text-sm">
+                    <p className="text-ink">
+                      Suggested ask <span className="font-semibold tnum">{formatMoney(recommendedAsk.amount)}</span>
+                    </p>
+                    <p className="text-ink-muted tnum">
+                      Range {formatMoney(recommendedAsk.low)} to {formatMoney(recommendedAsk.high)}
+                    </p>
+                    {recommendedAsk.why[0] ? <p className="mt-1 text-ink-muted">{recommendedAsk.why[0]}</p> : null}
+                    <p className="mt-1 text-ink-muted">You set the real ask in the draft.</p>
+                  </div>
+                ) : null}
+                <p className="mt-3 text-base text-ink-muted">We'll write a one-page letter of inquiry from your confirmed facts and this notice's own text. Every claim carries its source, and anything we don't know becomes a question for you.</p>
                 <Button onClick={start} loading={starting} className="mt-5 w-full">
                   Start the application
                 </Button>

@@ -9,6 +9,12 @@ const MAX_BYTES = 25 * 1024 * 1024;
 
 /** Upload a document, read its text, store it, and (with a model key) turn it into facts waiting for review. */
 export async function POST(request: NextRequest) {
+  if (!isDemoMode()) return handle(request);
+  const { DEMO_COOKIE, runInSession } = await import("@/lib/services/demo-session");
+  return runInSession(request.cookies.get(DEMO_COOKIE)?.value, () => handle(request));
+}
+
+async function handle(request: NextRequest) {
   const who = await currentOrg();
   if (!who) return NextResponse.json({ ok: false, error: "Sign in first." }, { status: 401 });
   const form = await request.formData().catch(() => null);

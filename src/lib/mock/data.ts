@@ -34,6 +34,9 @@ import type {
   Subscription,
 } from "@/lib/types";
 
+import * as history from "./history";
+export { impactMetrics, voiceNote } from "./history";
+
 export const ORG_ID = "org_riverbend";
 export const CURRENT_USER_ID = "user_dana";
 
@@ -182,6 +185,7 @@ export const opportunities: Opportunity[] = [
   { id: "opp_nyoo_pathways", funderId: "funder_nyoo", title: "Afterschool Pathways Program, FY2027", summary: "Three-year awards for community learning centers. Requires a formal partnership with a school district and a 20% match in year three.", deadline: "2027-03-12", deadlineType: "fixed", amountMin: 200000, amountMax: 500000, eligibility: [{ label: "501(c)(3) or local education agency", required: true }, { label: "Formal school district partnership", required: true }, { label: "Serves a Title I school", required: true }, { label: "Can provide 20% match by year three", required: true }], guidelinesUrl: "https://nyoo.example.gov/funding/afterschool-pathways/nofo", sourceUrl: "https://nyoo.example.gov/funding/afterschool-pathways", lastVerifiedAt: "2026-10-09T08:00:00Z", effort: "high", forecasted: false },
   { id: "opp_oalc_2027", funderId: "funder_oalc", title: "Creative Youth Development 2027", summary: "Arts education grants for out-of-school programs with a teaching artist. Guidelines updated for 2027.", deadline: "2027-05-01", deadlineType: "fixed", amountMin: 10000, amountMax: 30000, eligibility: [{ label: "501(c)(3) or public school", required: true }, { label: "Teaching artist on staff or contract", required: true }], guidelinesUrl: "https://oalc.example.gov/grants/creative-youth", sourceUrl: "https://oalc.example.gov/grants/creative-youth", lastVerifiedAt: "2026-10-08T08:00:00Z", effort: "medium", forecasted: false },
   { id: "opp_mvct_spring", funderId: "funder_mvct", title: "Spring Responsive Grants", summary: "Second responsive round of the year. Same four-question application.", deadline: null, deadlineType: "rolling", amountMin: 5000, amountMax: 25000, eligibility: [{ label: "501(c)(3) public charity", required: true }, { label: "Serves Montgomery County residents", required: true }], guidelinesUrl: "https://mvctrust.org/apply/responsive-grants/guidelines", sourceUrl: "https://mvctrust.org/apply/responsive-grants", lastVerifiedAt: "2026-10-15T08:00:00Z", effort: "low", forecasted: false },
+  ...history.pastOpportunities,
 ];
 
 const okChecks = (extra: { label: string; detail: string; passed?: boolean }[] = []) => [
@@ -210,11 +214,13 @@ export const applications: Application[] = [
   { id: "app_cedar", orgId: ORG_ID, opportunityId: "opp_cedar_fall", matchId: null, stage: "submitted", mode: "proposal", askAmount: 10000, ownerId: "user_priya", submittedAt: "2026-09-28T15:20:00Z", createdAt: "2026-09-06T10:00:00Z", updatedAt: "2026-09-28T15:20:00Z" },
   { id: "app_hollis", orgId: ORG_ID, opportunityId: "opp_hollis_2026", matchId: null, stage: "won", mode: "proposal", askAmount: 12000, ownerId: CURRENT_USER_ID, submittedAt: "2026-06-10T15:20:00Z", createdAt: "2026-05-20T10:00:00Z", updatedAt: "2026-08-14T10:00:00Z" },
   { id: "app_oalc", orgId: ORG_ID, opportunityId: "opp_oalc_2026", matchId: null, stage: "lost", mode: "proposal", askAmount: 20000, ownerId: CURRENT_USER_ID, submittedAt: "2026-04-28T15:20:00Z", createdAt: "2026-03-15T10:00:00Z", updatedAt: "2026-07-20T10:00:00Z" },
+  ...history.pastApplications,
 ];
 
 export const outcomes: Outcome[] = [
   { id: "out_hollis", applicationId: "app_hollis", result: "won", awardAmount: 12000, feedback: "Loved the attendance numbers. Asked for a short update in January.", decidedAt: "2026-08-14T10:00:00Z" },
   { id: "out_oalc", applicationId: "app_oalc", result: "lost", awardAmount: null, feedback: "Program did not include a credentialed teaching artist. Encouraged to reapply once one is under contract.", decidedAt: "2026-07-20T10:00:00Z" },
+  ...history.pastOutcomes,
 ];
 
 export const requirements: Requirement[] = [
@@ -243,6 +249,7 @@ export const sections: Section[] = [
   { id: "sec_eval", applicationId: "app_meridian", requirementId: "req_eval", title: "Evaluation plan", wordLimit: 300, status: "edited", order: 5, updatedAt: "2026-10-16T17:40:00Z", bodyHtml: `<p>We track attendance daily and pull grades and credits from Dayton Public Schools each quarter under a data-sharing agreement. Twice a year students complete a short survey on belonging, confidence, and whether they have a trusted adult at Riverbend. Graduation is confirmed through the National Student Clearinghouse.</p><p>Results are reviewed by staff each quarter and by the board twice a year. We will send Meridian a mid-year update in March 2027 and a final report within 60 days of the grant period ending.</p>` },
   { id: "sec_budget", applicationId: "app_meridian", requirementId: "req_budget", title: "Budget narrative", wordLimit: 300, status: "drafted", order: 6, updatedAt: "2026-10-16T17:40:00Z", bodyHtml: `<p>We are requesting $40,000 toward a program budget of ${gap("gap_program_budget", "2027 After-School Studio budget")}. Our organization-wide budget is $342,000 ${cite("fact_budget", "Form 990, p.1")}, and our all-in cost is about $1,120 per student per year ${cite("fact_cost_per_student", "2024 proposal, p.5")}.</p><p>Of the request, $24,000 funds lead tutor stipends, $9,000 funds meals and transportation for the 20 additional students, and $7,000 equips the woodworking studio. No portion of the request funds administration.</p>` },
   { id: "sec_sustain", applicationId: "app_meridian", requirementId: "req_sustain", title: "Sustainability", wordLimit: 200, status: "empty", order: 7, updatedAt: "2026-10-16T17:40:00Z", bodyHtml: "" },
+  ...history.pastSections,
 ];
 
 export const missingFacts: MissingFact[] = [

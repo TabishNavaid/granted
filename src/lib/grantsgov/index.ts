@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import { replayActive } from "@/lib/replay/active";
 import { cached, HOURS } from "@/lib/cache";
 import type { EligibilityRule, Funder, Opportunity } from "@/lib/types";
 
@@ -142,6 +143,7 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 }
 
 export async function search(params: SearchParams): Promise<{ result: SearchResponse; fromCache: boolean }> {
+  if (replayActive()) return { result: await (await import("@/lib/replay")).replaySearch(params), fromCache: false };
   const body = {
     keyword: params.keyword,
     oppStatuses: params.oppStatuses ?? "forecasted|posted",
@@ -159,6 +161,7 @@ export async function search(params: SearchParams): Promise<{ result: SearchResp
 }
 
 export async function fetchOpportunity(id: string | number): Promise<{ detail: OpportunityDetail; fromCache: boolean }> {
+  if (replayActive()) return { detail: await (await import("@/lib/replay")).replayFetchOpportunity(id), fromCache: false };
   const { value, fromCache } = await cached(`gg:opp:${id}`, CACHE_TTL, () => post<OpportunityDetail>("fetchOpportunity", { opportunityId: String(id) }));
   return { detail: value, fromCache };
 }

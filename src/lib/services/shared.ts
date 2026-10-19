@@ -1,4 +1,5 @@
 import type { Application, Match, SocialCampaign, Subscription } from "@/lib/types";
+import { siteUrl } from "@/lib/site-url";
 import { canUse as canUseLimits, PLAN_LIMITS } from "@/lib/billing/limits";
 
 /** Pure helpers both adapters share. */
@@ -35,7 +36,7 @@ export function checkUse(sub: Subscription, what: "proposal" | "match") {
 }
 
 export function icsUrlFor(token: string) {
-  const base = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+  const base = siteUrl();
   return `${base}/api/calendar/${token}.ics`;
 }
 

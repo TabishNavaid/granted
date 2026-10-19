@@ -18,5 +18,12 @@ export default async function OpportunityPage({ params }: { params: Promise<{ id
   ]);
   if (!data) notFound();
   const application = applications.find((a) => a.opportunityId === id) ?? null;
-  return <OpportunityDetail opportunity={data.opportunity} funder={data.funder} contacts={data.contacts} match={match} application={application} />;
+  // The suggested ask: from the application when there is one (it knows the budget and past wins), else from the funder's typical grants.
+  const recommendedAsk = application
+    ? await services.applications.recommendAsk(application.id).catch(() => null)
+    : await services.funders
+        .get(data.funder.id)
+        .then((p) => p?.recommendedAsk ?? null)
+        .catch(() => null);
+  return <OpportunityDetail opportunity={data.opportunity} funder={data.funder} contacts={data.contacts} match={match} application={application} recommendedAsk={recommendedAsk} />;
 }

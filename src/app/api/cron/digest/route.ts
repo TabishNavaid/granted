@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { siteUrl } from "@/lib/site-url";
 import { isDemoMode } from "@/lib/env";
 import { emailConnected, sendEmail } from "@/lib/integrations/email";
 import { PRODUCT_NAME } from "@/lib/brand";
@@ -41,7 +42,7 @@ export function digestText(d: DigestInput, base: string) {
 export async function GET(request: NextRequest) {
   if (!authorized(request)) return NextResponse.json({ ok: false, error: "Not authorized." }, { status: 401 });
   if (!emailConnected()) return NextResponse.json({ ok: false, error: "Email delivery is not connected (RESEND_API_KEY)." }, { status: 503 });
-  const base = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+  const base = siteUrl();
   const weekAgo = new Date(Date.now() - 7 * 864e5).toISOString();
   const today = new Date().toISOString().slice(0, 10);
   const soon = new Date(Date.now() + 14 * 864e5).toISOString().slice(0, 10);

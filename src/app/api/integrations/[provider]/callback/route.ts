@@ -1,8 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { siteUrl } from "@/lib/site-url";
 import { accountEmail, callbackUrl, exchangeCode, isProvider, mergeScopes, parseState } from "@/lib/integrations/oauth";
 import { connectionStore } from "@/lib/integrations/store";
 
-const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+const SITE = siteUrl();
 const settings = (query: Record<string, string>) => NextResponse.redirect(`${SITE}/settings/integrations?${new URLSearchParams(query)}`, 302);
 
 /** Where the provider sends the user back. The signed state carries the org, so no session lookup is needed. */

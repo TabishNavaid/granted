@@ -127,6 +127,10 @@ CRON_SECRET=<openssl rand -hex 32>
 
 On Vercel, set `CRON_SECRET` and Vercel's cron adds the header itself.
 
+### Milestone reminders
+
+`GET /api/cron/reminders`, with the same `CRON_SECRET` and Resend, emails the person assigned to each milestone a few days before it is due (the number of days is each workspace's setting). Run it once a day. Each milestone is reminded once.
+
 ## Costs
 
 A full onboarding run (crawl, extraction, search planning, triage, scoring a dozen notices, one letter) comes to about five cents on the standard tier; redrafting a paragraph is under a cent. Actual figures for your key are on `/activity` and in the `agent_runs` table. Grants.gov is free and needs no key.

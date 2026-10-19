@@ -3,7 +3,7 @@
 import * as React from "react";
 import { addMonths, format, parseISO, subMonths } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { SocialCampaign, SocialPlatform, SocialPost } from "@/lib/types";
+import type { ApplicationView, SocialCampaign, SocialPlatform, SocialPost } from "@/lib/types";
 import { services } from "@/lib/services";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/format";
@@ -55,14 +55,28 @@ function download(filename: string, text: string, type: string) {
   URL.revokeObjectURL(url);
 }
 
-export function SocialView({ campaigns: initial, demo }: { campaigns: SocialCampaign[]; demo: boolean }) {
+export function SocialView({ campaigns: initial, demo, applications }: { campaigns: SocialCampaign[]; demo: boolean; applications: ApplicationView[] }) {
   const { toast } = useToast();
   const [campaigns, setCampaigns] = React.useState(initial);
-  const [month, setMonth] = React.useState(() => format(new Date(), "yyyy-MM"));
+  const [month, setMonthRaw] = React.useState(() => format(new Date(), "yyyy-MM"));
+  const [selectedId, setSelectedId] = React.useState<string | null>(null);
   const [planning, setPlanning] = React.useState(false);
   const [approving, setApproving] = React.useState(false);
 
-  const campaign = campaigns.find((c) => c.month === month) ?? null;
+  // Applications still open with a deadline ahead, soonest first: the ones a credibility campaign can run before.
+  const today = format(new Date(), "yyyy-MM-dd");
+  const upcoming = applications
+    .filter((a) => !["won", "lost"].includes(a.stage) && a.opportunity.deadline && a.opportunity.deadline.slice(0, 10) >= today)
+    .sort((a, b) => (a.opportunity.deadline ?? "").localeCompare(b.opportunity.deadline ?? ""));
+  const [credFor, setCredFor] = React.useState<string>(upcoming[0]?.id ?? "");
+  const [planningCred, setPlanningCred] = React.useState(false);
+
+  const setMonth = (m: string) => {
+    setMonthRaw(m);
+    setSelectedId(null);
+  };
+  const inMonth = campaigns.filter((c) => c.month === month);
+  const campaign = (selectedId ? inMonth.find((c) => c.id === selectedId) : null) ?? inMonth[0] ?? null;
 
   const putCampaign = (next: SocialCampaign) => {
     setCampaigns((list) => (list.some((c) => c.id === next.id) ? list.map((c) => (c.id === next.id ? next : c)) : [next, ...list]));
@@ -74,11 +88,28 @@ export function SocialView({ campaigns: initial, demo }: { campaigns: SocialCamp
       const result = await services.social.generate(month);
       if (result.ok) {
         putCampaign(result.data);
+        setSelectedId(result.data.id);
       } else {
         toast({ title: "Could not plan the month", description: result.error, tone: "warning" });
       }
     } finally {
       setPlanning(false);
+    }
+  };
+
+  const planCredibility = async () => {
+    if (!credFor) return;
+    setPlanningCred(true);
+    try {
+      const c = await services.social.planCredibility(credFor);
+      putCampaign(c);
+      setMonthRaw(c.month);
+      setSelectedId(c.id);
+      toast({ title: "Three posts planned", description: "Dated 21, 14, and 7 days before the deadline. Read them over, then copy or export them." });
+    } catch (err) {
+      toast({ title: "Could not plan the posts", description: err instanceof Error ? err.message : "Try again in a moment.", tone: "warning" });
+    } finally {
+      setPlanningCred(false);
     }
   };
 
@@ -136,6 +167,55 @@ export function SocialView({ campaigns: initial, demo }: { campaigns: SocialCamp
         }
       />
       {demo ? <p className="mt-4 text-sm text-ink-muted">Demo workspace: posts here are sample text until a model key is connected.</p> : null}
+
+      <section aria-labelledby="credibility-title" className="mt-8 border-t border-rule pt-5">
+        <h2 id="credibility-title" className="font-display text-xl text-ink">
+          Plan a credibility campaign
+        </h2>
+        <p className="mt-1 max-w-[65ch] text-sm text-ink-muted">Funders often look you up before deciding. Three posts dated 21, 14, and 7 days before an application&apos;s deadline show recent, true work when they do. Nothing posts automatically; you copy or export them.</p>
+        {upcoming.length ? (
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+            <Field id="cred-application" label="Application" className="min-w-0 flex-1 sm:max-w-md">
+              <Select value={credFor} onValueChange={setCredFor}>
+                <SelectTrigger id="cred-application">
+                  <SelectValue placeholder="Choose an application" />
+                </SelectTrigger>
+                <SelectContent>
+                  {upcoming.map((a) => (
+                    <SelectItem key={a.id} value={a.id}>
+                      {a.funder.name}: due {formatDate(a.opportunity.deadline!, "MMM d")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Button variant="secondary" className="shrink-0" onClick={planCredibility} loading={planningCred} disabled={!credFor}>
+              {planningCred ? "Planning" : "Plan three posts"}
+            </Button>
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-ink">No open application has a deadline ahead. Start one from Opportunities and it shows up here.</p>
+        )}
+      </section>
+
+      {inMonth.length > 1 && campaign ? (
+        <div className="mt-8 flex flex-col gap-2 sm:max-w-md">
+          <Field id="campaign-pick" label={`${inMonth.length} plans in ${monthName(month)}`}>
+            <Select value={campaign.id} onValueChange={setSelectedId}>
+              <SelectTrigger id="campaign-pick">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {inMonth.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.theme.length > 70 ? `${c.theme.slice(0, 70).trimEnd()}...` : c.theme}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+        </div>
+      ) : null}
 
       {campaign ? (
         <section className="mt-8" aria-labelledby="campaign-theme">
@@ -250,7 +330,7 @@ function PostRow({ post, onChange, onCopied }: { post: SocialPost; onChange: (pa
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <Field id={`post-${post.id}-platform`} label="Platform">
             <Select value={post.platform} onValueChange={(v) => onChange({ platform: v as SocialPlatform })} disabled={skipped}>
-              <SelectTrigger>
+              <SelectTrigger id={`post-${post.id}-platform`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

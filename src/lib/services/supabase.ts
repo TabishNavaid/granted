@@ -1,4 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { siteUrl } from "@/lib/site-url";
+import { makeSupabaseFeatures } from "./supabase-features";
 import type {
   AgentRun,
   Budget,
@@ -49,12 +51,12 @@ import { BUDGET_CATEGORY_LABEL, budgetTotal } from "@/lib/loop/budget";
  */
 type Row = Record<string, unknown>;
 
-function must<T = Row>(r: { data: unknown; error: { message: string } | null }, what: string): T {
+export function must<T = Row>(r: { data: unknown; error: { message: string } | null }, what: string): T {
   if (r.error) throw new Error(`${what}: ${r.error.message}`);
   if (r.data == null) throw new Error(`${what}: not found`);
   return r.data as T;
 }
-function many(r: { data: unknown; error: { message: string } | null }, what: string): Row[] {
+export function many(r: { data: unknown; error: { message: string } | null }, what: string): Row[] {
   return must<Row[]>(r, what);
 }
 const num = (v: unknown): number | null => (v == null ? null : Number(v));
@@ -258,7 +260,7 @@ export const map = {
   missingFact: (r: Row): MissingFact => ({ id: str(r.id), applicationId: str(r.application_id), sectionId: (r.section_id as string | null) ?? null, question: str(r.question), whyItMatters: str(r.why_it_matters), suggestedLabel: str(r.suggested_label), status: r.status as MissingFact["status"], answer: (r.answer as string | null) ?? null, gapKey: (r.gap_key as string | null) ?? null }),
   check: (r: Row): ComplianceCheck => ({ id: str(r.id), applicationId: str(r.application_id), rule: str(r.rule), status: r.status as ComplianceCheck["status"], detail: str(r.detail), sectionId: (r.section_id as string | null) ?? null }),
   milestone: (r: Row): Milestone => ({ id: str(r.id), orgId: str(r.org_id), applicationId: str(r.application_id), title: str(r.title), dueDate: str(r.due_date).slice(0, 10), kind: r.kind as Milestone["kind"], assigneeId: (r.assignee_id as string | null) ?? null, done: Boolean(r.done) }),
-  outcome: (r: Row): Outcome => ({ id: str(r.id), applicationId: str(r.application_id), result: r.result as Outcome["result"], awardAmount: num(r.award_amount), feedback: (r.feedback as string | null) ?? null, decidedAt: iso(r.decided_at) }),
+  outcome: (r: Row): Outcome => ({ id: str(r.id), applicationId: str(r.application_id), result: r.result as Outcome["result"], awardAmount: num(r.award_amount), feedback: (r.feedback as string | null) ?? null, decidedAt: iso(r.decided_at), lossReasons: (r.loss_reasons as Outcome["lossReasons"]) ?? [], lessons: (r.lessons as string | null) ?? null }),
   emailDraft: (r: Row): EmailDraft => ({
     id: str(r.id),
     orgId: str(r.org_id),
@@ -370,7 +372,7 @@ async function loadOpportunities(db: SupabaseClient, ids: string[]): Promise<Map
   return out;
 }
 
-async function toApplicationViews(db: SupabaseClient, apps: Application[]): Promise<ApplicationView[]> {
+export async function toApplicationViews(db: SupabaseClient, apps: Application[]): Promise<ApplicationView[]> {
   if (!apps.length) return [];
   const ids = apps.map((a) => a.id);
   const opps = await loadOpportunities(db, [...new Set(apps.map((a) => a.opportunityId))]);
@@ -390,7 +392,7 @@ async function toApplicationViews(db: SupabaseClient, apps: Application[]): Prom
   });
 }
 
-async function toMatchViews(db: SupabaseClient, matches: Match[]): Promise<MatchView[]> {
+export async function toMatchViews(db: SupabaseClient, matches: Match[]): Promise<MatchView[]> {
   const opps = await loadOpportunities(db, [...new Set(matches.map((m) => m.opportunityId))]);
   return matches.flatMap((m) => {
     const o = opps.get(m.opportunityId);
@@ -462,6 +464,40 @@ export function makeSupabaseServices(): Services {
       const s = await ctx();
       await db.from("organizations").delete().eq("id", s.orgId);
     },
+    async listWorkspaces() {
+      const s = await ctx();
+      const rows = many(await db.from("org_members").select("org_id, organizations(name, city, state)").eq("user_id", s.userId).eq("status", "active"), "memberships");
+      return rows.map((r) => {
+        const o = (Array.isArray(r.organizations) ? r.organizations[0] : r.organizations) as { name?: string; city?: string; state?: string } | null;
+        return { id: String(r.org_id), name: o?.name ?? "Organization", kind: [o?.city, o?.state].filter(Boolean).join(", "), current: String(r.org_id) === s.orgId, sample: false };
+      });
+    },
+    async switchWorkspace(id: string) {
+      const { setActiveOrg } = await import("@/lib/supabase/session");
+      await setActiveOrg(id);
+    },
+    async createWorkspace(name: string) {
+      const s = await ctx();
+      const created = must(await db.from("organizations").insert({ name: name.trim() || "New organization", onboarding_step: "start" }).select("id, name").single(), "organization");
+      const id = String(created.id);
+      await db.from("org_members").insert({ org_id: id, user_id: s.userId, invited_email: s.email, role: "owner", status: "active" });
+      await db.from("subscriptions").insert({ org_id: id, plan: "free", status: "active", seats: 1 });
+      await db.from("notification_settings").insert({ org_id: id });
+      const { setActiveOrg } = await import("@/lib/supabase/session");
+      await setActiveOrg(id);
+      return { id, name: String(created.name), kind: "", current: true, sample: false };
+    },
+  };
+
+  const demo = {
+    async status() {
+      return { active: false, replay: false, recordedOn: "", current: null, samples: [] };
+    },
+    async sampleFor() {
+      return null;
+    },
+    async startSetup() {},
+    async reset() {},
   };
 
   const knowledge = {
@@ -499,6 +535,10 @@ export function makeSupabaseServices(): Services {
         "document",
       );
       return map.document(r);
+    },
+    async updateDocument(id: string, patch: { type: Document["type"] }) {
+      const s = await ctx();
+      return map.document(must(await db.from("documents").update({ type: patch.type }).eq("id", id).eq("org_id", s.orgId).select("*").single(), "document"));
     },
     async removeDocument(id: string) {
       const s = await ctx();
@@ -841,7 +881,7 @@ export function makeSupabaseServices(): Services {
       const { createCheckoutSession, stripeConnected } = await import("@/lib/integrations/stripe");
       if (!stripeConnected()) return { ok: false as const, code: "no_ai" as const, error: "Stripe is not connected on this server yet. The Integrations page says how to add it." };
       const { data } = await db.from("subscriptions").select("stripe_customer_id").eq("org_id", s.orgId).maybeSingle();
-      const base = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+      const base = siteUrl();
       const r = await createCheckoutSession({ orgId: s.orgId, email: s.email, plan, customerId: (data?.stripe_customer_id as string | null) ?? null, successUrl: `${base}/settings?tab=billing&checkout=success`, cancelUrl: `${base}/settings?tab=billing&checkout=canceled` });
       return r.ok ? { ok: true as const, data: { url: r.url } } : { ok: false as const, code: "failed" as const, error: r.message };
     },
@@ -851,7 +891,7 @@ export function makeSupabaseServices(): Services {
       if (!stripeConnected()) return { ok: false as const, code: "no_ai" as const, error: "Stripe is not connected on this server yet." };
       const { data } = await db.from("subscriptions").select("stripe_customer_id").eq("org_id", s.orgId).maybeSingle();
       if (!data?.stripe_customer_id) return { ok: false as const, code: "failed" as const, error: "No billing account yet. Start a paid plan first." };
-      const base = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+      const base = siteUrl();
       const r = await createPortalSession({ customerId: String(data.stripe_customer_id), returnUrl: `${base}/settings?tab=billing` });
       return r.ok ? { ok: true as const, data: { url: r.url } } : { ok: false as const, code: "failed" as const, error: r.message };
     },
@@ -890,14 +930,14 @@ export function makeSupabaseServices(): Services {
   const auth = {
     async signIn(email: string) {
       const supa = await createUserClient();
-      const base = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
+      const base = siteUrl();
       const { error } = await supa.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: `${base}/auth/callback?next=/inbox`, shouldCreateUser: false } });
       if (error) return { ok: false as const, error: /signups not allowed|not found/i.test(error.message) ? "We do not have a workspace for that email yet. Create one first." : error.message };
       return { ok: true as const, next: "check_email" as const };
     },
     async signUp(input: { fullName: string; email: string; password: string; orgName: string }) {
       const supa = await createUserClient();
-      const base = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
+      const base = siteUrl();
       const { error } = await supa.auth.signInWithOtp({
         email: input.email.trim(),
         options: { emailRedirectTo: `${base}/auth/callback?next=/onboarding`, shouldCreateUser: true, data: { full_name: input.fullName.trim(), org_name: input.orgName.trim() } },
@@ -913,7 +953,7 @@ export function makeSupabaseServices(): Services {
       const { isConnected } = await import("@/lib/integrations");
       if (!isConnected("google_auth")) return { ok: false as const, error: "Google sign-in is not set up on this server yet. Use the email link instead." };
       const supa = await createUserClient();
-      const base = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
+      const base = siteUrl();
       const safe = next.startsWith("/") && !next.startsWith("//") ? next : "/inbox";
       const { data, error } = await supa.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${base}/auth/callback?next=${encodeURIComponent(safe)}`, skipBrowserRedirect: true } });
       if (error || !data.url) return { ok: false as const, error: error?.message ?? "Google did not answer. Try the email link." };
@@ -943,7 +983,7 @@ export function makeSupabaseServices(): Services {
       const { makeSupabaseStore } = await import("@/lib/loop/supabase-store");
       return findMatches(makeSupabaseStore(s), jobId);
     },
-    async answerGaps(answers: { budgetRange?: string; peopleServed?: string; location?: string }) {
+    async answerGaps(answers: Parameters<Services["loop"]["answerGaps"]>[0]) {
       const s = await ctx();
       const { answerGaps } = await import("@/lib/loop");
       const { makeSupabaseStore } = await import("@/lib/loop/supabase-store");
@@ -953,13 +993,13 @@ export function makeSupabaseServices(): Services {
       const { readJob } = await import("@/lib/loop/progress");
       return readJob(jobId);
     },
-    async draftLetter(applicationId: string) {
+    async draftLetter(applicationId: string, jobId?: string) {
       const limit = await billing.canUse("proposal");
       if (!limit.ok) return { ok: false as const, code: "failed" as const, error: limit.message ?? "Your plan's limit for this month is used up." };
       const s = await ctx();
       const { draftLetterFor } = await import("@/lib/loop");
       const { makeSupabaseStore } = await import("@/lib/loop/supabase-store");
-      return draftLetterFor(makeSupabaseStore(s), applicationId);
+      return draftLetterFor(makeSupabaseStore(s), applicationId, jobId);
     },
     async draftProposal(applicationId: string, jobId?: string) {
       const limit = await billing.canUse("proposal");
@@ -1142,7 +1182,28 @@ export function makeSupabaseServices(): Services {
     },
   };
 
-  return { org, knowledge, opportunities, applications, inbox, calendar, activity, billing, auth, loop, outreach, contacts, social, integrations };
+  const x = makeSupabaseFeatures(db, ctx, { org, knowledge, opportunities, applications, inbox, calendar, outreach, contacts, social, integrations, billing } as never);
+  return {
+    org: { ...org, ...x.org },
+    knowledge: { ...knowledge, ...x.knowledge },
+    opportunities,
+    applications: { ...applications, ...x.applications },
+    inbox: { ...inbox, ...x.inbox },
+    calendar: { ...calendar, ...x.calendar },
+    activity,
+    billing,
+    auth,
+    loop,
+    demo,
+    outreach,
+    contacts: { ...contacts, ...x.contacts },
+    social: { ...social, ...x.social },
+    integrations: { ...integrations, ...x.integrations },
+    analytics: x.analytics,
+    funders: x.funders,
+    copilot: x.copilot,
+    scholarships: x.scholarships,
+  };
 }
 
 export { getSession };

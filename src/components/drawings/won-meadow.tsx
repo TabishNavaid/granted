@@ -30,7 +30,7 @@ export function WonMeadow({ orgName, funderName, amount, onDismiss }: WonMeadowP
               <DialogPrimitive.Title className="mt-3 font-display text-display text-ink">Funded.</DialogPrimitive.Title>
               {amount ? <p className="mt-4 font-display text-4xl text-ink tnum sm:text-6xl">{formatMoney(amount)}</p> : null}
               <DialogPrimitive.Description id="won-desc" className="mt-6 max-w-[46ch] text-lg text-ink-muted">
-                for {orgName}. Somebody read what you wrote and said yes. A thank-you note is being drafted for your Inbox, and the first report date is on your calendar.
+                for {orgName}. Somebody read what you wrote and said yes. A thank-you email draft is waiting in Outreach and the Inbox, and a report reminder about a year out is on the calendar. Check it against the date in your award letter.
               </DialogPrimitive.Description>
               <div className="mt-9">
                 <DialogPrimitive.Close asChild>

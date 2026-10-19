@@ -2,20 +2,8 @@ import { getAi, type TokenUsage } from "@/lib/ai";
 import type { BudgetLine, Fact, Organization } from "@/lib/types";
 import { numberKey, numbersIn } from "./text";
 
-export const BUDGET_CATEGORY_LABEL: Record<BudgetLine["category"], string> = {
-  personnel: "Personnel",
-  fringe: "Fringe benefits",
-  travel: "Travel",
-  equipment: "Equipment",
-  supplies: "Supplies",
-  contractual: "Contractual",
-  other: "Other",
-  indirect: "Indirect costs",
-};
-
-export function budgetTotal(lines: BudgetLine[]) {
-  return lines.reduce((s, l) => s + (Number.isFinite(l.amount) ? l.amount : 0), 0);
-}
+export { BUDGET_CATEGORY_LABEL, budgetTotal } from "@/lib/budget";
+import { BUDGET_CATEGORY_LABEL, budgetTotal } from "@/lib/budget";
 
 /** A budget justification whose only numbers are the line amounts, their total, and confirmed facts. */
 export async function writeJustification(input: { org: Organization; facts: Fact[]; lines: BudgetLine[]; opportunityTitle: string; noticeText: string }): Promise<{ text: string; usage: TokenUsage; costUsd: number; model: string }> {

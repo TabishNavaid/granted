@@ -40,7 +40,8 @@ export function makeSupabaseStore(s: SessionContext): LoopStore {
       return many(await db.from("facts").select("*").eq("org_id", orgId).order("created_at"), "facts").map(map.fact);
     },
     async replaceReadFacts(facts) {
-      await db.from("facts").delete().eq("org_id", orgId).or("source_label.is.null,source_label.neq.You");
+      // Facts the director stated or that came from an uploaded document stay; only the old reading of the site goes.
+      await db.from("facts").delete().eq("org_id", orgId).is("source_document_id", null).or("source_label.is.null,source_label.neq.You");
       if (!facts.length) return [];
       return many(await db.from("facts").insert(facts.map((f) => factRow(orgId, f))).select("*"), "facts").map(map.fact);
     },
@@ -126,6 +127,10 @@ export function makeSupabaseStore(s: SessionContext): LoopStore {
     async replaceChecks(applicationId, checks) {
       await db.from("compliance_checks").delete().eq("application_id", applicationId);
       await db.from("compliance_checks").insert(checks.map((c) => ({ application_id: applicationId, section_id: c.sectionId, rule: c.rule, status: c.status, detail: c.detail })));
+    },
+    async addInboxItem(item) {
+      const { map } = await import("@/lib/services/supabase");
+      return map.inbox(must(await db.from("inbox_items").insert({ org_id: orgId, agent: item.agent, type: item.type, title: item.title, summary: item.summary, payload: item.payload, status: "pending", priority: item.priority, source_count: item.sourceCount, agent_run_id: item.agentRunId }).select("*").single(), "inbox item"));
     },
     async createRun(run) {
       return map.run(must(await db.from("agent_runs").insert(map.runRow(run)).select("*").single(), "run")) as AgentRun;
