@@ -31,8 +31,11 @@ export async function GET(_request: Request, { params }: { params: Promise<{ tok
   let items: { milestone: Milestone; title: string; url: string }[] = [];
   let name = "Deadlines";
   if (isDemoMode()) {
-    const { state } = await import("@/lib/services/mock");
-    if (clean !== state.org.calendarToken) return new NextResponse("Not found", { status: 404 });
+    const [{ state: current, demoWorkspaces }, { samples }] = await Promise.all([import("@/lib/services/mock"), import("@/lib/mock/samples")]);
+    // The open workspace, or any sample's. In the browser demo the server has only the samples, so a feed shows a sample's own dates.
+    const sample = clean === current.org.calendarToken ? null : samples.find((s) => s.org.calendarToken === clean);
+    if (clean !== current.org.calendarToken && !sample) return new NextResponse("Not found", { status: 404 });
+    const state = sample ? demoWorkspaces.workspace(sample.id) : current;
     name = `${state.org.name} deadlines`;
     items = state.milestones.map((m) => {
       const a = state.applications.find((x) => x.id === m.applicationId);

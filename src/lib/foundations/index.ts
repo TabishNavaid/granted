@@ -468,7 +468,9 @@ export function matchScholarships(input: { state: string; level: "high_school" |
   for (const f of data.foundations) {
     const awards = f.grantees.filter((g) => SCHOLARSHIP.test(`${g.name} ${g.purpose}`));
     const isFund = f.focus.includes("Scholarships") || /scholar/i.test(f.name);
-    if (!awards.length && !isFund) continue;
+    // A foundation that mostly funds organizations is not a scholarship source, even if one grant mentions tuition.
+    const share = f.grantees.length ? awards.length / f.grantees.length : 0;
+    if (!isFund && share < 0.3) continue;
     if (f.acceptsUnsolicited === false && !f.application) continue;
     const restrictions = (f.application?.restrictions ?? "").toLowerCase();
     const inState = f.state === st || f.granteeStates.some((s) => s.state === st);
@@ -495,6 +497,24 @@ export function matchScholarships(input: { state: string; level: "high_school" |
     if (input.level === "graduate" && /graduate|medical|law|doctoral/.test(restrictions)) score += 8;
     if (f.application?.howTo) score += 4;
     else cautions.push("The filing does not say how to apply.");
+    score += Math.round(10 * Math.min(1, share));
+    const median = awards.length ? [...awards].sort((x, y) => x.amount - y.amount)[Math.floor(awards.length / 2)].amount : f.grantMedian ?? 0;
+    if (median > 25_000) {
+      score -= 12;
+      cautions.unshift("Its typical award is large, which usually means it goes to a school or program rather than a student. Ask how individuals apply.");
+    }
+    if (!isFund && share < 0.6) cautions.unshift("Much of its giving goes to organizations. Ask whether it takes applications from individual students.");
+    // A fund limited to one county or town that is not the student's.
+    const place = restrictions.match(/\b(?:resid\w*|live|living|lives)\b[^.]{0,40}?\b([a-z]+) county\b|\b([a-z]+) county\b[^.]{0,30}\b(?:resident|residents|students|graduates)\b/);
+    const placeName = place?.[1] ?? place?.[2] ?? null;
+    if (placeName && (!town || !restrictions.includes(town))) {
+      score -= 22;
+      cautions.unshift(`Its restrictions limit it to ${placeName.replace(/\b\w/g, (c) => c.toUpperCase())} County. Check that you qualify before applying.`);
+    }
+    if (/\bloans?\b/.test(`${f.name} ${restrictions}`.toLowerCase())) {
+      score -= 12;
+      cautions.unshift("It makes educational loans, which you repay, rather than scholarships.");
+    }
     if (restrictions && !reasons.some((r) => r.includes("restrictions"))) cautions.push(`Restrictions as filed: ${f.application!.restrictions!.length > 150 ? `${f.application!.restrictions!.slice(0, 148)}…` : f.application!.restrictions}`);
     const total = awards.reduce((n, g) => n + g.amount, 0);
     const amounts = awards.map((g) => g.amount).sort((a, b) => a - b);
@@ -519,8 +539,5 @@ export function matchScholarships(input: { state: string; level: "high_school" |
   return out
     .sort((a, b) => b.score - a.score || b.totalScholarships - a.totalScholarships)
     .slice(0, input.limit ?? 12)
-    .map(({ score, ...m }) => {
-      void score;
-      return m;
-    });
+    .map(({ score, ...m }) => ({ ...m, fit: Math.max(30, Math.min(90, score)) }));
 }

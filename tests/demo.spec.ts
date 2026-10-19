@@ -13,6 +13,9 @@ test("an unknown site gets a sample, and the recorded run goes from website to a
   await quiet(page);
   const problems = watch(page);
   await page.goto("/onboarding?restart=1");
+  // The first question is who is applying; a nonprofit goes on to its website.
+  await page.getByRole("radio", { name: "Nonprofit" }).check();
+  await page.getByRole("button", { name: "Continue" }).click();
   await page.getByLabel("Website").fill("example-food-pantry.org");
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByRole("heading", { name: "The demo cannot read example-food-pantry.org." })).toBeVisible();
@@ -109,7 +112,7 @@ test("two visitors never see each other's changes", async ({ browser }) => {
   await b.close();
 });
 
-const MARKETING = ["/product", "/product/matching", "/product/drafting", "/product/deadlines", "/product/outreach", "/product/connections", "/product/analytics", "/how-it-works", "/who-its-for", "/roadmap", "/about"];
+const MARKETING = ["/product", "/product/matching", "/product/drafting", "/product/deadlines", "/product/outreach", "/product/connections", "/product/analytics", "/how-it-works", "/who-its-for", "/for/nonprofits", "/for/architecture-and-construction", "/for/research", "/for/students", "/roadmap", "/about"];
 for (const path of MARKETING) {
   test(`marketing ${path} renders, with honest copy`, async ({ page }) => {
     const problems = watch(page);

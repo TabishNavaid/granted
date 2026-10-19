@@ -1,12 +1,7 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { services } from "@/lib/services";
-import { ReadingStep } from "./reading-step";
+import { demoPage } from "@/lib/demo/page";
+import render from "./render";
 
 export const metadata: Metadata = { title: "Reading your website" };
 
-export default async function ReadingPage() {
-  const [org, demo] = await Promise.all([services.org.get(), services.demo.status()]);
-  if (!org.websiteUrl) redirect("/onboarding");
-  return <ReadingStep websiteUrl={org.websiteUrl} ein={org.ein || null} recordedOn={demo.replay ? demo.recordedOn : null} />;
-}
+export default demoPage("onboardingReading", render);

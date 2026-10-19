@@ -1,0 +1,577 @@
+{
+ "recordedAt": "2026-10-18",
+ "queries": {
+  "nsf": "\"harmful algal bloom\", awards active since 10/18/2022",
+  "nih": "\"harmful algal bloom\" OR cyanotoxin, fiscal years 2024 to 2026"
+ },
+ "analogs": [
+  {
+   "source": "nsf",
+   "id": "2534149",
+   "title": "C2H2 EAGER: Redox-Driven Mobilization and Aerosolization of Harmful Algal Bloom Toxins in Lake Erie Stressed Soils",
+   "institution": "University of Toledo",
+   "state": "OH",
+   "investigators": [
+    "Kennedy Doro"
+   ],
+   "program": "Climate Impact on Human Health",
+   "programOfficer": "Barbara Ransom",
+   "amount": 300000,
+   "startDate": "2025-07-01",
+   "endDate": "2027-06-30",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2534149"
+  },
+  {
+   "source": "nsf",
+   "id": "2536219",
+   "title": "C2H2 EAGER Collaborative Research: Explore a model-data framework to advance predictions of red tide and its impact on respiratory illnesses under changing temperature",
+   "institution": "Florida Gulf Coast University",
+   "state": "FL",
+   "investigators": [
+    "Ahmed Elshall"
+   ],
+   "program": "Climate Impact on Human Health",
+   "programOfficer": "Barbara Ransom",
+   "amount": 107072,
+   "startDate": "2025-07-01",
+   "endDate": "2027-06-30",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2536219"
+  },
+  {
+   "source": "nsf",
+   "id": "2524685",
+   "title": "I-Corps: Translation Potential of a Multifunctional Uncrewed Aircraft System for Monitoring Water Quality Conditions",
+   "institution": "University of Vermont & State Agricultural College",
+   "state": "VT",
+   "investigators": [
+    "Tian Xia"
+   ],
+   "program": "I-Corps",
+   "programOfficer": "Ruth Shuman",
+   "amount": 50000,
+   "startDate": "2025-07-01",
+   "endDate": "2026-06-30",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2524685"
+  },
+  {
+   "source": "nsf",
+   "id": "2536218",
+   "title": "C2H2 EAGER Collaborative Research: Explore a model-data framework to advance predictions of red tide and its impact on respiratory illnesses under changing temperature",
+   "institution": "Florida State University",
+   "state": "FL",
+   "investigators": [
+    "Ming Ye"
+   ],
+   "program": "Climate Impact on Human Health",
+   "programOfficer": "Barbara Ransom",
+   "amount": 192927,
+   "startDate": "2025-07-01",
+   "endDate": "2027-06-30",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2536218"
+  },
+  {
+   "source": "nsf",
+   "id": "2438655",
+   "title": "Collaborative Research: Harmful Algal Blooms in the Pacific Arctic: Modeling the Past and Predicting the Future",
+   "institution": "Woods Hole Oceanographic Institution",
+   "state": "MA",
+   "investigators": [
+    "Dennis McGillicuddy"
+   ],
+   "program": "ANS-Arctic Natural Sciences",
+   "programOfficer": "Lauren Culler",
+   "amount": 479883,
+   "startDate": "2025-06-15",
+   "endDate": "2028-05-31",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2438655"
+  },
+  {
+   "source": "nsf",
+   "id": "2442738",
+   "title": "CAREER: Elucidating organic and inorganic nitrogen processes in algal resource recovery: integrating wastewater process design with harmful algal bloom dynamics",
+   "institution": "SUNY at Buffalo",
+   "state": "NY",
+   "investigators": [
+    "Ian Bradley"
+   ],
+   "program": "EnvE-Environmental Engineering",
+   "programOfficer": "Lucy Camacho",
+   "amount": 576433,
+   "startDate": "2025-06-01",
+   "endDate": "2030-05-31",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2442738"
+  },
+  {
+   "source": "nsf",
+   "id": "2407777",
+   "title": "Equipment: MRI: Track 1: Acquisition of a Desktop Scanning Electron Microscope  for Aquatic Microbial Research and Education",
+   "institution": "Bigelow Laboratory for Ocean Sciences",
+   "state": "ME",
+   "investigators": [
+    "Michael Lomas"
+   ],
+   "program": "Major Research Instrumentation",
+   "programOfficer": "Luis Cubano",
+   "amount": 264582,
+   "startDate": "2024-10-15",
+   "endDate": "2027-09-30",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2407777"
+  },
+  {
+   "source": "nsf",
+   "id": "2418297",
+   "title": "Woods Hole Center for Oceans and Human Health",
+   "institution": "Woods Hole Oceanographic Institution",
+   "state": "MA",
+   "investigators": [
+    "Dennis McGillicuddy"
+   ],
+   "program": "Oceans & Human Health, OCE-Ocean Sciences Research, XC-Crosscutting Activities Pro",
+   "programOfficer": "Maria Uhle",
+   "amount": 4396368,
+   "startDate": "2024-04-15",
+   "endDate": "2029-03-31",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2418297"
+  },
+  {
+   "source": "nsf",
+   "id": "2346837",
+   "title": "RAPID: A subtle epidemic: unique mortality of Mytilus californianus on the Oregon coast",
+   "institution": "Oregon State University",
+   "state": "OR",
+   "investigators": [
+    "Bruce Menge"
+   ],
+   "program": "BIOLOGICAL OCEANOGRAPHY",
+   "programOfficer": "Jayne Gardiner",
+   "amount": 199722,
+   "startDate": "2023-11-01",
+   "endDate": "2025-10-31",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346837"
+  },
+  {
+   "source": "nsf",
+   "id": "2321315",
+   "title": "STTR Phase I:  Electrochemical Water Treatment Devices to Combat Harmful Algal Blooms",
+   "institution": "RESET WATER LLC",
+   "state": "NY",
+   "investigators": [
+    "Stefan Grimberg"
+   ],
+   "program": "STTR Phase I",
+   "programOfficer": "Rajesh Mehta",
+   "amount": 275000,
+   "startDate": "2023-09-01",
+   "endDate": "2025-12-31",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2321315"
+  },
+  {
+   "source": "nsf",
+   "id": "2242042",
+   "title": "Collaborative Research: Phylogenetic and Physiological Characterization of Amino Acid Nitrogen Isotopes in Phytoplankton",
+   "institution": "University of Massachusetts, Dartmouth",
+   "state": "MA",
+   "investigators": [
+    "Mark Altabet"
+   ],
+   "program": "BIOLOGICAL OCEANOGRAPHY, Chemical Oceanography",
+   "programOfficer": "Elizabeth Canuel",
+   "amount": 438331,
+   "startDate": "2023-04-01",
+   "endDate": "2027-03-31",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2242042"
+  },
+  {
+   "source": "nsf",
+   "id": "2242041",
+   "title": "Collaborative Research: Phylogenetic and Physiological Characterization of Amino Acid Nitrogen Isotopes in Phytoplankton",
+   "institution": "Texas A&M University Corpus Christi",
+   "state": "TX",
+   "investigators": [
+    "Lin Zhang"
+   ],
+   "program": "BIOLOGICAL OCEANOGRAPHY, Chemical Oceanography",
+   "programOfficer": "Elizabeth Canuel",
+   "amount": 445124,
+   "startDate": "2023-04-01",
+   "endDate": "2027-03-31",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2242041"
+  },
+  {
+   "source": "nsf",
+   "id": "2242043",
+   "title": "Collaborative Research: Phylogenetic and Physiological Characterization of Amino Acid Nitrogen Isotopes in Phytoplankton",
+   "institution": "University of Maryland Center for Environmental Sciences",
+   "state": "MD",
+   "investigators": [
+    "Patricia Glibert"
+   ],
+   "program": "Chemical Oceanography, BIOLOGICAL OCEANOGRAPHY",
+   "programOfficer": "Elizabeth Canuel",
+   "amount": 498844,
+   "startDate": "2023-04-01",
+   "endDate": "2027-03-31",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2242043"
+  },
+  {
+   "source": "nsf",
+   "id": "2314315",
+   "title": "I-Corps: Using Remote Sensing and Geospatial Data for Informed Climate Adaptation, Mitigation, Resiliency, and Environmentally Friendly Solutions",
+   "institution": "CUNY New York City College of Technology",
+   "state": "NY",
+   "investigators": [
+    "Hamidreza Norouzi"
+   ],
+   "program": "I-Corps",
+   "programOfficer": "Ruth Shuman",
+   "amount": 50000,
+   "startDate": "2023-02-15",
+   "endDate": "2024-07-31",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2314315"
+  },
+  {
+   "source": "nsf",
+   "id": "2103715",
+   "title": "EDGE FGT: Essential New Molecular Genetic Tools for Defining Phenotype in the Global, Harmful Algal Bloom-producing Diatom, Pseudo-nitzchia spp.",
+   "institution": "J. Craig Venter Institute, Inc.",
+   "state": "CA",
+   "investigators": [
+    "Andrew Allen"
+   ],
+   "program": "EDGE Tools",
+   "programOfficer": "Theodore Morgan",
+   "amount": 1600000,
+   "startDate": "2021-08-15",
+   "endDate": "2024-07-31",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2103715"
+  },
+  {
+   "source": "nsf",
+   "id": "2101053",
+   "title": "Excellence in Research: Delineating the characteristics, transformation and water quality impacts of landfill leachate induced dissolved organic nitrogen",
+   "institution": "North Carolina Agricultural & Technical State University",
+   "state": "NC",
+   "investigators": [
+    "Renzun Zhao"
+   ],
+   "program": "EDA-Eng Diversity Activities, EnvE-Environmental Engineering, EnvS-Environmtl Sustainability",
+   "programOfficer": "Sunny  Jiang",
+   "amount": 417590,
+   "startDate": "2021-08-01",
+   "endDate": "2025-07-31",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2101053"
+  },
+  {
+   "source": "nsf",
+   "id": "2100777",
+   "title": "Catalyst Project: Microbial trophic complexity in waterbodies: elucidating the role of algal-microbiome-nutrient interactions in harmful algal bloom formation",
+   "institution": "Alabama State University",
+   "state": "AL",
+   "investigators": [
+    "Muhammad Saleem"
+   ],
+   "program": "Hist Black Colleges and Univ",
+   "programOfficer": "Carleitta Paige-Anderson",
+   "amount": 150000,
+   "startDate": "2021-06-15",
+   "endDate": "2027-05-31",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2100777"
+  },
+  {
+   "source": "nsf",
+   "id": "2022874",
+   "title": "Collaborative Research: Midlatitude Marine Heatwaves in a changing climate: Variability, Predictability, and Projections",
+   "institution": "University of Washington",
+   "state": "WA",
+   "investigators": [
+    "LuAnne Thompson"
+   ],
+   "program": "PHYSICAL OCEANOGRAPHY",
+   "programOfficer": "Sean Kennan",
+   "amount": 480942,
+   "startDate": "2020-09-01",
+   "endDate": "2025-08-31",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2022874"
+  },
+  {
+   "source": "nsf",
+   "id": "2022842",
+   "title": "Collaborative Research:  Midlatitude Marine Heatwaves in a Changing Climate: Variability, Predictability, and Projections",
+   "institution": "University Corporation For Atmospheric Res",
+   "state": "CO",
+   "investigators": [
+    "Frank Bryan"
+   ],
+   "program": "PHYSICAL OCEANOGRAPHY",
+   "programOfficer": "Baris Uz",
+   "amount": 75709,
+   "startDate": "2020-09-01",
+   "endDate": "2024-08-31",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2022842"
+  },
+  {
+   "source": "nsf",
+   "id": "1953468",
+   "title": "IRES Track II: Advanced studies institute on water quality and harmful algal blooms in Lake Victoria",
+   "institution": "Bowling Green State University",
+   "state": "OH",
+   "investigators": [
+    "George Bullerjahn"
+   ],
+   "program": "IRES ASI - Track II: IRES Adva",
+   "programOfficer": "Fahmida Chowdhury",
+   "amount": 299863,
+   "startDate": "2020-06-01",
+   "endDate": "2024-05-31",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=1953468"
+  },
+  {
+   "source": "nsf",
+   "id": "1949593",
+   "title": "Collaborative Research: A  High Resolution Multi-Tracer Biogeochemical Study of the Pacific Arctic",
+   "institution": "Oregon State University",
+   "state": "OR",
+   "investigators": [
+    "Miguel Goni"
+   ],
+   "program": "ANS-Arctic Natural Sciences",
+   "programOfficer": "Rainer Amon",
+   "amount": 429576,
+   "startDate": "2020-04-01",
+   "endDate": "2024-03-31",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=1949593"
+  },
+  {
+   "source": "nsf",
+   "id": "1949672",
+   "title": "Collaborative Research: A High Resolution Multi-Tracer Biogeochemical Study of the Pacific Arctic",
+   "institution": "University of Alaska Fairbanks Campus",
+   "state": "AK",
+   "investigators": [
+    "Dean Stockwell"
+   ],
+   "program": "ANS-Arctic Natural Sciences",
+   "programOfficer": "Penny Vlahos",
+   "amount": 221654,
+   "startDate": "2020-04-01",
+   "endDate": "2024-03-31",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=1949672"
+  },
+  {
+   "source": "nsf",
+   "id": "1839041",
+   "title": "Increased Risk of Chronic Disease Due to Domoic Acid Exposure with Age",
+   "institution": "University of Washington",
+   "state": "WA",
+   "investigators": [
+    "David Marcinek"
+   ],
+   "program": "OCE-Ocean Sciences Research, Oceans & Human Health",
+   "programOfficer": "Henrietta Edmonds",
+   "amount": 978365,
+   "startDate": "2018-09-01",
+   "endDate": "2024-08-31",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=1839041"
+  },
+  {
+   "source": "nsf",
+   "id": "1840381",
+   "title": "Woods Hole Center for Oceans and Human Health",
+   "institution": "Woods Hole Oceanographic Institution",
+   "state": "MA",
+   "investigators": [
+    "John Stegeman"
+   ],
+   "program": "Oceans & Human Health, OCE-Ocean Sciences Research",
+   "programOfficer": "Henrietta Edmonds",
+   "amount": 4162910,
+   "startDate": "2018-09-01",
+   "endDate": "2024-08-31",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=1840381"
+  },
+  {
+   "source": "nsf",
+   "id": "1823002",
+   "title": "Origin and Fate of Harmful Algal Blooms in the Warming Chukchi Sea",
+   "institution": "Woods Hole Oceanographic Institution",
+   "state": "MA",
+   "investigators": [
+    "Donald Anderson"
+   ],
+   "program": "ANS-Arctic Natural Sciences, PREEVENTS - Prediction of and",
+   "programOfficer": "Marc Stieglitz",
+   "amount": 1495646,
+   "startDate": "2018-09-01",
+   "endDate": "2024-08-31",
+   "url": "https://www.nsf.gov/awardsearch/showAward?AWD_ID=1823002"
+  },
+  {
+   "source": "nih",
+   "id": "5P01ES035551-03",
+   "title": "Knowledge Warding Against Toxin Levels, Administrative Core",
+   "institution": "Sitka Tribe Of Alaska",
+   "state": "AK",
+   "investigators": [
+    "Heather Rogers"
+   ],
+   "program": "NIEHS P01 (RFA-ES-22-005)",
+   "programOfficer": null,
+   "amount": 55965,
+   "startDate": "2024-03-20",
+   "endDate": "2029-02-28",
+   "url": "https://reporter.nih.gov/project-details/11387537"
+  },
+  {
+   "source": "nih",
+   "id": "5P01ES035542-03",
+   "title": "North Carolina Center for Coastal Algae, People, and Environment (NC C-CAPE)",
+   "institution": "North Carolina State University Raleigh",
+   "state": "NC",
+   "investigators": [
+    "Scott Belcher",
+    "Astrid Schnetzer"
+   ],
+   "program": "NIEHS P01 (RFA-ES-22-005)",
+   "programOfficer": "Anika Dzierlenga",
+   "amount": 548106,
+   "startDate": "2024-02-21",
+   "endDate": "2029-01-31",
+   "url": "https://reporter.nih.gov/project-details/11371083"
+  },
+  {
+   "source": "nih",
+   "id": "5P01ES028938-08",
+   "title": "WHCOHH Community Engagement Core",
+   "institution": "Woods Hole Oceanographic Institution",
+   "state": "MA",
+   "investigators": [
+    "Mindy Richlen"
+   ],
+   "program": "NIEHS P01 (RFA-ES-22-005)",
+   "programOfficer": null,
+   "amount": 73948,
+   "startDate": "2018-09-30",
+   "endDate": "2029-02-28",
+   "url": "https://reporter.nih.gov/project-details/11360097"
+  },
+  {
+   "source": "nih",
+   "id": "1R01ES038200-01A1",
+   "title": "Revealing the Mechanisms of Acute and Chronic Cyanotoxic Mixture-induced Neurotoxicity",
+   "institution": "North Carolina State University Raleigh",
+   "state": "NC",
+   "investigators": [
+    "Kurt Marsden"
+   ],
+   "program": "NIEHS R01 (PA-25-301)",
+   "programOfficer": "Jonathan Hollander",
+   "amount": 454477,
+   "startDate": "2026-09-08",
+   "endDate": "2031-08-31",
+   "url": "https://reporter.nih.gov/project-details/11448850"
+  },
+  {
+   "source": "nih",
+   "id": "1R44ES038434-01",
+   "title": "EcoWell: Smart Incubation Technology for Next-Generation Environmental Science Labs",
+   "institution": "Amelia Technologies, Llc",
+   "state": "DC",
+   "investigators": [
+    "Brian Ell",
+    "Danielle Snowflack",
+    "Peter Sykora"
+   ],
+   "program": "NIEHS R44 (PA-24-245)",
+   "programOfficer": "Lingamanaidu Ravichandran",
+   "amount": 1037876,
+   "startDate": "2026-06-22",
+   "endDate": "2028-05-31",
+   "url": "https://reporter.nih.gov/project-details/11315145"
+  },
+  {
+   "source": "nih",
+   "id": "5R35GM159704-02",
+   "title": "Investigating and Utilizing Microbial Appendages",
+   "institution": "University Of Alabama At Birmingham",
+   "state": "AL",
+   "investigators": [
+    "Fengbin Wang"
+   ],
+   "program": "NIGMS R35 (PAR-23-145)",
+   "programOfficer": "Andre Phillips",
+   "amount": 408375,
+   "startDate": "2025-09-01",
+   "endDate": "2030-08-31",
+   "url": "https://reporter.nih.gov/project-details/11382880"
+  },
+  {
+   "source": "nih",
+   "id": "3P20TW013028-03S3",
+   "title": "Center for Effective and Accessible Research-based Testing for Health (C-EARTH)",
+   "institution": "Harvard University D/B/A Harvard School Of Public Health",
+   "state": "MA",
+   "investigators": [
+    "Christopher Golden",
+    "Mary Rice"
+   ],
+   "program": "FIC P20 (RFA-ES-23-007)",
+   "programOfficer": "Brad Newsome",
+   "amount": 80523,
+   "startDate": "2024-09-23",
+   "endDate": "2027-08-31",
+   "url": "https://reporter.nih.gov/project-details/11600934"
+  },
+  {
+   "source": "nih",
+   "id": "5P01ES028939-08",
+   "title": "Great Lakes Center for Fresh Waters and Human Health",
+   "institution": "University Of Michigan At Ann Arbor",
+   "state": "MI",
+   "investigators": [
+    "Gregory Dick",
+    "David Kennedy"
+   ],
+   "program": "NIEHS P01 (RFA-ES-22-005)",
+   "programOfficer": "Anika Dzierlenga",
+   "amount": 534299,
+   "startDate": "2018-09-30",
+   "endDate": "2029-02-28",
+   "url": "https://reporter.nih.gov/project-details/11364984"
+  },
+  {
+   "source": "nih",
+   "id": "5F31ES037182-02",
+   "title": "Regulation of co- and post-transcriptional pre-mRNA processing in response to environmental stress in green algae",
+   "institution": "Yale University",
+   "state": "CT",
+   "investigators": [
+    "Morgan Shine"
+   ],
+   "program": "NIEHS F31 (PA-23-271)",
+   "programOfficer": "Jonathan Hollander",
+   "amount": 35120,
+   "startDate": "2024-12-01",
+   "endDate": "2028-11-30",
+   "url": "https://reporter.nih.gov/project-details/11266902"
+  },
+  {
+   "source": "nih",
+   "id": "4R01ES034017-02",
+   "title": "Synthesis and quantitation of microcystins and anabaenopeptins in the Great Lakes region to establish human exposure risks via ingestion and inhalation",
+   "institution": "Wayne State University",
+   "state": "MI",
+   "investigators": [
+    "Andrew Ault",
+    "Andrew Fribley",
+    "Jeremy Kodanko",
+    "Judy Westrick"
+   ],
+   "program": "NIEHS R01 (PA-20-185)",
+   "programOfficer": "Anika Dzierlenga",
+   "amount": 556448,
+   "startDate": "2023-09-10",
+   "endDate": "2027-08-31",
+   "url": "https://reporter.nih.gov/project-details/11552469"
+  }
+ ]
+}

@@ -4,7 +4,8 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
-import { primaryNav, secondaryNav, type NavItem } from "@/lib/nav";
+import { navFor, type NavItem } from "@/lib/nav";
+import type { OrgType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Logo } from "./logo";
 import { Avatar } from "@/components/ui/avatar";
@@ -14,12 +15,13 @@ import type { WorkspaceSummary } from "@/lib/services";
 import { WorkspaceSwitcher } from "./workspace-switcher";
 import { DemoTag, type DemoInfo } from "./demo-tag";
 
-interface SidebarProps {
+export interface SidebarProps {
   orgName: string;
   userName: string;
   pendingCount: number;
   workspaces: WorkspaceSummary[];
   demo: DemoInfo | null;
+  orgType: OrgType;
 }
 
 /** A nav item is a word. The current page is bold on a pale tint. */
@@ -41,7 +43,7 @@ function NavLink({ item, active, badge, onNavigate }: { item: NavItem; active: b
   );
 }
 
-function NavBody({ orgName, userName, pendingCount, workspaces, demo, onNavigate }: SidebarProps & { onNavigate?: () => void }) {
+function NavBody({ orgName, userName, pendingCount, workspaces, demo, orgType, onNavigate }: SidebarProps & { onNavigate?: () => void }) {
   const pathname = usePathname();
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/") || (href === "/pipeline" && pathname.startsWith("/applications"));
   return (
@@ -55,14 +57,14 @@ function NavBody({ orgName, userName, pendingCount, workspaces, demo, onNavigate
       </div>
       <nav aria-label="Primary" className="flex-1 overflow-y-auto px-3">
         <ul className="flex flex-col">
-          {primaryNav.map((item) => (
+          {navFor(orgType).primary.map((item) => (
             <li key={item.href}>
               <NavLink item={item} active={isActive(item.href)} badge={item.href === "/inbox" ? pendingCount : undefined} onNavigate={onNavigate} />
             </li>
           ))}
         </ul>
         <ul className="mt-6 flex flex-col border-t border-rule pt-4">
-          {secondaryNav.map((item) => (
+          {navFor(orgType).secondary.map((item) => (
             <li key={item.href}>
               <NavLink item={item} active={isActive(item.href)} onNavigate={onNavigate} />
             </li>

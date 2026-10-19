@@ -42,6 +42,7 @@ export const CURRENT_USER_ID = "user_dana";
 
 export const organization: Organization = {
   id: ORG_ID,
+  orgType: "nonprofit",
   name: "Riverbend Youth Collective",
   ein: "47-3382911",
   websiteUrl: "https://riverbendyouth.org",

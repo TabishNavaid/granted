@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
-import { services } from "@/lib/services";
-import { ConnectionsView } from "./connections-view";
+import { demoPage } from "@/lib/demo/page";
+import render from "./render";
 
 export const metadata: Metadata = { title: "Connections" };
 
-export default async function ConnectionsPage() {
-  const [contacts, applications, runtime, overlaps, peers] = await Promise.all([services.contacts.list(), services.applications.list(), services.loop.runtime(), services.contacts.overlaps(), services.funders.peers()]);
-  return <ConnectionsView contacts={contacts} applications={applications} demo={runtime.demo && !runtime.ai} overlaps={overlaps} peers={peers} />;
-}
+export default demoPage("connections", render);

@@ -9,19 +9,20 @@ import { Meadow } from "@/components/drawings/meadow";
 import { drawing, plates } from "@/lib/drawings";
 import { faq, pricingTiers } from "@/content/site";
 import { checked, helpCosts, source } from "@/content/costs";
+import { audiencePages } from "@/content/audience-pages";
 import * as demo from "@/lib/mock/data";
 import { PRODUCT_NAME, PRODUCT_TAGLINE } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: `${PRODUCT_NAME}: ${PRODUCT_TAGLINE.replace(/\.$/, "").toLowerCase()}`,
-  description: `${PRODUCT_NAME} finds federal grants you can apply for, drafts a letter of inquiry from facts on your own website, and keeps every deadline. You read it and approve it. Nothing moves without you.`,
+  description: `${PRODUCT_NAME} is for organizations that win work through applications and proposals: nonprofits, architecture and construction firms, research teams, and students. It finds what you can apply for, drafts from your own records with a source on every claim, and keeps every deadline. Nothing moves without you.`,
   alternates: { canonical: "/" },
 };
 
 const problem = [
-  "Most small nonprofits have nobody whose job is grants. The director writes proposals at night.",
-  "Hiring a grant writer costs more each month than the organization can spare.",
-  "The AI tools that would help will write anything, including numbers that were never true.",
+  "A nonprofit director writes grants at night. A firm's principal reads the solicitation on a weekend. A researcher writes between classes. A senior writes essays after practice.",
+  "Hiring help costs more each month than most of them can spare. A grant writer on retainer can cost $2,000 a month.",
+  "The AI tools that would help will write anything, including numbers, projects, and experiences that were never true.",
 ];
 
 const steps = [
@@ -83,13 +84,13 @@ export default function LandingPage() {
       <section>
         <div className="mx-auto grid max-w-[75rem] items-end gap-12 px-4 pt-12 sm:px-6 sm:pt-16 lg:grid-cols-[1fr_22rem] lg:gap-16 lg:px-10 lg:pt-20 xl:grid-cols-[1fr_25rem]">
           <div className="pb-4 lg:pb-16">
-            <h1 className="max-w-[13ch] font-display text-[clamp(3.1rem,1.4rem+5.2vw,6rem)] leading-[0.98] text-ink">{PRODUCT_TAGLINE}</h1>
-            <p className="mt-8 max-w-[46ch] text-lg text-ink sm:text-xl">
-              {PRODUCT_NAME} finds grants you can apply for, drafts the letter from facts on your own website, and keeps every deadline. You read it and approve it. Nothing moves without you.
+            <h1 className="max-w-[15ch] font-display text-[clamp(3.1rem,1.4rem+5.2vw,6rem)] leading-[0.98] text-ink">Grants, bids, and scholarships from your own records.</h1>
+            <p className="mt-8 max-w-[48ch] text-lg text-ink sm:text-xl">
+              For anyone who wins work by applying for it: nonprofits, architecture and construction firms, research teams, and students. {PRODUCT_NAME} finds what you can apply for, drafts from your own records with a source on every claim, and keeps every deadline. You read it and approve it. Nothing moves without you.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <Button asChild size="lg">
-                <Link href="/sign-up">Find my first grants</Link>
+                <Link href="/sign-up">Start free</Link>
               </Button>
               <Button asChild size="lg" variant="secondary" className="h-auto min-h-12 max-w-full whitespace-normal py-2.5 text-center">
                 <Link href={DEMO_HREF}>{DEMO_LABEL}</Link>
@@ -113,12 +114,35 @@ export default function LandingPage() {
       <section>
         <div className="mx-auto grid max-w-[75rem] gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:gap-20 lg:px-10 lg:py-32">
           <h2 className="max-w-[12ch] font-display text-5xl leading-[1.02] text-ink sm:text-6xl lg:text-[5.5rem]">
-            The grant work falls on <span className="text-meadow">one person.</span>
+            The writing falls on <span className="text-meadow">one person.</span>
           </h2>
           <ul className="self-end border-t border-rule text-lg text-ink sm:text-xl">
             {problem.map((p) => (
               <li key={p} className="max-w-[46ch] border-b border-rule py-5">
                 {p}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* Who it is for: the four audience pages. */}
+      <section id="who" aria-labelledby="who-heading" className="scroll-mt-16 border-t border-rule">
+        <div className="mx-auto max-w-[75rem] px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
+          <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr] lg:items-end lg:gap-20">
+            <h2 id="who-heading" className="max-w-[18ch] font-display text-4xl text-ink sm:text-5xl">
+              Four kinds of applicants, one way of working.
+            </h2>
+            <p className="max-w-[48ch] text-lg text-ink-muted">Each starts from what it already has: a website, a firm&apos;s projects and people, a lab page, or a résumé. Every draft cites those records, and you approve every step.</p>
+          </div>
+          <ul className="mt-12 grid border-t border-ink md:grid-cols-2 lg:mt-16">
+            {audiencePages.map((a) => (
+              <li key={a.slug} className="border-b border-rule md:odd:border-r md:odd:pr-10 md:even:pl-10">
+                <Link href={`/for/${a.slug}`} className="group block py-8">
+                  <span className="block font-display text-3xl text-ink underline-offset-[6px] group-hover:underline">{a.name}</span>
+                  <span className="mt-2 block max-w-[48ch] text-base text-ink-muted sm:text-lg">{a.summary}</span>
+                  <span className="mt-3 block text-base font-semibold text-ink underline decoration-[1.5px] underline-offset-4">{a.linkLabel}</span>
+                </Link>
               </li>
             ))}
           </ul>
@@ -131,6 +155,7 @@ export default function LandingPage() {
           <SectionHeading plant="harebell" className="max-w-[16ch]">
             Three steps. The last one is yours.
           </SectionHeading>
+          <p className="mt-6 max-w-[58ch] text-lg text-ink-muted">Here they are for a nonprofit. A firm starts from its projects and an RFP, a research team from its lab page, and a student from a résumé; each has its own page above.</p>
 
           <ol className="mt-16 flex flex-col gap-20 lg:mt-20 lg:gap-28">
             {/* Step one: words left, screenshot right, running off its panel. */}
@@ -354,8 +379,8 @@ export default function LandingPage() {
       {/* Closing, over a meadow that stands on the footer rule. */}
       <section className="border-t border-rule">
         <div className="mx-auto max-w-[75rem] px-4 pb-10 pt-20 sm:px-6 lg:px-10 lg:pt-28">
-          <h2 className="max-w-[14ch] font-display text-5xl leading-[1.02] text-ink sm:text-6xl lg:text-[5.5rem]">Start with your website.</h2>
-          <p className="mt-6 max-w-[44ch] text-lg text-ink-muted">Ten minutes to your first matches. Free, and nothing is sent without you.</p>
+          <h2 className="max-w-[14ch] font-display text-5xl leading-[1.02] text-ink sm:text-6xl lg:text-[5.5rem]">Start with what you already have.</h2>
+          <p className="mt-6 max-w-[44ch] text-lg text-ink-muted">A website, a lab page, a résumé, or the RFP in front of you. Free to start, and nothing is sent without you.</p>
           <DemoCta className="mt-8" />
         </div>
         <Meadow seed="closing" count={12} mobileMax={7} className="h-40 opacity-90 sm:h-56" />

@@ -38,6 +38,8 @@ const approveLabels: Record<InboxItem["type"], string> = {
   new_matches: "Save matches",
   milestones: "Add to calendar",
   missing_facts: "Save answers",
+  go_no_go: "Got it",
+  addendum: "Mark reviewed",
   profile_update: "Update fact",
 };
 
@@ -180,6 +182,9 @@ export function InboxItemCard({ item, ctx, leaving, onApprove, onReject, fileAwa
 
 function editHref(item: InboxItem): { href: string; label: string } | null {
   const p = item.payload;
+  // Bid items carry the application; the decision and the addendum live on the bid page.
+  if (p.type === "proposal_draft" && item.type === "go_no_go") return { href: `/applications/${p.applicationId}`, label: "Open the decision" };
+  if (p.type === "proposal_draft" && item.type === "addendum") return { href: `/applications/${p.applicationId}`, label: "Open the bid" };
   switch (p.type) {
     case "proposal_draft":
       return { href: `/applications/${p.applicationId}`, label: "Open the draft" };

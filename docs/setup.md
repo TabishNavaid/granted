@@ -33,7 +33,7 @@ The free tier is enough to try the loop. Rate-limited calls retry after 4, 12, a
 Sign-in, persistence, document storage, teams, and the calendar feed.
 
 1. Create a project at https://supabase.com/dashboard (US region).
-2. In the SQL editor, run in order: `supabase/migrations/0001_init.sql` (schema, RLS, pgvector, the private `documents` bucket), `0002_real_loop.sql` (cache table, profile trigger), `0003_features.sql` (searches, versions, contacts, campaigns, budgets, reviewer checks, `integration_connections`).
+2. In the SQL editor, run in order: `supabase/migrations/0001_init.sql` (schema, RLS, pgvector, the private `documents` bucket), `0002_real_loop.sql` (cache table, profile trigger), `0003_features.sql` (searches, versions, contacts, campaigns, budgets, reviewer checks, `integration_connections`), `0004_complete.sql` (outcomes, boilerplate versions, impact metrics), `0005_segments.sql` (organization types, opportunity kinds, the compliance matrix columns, and tables for firm records, go/no-go, fee proposals, addenda, research and person profiles). Run 0005 in its own step: Postgres cannot use a new enum value in the transaction that adds it.
 3. Authentication → Providers → Email: enabled. Sign-in is magic link only; keep `{{ .ConfirmationURL }}` in the Magic Link template.
 4. Authentication → URL Configuration: Site URL `http://localhost:3000`, redirect URL `http://localhost:3000/auth/callback`. Add the production equivalents when you deploy.
 5. Copy the project URL, `anon` key, and `service_role` key from Project Settings → API. The service role key bypasses RLS and stays on the server.
@@ -48,6 +48,20 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 Check: the demo-mode notice on `/settings/integrations` is gone. Sign up at `/sign-up`, open the magic link, and you land on `/inbox` with a new workspace; `organizations`, `org_members`, `subscriptions`, and `notification_settings` each get a row. A PDF uploaded on `/profile` lands in Storage under `documents/<org id>/`.
 
 ## Optional
+
+### SAM.gov (contract opportunities for firms)
+
+Federal contract search for a firm's NAICS codes. Adding an RFP the firm already has works without it.
+
+1. Sign in at https://sam.gov, open your Workspace, then Profile, then Public API Key, and request a key. It is free.
+2. Set it:
+
+```
+SAM_GOV_API_KEY=...
+```
+
+Check: as a firm, the Opportunities page shows "Searched SAM.gov for ..." instead of "SAM.gov is not connected". A public key has a daily request limit; when it is used up the page says so.
+
 
 ### Google: sign-in, Gmail, Calendar
 

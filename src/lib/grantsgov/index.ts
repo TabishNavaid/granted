@@ -20,6 +20,12 @@ export const ELIGIBILITY = {
   nonprofitOther: "13",
   others: "25",
   unrestricted: "99",
+  /** For-profit organizations other than small businesses. */
+  forProfit: "22",
+  smallBusiness: "23",
+  publicHigherEd: "06",
+  privateHigherEd: "20",
+  individuals: "21",
 } as const;
 
 export { FUNDING_CATEGORIES } from "./categories";
@@ -242,7 +248,10 @@ export function opportunityText(detail: OpportunityDetail, maxChars = 3_000): st
 
 export function toOpportunity(detail: OpportunityDetail, checkedAt = new Date().toISOString()): { opportunity: Opportunity; funder: Funder } {
   const n = notice(detail);
-  const agencyName = (n?.agencyName ?? detail.agencyDetails?.agencyName ?? detail.owningAgencyCode).trim();
+  // Some notices put a contact's name and title in the agency field; use the agency record then.
+  const rawAgency = n?.agencyName?.trim() ?? "";
+  const looksLikePerson = /\n|\b(specialist|officer|manager|coordinator|director)\b/i.test(rawAgency);
+  const agencyName = ((looksLikePerson ? null : rawAgency) || detail.agencyDetails?.agencyName || detail.topAgencyDetails?.agencyName || detail.owningAgencyCode).trim();
   const agencyCode = (n?.agencyCode ?? detail.agencyDetails?.agencyCode ?? detail.owningAgencyCode).trim();
   const top = detail.topAgencyDetails?.agencyName?.trim();
   const funderId = `gg_agency_${agencyCode.replace(/[^A-Za-z0-9]+/g, "_")}`;

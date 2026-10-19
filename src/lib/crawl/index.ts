@@ -146,6 +146,18 @@ export async function pdfToText(buf: Buffer, opts: { pages?: number; maxChars?: 
   }
 }
 
+/** Text page by page, so a requirement can cite the page it is on. */
+export async function pdfPages(buf: Buffer, opts: { pages?: number } = {}): Promise<{ page: number; text: string }[]> {
+  const { PDFParse } = await import("pdf-parse");
+  const parser = new PDFParse({ data: new Uint8Array(buf) });
+  try {
+    const result = await parser.getText({ last: opts.pages ?? 120 });
+    return result.pages.map((p) => ({ page: p.num, text: p.text })).filter((p) => p.text.trim());
+  } finally {
+    await parser.destroy().catch(() => undefined);
+  }
+}
+
 function scoreLink(link: { href: string; text: string }, home: URL): number {
   let u: URL;
   try {

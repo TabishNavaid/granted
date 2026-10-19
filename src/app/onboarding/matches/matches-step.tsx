@@ -3,7 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { MatchView } from "@/lib/types";
+import type { MatchView, OrgType } from "@/lib/types";
+import { AddRfpDialog } from "@/components/bids/add-rfp-dialog";
 import { services } from "@/lib/services";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -14,7 +15,7 @@ import { finalJob, newJobId, watchJob } from "@/lib/progress-client";
 
 const FALLBACK: JobView = { status: "running", steps: [{ label: "Planning the searches", state: "active" }, { label: "Searching Grants.gov", state: "pending" }, { label: "Reading the strongest notices in full", state: "pending" }, { label: "Scoring each one against your facts", state: "pending" }, { label: "Checking private foundations' IRS filings", state: "pending" }] };
 
-export function MatchesStep({ initial, total, demo }: { initial: MatchView[] | null; total: number; demo: boolean }) {
+export function MatchesStep({ initial, total, demo, orgType = "nonprofit" }: { initial: MatchView[] | null; total: number; demo: boolean; orgType?: OrgType }) {
   const router = useRouter();
   const [matches, setMatches] = React.useState<MatchView[] | null>(initial);
   const [count, setCount] = React.useState(total);
@@ -65,10 +66,11 @@ export function MatchesStep({ initial, total, demo }: { initial: MatchView[] | n
 
   const draft = async (m: MatchView) => {
     setStarting(m.id);
-    const app = await services.opportunities.startApplication(m.opportunity.id, "letter");
+    const mode = orgType === "research" ? "research" : orgType === "individual" ? "essay" : "letter";
+    const app = await services.opportunities.startApplication(m.opportunity.id, mode);
     await services.org.update({ onboardingStep: "done" });
-    // The workspace writes the letter with its progress on screen.
-    router.push(`/applications/${app.id}?draft=letter`);
+    // The workspace writes the letter with its progress on screen; research proposals and essays start from their own screen.
+    router.push(mode === "letter" ? `/applications/${app.id}?draft=letter` : `/applications/${app.id}`);
   };
   const finish = async () => {
     await services.org.update({ onboardingStep: "done" });
@@ -102,8 +104,16 @@ export function MatchesStep({ initial, total, demo }: { initial: MatchView[] | n
   if (matches === null) {
     return (
       <div className="max-w-2xl">
-        <h1 className="font-display text-h1 text-ink">Looking for grants you can apply for.</h1>
-        <p className="mt-4 max-w-[52ch] text-lg text-ink-muted">About a minute. We search Grants.gov, read the strongest notices in full, check private foundations&apos; IRS filings, and keep only what we can tie to your facts.</p>
+        <h1 className="font-display text-h1 text-ink">{orgType === "firm" ? "Looking for grants and incentives open to firms." : orgType === "research" ? "Looking for research funding." : orgType === "individual" ? "Looking for scholarships." : "Looking for grants you can apply for."}</h1>
+        <p className="mt-4 max-w-[52ch] text-lg text-ink-muted">
+          {orgType === "firm"
+            ? "We search Grants.gov for programs a for-profit firm can apply for: energy efficiency, workforce training, and small business innovation. Bids come next."
+            : orgType === "research"
+              ? "We look up funded NSF and NIH projects like yours, search Grants.gov research notices open to universities, and note each funder's rules on AI."
+              : orgType === "individual"
+                ? "We read foundations' IRS filings for scholarship funds that fit your state, level, and field."
+                : "About a minute. We search Grants.gov, read the strongest notices in full, check private foundations' IRS filings, and keep only what we can tie to your facts."}
+        </p>
         <div className="mt-10" aria-live="polite">
           <ProgressSteps job={job} onDrained={onDrained} />
         </div>
@@ -117,7 +127,13 @@ export function MatchesStep({ initial, total, demo }: { initial: MatchView[] | n
       <p className="mt-4 max-w-[60ch] text-lg text-ink-muted">
         {matches.length === 0
           ? "Nothing in Grants.gov or the foundation filings we hold fit well enough yet. We keep looking, and you can search again any time from Opportunities."
-          : `We kept ${count} you can apply for, federal and private, and these are the strongest. Each one says why it fits in plain words. Pick one and we will draft a letter from ${demo ? "the" : "your"} confirmed facts.`}
+          : orgType === "firm"
+            ? `We kept ${count} grants and incentives a firm can apply for. Your bids are next: add an RFP you have in hand, or pick a SAM.gov notice for your work categories.`
+            : orgType === "research"
+              ? `We kept ${count} research notices open to universities, each with its funder's AI rules. Pick one and we will draft the standard sections from your team's records.`
+              : orgType === "individual"
+                ? `We kept ${count} scholarship funds. Pick one and paste its essay prompt; we draft from your own experiences.`
+                : `We kept ${count} you can apply for, federal and private, and these are the strongest. Each one says why it fits in plain words. Pick one and we will draft a letter from ${demo ? "the" : "your"} confirmed facts.`}
       </p>
       {matches.length ? (
         <ul className="mt-8 border-b border-rule">
@@ -126,7 +142,7 @@ export function MatchesStep({ initial, total, demo }: { initial: MatchView[] | n
               <OpportunityCard match={m} />
               <div className="-mt-2 mb-6 sm:ml-[8.5rem]">
                 <Button size="sm" loading={starting === m.id} disabled={starting !== null && starting !== m.id} onClick={() => draft(m)}>
-                  {starting === m.id ? "Drafting your letter" : "Draft a letter for this one"}
+                  {starting === m.id ? "Starting" : orgType === "research" ? "Start a proposal for this one" : orgType === "individual" ? "Apply to this one" : "Draft a letter for this one"}
                 </Button>
               </div>
             </li>
@@ -135,6 +151,18 @@ export function MatchesStep({ initial, total, demo }: { initial: MatchView[] | n
       ) : (
         <EmptyState className="mt-8" title="No open federal notice fit well enough" description="You can still start from any opportunity later, and the letter will ask you for what it needs." />
       )}
+      {orgType === "firm" ? (
+        <div className="mt-10 border-t border-rule pt-6">
+          <h2 className="font-display text-2xl text-ink">Your first bid</h2>
+          <p className="mt-2 max-w-[60ch] text-base text-ink-muted">Most firms already have the RFP. Add it and we build the compliance matrix, score go or no-go from your records, and put its dates on the calendar.</p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <AddRfpDialog demo={demo} trigger={<Button size="lg">Add an RFP</Button>} />
+            <Button asChild variant="secondary" size="lg">
+              <Link href="/opportunities">See SAM.gov notices for your work</Link>
+            </Button>
+          </div>
+        </div>
+      ) : null}
       <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
         <Button variant={matches.length ? "secondary" : "primary"} size="lg" onClick={finish}>
           {matches.length ? "Skip for now, show me around" : "Go to my Inbox"}

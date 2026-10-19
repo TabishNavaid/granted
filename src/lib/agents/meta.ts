@@ -22,6 +22,8 @@ export const inboxKindLabel: Record<InboxItemType, string> = {
   milestones: "Schedule to approve",
   missing_facts: "Questions for you",
   profile_update: "A fact to check",
+  go_no_go: "Bid decision to make",
+  addendum: "Addendum to review",
 };
 
 /** The word an item of this kind gets once it is approved. */
@@ -33,18 +35,24 @@ export const doneWord: Record<InboxItemType, string> = {
   milestones: "Scheduled",
   missing_facts: "Answered",
   profile_update: "Updated",
+  go_no_go: "Decided",
+  addendum: "Reviewed",
 };
 
 export const stageMeta: Record<ApplicationStage, { label: string; tone: "neutral" | "info" | "accent" | "warning" | "success" | "danger" | "won" }> = {
   discovered: { label: "Discovered", tone: "neutral" },
+  go_no_go: { label: "Go/no-go", tone: "warning" },
   researching: { label: "Researching", tone: "neutral" },
   drafting: { label: "Drafting", tone: "accent" },
   review: { label: "Review", tone: "warning" },
   submitted: { label: "Submitted", tone: "accent" },
+  shortlisted: { label: "Shortlisted", tone: "info" },
+  interview: { label: "Interview", tone: "info" },
   won: { label: "Won", tone: "won" },
   lost: { label: "Lost", tone: "danger" },
 };
 
+/** Grant stages in board order. Other kinds of application use their own list from src/lib/segments. */
 export const stageOrder: ApplicationStage[] = ["discovered", "researching", "drafting", "review", "submitted", "won", "lost"];
 
 export const milestoneMeta: Record<MilestoneKind, { label: string; tone: "neutral" | "info" | "accent" | "warning" | "success" | "danger" | "won" }> = {
@@ -55,4 +63,10 @@ export const milestoneMeta: Record<MilestoneKind, { label: string; tone: "neutra
   submit: { label: "Submit", tone: "accent" },
   follow_up: { label: "Follow up", tone: "neutral" },
   report_due: { label: "Report due", tone: "warning" },
+  go_no_go: { label: "Go/no-go decision", tone: "warning" },
+  questions_due: { label: "Questions due", tone: "warning" },
+  prebid_meeting: { label: "Pre-bid meeting", tone: "info" },
+  site_visit: { label: "Site visit", tone: "info" },
+  addendum: { label: "Addendum", tone: "neutral" },
+  interview: { label: "Interview", tone: "info" },
 };

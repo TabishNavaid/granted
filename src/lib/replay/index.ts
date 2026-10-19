@@ -2,6 +2,7 @@ import { AiError, type AiProvider, type GenerateJsonRequest, type GenerateJsonRe
 import type { CrawledPage, CrawlResult } from "@/lib/crawl";
 import type { OpportunityDetail, SearchParams, SearchResponse } from "@/lib/grantsgov";
 import type { Recording, RecordingId } from "./types";
+import { replaySpeed } from "@/lib/demo/flags";
 
 export type { Recording, RecordingId } from "./types";
 
@@ -16,9 +17,9 @@ export type { Recording, RecordingId } from "./types";
  */
 export { replayActive } from "./active";
 
-/** REPLAY_SPEED=10 plays ten times faster (tests). Never slower than real time by default. */
+/** REPLAY_SPEED=10 plays ten times faster (tests). Never slower than real time by default. In the browser demo the wait happens in the tab. */
 function pace(ms: number): Promise<void> {
-  const speed = Number(process.env.REPLAY_SPEED) || 1;
+  const speed = replaySpeed();
   const wait = Math.max(0, Math.round(ms / speed));
   return wait ? new Promise((r) => setTimeout(r, wait)) : Promise.resolve();
 }
@@ -27,6 +28,9 @@ const loaders: Record<RecordingId, () => Promise<Recording>> = {
   youth: () => import("./recordings/youth").then((m) => m.recording),
   foodbank: () => import("./recordings/foodbank").then((m) => m.recording),
   clinic: () => import("./recordings/clinic").then((m) => m.recording),
+  firm: () => import("./recordings/firm").then((m) => m.recording),
+  lab: () => import("./recordings/lab").then((m) => m.recording),
+  student: () => import("./recordings/student").then((m) => m.recording),
 };
 
 export async function loadRecording(id: RecordingId): Promise<Recording> {

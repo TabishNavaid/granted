@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { siteUrl } from "@/lib/site-url";
 import { makeSupabaseFeatures } from "./supabase-features";
+import { makeSupabaseSegments } from "./supabase-segments";
 import type {
   AgentRun,
   Budget,
@@ -68,6 +69,7 @@ const dateOnly = (v: unknown): string | null => (v == null ? null : String(v).sl
 export const map = {
   org: (r: Row): Organization => ({
     id: str(r.id),
+    orgType: (str(r.org_type, "nonprofit") as Organization["orgType"]),
     name: str(r.name),
     ein: str(r.ein),
     websiteUrl: str(r.website_url),
@@ -103,6 +105,7 @@ export const map = {
     if (p.staffCount !== undefined) out.staff_count = p.staffCount;
     if (p.volunteerCount !== undefined) out.volunteer_count = p.volunteerCount;
     if (p.onboardingStep !== undefined) out.onboarding_step = p.onboardingStep;
+    if (p.orgType !== undefined) out.org_type = p.orgType;
     return out;
   },
   fact: (r: Row): Fact => ({
@@ -206,6 +209,8 @@ export const map = {
     lastVerifiedAt: iso(r.last_verified_at),
     effort: r.effort as Opportunity["effort"],
     forecasted: Boolean(r.forecasted),
+    kind: (r.kind as Opportunity["kind"]) ?? "grant",
+    solicitation: (r.solicitation as Opportunity["solicitation"]) ?? null,
   }),
   opportunityRow: (o: Opportunity, funderDbId: string, noticeText: string): Row => ({
     external_id: o.id,
@@ -224,6 +229,8 @@ export const map = {
     is_active: true,
     forecasted: o.forecasted,
     notice_text: noticeText,
+    kind: o.kind ?? "grant",
+    solicitation: o.solicitation ?? null,
   }),
   contact: (r: Row): Contact => ({ id: str(r.id), funderId: str(r.funder_id), name: str(r.name), role: str(r.role), email: (r.email as string | null) ?? null, publicSourceUrl: str(r.public_source_url) }),
   match: (r: Row): Match => {
@@ -255,7 +262,7 @@ export const map = {
     createdAt: iso(r.created_at),
     updatedAt: iso(r.updated_at),
   }),
-  requirement: (r: Row): Requirement => ({ id: str(r.id), applicationId: str(r.application_id), title: str(r.title), kind: r.kind as Requirement["kind"], detail: (r.detail as string | null) ?? null, wordLimit: num(r.word_limit), required: Boolean(r.required), order: Number(r.order ?? 0), satisfied: Boolean(r.satisfied) }),
+  requirement: (r: Row): Requirement => ({ id: str(r.id), applicationId: str(r.application_id), title: str(r.title), kind: r.kind as Requirement["kind"], detail: (r.detail as string | null) ?? null, wordLimit: num(r.word_limit), required: Boolean(r.required), order: Number(r.order ?? 0), satisfied: Boolean(r.satisfied), ref: (r.ref as string | null) ?? null, excerpt: (r.excerpt as string | null) ?? null, sectionKey: (r.section_key as string | null) ?? null, answeredInSectionId: (r.answered_in_section_id as string | null) ?? null, matrixStatus: ((r.matrix_status as Requirement["matrixStatus"]) ?? "open") }),
   section: (r: Row): Section => ({ id: str(r.id), applicationId: str(r.application_id), requirementId: (r.requirement_id as string | null) ?? null, title: str(r.title), bodyHtml: str(r.body_html), wordLimit: num(r.word_limit), status: r.status as Section["status"], order: Number(r.order ?? 0), updatedAt: iso(r.updated_at) }),
   missingFact: (r: Row): MissingFact => ({ id: str(r.id), applicationId: str(r.application_id), sectionId: (r.section_id as string | null) ?? null, question: str(r.question), whyItMatters: str(r.why_it_matters), suggestedLabel: str(r.suggested_label), status: r.status as MissingFact["status"], answer: (r.answer as string | null) ?? null, gapKey: (r.gap_key as string | null) ?? null }),
   check: (r: Row): ComplianceCheck => ({ id: str(r.id), applicationId: str(r.application_id), rule: str(r.rule), status: r.status as ComplianceCheck["status"], detail: str(r.detail), sectionId: (r.section_id as string | null) ?? null }),
@@ -847,7 +854,7 @@ export function makeSupabaseServices(): Services {
       const ctxApp = await st.getApplication(applicationId);
       if (!ctxApp || !ctxApp.opportunity.deadline) return [];
       await db.from("milestones").delete().eq("application_id", applicationId).eq("done", false);
-      const planned = planFromDeadline(ctxApp.opportunity.deadline, { boardReview: options?.boardReview, effort: ctxApp.opportunity.effort, mode: ctxApp.application.mode });
+      const planned = planFromDeadline(ctxApp.opportunity.deadline, { boardReview: options?.boardReview, effort: ctxApp.opportunity.effort, mode: ctxApp.application.mode, bidDates: ctxApp.opportunity.solicitation?.dates });
       const rows = planned.map((p) => ({ org_id: s.orgId, application_id: applicationId, title: p.title, due_date: p.dueDate, kind: p.kind, assignee_id: ctxApp.application.ownerId }));
       return many(await db.from("milestones").insert(rows).select("*"), "milestones").map(map.milestone);
     },
@@ -1183,7 +1190,10 @@ export function makeSupabaseServices(): Services {
   };
 
   const x = makeSupabaseFeatures(db, ctx, { org, knowledge, opportunities, applications, inbox, calendar, outreach, contacts, social, integrations, billing } as never);
+  // Row level security scopes every segment table to the org's members; screens hide edits from reviewers.
+  const seg = makeSupabaseSegments({ db, loopStore: async () => (await loopStore()).st, requireEditor: () => undefined, applicationView: (id) => applications.get(id) });
   return {
+    ...seg.services,
     org: { ...org, ...x.org },
     knowledge: { ...knowledge, ...x.knowledge },
     opportunities,

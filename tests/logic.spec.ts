@@ -1,10 +1,10 @@
 import { expect, test } from "@playwright/test";
-import { fillPlaceholders, type Recording, type RecordingId } from "@/lib/replay";
+import { fillPlaceholders, type Recording } from "@/lib/replay";
 import { recording as youth } from "@/lib/replay/recordings/youth";
 import { recording as foodbank } from "@/lib/replay/recordings/foodbank";
 import { recording as clinic } from "@/lib/replay/recordings/clinic";
 
-const RECORDINGS: Record<RecordingId, Recording> = { youth, foodbank, clinic };
+const RECORDINGS: Record<"youth" | "foodbank" | "clinic", Recording> = { youth, foodbank, clinic };
 import { validateFacts, type ExtractedFact } from "@/lib/loop/profile";
 import * as gg from "@/lib/grantsgov";
 import { contains } from "@/lib/loop/text";
@@ -22,7 +22,7 @@ import type { Fact, Organization } from "@/lib/types";
  */
 
 test.describe("recorded runs", () => {
-  for (const id of ["youth", "foodbank", "clinic"] as RecordingId[]) {
+  for (const id of ["youth", "foodbank", "clinic"] as const) {
     test(`${id}: facts and reasons survive the live checks`, async () => {
       const rec = RECORDINGS[id];
       const ex = rec.calls.find((c) => c.label === "extract_profile")!.data as { facts: ExtractedFact[] };
@@ -54,7 +54,7 @@ test.describe("recorded runs", () => {
   });
 });
 
-const org = (o: Partial<Organization>): Organization => ({ id: "o", name: "Test", ein: "", websiteUrl: "", mission: "", annualBudget: 342000, fiscalYearEnd: "", foundedYear: null, city: "Dayton", state: "OH", serviceArea: "East Dayton", causes: ["Youth development", "Education"], populations: [], staffCount: null, volunteerCount: null, onboardingStep: "done", calendarToken: "", createdAt: "", ...o });
+const org = (o: Partial<Organization>): Organization => ({ id: "o", orgType: "nonprofit", name: "Test", ein: "", websiteUrl: "", mission: "", annualBudget: 342000, fiscalYearEnd: "", foundedYear: null, city: "Dayton", state: "OH", serviceArea: "East Dayton", causes: ["Youth development", "Education"], populations: [], staffCount: null, volunteerCount: null, onboardingStep: "done", calendarToken: "", createdAt: "", ...o });
 const facts: Fact[] = [
   { id: "f1", orgId: "o", label: "Service area ZIP codes", value: "45403", category: "geography", sourceDocumentId: null, sourceUrl: null, sourceLabel: "x", sourceExcerpt: "x", sourcePage: null, confidence: 1, status: "confirmed", lastConfirmedAt: "" },
   { id: "f2", orgId: "o", label: "People served", value: "214", category: "reach", sourceDocumentId: null, sourceUrl: null, sourceLabel: "x", sourceExcerpt: "x", sourcePage: null, confidence: 1, status: "confirmed", lastConfirmedAt: "" },

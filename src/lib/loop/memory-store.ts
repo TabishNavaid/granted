@@ -1,15 +1,16 @@
 import { state, newId, now } from "@/lib/services/mock";
+import { sessionMap } from "@/lib/services/demo-session";
 import * as seed from "@/lib/mock/data";
 import type { Fact, Match, Section } from "@/lib/types";
 import type { LoopStore, NewFact } from "./store";
 
 /**
  * The loop store over the demo's in-memory state. Lets the real agents run
- * without Supabase (DEMO_MODE with a GEMINI_API_KEY). State resets with the
- * server process.
+ * without Supabase: in the browser demo, and in DEMO_MODE with a
+ * GEMINI_API_KEY on a server.
  */
-// Keyed by opportunity id, which is the same in every session. On globalThis so every copy of this module shares it.
-const noticeTexts = ((globalThis as typeof globalThis & { __firstlightNotices?: Map<string, string> }).__firstlightNotices ??= new Map<string, string>());
+// Keyed by opportunity id, in the visitor's session so drafting still has the notice after a reload.
+const noticeTexts = sessionMap<string>("noticeTexts");
 
 function toFact(f: NewFact, id: string): Fact {
   return { id, orgId: state.org.id, label: f.label, value: f.value, category: f.category, sourceDocumentId: null, sourceUrl: f.sourceUrl, sourceLabel: f.sourceLabel, sourceExcerpt: f.sourceExcerpt, sourcePage: null, confidence: f.confidence, status: f.status, lastConfirmedAt: now() };

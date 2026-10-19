@@ -27,13 +27,14 @@ import { VersionsDialog } from "@/components/proposal/versions-dialog";
 import { AskSuggestion, LogicModelDialog, ReuseDialog, WinKitDialog } from "@/components/proposal/feature-dialogs";
 import { ProgressSteps, type JobView } from "@/components/app/progress-steps";
 import { finalJob, newJobId, watchJob } from "@/lib/progress-client";
-import { Input } from "@/components/ui/input";
+import { Input, Textarea } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { stageMeta, stageOrder } from "@/lib/agents/meta";
+import { MODE_LABELS } from "@/lib/segments";
 
 const LETTER_FALLBACK: JobView = { status: "running", steps: [{ label: "Reading the notice and your confirmed facts", state: "active" }, { label: "Writing the letter", state: "pending" }, { label: "Checking every citation and number", state: "pending" }] };
-const MODE_LABEL: Record<ProposalWorkspace["application"]["mode"], string> = { letter: "Letter of inquiry", proposal: "Full proposal", concept_note: "Concept note" };
+const MODE_LABEL = MODE_LABELS;
 const PROPOSAL_FALLBACK: JobView = { status: "running", steps: [{ label: "Reading the funder's guidelines", state: "active" }, { label: "Building the requirements checklist", state: "pending" }, { label: "Drafting every section from your facts", state: "pending" }, { label: "Checking every citation and number", state: "pending" }] };
 
 export function Workspace({ initial, members, orgName, demo, reviewer: initialReviewer, budget: initialBudget, role }: { initial: ProposalWorkspace; members: Member[]; orgName: string; demo: boolean; reviewer: ReviewerCheck | null; budget: Budget | null; role: Member["role"] }) {
@@ -41,7 +42,11 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
   const { toast } = useToast();
   const params = useSearchParams();
   const [ws, setWs] = React.useState(initial);
-  const [activeId, setActiveId] = React.useState(initial.sections[0]?.id ?? "");
+  // A link can open a particular section, e.g. from the compliance matrix.
+  const [activeId, setActiveId] = React.useState(() => {
+    const want = params.get("section");
+    return want && initial.sections.some((x) => x.id === want) ? want : (initial.sections[0]?.id ?? "");
+  });
   const [panel, setPanel] = React.useState<"questions" | "checks" | "sources" | "reviewer" | "budget">(initial.missingFacts.some((m) => m.status === "open") ? "questions" : "checks");
   const [reviewer, setReviewer] = React.useState<ReviewerCheck | null>(initialReviewer);
   const [budget, setBudget] = React.useState<Budget | null>(initialBudget);
@@ -77,6 +82,32 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
   const [saved, setSaved] = React.useState<"saved" | "saving" | "idle">("idle");
 
   const app = ws.application;
+  const isBid = app.mode === "bid" || app.mode === "sf330";
+  const segmentMode = isBid || app.mode === "research" || app.mode === "essay";
+  const [essayPrompt, setEssayPrompt] = React.useState(demo && app.mode === "essay" ? "Tell us about a time you took responsibility for something in your community, and how it shaped what you want to study." : "");
+  const draftSegment = async () => {
+    const jobId = newJobId();
+    const fallback: JobView = { status: "running", steps: app.mode === "essay" ? [{ label: "Reading the prompt and your experiences", state: "active" }, { label: "Writing in your voice", state: "pending" }, { label: "Checking every detail against your résumé", state: "pending" }] : [{ label: "Reading the notice, the team's records, and the funder's AI rules", state: "active" }, { label: "Writing the sections", state: "pending" }, { label: "Building biosketches and facilities from your records", state: "pending" }, { label: "Checking every citation and number", state: "pending" }] };
+    setDrafting("proposal");
+    setJob(fallback);
+    const stop = watchJob(jobId, setJob);
+    const r = app.mode === "essay" ? await services.person.draftEssay(app.id, essayPrompt, jobId) : await services.research.draftProposal(app.id, jobId);
+    stop();
+    if (!r.ok) {
+      setDrafting(false);
+      setJob(null);
+      toast({ title: "We could not write the draft", description: r.error, tone: "warning" });
+      return;
+    }
+    setJob(await finalJob(jobId, fallback));
+    await new Promise((res) => setTimeout(res, 900));
+    setDrafting(false);
+    setJob(null);
+    const next = await reload();
+    if (next?.sections[0]) setActiveId(next.sections[0].id);
+    setPanel(next?.missingFacts.some((m) => m.status === "open") ? "questions" : "checks");
+    router.refresh();
+  };
   const active = ws.sections.find((s) => s.id === activeId) ?? ws.sections[0];
   const dl = deadlineLabel(app.opportunity.deadline);
   const openQuestions = ws.missingFacts.filter((m) => m.status === "open").length;
@@ -361,8 +392,8 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
   if (ws.sections.length === 0) {
     return (
       <PageContainer>
-        <Link href="/pipeline" className="text-sm text-ink-muted underline-offset-4 hover:text-ink hover:underline">
-          Pipeline
+        <Link href={isBid ? `/applications/${app.id}` : "/pipeline"} className="text-sm text-ink-muted underline-offset-4 hover:text-ink hover:underline">
+          {isBid ? "Bid: matrix, go/no-go, fee" : "Pipeline"}
         </Link>
         <header className="mt-4 border-b border-rule pb-6">
           <p className="text-base text-ink-muted">{app.funder.name}</p>
@@ -374,35 +405,73 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
         </header>
         <div className="mt-10 border-t border-rule pt-6">
           <h2 className="font-display text-2xl text-ink">{drafting ? (drafting === "letter" ? "Writing the letter" : drafting === "concept" ? "Writing the concept note" : "Drafting the proposal") : "No draft yet"}</h2>
-          <p className="mt-2 max-w-[65ch] text-base text-ink-muted">
-            {demo
-              ? "Write a one-page letter of inquiry from the confirmed facts and this funder's own text. Every claim carries its source, and anything we cannot source becomes a question instead of a guess. The demo replays recorded letters for each sample's strongest matches."
-              : "We will write a one-page letter of inquiry from your confirmed facts and this funder's own text. Every claim carries its source. Anything we cannot source becomes a question for you instead of a guess."}
-          </p>
-          {readOnly ? (
-            <p className="mt-5 max-w-[60ch] text-sm text-ink-muted">You are reading as a board reviewer. The owner or an editor starts the draft; you can read and approve sections once it is written.</p>
+          {segmentMode ? (
+            isBid ? (
+              <p className="mt-2 max-w-[65ch] text-base text-ink-muted">
+                Bids are drafted from their bid page, where the compliance matrix, go/no-go, team, and fee live.{" "}
+                <Link href={`/applications/${app.id}`} className="font-semibold text-ink underline underline-offset-4">
+                  Go to the bid
+                </Link>
+              </p>
+            ) : app.mode === "research" ? (
+              <>
+                <p className="mt-2 max-w-[65ch] text-base text-ink-muted">We draft the standard sections (summary, aims, research plan, broader impacts, budget justification, data management plan) from your team&apos;s records and the notice, and build biosketches and facilities straight from your records. Anything we cannot source becomes a question.</p>
+                {app.funder.aiPolicy ? <p className="mt-3 max-w-[65ch] border-l-[6px] border-alert py-1 pl-4 text-base text-ink">{app.funder.aiPolicy}</p> : <p className="mt-3 max-w-[65ch] border-l-[3px] border-rule-strong py-1 pl-4 text-base text-ink">We found no AI policy for this funder. Search the notice for an AI clause before using drafted text.</p>}
+                {!readOnly ? (
+                  <Button className="mt-5" onClick={draftSegment} loading={Boolean(drafting)} disabled={Boolean(drafting)}>
+                    Draft the research proposal
+                  </Button>
+                ) : null}
+              </>
+            ) : (
+              <>
+                <p className="mt-2 max-w-[65ch] text-base text-ink-muted">Paste the sponsor&apos;s essay prompt. We draft from your own experiences, in your voice, and ask for any detail your résumé does not give rather than invent it.</p>
+                <div className="mt-4 max-w-2xl">
+                  <Field id="essay-prompt" label="The essay prompt">
+                    <Textarea value={essayPrompt} onChange={(e) => setEssayPrompt(e.target.value)} rows={3} />
+                  </Field>
+                  {demo ? <p className="mt-1 text-sm text-ink-muted">An example prompt. A sponsor&apos;s own prompt is in its application.</p> : null}
+                </div>
+                {!readOnly ? (
+                  <Button className="mt-5" onClick={draftSegment} loading={Boolean(drafting)} disabled={Boolean(drafting) || essayPrompt.trim().length < 15}>
+                    Draft my essay
+                  </Button>
+                ) : null}
+              </>
+            )
           ) : (
             <>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <Button onClick={() => draftNow("letter")} loading={drafting === "letter"} disabled={Boolean(drafting)}>
-                  {drafting === "letter" ? "Writing from your facts" : "Write a letter of inquiry"}
-                </Button>
-                <Button variant="secondary" onClick={() => draftNow("proposal")} loading={drafting === "proposal"} disabled={Boolean(drafting)}>
-                  {drafting === "proposal" ? "Drafting the proposal" : "Write the full proposal"}
-                </Button>
-                <Button variant="secondary" onClick={draftConcept} loading={drafting === "concept"} disabled={Boolean(drafting)}>
-                  Write a concept note
-                </Button>
-              </div>
-              <p className="mt-3 max-w-[60ch] text-sm text-ink-muted">A letter is one page and takes about half a minute. The full proposal reads the funder&apos;s guidelines into a checklist first and takes a minute or two. A concept note is a short outline assembled straight from your confirmed facts, with no model, so it is ready in a second.</p>
-              <p className="mt-4 text-sm text-ink-muted">
-                Or{" "}
-                <button type="button" onClick={() => setReuseOpen(true)} disabled={Boolean(drafting)} className="inline-flex min-h-6 items-center font-semibold text-ink underline decoration-[1.5px] underline-offset-4 disabled:opacity-50">
-                  start from a past winning application
-                </button>
-                .
-              </p>
-            </>
+          <p className="mt-2 max-w-[65ch] text-base text-ink-muted">
+              {demo
+                ? "Write a one-page letter of inquiry from the confirmed facts and this funder's own text. Every claim carries its source, and anything we cannot source becomes a question instead of a guess. The demo replays recorded letters for each sample's strongest matches."
+                : "We will write a one-page letter of inquiry from your confirmed facts and this funder's own text. Every claim carries its source. Anything we cannot source becomes a question for you instead of a guess."}
+            </p>
+            {readOnly ? (
+              <p className="mt-5 max-w-[60ch] text-sm text-ink-muted">You are reading as a board reviewer. The owner or an editor starts the draft; you can read and approve sections once it is written.</p>
+            ) : (
+              <>
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <Button onClick={() => draftNow("letter")} loading={drafting === "letter"} disabled={Boolean(drafting)}>
+                    {drafting === "letter" ? "Writing from your facts" : "Write a letter of inquiry"}
+                  </Button>
+                  <Button variant="secondary" onClick={() => draftNow("proposal")} loading={drafting === "proposal"} disabled={Boolean(drafting)}>
+                    {drafting === "proposal" ? "Drafting the proposal" : "Write the full proposal"}
+                  </Button>
+                  <Button variant="secondary" onClick={draftConcept} loading={drafting === "concept"} disabled={Boolean(drafting)}>
+                    Write a concept note
+                  </Button>
+                </div>
+                <p className="mt-3 max-w-[60ch] text-sm text-ink-muted">A letter is one page and takes about half a minute. The full proposal reads the funder&apos;s guidelines into a checklist first and takes a minute or two. A concept note is a short outline assembled straight from your confirmed facts, with no model, so it is ready in a second.</p>
+                <p className="mt-4 text-sm text-ink-muted">
+                  Or{" "}
+                  <button type="button" onClick={() => setReuseOpen(true)} disabled={Boolean(drafting)} className="inline-flex min-h-6 items-center font-semibold text-ink underline decoration-[1.5px] underline-offset-4 disabled:opacity-50">
+                    start from a past winning application
+                  </button>
+                  .
+                </p>
+              </>
+            )}
+              </>
           )}
           {job ? (
             <div className="mt-6 max-w-2xl" aria-live="polite">
@@ -429,8 +498,8 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
     <div className="flex min-h-screen flex-col">
       <header className="border-b border-rule bg-paper px-4 py-3 sm:px-6">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <Link href="/pipeline" className="text-sm text-ink-muted underline-offset-4 hover:text-ink hover:underline">
-            Pipeline
+          <Link href={isBid ? `/applications/${app.id}` : "/pipeline"} className="text-sm text-ink-muted underline-offset-4 hover:text-ink hover:underline">
+            {isBid ? "Bid: matrix, go/no-go, fee" : "Pipeline"}
           </Link>
           <div className="order-last min-w-0 basis-full sm:order-none sm:flex-1 sm:basis-auto">
             <h1 className="truncate font-display text-xl text-ink">{app.opportunity.title}</h1>
@@ -440,7 +509,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
               {/* The amount is a fact, so it is plain text. Only the control that changes it looks clickable. */}
               <span className="inline-flex min-h-6 items-center gap-2">
                 {app.askAmount ? <span className="tnum">Asking {formatMoney(app.askAmount)}</span> : null}
-                {readOnly ? null : (
+                {readOnly || isBid || app.mode === "essay" ? null : (
                 <button
                   type="button"
                   onClick={() => setAskOpen(true)}
@@ -557,7 +626,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
           </div>
           {leftOpen ? (
             <div className="px-3 pb-6">
-              <Checklist requirements={ws.requirements} sections={ws.sections} activeId={active?.id ?? ""} onSelect={setActiveId} />
+              <Checklist requirements={ws.requirements} sections={ws.sections} activeId={active?.id ?? ""} onSelect={setActiveId} note={isBid ? "Read from the solicitation. The full compliance matrix is on the bid page." : app.mode === "research" ? "The standard sections of a research proposal, and the funder's AI rule." : app.mode === "essay" ? "The sponsor's prompt, its word limit, and what to check before you send it." : app.mode === "letter" ? "What a letter of inquiry needs." : undefined} />
             </div>
           ) : null}
         </aside>
@@ -609,7 +678,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
                 </TabsTrigger>
                 <TabsTrigger value="sources">Sources</TabsTrigger>
                 <TabsTrigger value="reviewer">Reviewer</TabsTrigger>
-                <TabsTrigger value="budget">Budget</TabsTrigger>
+                {isBid || app.mode === "essay" ? null : <TabsTrigger value="budget">Budget</TabsTrigger>}
               </TabsList>
               <TabsContent value="questions">
                 {readOnly ? <p className="mb-3 text-sm text-ink-muted">The owner or an editor answers these.</p> : null}

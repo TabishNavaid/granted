@@ -1,0 +1,542 @@
+{
+ "recordedAt": "2026-10-18",
+ "source": "sam.gov public search and notice pages, mapped to Opportunities API v2 fields",
+ "opportunitiesData": [
+  {
+   "noticeId": "253aac88c88d49fd8a36bcf9abff4b0b",
+   "title": "FCI Three Rivers-Replace Generators, Transformers, and Electrical Infrastructure",
+   "solicitationNumber": "15BNAS27Q00000002",
+   "fullParentPathName": "JUSTICE, DEPARTMENT OF.FEDERAL PRISON SYSTEM / BUREAU OF PRISONS.NATIONAL ACQUISITIONS - CO",
+   "postedDate": "2026-10-15",
+   "type": "Combined Synopsis/Solicitation",
+   "baseType": "Combined Synopsis/Solicitation",
+   "typeOfSetAside": "8A",
+   "typeOfSetAsideDescription": "8(a) Set-Aside (FAR 19.8)",
+   "responseDeadLine": "2026-11-30T11:00:00-05:00",
+   "naicsCode": "236220",
+   "classificationCode": "Z2NZ",
+   "active": "Yes",
+   "pointOfContact": [
+    {
+     "type": "primary",
+     "fullName": "Heather Buck",
+     "email": "hbuck@bop.gov",
+     "phone": "",
+     "title": null
+    }
+   ],
+   "placeOfPerformance": {
+    "city": {
+     "code": "72872",
+     "name": "Three Rivers"
+    },
+    "state": {
+     "code": "TX",
+     "name": "Texas"
+    },
+    "zip": "78071",
+    "country": {
+     "code": "USA",
+     "name": "UNITED STATES"
+    }
+   },
+   "description": "https://api.sam.gov/prod/opportunities/v1/noticedesc?noticeid=253aac88c88d49fd8a36bcf9abff4b0b",
+   "uiLink": "https://sam.gov/opp/253aac88c88d49fd8a36bcf9abff4b0b/view",
+   "descriptionText": "This is a combined synopsis/solicitation for commercial products or commercial services prepared in accordance with part 12. This announcement constitutes the only solicitation. Offers are being requested and a separate written solicitation will not be issued.\n\nModification for site visit date only** Thursday Oct. 29, 2026- 8:00 AM CST\n\nSolicitation number 15BNAS27Q00000002 is issued as a Request for Quote (RFQ). The Federal Bureau of Prisons (FBOP), Federal Correctional Institution (FCI) Three Rivers, anticipates the issuance of a solicitation for the award of a firm-fixed-price construction contract for a project titled Replace Generators, Transformers, and Electrical Infrastructure, for FCI Three Rivers located at 1700 HWY 72 WEST, Three Rivers, TX 78071. This acquisition [is] set-aside for 8a small business concerns. This solicitation incorporates provisions and clauses by reference. The full text of provisions and clauses may be accessed electronically at www.acquisition.gov.\n\nThis announcement constitutes as the only solicitation; quotes are being requested and a written solicitation is issued (see attached) . You are required to provide all pages of the written attached solicitation with your complete quotation.\n\nSolicitation Number: 15BNAS27Q00000002 and is issued as a Request for Quotation (RFQ) A statement that the solicitation document and incorporated provisions and clauses are those in effect through Federal Acquisition Circular 2026-1, Effective Date March 13, 2026.\n\nThis is a 100 percent 8a small business set-aside. \n\nThe Period of Performance for this project will be 450 Calendar Days from the issuance of the Notice to Proceed.\n\nThe provision at 52.212-1, Instructions to Offerors-Commercial Products and Commercial Services, applies to this acquisition and a statement regarding any addenda to the provision. All quotes will be evaluated based on price and past performance. All quoters are required to submit a complete copy of their Offeror Representations and Certifications-Commercial Products and Commercial Services, with its offer.\n\nClause at 52.212-4, Contract Terms and Conditions-Commercial Products and Commercial Services, applies to this acquisition.\n\nSCOPE OF WORK:\n\nThe contractor will provide all necessary labor, materials, equipment, tools, and incidentals required to Replace Generators, Transformers, and Electrical Infrastructure, for FCI Three Rivers. See the attached Statement of Work for further detailed requirements.\n\nThe North American Industrial Classification System (NAICS) code applicable to this requirement is 236220 (Commercial and Institutional Building Construction) with a corresponding small business size standard of $45.0 million average annual receipts for the firms preceding three fiscal years.\n\nThe solicitation will only be distributed soley through the Contract Opportunity web-site at https://www.sam.gov. Hard copies of the solicitation will not be made available. The website provides download instructions for documents.\n\nAll future information about this solicitation, including any amendments will also be distributed soley through this website. Interested parties are responsible for continuously monitoring this website to ensure that they have the most recent information about this proposed contract action.\n\nIMPORTANT: Any contractor interested in doing business with the Federal Bureau of Prisons must be registered in https://www.sam.gov. In order to qualify for award, your business size metrics information entered in your SAM registration will be reviewed by the Government to confirm your size business size meets the 8a small business size standard requirement and the U.S. Small Business Administration. All quoters are urged to double check their SAM registration and U.S. Small Business Administration and update as necessary, including the size metrics information.\n\nSITE VISIT:\n\nAn organized site visit has been scheduled for Thursday - 10/29/2026 at 8:00am CST with Mr. Corey Villarreal, at FCI Three Rivers, HWY 72 WEST, Three Rivers, TX 78071. Participants are asked to meet in the lobby area. Attendance is not mandatory but highly advised. All NCIC paperwork must be submitted by 4:00 PM EST on Friday, October 22, 2026 to cvillarreal@bop.gov. Late submissions will not be accepted. Access to government property is subject to approval at the Government’s discretion. Please plan accordingly and ensure paperwork is completed ahead of time. NCIC form is Attachment 10.\n\nQuestions:\n\nAll questions are due November 6, 2026 by 4:00 PM EST to hbuck@bop.gov. All answers to questions will be posted on SAM.gov only.\n\nSUBMISSION OF QUOTES:\n\nAll quotes will be submitted electronically via email to hbuck@bop.gov no later than November 30, 2026 at 11am EST."
+  },
+  {
+   "noticeId": "49dc1ea06c9a4452b28dffd5dbd6d794",
+   "title": "JOINT BASE LEWIS MCCHORD MULTI DOMAIN TASK FORCE BUILDINGS 3223-3224, WASHINGTON",
+   "solicitationNumber": "W912DW27RA014",
+   "fullParentPathName": "DEPT OF DEFENSE.DEPT OF THE ARMY.USACE.NWD.W071 ENDIST SEATTLE",
+   "postedDate": "2026-10-16",
+   "type": "Solicitation",
+   "baseType": "Solicitation",
+   "typeOfSetAside": "SBA",
+   "typeOfSetAsideDescription": "Total Small Business Set-Aside (FAR 19.5)",
+   "responseDeadLine": "2026-11-30T11:00:00-08:00",
+   "naicsCode": "236220",
+   "classificationCode": "Y1AZ",
+   "active": "Yes",
+   "pointOfContact": [
+    {
+     "type": "primary",
+     "fullName": "Cassandra Gonzalez",
+     "email": "cassandra.p.gonzalez@usace.army.mil",
+     "phone": "2065073218",
+     "title": null
+    }
+   ],
+   "placeOfPerformance": {
+    "city": null,
+    "state": null,
+    "zip": "98433",
+    "country": null
+   },
+   "description": "https://api.sam.gov/prod/opportunities/v1/noticedesc?noticeid=49dc1ea06c9a4452b28dffd5dbd6d794",
+   "uiLink": "https://sam.gov/opp/49dc1ea06c9a4452b28dffd5dbd6d794/view",
+   "descriptionText": "GENERAL WORK WILL CONVERT TWO (2) EXISTING BARRACKS BUILDINGS INTO OPERATIONAL FACILITIES FOR 3 TIER LEVELS OF COMMAND. THESE BUILDINGS IN GENERAL ARE REFERRED AS THE HAMMER HEADS. THE HAMMER HANDLES HAVE THREE (3) FLOORS WITH A CRAWL SPACE AT GRADE ELEVATION. THE HAMMER HEADS ARE SINGLE FLOOR. THE BASEMENT AREA WITH A MAIN UTILITY MECHANICAL AND ELECTRICAL ROOM EXTENDS PARTIALLY UNDER BOTH THE HAMMER HEAD AND THE HAMMER HANDLE."
+  },
+  {
+   "noticeId": "5073642275214db4a200d4010bd55522",
+   "title": "C1DA--NCO 17 AE Short Selection Database FY24 - FY27",
+   "solicitationNumber": "36C25723R0049",
+   "fullParentPathName": "VETERANS AFFAIRS, DEPARTMENT OF.VETERANS AFFAIRS, DEPARTMENT OF.257-NETWORK CONTRACT OFFICE 17 (36C257)",
+   "postedDate": "2026-07-20",
+   "type": "Presolicitation",
+   "baseType": "Presolicitation",
+   "typeOfSetAside": "SDVOSBC",
+   "typeOfSetAsideDescription": "Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside (FAR 19.14)",
+   "responseDeadLine": "2027-09-30T00:00:00-05:00",
+   "naicsCode": "541310",
+   "classificationCode": "C1DA",
+   "active": "Yes",
+   "pointOfContact": [
+    {
+     "type": "primary",
+     "fullName": "Horacio Fernandez",
+     "email": "horacio.fernandez@va.gov",
+     "phone": "(254) 421-4096",
+     "title": "Senior Contract Specialist / Contracting Officer"
+    }
+   ],
+   "placeOfPerformance": {
+    "city": {
+     "name": "Multiple"
+    },
+    "state": {
+     "name": "Texas"
+    },
+    "zip": null,
+    "country": {
+     "name": "United States"
+    }
+   },
+   "description": "https://api.sam.gov/prod/opportunities/v1/noticedesc?noticeid=5073642275214db4a200d4010bd55522",
+   "uiLink": "https://sam.gov/opp/5073642275214db4a200d4010bd55522/view",
+   "descriptionText": "36C25723R0049 A0003 - Increase from original 35 cap for A/E Contractors on the Short Selection Database to 50."
+  },
+  {
+   "noticeId": "61cee69945a348b398ca87238516ebc0",
+   "title": "GSA A/E SHORT SELECTION PROCESS FOR CONUS/OCONUS",
+   "solicitationNumber": "GSAAESSP",
+   "fullParentPathName": "",
+   "postedDate": "2026-10-01",
+   "type": "Sources Sought",
+   "baseType": "Sources Sought",
+   "typeOfSetAside": "SBA",
+   "typeOfSetAsideDescription": "Total Small Business Set-Aside (FAR 19.5)",
+   "responseDeadLine": "2026-10-31T23:59:00-04:00",
+   "naicsCode": "541310",
+   "classificationCode": "C1AA",
+   "active": "Yes",
+   "pointOfContact": [
+    {
+     "type": "primary",
+     "fullName": "Chad Bruntjens",
+     "email": "aeshortselection@gsa.gov",
+     "phone": "",
+     "title": null
+    },
+    {
+     "type": "secondary",
+     "fullName": "Danyel Herdman",
+     "email": "aeshortselection@gsa.gov",
+     "phone": null,
+     "title": null
+    }
+   ],
+   "placeOfPerformance": {
+    "city": null,
+    "state": null,
+    "zip": null,
+    "country": null
+   },
+   "description": "https://api.sam.gov/prod/opportunities/v1/noticedesc?noticeid=61cee69945a348b398ca87238516ebc0",
+   "uiLink": "https://sam.gov/opp/61cee69945a348b398ca87238516ebc0/view",
+   "descriptionText": "Description \n\nThe purpose of this announcement is to request new Architect / Engineer (A/E) qualification information for the General Services Administration / Public Buildings Service (GSA/PBS) A/E short selection for Continental United States (CONUS) and Outside Continental United States (OCONUS). \n\nWHAT IS THE SHORT SELECTION PROCESS?\n\nThe short selection process utilizes the procedures set forth in Revolutionary FAR Overhaul (RFO) Federal Acquisition Regulation (FAR) Subsection 36.202-4 for Architect/Engineer (A/E) projects with an estimated total fee less than the simplified acquisition threshold (currently $350,000; see RFO FAR Part 2.101). The A/E's professional qualifications, the firm's geographic proximity, knowledge of the local area as identified on the A/E's SF330, and supplemental information will be used for the first preliminary screening of firms. For each proposed project, GSA will conduct discussions with at least three (3) firms to consider anticipated concepts and compare alternative methods for furnishing services. Additional information may be requested during discussions if necessary to facilitate the final ranking of firms (i.e.: past performance references, specialized experience, capacity, schedule, etc.). Upon conclusion of discussions, the top three firms will be ranked, and a price proposal will be requested from the highest ranked firm. If a fair and reasonable price cannot be negotiated with the highest ranked firm, a request for a price proposal will be sent to the second ranked firm, and so on until an award can be made at a fair and reasonable price. All acquisitions utilizing the GSA A/E short selection list (database) shall be set-aside for small business concerns unless requirements cannot be met by a small business and the Contracting Officer (CO) obtains a proper waiver.\n\nWHAT IS THE SHORT SELECTION PROCESS USED FOR? \n\nGSA will use the short selection list to award A/E contracts, valued at less than the simplified acquisition threshold (currently $350,000) in CONUS/OCONUS (NOT Estimated Cost of Construction at Award (ECCA). \n\nThe firm must have NAICS code 541310 - Architectural Services, with a small business size standard of $12.5 million and/or 541330 - Engineering Services, with a small business size standard of $25.5 million. The firm must clearly notate which states/territories they have active production offices and which states they are licensed by November 1, 2026. \n\nMost work will be executed for repair and alteration projects within existing Federal Buildings and U.S. Courthouses. The estimated cost of construction at award (ECCA) for a majority of the project requirements could range from, but are not limited to, above micro-purchase threshold for construction (currently $2,000) to annual prospectus threshold (currently $3.961M) or higher. \n\nFees for design services cannot exceed 6% of the ECCA. For more information about the 6% fee limitation, see FAR 15.404-9(c)(4)(ii) (GSA Class Deviation RFO-2025-15) and 41 U.S.C. 3905(b)(3). \n\nGSA manages a nationwide real estate portfolio of approximately 360 million rentable square feet, including preserving more than 500 historic properties nationwide. A broad range of services potentially requested under this short list may include, but are not limited to the following:\n\n1. Core Project Life Cycle Services - These services cover the entire project lifecycle, from initial concept to post-construction closeout.\n\nPlanning and Pre-Design\n\n Feasibility, pre-design, and project development studies\n\n Master planning\n\n Cost estimating\n\n Real estate market analysis\n\nAssessment and Investigation\n\n Existing conditions surveys, and field investigation\n\n Building condition survey evaluation reports (exterior and interior)\n\n Environmental investigation, reviews, inventories, and audits\n\n Energy audits and studies\n\nDesign and Documentation\n\n Concept design, design development, and construction document development (both architectural and engineering)\n\n Interior design, including furniture, fixtures, and equipment (FFE)\n\n Building standard documents\n\nConstruction Support and Closeout\n\n Constructability review and evaluation\n\n Submittal and shop drawing review\n\n Management and inspection (M&I) services during construction and construction inspection\n\n Building and system commissioning\n\n Post construction contract Services (PCCS); Record and close-out documents\n\n2. Specialized Technical & System Design - Work requested often involves the assessment, repair, and upgrade of existing complex building systems.\n\nMechanical, Electrical, and Plumbing (MEP)\n\n Full MEP services, including design of HVAC systems, electrical systems, and lighting\n\n Assessment and design for mechanical components (e.g., pumps, fans, air handlers, water distribution systems) and air distribution\n\n Design of water and waste water systems, including performance of sanitary inspections\n\n Temperature control assessment and design and BAS system assessment and integration\n\nBuilding Structure and Envelope\n\n Structural evaluation and design\n\n Façade evaluation and remediation design\n\n Water infiltration investigation and mitigation design safety, security, and compliance\n\n Fire and life safety evaluation and design\n\n Rehabs to improve energy efficiency and safety concerns\n\n Seismic & blast protection and vertical transportation\n\n Code compliance\n\n3. A/E Disciplines and Expertise - A/E firms will need staff with licensed and/or specialized expertise. The following are typical disciplines and categories utilized for GSA projects. Firms do not need to have all of them, but should include the most relevant disciplines for their firm: \n\nCore Architectural and Engineering Disciplines\n\n Architecture and anterior architecture\n\n Mechanical engineering, electrical engineering, structural & civil engineering, and plumbing\n\n Historic architecture/preservation\n\nSpecialized Expertise\n\n A qualified/licensed fire protection engineer (NCEES)* \n\n Security\n\n Space planning & workplace\n\n Cost estimating and scheduling\n\n Environmental services\n\n Building automation\n\n Scifs\n\nModernization and Quality Control\n\n Building information modeling (BIM)\n\n Quality control review and report writing\n\nSUBMISSION INSTRUCTIONS\n\nTo be considered for future Architect-Engineer (A/E) projects, your firm must submit a package demonstrating the applicability and comparability of its portfolio to the types of services outlined above. \n\nPlease submit your complete package as a single PDF document. This file, which should be no larger than 30MB and no more than thirty (30) pages, must contain all submittal documents. Submit your PDF file as an attachment via the online “GSA A/E Short Selection Submission Form” (Link provided below). Note: Hardcopy submissions received by mail will not be filed or considered. \n\nThe following information shall be submitted as part of the thirty (30) page limit (LISTED IN REQUIRED ORDER): \n\nDO NOT SUBMIT ANY PROPRIETARY INFORMATION\n\n1. A cover letter. The letter should outline the work your firm specializes in and include a brief description of your firm's capabilities specifically related to the project examples stated above. \n\n2. SAM Entity Registration Print Out - 1st and 2nd page only to show active registration in System for Award Management (SAM). Registration is required for award of federal contracts and you must have an active registration in SAM to be considered for project work. Contractors may register in SAM free of charge at https://sam.gov/ under the header labeled Register Your Entity or Get a Unique Entity ID. \n\n3. Standard Form (SF) 330 - Architect-Engineer Qualifications. DO NOT include subconsultants. Please include photos of accomplished work.\n\n4. A separate list of the licensed (or will be licensed by November 1, 2026) professionals and the State/territories of their licensing.\n\nNote:\n\nThis A/E short selection process is for Primes only; consultants are NOT part of this selection process. However, submitted project experience may reference work executed with consultants. Firms should highlight their specific role and explain the work they performed alongside any consultants. Consultants will be requested by project managers during project development. Submittals that don't contain the required documentation will be returned for revision and/or non selection. \n\nOrganizing your submittal package in the same order enumerated above will facilitate a more efficient review process. \n\nQuestions related to this announcement shall be referred to aeshortselection@gsa.gov \n\nThe following information should be easily found in your SF330 Submission:\n\n1. Relevant Project Experience, Demonstrated Comparability and Creative Problem Solving \n\nOfferors must provide a minimum of three (3) but no more than five (5) comparable project examples that demonstrate a wide range of repair and alterations work similar in budgets and complexities to those anticipated for contracts. An additional maximum of ten (10) relevant projects completed in the last ten (10) years can be submitted in list form. Please include relevant project photographs.\n\nA comparable project is defined as an “A/E engagement involving the repair, alteration, or renovation of existing, occupied facilities, with a focus on both architectural and engineering solutions. Specifically, the project should demonstrate specialized experience in:\n\n Building system upgrades (e.g., MEP services or mechanical pump replacement)\n\n Historic preservation (especially classical building architecture)\n\n Workplace design\n\nFurthermore, a comparable project's Estimated Cost of Construction at Award (ECCA) should generally range from $50,000 to an annual prospectus threshold (currently $3.961M).\n\n Breadth of Scope: Teams must demonstrate proficiency in seamlessly incorporating architecture and engineering to solve both complex and routine design issues within existing buildings.\n\n Specialized Expertise: Highlight specialized experience in the areas most critical to the GSA/PBS mission. This must include work in:\n\n Occupied buildings\n\n Historic preservation, restoration, and adaptive reuse (special consideration will be given to firms demonstrating experience with classical building architecture and design)\n\n Building system upgrades (e.g., MEP services, mechanical pump replacement, HVAC systems, electrical systems, and building controls).\n\n Workplace design strategies, interior office redesign, and building standard documents\n\n Creative Problem Solving: Firms must demonstrate their ability to be creative and \"think outside the box\" when developing design solutions, especially given the constraints and challenges of government buildings and existing customer agencies while successfully navigating constraints such as schedule and budget.\n\n2. Team Capacity, Management, and Quality Control\n\nThe team’s ability to manage projects efficiently, flexibly, and collaboratively is essential for handling the unpredictable nature of GSA task orders.\n\n Contract Management and Flexibility: Demonstrate the ability to staff and manage contracts on an as-needed basis, accounting for the unpredictable issuance of work in terms of number, size, importance, and urgency.\n\n Consultant and Customer Agency Management: The A/E short selection process is for the Architecture or Engineering Prime only, but the firm must demonstrate its ability to manage its entire team. Firms must demonstrate proven success in establishing good relationships with and effectively managing future sub-consultants, as well as managing scope and communication while working with difficult customer agencies. \n\n Quality Assurance: Team must demonstrate formalized processes for quality control (QC) and a commitment to QC standards while consistently designing within the project’s budget and schedule limitations.\n\n3. Key Personnel Education and Qualifications\n\nKey Personnel should possess the education, professional qualifications, and specific project experience that provides the best opportunity for the successful completion under this contract.\n\n Licensing: Provide a separate list of states in which the firm is licensed or will be licensed by November 1, 2026.\n\n Specialized Roles: Key Personnel must demonstrate expertise in disciplines relevant to the services outlined above, such as a Qualified Fire Protection Engineer1, historic preservation, etc.\n\n1A Qualified Fire Protection Engineer is an individual with deep knowledge of fire physics and chemistry, meeting one of the following criteria: (a) An engineer with an undergraduate or graduate degree in fire protection/safety engineering, plus a minimum of four (4) years of relevant work experience; (b) A registered Professional Engineer (P.E. or similar) in Fire Protection Engineering; or (c) A P.E. in a related engineering discipline who is a Professional Member of the Society of Fire Protection Engineers and has passed the NCEES fire protection exam.\n\n4. Past Performance\n\nOfferors should include CPARS (Contractor Performance Assessment Reporting System) if they have past government experience as the prime. No more than three (3) most recent relevant records. The CPARS information does not count against the thirty (30) page limit. \n\n Impact: If a firm does not have past government experience, they will not be negatively impacted during the selection process.\n\nPlease register to attend the industry outreach and Q&A meeting on October 16 at 9am PDT or October 22 at 3pm EDT by completing the “A/E Short Selection Process Registration Form CONUS/OCONUS” (Link provided below). Invites will be sent out to all registered attendees approximately one week in advance.\n\nRelavant Links\n\nGSA A/E Short Selection Process for CONUS/OCONUS - Registration Form\n\nhttps://forms.gle/8kd1qZfZeVMag3HG9\n\nGSA A/E Short Selection Process for CONUS/OCONUS - Q&A\n\nhttps://docs.google.com/document/d/1sGIs_KEnEvP99mxeB2VKBS64IVoUixEZSOLsczc_2As/edit?usp=sharing\n\nGSA A/E Short Selection Process for CONUS/OCONUS - Submission Form\n\nhttps://forms.gle/7Rh3FkMkubweUHveA"
+  },
+  {
+   "noticeId": "6e347dd0f37b401c9a6df8fec54a7998",
+   "title": "C1DA-- AE Replace Elevators  539-24-102",
+   "solicitationNumber": "36C25027R0008",
+   "fullParentPathName": "VETERANS AFFAIRS, DEPARTMENT OF.VETERANS AFFAIRS, DEPARTMENT OF.250-NETWORK CONTRACT OFFICE 10 (36C250)",
+   "postedDate": "2026-10-16",
+   "type": "Presolicitation",
+   "baseType": "Presolicitation",
+   "typeOfSetAside": "SDVOSBC",
+   "typeOfSetAsideDescription": "Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside (FAR 19.14)",
+   "responseDeadLine": "2026-11-02T11:00:00-05:00",
+   "naicsCode": "541330",
+   "classificationCode": "C1DA",
+   "active": "Yes",
+   "pointOfContact": [
+    {
+     "type": "primary",
+     "fullName": "Ronald Heidemann",
+     "email": "ronald.heidemann@va.gov",
+     "phone": "513 559 3708",
+     "title": "Contracting Officer"
+    }
+   ],
+   "placeOfPerformance": {
+    "city": {
+     "name": ""
+    },
+    "state": {
+     "name": ""
+    },
+    "zip": null,
+    "country": {
+     "name": ""
+    }
+   },
+   "description": "https://api.sam.gov/prod/opportunities/v1/noticedesc?noticeid=6e347dd0f37b401c9a6df8fec54a7998",
+   "uiLink": "https://sam.gov/opp/6e347dd0f37b401c9a6df8fec54a7998/view",
+   "descriptionText": "Provide complete design services, including all necessary schematics, design development, surveys, cost estimates, construction drawings and specifications, and construction period services (CPS) for solicitation to upgrade and replace all elevators and elevator components at the Cincinnati VA Medical Center, 3200 Vine Street, Cincinnati, OH 45220 and the Ft. Thoms Domiciliary, 1000 S. Ft. Thomas Ave, Ft. Thomas, KY 41075.\nThis project will modernize, replace, and repair 21 elevators that are deteriorated, outdated, or frequently out of service. Several elevators contain obsolete components that are no longer available for purchase, requiring replacement to ensure continued reliability and maintainability. Other units require upgrades to doors, flooring, and ceiling finishes due to normal use and deterioration.\nSELECTION CRITERIA\nThe Government will evaluate each potential contractor under the terms of its:\nA. Professional qualifications necessary for satisfactory performance of required services; \nB. Specialized experience and technical competence in the type of work required, including, where appropriate, experience in energy conservation, pollution prevention, waste reduction, and the use of recovered materials; \nC. Capacity to accomplish the work in the required time; \nD. Past performance on contracts with Government agencies and private industry in terms of cost control, quality of work, and compliance with performance schedules; \nE. Location in the general geographical area of the project and knowledge of the locality of the project; provided, that application of this criterion leaves an appropriate number of qualified firms, given the nature and size of the project; \nF. Experience in construction period services to include professional field inspections during the construction period, review of construction submittals, support in answering requests for information during the construction period, and support of construction contract changes to include drafting statements of work, and cost estimates shall be included as an evaluation criterion when construction period services is included in the statement of work for A-E services, and; \nG. The extent to which potential contractors identify and commit to the use of service-disabled veteran-owned small businesses, veteran-owned small businesses, and other types of small businesses as subcontractors.\n\nSUBMITTAL INSTRUCTIONS\nAll interested and capable contractors must submit an electronic copy of their SF 330s, via email, by the closing time/date of this announcement. Note the following:\nNo hard/physical copies will be accepted.\nLimit SF 330 packages to 50 pages. Only the first 50 pages will be evaluated.\nSubmit all documentation as one single file. The total size of the electronic submission (email and all attachments) must not exceed 15MB; larger emails may get rejected by the network server and will be considered non-responsive. \nCited relevant projects must be within the last five (5) years.\nSubmit packages via email to the contract specialist by the deadline: ronald.heidemann@va.gov\nSubject line must include the notice number: 36C25027R0008\nPlease include your firm s POC and UEI in the email body. \n\n***End of Presolicitation Notice**"
+  },
+  {
+   "noticeId": "7ced471ce66442578491bae8281c45ce",
+   "title": "IDIQ For Architect Engineer (A/E) Services for Central Office",
+   "solicitationNumber": "15BBNF26R70000006",
+   "fullParentPathName": "JUSTICE, DEPARTMENT OF.FEDERAL PRISON SYSTEM / BUREAU OF PRISONS.FAO",
+   "postedDate": "2026-09-23",
+   "type": "Presolicitation",
+   "baseType": "Presolicitation",
+   "typeOfSetAside": "SBA",
+   "typeOfSetAsideDescription": "Total Small Business Set-Aside (FAR 19.5)",
+   "responseDeadLine": "2026-11-04T10:00:00-07:00",
+   "naicsCode": "541310",
+   "classificationCode": "C219",
+   "active": "Yes",
+   "pointOfContact": [
+    {
+     "type": "primary",
+     "fullName": "Alex Jackson",
+     "email": "a4jackson@bop.gov",
+     "phone": "2025789940",
+     "title": null
+    }
+   ],
+   "placeOfPerformance": {
+    "city": {
+     "code": "50000",
+     "name": "Washington"
+    },
+    "state": {
+     "code": "DC",
+     "name": "District of Columbia"
+    },
+    "zip": "20534",
+    "country": {
+     "code": "USA",
+     "name": "UNITED STATES"
+    }
+   },
+   "description": "https://api.sam.gov/prod/opportunities/v1/noticedesc?noticeid=7ced471ce66442578491bae8281c45ce",
+   "uiLink": "https://sam.gov/opp/7ced471ce66442578491bae8281c45ce/view",
+   "descriptionText": "THIS IS A SYNOPSIS OF PROPOSED CONTRACT ACTION. FOLLOW THE INSTRUCTIONS CONTAINED IN THIS NOTICE FOR RESPONDING TO THIS OPPORTUNITY. \n\nThe Federal Bureau of Prisons (FBOP), Central (CO), anticipates the need for indefinitedelivery indefinite-quantity (IDIQ), firm ­fixed-price contracts for supplemental architect-engineer (A-E) services, with a one (1) year base requirement and up to four (4) unilaterally exercised option years, with a possibility for a six-month extention as well. The Government is not obligated to exercise any of the option periods. While the Government anticipates multiple awards, no more than four (4) awards are expected. \n\nThe services will be for various FBOP facilities throughout the United States. See the Statement of Work attachment for description of services. \n\nMost projects will take place in a fully occupied, fully operational, secure correctional environment. Most projects require complex design effort and detail along with extensive coordination between design disciplines, the institutions, and Central Office during design and construction. \n\nFirms are to perform services as required by the issuance of individual task orders. The guaranteed annual minimum amount of each contract is $10,000.00 and the estimated annual maximum is $10,000,000. \n\nThe North American Industrial Classification System (NAICS) code applicable to this requirement is 541310 (Architectural Services). Interested firms must be registered in the System for Award Management (SAM) at https://SAM.gov. \n\nThis requirement will be fulfilled pursuant to the Federal Acquisition Regulation (FAR) 36.6 and the Brooks Act.\n\nPursuant to FAR Deviation 36.201(b), for any firm(s) receiving award under this requirement, no construction contract may be awarded to the firm (including any of its subsidiaries or affiliates) that designs the corresponding project \n\nFirms having the capabilities to perform the services described in this announcement are invited to respond by submitting Parts I and II of the Standard Form 330 (Architect Engineer Qualifications) dated not more than 12 months before the date of this synopsis. The current version of the form along with any extra pages/sections may be retrieved from www.gsa.gov/forms (Type in \"SF330\" in the Form Name or Number block for a full listing of the associated forms. \n\n*** Include a cover letter detailing your firms name and main office address (as registered in sam.gov), UEI#, Tax ID# (TIN), CAGE code, and main point of contact for your firm through out the solicitation process (phone and e-mail). \n\nSubmissions should be on standard 8.5'' x 11\" format. No extraneous attachments. \n\nSelection criteria will be based on the following evaluation factors in descending order of importance: \n\n Specialized Experience and Technical Competence (32%)\n\n Capacity to Accomplish the Work in the Required Time (demonstrated ability to complete projects on time) (27%)\n\n Acceptability of an Established Team of Key Personnel (23%)\n\n Professional Qualifications Necessary for Satisfactory Performance (including licensed engineers and architects licensed Nationwide)(18%)\n\nSubmit details (maximum of one page per project) of not more than five significant and/or complex renovation projects completed in the past five years (Utilize Section F of the SF-330). Identify the lead designer and address the design approach with salient features for each project. Discuss how the client's program, function, image, mission, economic, schedule and operational objectives were satisfied by the overall design/planning solution. Include tangible evidence where possible such as certificates, awards, peer recognition, etc., demonstrating design excellence. Provide a client reference contact for each project, including name, title, address, phone, fax, and email. Submit resumes of key personnel outlining commitment to projects and qualifications and relevant experience as individuals and as a team. Highlight sustainability features incorporated into the project design (e.g., energy/water efficiency, waste reduction, use of recycled materials). \n\nSubmit a narrative outline of not more than one page describing the firm's project management planning, coordination, scheduling and production facilities, capabilities, and techniques for both design and construction inspection (Utilize Section H of the SF-330). \n\nSubmit a narrative outline (maximum one page) with examples describing the firm's ability to evaluate/develop accurate preliminary project budgets, ability to control project costs during design process, ability to design within funding limitations, methods used to coordinate construction documents, work of various engineering disciplines, and provide general production quality control (Utilize Section H of the SF-330). \n\nNo fax or paper submissions. \n\nSubmit electronically through the JEFS APP BOX at link below: \n\nhttps://jefs.app.box.com/f/336fbbe977394048827a238f901db3a3 \n\nAll submissions should be in Adobe format. \n\nTitle the file in the following format: \n\n15BBNF26R70000006_ Company Name_SF330 Architect Engineer (A/E) Services for Central Office\n\nElectronic copies of each submission shall be compatible with the following software products: Adobe Acrobat Reader 11 and Microsoft Office Suite 2016. Narrative portions of the submission shall be in Adobe Acrobat portable document file (pdf) searchable text format. The Submitter shall not embed sound or video (e.g., MPEG) files into the submission files. Electronic files shall be clearly identified for each volume, section, and item. The Submitter must ensure electronic files are virus-free and shall run an anti-virus scan before submission. \n\nSubmissions by mail or hand carried will not be evaluated. All responses must be received no later than Wednesday, November 4, 2026, 10:00 AM MST. It is the responsibility of the Submitter to confirm receipt by contacting Alex Jackson, Contracting Officer, at a4jackson@bop.gov. Failure to submit all required information may result in rejection.\n\nAll submissions received after the exact time specified for receipt shall be treated as late submissions and will not be considered except under facts and circumstances allowed by the Federal Acquisition Regulations (FAR). \n\nBased on these submissions, a short-list of no more than six (6) firms will be selected for an interview. Firms should be prepared to discuss their submittals and to demonstrate their ability to fulfill the contract requirements. Final selection will be based on SF-330 submissions and interviews. After the SF-330 review and interview process, four (4) selected firms will be invited to submit a formal proposal and must be prepared to negotiate overhead, profit, and hourly rates for anticipated disciplines for use in negotiating firm-fixed-price contract rates as well as firm-fixed-price task orders to be completed under the contract. All contract awards and task orders thereunder are subject to a determination of fair and reasonable pricing. \n\nThis acquisition is 100 percent small business set-aside. Firms must be registered in SAM.gov as a small business (see FAR provision 52.219-1 in the Representations & Certifications section of the SAM registration. \n\nIf you have questions about SAM.gov, Government procurements in general, or need assistance in the preparation of your bid/proposal/offer, a local Procurement Technical Assistance Center (PTAC) may be able to help. The Procurement Technical Assistance Program was authorized by Congress in 1985 in an effort to expand the number of businesses capable of participating in the Government marketplace. To locate a PTAC near you, go to http://www.aptac-us.org."
+  },
+  {
+   "noticeId": "82054a01032d4fb4b1202ed23f7c7373",
+   "title": "General Construction Services for Elevator Modernization at the Thurgood Marshall U.S. Courthouse, New York, NY",
+   "solicitationNumber": "47PB5126R0018",
+   "fullParentPathName": "",
+   "postedDate": "2026-10-16",
+   "type": "Solicitation",
+   "baseType": "Solicitation",
+   "typeOfSetAside": null,
+   "typeOfSetAsideDescription": null,
+   "responseDeadLine": "2026-12-04T16:00:00-05:00",
+   "naicsCode": "236220",
+   "classificationCode": "Y1AA",
+   "active": "Yes",
+   "pointOfContact": [
+    {
+     "type": "primary",
+     "fullName": "Natalia Lugo-Vina Cruz",
+     "email": "natalia.lugo-vinacruz@gsa.gov",
+     "phone": "",
+     "title": null
+    }
+   ],
+   "placeOfPerformance": {
+    "city": {
+     "code": "51000",
+     "name": "New York"
+    },
+    "state": {
+     "code": "NY",
+     "name": "New York"
+    },
+    "zip": "10007",
+    "country": {
+     "code": "USA",
+     "name": "UNITED STATES"
+    }
+   },
+   "description": "https://api.sam.gov/prod/opportunities/v1/noticedesc?noticeid=82054a01032d4fb4b1202ed23f7c7373",
+   "uiLink": "https://sam.gov/opp/82054a01032d4fb4b1202ed23f7c7373/view",
+   "descriptionText": "10/16/2026: Please be advised that Amendment #1 has been issued. Please refer to the attachments section to access the updated documents.\n\n__________________________________________________________________________\n\nThe U.S. General Services Administration (GSA), Public Buildings Service, Capital Projects Contracting Division, is pleased to announce the issuance of a Request for Proposals (RFP) for a project at the Thurgood Marshall U.S. Courthouse, situated at 40 Foley Square in New York, NY. This project will include scope to modernize seventeen (17) elevators, as well as upgrade mechanical, electrical and fire protection equipment within the elevator machine rooms.\n\nThe Courthouse will remain fully operational throughout the duration of the project. To ensure minimal disruption to Government operations, the work must be phased to limit interruptions to operations and any disruptive work must be executed after business hours, predominately work taking place within the elevator shaftways. The selected General Contractor will be required to ensure full compliance with the Government’s requirements for access and security. Additionally, the General Contractor will be required to complete this project in accordance with the construction drawings and specifications that will be issued for this project.\n\nThe selected General Contractor will be required to ensure full compliance with the Public Buildings Service Interim Core Building Standards, and the U.S. Courts Design Guide.\n\nContract Type: The contract type for this procurement will be Firm-Fixed price. The line item schedule will include a lump sum item for the Base. There will be option line items for this procurement. \n\nPrice: The total magnitude of this project at award is between $20,000,000 and $40,000,000. \n\nSelection and Schedule: This requirement will be competitively procured in accordance with Federal Acquisition Regulation (FAR) 15.1–Source Selection Processes and Techniques ((GSA Class Deviation RFO-2025-15) and FAR 36.101-2 (GSA Class Deviation RFO-2025-36)). The awardee will be competitively chosen using best value tradeoff procedures in accordance with FAR Subparts 15.1 and 15.2 (GSA Class Deviation RFO-2025-15). \n\nNAICS: This procurement will be conducted under North American Industry Classification System (NAICS) Code 236220--Commercial and Institutional Building Construction. The Small Business size standard is an average annual sales and receipts for the past three (3) years that are equal to or less than $45,000,000. \n\nAll offerors are required to have an active registration in the System for Award Management (www.SAM.gov) at the time of offer submission, and shall continue to be registered until time of award, during performance, and through final payment of any contract. \n\nInterested offerors - See all attached solicitation file packages for full details. Some of the solicitation documents are Controlled Unclassified Information (CUI). To access these documents your company must request access through www.sam.gov. \n\nProposals for this Solicitation must be submitted via e-mail in portable document format (PDF). Proposals MUST BE RECEIVED NO LATER THAN stated due date and time in this solicitation. \n\nInquiries concerning this solicitation must be routed to Contracting Officer Natalia Lugo-Vina at natalia.lugo-vinacruz.gsa.gov. Prospective offerors bear sole responsibility for tracking and retrieving the RFP alongside all associated amendments."
+  },
+  {
+   "noticeId": "8fa7c3583f3447fab7f2a2aaa4132ec9",
+   "title": "Sources Sought- Sources Sought & Other Transaction Authority (OTA) Construction for Non-Destructive Testing Facility, Red River Army Depot, Texas",
+   "solicitationNumber": "W9126G27RA020-P2_520249",
+   "fullParentPathName": "DEPT OF DEFENSE.DEPT OF THE ARMY.USACE.SWD.W076 ENDIST FT WORTH",
+   "postedDate": "2026-10-13",
+   "type": "Sources Sought",
+   "baseType": "Sources Sought",
+   "typeOfSetAside": null,
+   "typeOfSetAsideDescription": null,
+   "responseDeadLine": "2026-11-13T14:00:00-06:00",
+   "naicsCode": "236220",
+   "classificationCode": "Y1JB",
+   "active": "Yes",
+   "pointOfContact": [
+    {
+     "type": "primary",
+     "fullName": "Octavia Gregory",
+     "email": "octavia.e.gregory@usace.army.mil",
+     "phone": "8178861858",
+     "title": null
+    },
+    {
+     "type": "secondary",
+     "fullName": "Shayla J. Lucas",
+     "email": "shayla.j.lucas@usace.army.mil",
+     "phone": "8178861289",
+     "title": null
+    }
+   ],
+   "placeOfPerformance": {
+    "city": null,
+    "state": {
+     "code": "TX",
+     "name": "Texas"
+    },
+    "zip": "75570",
+    "country": {
+     "code": "USA",
+     "name": "UNITED STATES"
+    }
+   },
+   "description": "https://api.sam.gov/prod/opportunities/v1/noticedesc?noticeid=8fa7c3583f3447fab7f2a2aaa4132ec9",
+   "uiLink": "https://sam.gov/opp/8fa7c3583f3447fab7f2a2aaa4132ec9/view",
+   "descriptionText": "SOURCES SOUGHT- MARKET RESEARCH ONLY\n\n Title: Non-Destructive Testing Facility\n\n Location: Red River Army Depot, Texas\n\nScope: Construct an 8,000 SF Drive-through Depot Maintenance Shop for the non-destructive testing (NDT) of tactical vehicles, combat vehicles, and vehicle components. NDT is required to evaluate the integrity of welds, internal defects, structural capability, and condition of asset materials. The facility will include radiation protective shielding to allow for the existing x-ray equipment to be safely utilized at full potential and permit upgrades and improvements to the industrial x-ray system. The building will also facilitate the consolidation, expanded capability, as well as training for other NDT equipment including ultrasonic, dye penetrant, magnetic particle inspection, and laser scanning operations. The existing x-ray facility will be demolished.\n\nThe Target Price Range (TPR): The Government has established a TPR for construction estimated to be between $8,000,000 and $8,500,000. The Construction Cost Limit (CCL) is estimated at $8,175,103.00 with a total Programmed Amount (PA) of $8,100,000.\n\nFY27 AWARD\n\n\"Please refer to Attachment 01 for detailed project information. Interested vendors must complete the Market Intelligence Report:\n\nIndustry Day/First Look Questionnaire and are strongly encouraged to include a capability statement.\"\n\nWe have established a ProjNet, https://www.projnet.org/projnet for additional inquires and questions.\n\nProjNet-Project ID Number: 520249 \n\nProjNet-Bidder Key Number: HN7RK8-HPTEHG"
+  },
+  {
+   "noticeId": "cc32242e646746a09b3b210daabbbc5a",
+   "title": "Environmental Science and Engineering Contract, A-E Services to be Ordered on Indefinite-Delivery, Indefinite-Quantity Schedule",
+   "solicitationNumber": "N3943027R5001",
+   "fullParentPathName": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVFAC.EXPEDITIONARY WARFARE CENTER.NAVFAC SYSTEMS AND EXP WARFARE CTR",
+   "postedDate": "2026-10-14",
+   "type": "Combined Synopsis/Solicitation",
+   "baseType": "Combined Synopsis/Solicitation",
+   "typeOfSetAside": null,
+   "typeOfSetAsideDescription": null,
+   "responseDeadLine": "2026-11-02T14:30:00-08:00",
+   "naicsCode": "541330",
+   "classificationCode": "C219",
+   "active": "Yes",
+   "pointOfContact": [
+    {
+     "type": "primary",
+     "fullName": "Nicole M. Mendes",
+     "email": "nicole.m.mendes2.civ@us.navy.mil",
+     "phone": "8058955260",
+     "title": null
+    },
+    {
+     "type": "secondary",
+     "fullName": "Ryan J. Kenniff",
+     "email": "ryan.j.kenniff.civ@us.navy.mil",
+     "phone": "6197054260",
+     "title": null
+    }
+   ],
+   "placeOfPerformance": {
+    "city": {
+     "code": "CA-06",
+     "name": "Port Hueneme CBC Base"
+    },
+    "state": {
+     "code": "CA",
+     "name": "California"
+    },
+    "zip": "93043",
+    "country": {
+     "code": "USA",
+     "name": "UNITED STATES"
+    }
+   },
+   "description": "https://api.sam.gov/prod/opportunities/v1/noticedesc?noticeid=cc32242e646746a09b3b210daabbbc5a",
+   "uiLink": "https://sam.gov/opp/cc32242e646746a09b3b210daabbbc5a/view",
+   "descriptionText": "THIS SOURCES SOUGHT NOTICE HAS BEEN UPDATED, SEEKING SF330 SUBMITALS. THERE IS NO RFP PACKAGE TO DOWNLOAD. ALL INFORMATION NEEDED TO SUBMIT SF330 DOCUMENT IS CONTAINED HEREIN. SF 254S AND SF 255S WILL NOT BE CONSIDERED. NOTE: FAR PART 12 (COMMERCIAL) IS NOT APPLICABLE TO THIS PROCUREMENT.\n\nSUMMARY: The Naval Facilities Engineering and Expeditionary Warfare Center (NAVFAC EXWC), Port Hueneme, California is soliciting SF330s for a single-award, Indefinite Delivery Indefinite Quantity (IDIQ), Architect and Engineering (A-E) contract for various environmental restoration (ER) and other environmental projects. The A-E services required will include professional services to enable NAVFAC EXWC to support other NAVFAC commands, as well as other Department of War (DoW) and federal agencies. Market research was conducted in May 2026 and there were too few qualified small businesses to warrant consideration of a set-aside, therefore this acquisition is being issued under Full and Open Competition. The North American industry Classification System (NAICS) code is the procurement 541330, and the annual size standard is $25,500,000. NAVFAC EXWC anticipates the award of an IDIQ with base ordering period of sixty (60) months, and an extension of services period not to exceed six months. The maximum value of all task order placed under this contract will not exceed $150,000,000. Individual task orders under this contract may be firm fixed price (FFP) (Estimated 40%) or cost-plus-fixed fee (CPFF) (Estimated 60%). The minimum guarantee for the IDIQ contract is $10,000. Individual task orders are anticipated to range $5,000 to $6,000,000 per task order. The estimated award date is March 2027.\n\nPROJECT INFORMATION: Firms must be capable of performing work on a wide variety of projects in Environmental Restoration (ER) and other environmental topics, in a manner that complies with federal, state, and local regulations and laws, and within timeframes required. This work will support the A-E services that NAVFAC EXWC provides to support the environmental cleanup of sites managed by the Department of the Navy and other federal agencies. Although, the majority of the work is expected to be in the continental United States, project sites could be worldwide. Specific needs will be determined based upon project requirements and as described in each task order’s Performance Work Statement or Statement of Work. A-E services required under this contract include, but are not limited to:\n\n- Environmental program development and implementation. Particularly, the contractor will support development and implementation of the Navy’s environmental restoration (ER) program, comprising the Installation Restoration (IR) and Munitions Response (MR) Programs in terms of the associated science and engineering, regulations, and policy\n\n- Research, development, testing, and evaluation (RDT&E) of innovative environmental technologies, techniques, and solutions, particularly for environmental restoration.\n\n- Planning and pilot-testing innovative environmental technologies, techniques, investigations, and solutions to support full-scale design.\n\n- Services for associated environmental programs, including remedy resilience, impacts of elevated sea water levels and extreme weather events, active range sustainability, sustainable water resources management, environmental compliance, energy efficiency, and natural resources management.\n\nThe services at ER sites may involve supporting NAVFAC EXWC in the preparation, expert review, or optimization of preliminary assessments, site inspections, remedial investigations, feasibility studies, engineering evaluation/analysis (EECA), proposed plans, records of decision (RODs), remedial designs, sampling and analysis plans (SAPs) or Quality Assurance Project Plans (QAPPs), and five-year reviews for customers in the Department of the Navy and other federal agencies. These services may include site characterization, laboratory studies, and pilot testing with the aim of helping NAVFAC EXWC and its customers develop cost-effective full-scale designs and solutions for environmental projects. An important component of the services also is technology transfer (T2) to and training of the Department of the Navy and other federal agency personnel (and their contractors), who are engaged in ER or other environmental programs. Other environmental project areas may include (but are not limited to) remedy resilience, coastal flooding from seawater and groundwater, and extreme weather events, active range sustainability, sustainable water resource management, environmental compliance, energy efficiency, and natural resource management.\n\nFor on-site investigations, firms must provide personnel with current health and safety training, as required by the Occupational Safety and Health Administration (OSHA) and adhere to all NAVFAC requirements for Health and Safety. Task orders will be issued with a project/site specific Scope of Work under the general scope of the contract. Typically, requests for proposals issued for individual task orders will include a general Scope of Work or a performance-based acquisition Performance Work Statement, location of work, character and extent of services required, technical requirements in addition to the requirements contained within Statement of Architect and Engineering Services (SAES).\n\nSELECTION CRITERIA: The selection criteria are listed below in descending order of importance. Items (1) thru (5) are primary criteria and (6) thru (7) are secondary criteria. Secondary criteria will only be used as 'tie-breakers' among technically equal firms.\n\n(1) Professional Qualifications:\n\nProfessional Qualifications: The offeror shall provide no more than thirteen (13) resumes in Section E of the Standard Form (SF) 330. If more resumes are submitted than requested, then only the first thirteen will be considered. Providing less resumes is encouraged if provided personnel fulfill multiple roles. Experience that is not related to the work described in this solicitation should not be included. Resumes shall not be more than 2 pages each. Firms will be evaluated in terms of the general professional qualifications and technical competence in areas of work described in the \"Project Information\" section above. The evaluation of the resumes will consider education, training, registration, certifications, overall and relevant experience, and longevity with the firm. Projects that demonstrate successful optimization efforts that reduced project cost or time and added unique technical value, successful execution of projects where standards and methods for execution were not commonly accepted, or projects that had complex hydrogeological and regulatory site conditions will be given preference. Additionally, projects performed for the Navy or DoW as opposed to other federal agencies or other clients are preferred. Experience on the resumes should be within the last 8 years to be considered relevant. \n\nResumes should be presented in the following three categories: Program Manager (PGM), Project Managers (PMs), and Subject Matter Experts (SMEs) in the technical areas listed above. The PGM and PMs should have a degree in engineering (environmental, civil, chemical, or related), or geological sciences, professional registrations in at least one state of the United States, and at least five (5) years of experience in managing programs or projects of similar size and complexity as expected in this contract. The states of registration and certification of relevant personnel must be included on each resume in Section E of SF 330. One PGM resume and two (2) PM resumes are required.The resumes will be rated more favorably when they demonstrate specialized experience and technical competence in the following areas:\n\n• Investigation and/or remediation of environmental media contaminated with emerging contaminants, particularly PFAS, especially projects executed for the Navy or DoW; \n\n• Investigation and/or remediation of environmental media contaminated with radiological compounds, especially projects executed for the Navy or DoW; \n\n• Experience with biological processes where advanced molecular biological tools were used for bioremediation and natural attenuation determination; \n\n• Experience with groundwater modeling to support contaminant fate and transport, design, and optimization of in-situ remediation projects; \n\n• Experience with design, technical support, or optimization of site investigation and remediation projects to address underwater sediment impacted with PCBs, PAHs, and/or heavy metals; \n\n• Experience with design, technical support, or optimization of site investigation and remediation projects to address vapor intrusion; \n\n• Experience with design, technical support, or optimization of site investigation and remediation projects related to DoW’s Munitions Response Program (MRP). \n\n• Experience with supporting science and engineering projects with innovative solutions for environmental restoration. This experience shall include projects aligned with the A-E services that NAVFAC EXWC provides to support the environmental cleanup of sites managed by the Department of the Navy and other federal agencies in compliance with federal, state, and local regulations and laws.\n\nAdvanced degrees and exhibited technical depth and breadth of project experience in their specific fields will be favored for all SMEs. Section G may also include a matrix that displays the SME specialty, discipline, degree, years of experience, and state(s) of registration/certification in each of the specialized experience categories for each person on the proposed team. Resumes should indicate the project role (s) of the individual in their submission (whether PGM, PM, SME, or allied personnel). A minimum of seven (7) SME resumes are requested including: Emerging Contaminants SME, Radiological SME, Bioremediation SME, Groundwater Modeling SME, Sediment Management SME, Vapor Intrusion SME, and a MRP SME.\n\nIn addition to the aforementioned personnel, three key allied personnel are also required for this contract and their resumes should be included as described here. These include one (1) resume each for: a certified industrial hygienist (CIH) accredited by the American Board of Industrial Hygiene (ABIH), an American Board of Health Physicists (ABHP) certified health physicist (CHP), and an experienced Contractor Quality Control Manager (CQCM). Roles of the 13 personnel whose resumes are presented should be clearly identified in the SF 330.\n\n(2) Specialized Experience and Technical Competence:\n\nBased on the projects presented in Section F of the Standard Form 330, firms will be evaluated in terms of specialize experience and technical competence of work specifically included in the project information section above. \n\nA project is defined as a single contract or task order. A project can also be defined as multiple task orders supporting one installation/facility or customer. Up to ten projects completed within the last 7 years from the date of the offeror’s proposal will to be considered. If more projects are submitted, the Navy will consider only the first ten (10).\n\nProjects will be rated more favorably when they demonstrate specialized experience and technical competence in the following areas:\n\n• Investigation and/or remediation of environmental media contaminated with emerging contaminants, particularly PFAS, especially projects executed for the Navy or DoW; \n\n• Investigation and/or remediation of environmental media contaminated with radiological compounds, especially projects executed for the Navy or DOW; \n\n• Experience with biological processes where advanced molecular biological tools were used for bioremediation and natural attenuation determination; \n\n• Experience with groundwater modeling to support contaminant fate and transport, design, and optimization of in-situ remediation projects; \n\n• Experience with design, technical support, or optimization of site investigation and remediation projects to address underwater sediment impacted with PCBs, PAHs, and/or heavy metals; \n\n• Experience with design, technical support, or optimization of site investigation and remediation projects to address vapor intrusion; \n\n• Experience with design, technical support, or optimization of site investigation and remediation projects related to DoW’s Munitions Response Program (MRP). \n\n• Experience with supporting science and engineering projects with innovative solutions for environmental restoration. This experience shall include projects aligned with the A-E services that NAVFAC EXWC provides to support the environmental cleanup of sites managed by the Department of the Navy and other federal agencies in compliance with federal, state, and local regulations and laws.\n\nFirms shall submit no more than two (2) page per project (size 12 Calibri with a minimum of 1” margins on the top, bottom, and sides). An organizational chart shall be provided and be no larger than 8.5” x 11”. In Section H, also indicate the estimated percentage of involvement in each project of each firm on the proposed team.\n\n(3) Past Performance. Demonstrate acceptable past performance on contracts that the firm has performed. In section H of the SF330, provide completed CPARS, for the same ten projects listed in Specialized Experience. If no CPAR exists, submit a completed Past Performance Questionnaire (PPQ’s) (Attachment A). If the CPAR is assessed at the IDIQ level, vice the task order level, PPQ’s may be submitted in lieu of the CPAR, if the IDIQ CPAR does not discuss the project/task order in sufficient detail. Ensure the contact number and, if applicable, the task order number are provided and the PPQ is signed. Selected projects must have been performed with the past seven years from the issuance of this synopsis. If PPQ’s are used, completion by the Contracting Officer’s Representative (COR), Government Project Manager, or equivalent role, is preferred. PPQ’s previously completed for other solicitations may be submitted, provided that the questions are substantially the same as those in Attachment A. Navy projects/contracts may be considered more relevant than other Department of War (DoW) agencies projects/contracts. DoW projects/contracts may be considered more relevant that state or local government or commercial project/contracts. There is no page limit for the submission of this criteria.\n\n(4) Capacity to Execute Multiple Task Orders within the Required Time: Capacity to Execute Multiple Task Order: The Government expects this IDIQ will result in an average of 14 task orders per year, most of which run two or three years. In section H of the SF330, demonstrate how the Offeror has conducted multiple task orders simultaneously, while maintaining quality and schedule, and how this additional workload will be inducted by the firm. The Offeror’s submission for this criteria is limited to two pages.\n\n(5) Small Business Participation: Small Business Participation: The Government will consider both the Offeror’s plan to include small businesses on this IDIQ contract, as well as the Offeror’s demonstrated levels of small and small disadvantaged businesses on past contracts. In Section H, provide a completed Attachment B, Small Business Participation and Commitment Strategy. Page limits are as listed in Attachment B. Large Business firms shall submit the most recent Individual Subcontract Report (ISR), or equivalent if required by state or local Government contracts, for each of the ten projects listed in the Specialized Experience and Technical Competence factor. If reports are not available, provide an explanation. If the successful Offeror is a large business concern, the firm will be required to submit a subcontracting plan with its price proposal. The anticipated prime and first tier overall small business participation rate for this acquisition (i.e. work to be performed by small businesses as the prime and/or subcontractors) is 20% of the contract value. Offerors are encouraged to exceed this percentage and seek meaningful levels of participation in each of the small business socioeconomic programs. The NAVFAC subcontracting program targets, expressed as a percentage of total subcontracted work are estimated: Small Business: 40%, HUBZone: 3%, Small Disadvantaged Business: 5%, Service-Disabled Veteran Owned Small Business: 3%, and Woman-Owned Small Business: 9%. There is no page limit for the submission of this criteria.\n\n(6) Geographic Location: The work to be performed under this contract may be worldwide, with a focus on DON installations in the United States and its territories In Section H of the SF330, discuss the office locations of the Prime Contractor that will be used to support this contract, and demonstrate, through past projects, the familiarity with the Navy Installations where work may be performed. The Offeror’s submission for this criteria is limited to two pages.\n\n(7) Volume of Work Awarded by the Navy or DoW during the Previous 12 Months: The Government will assess the volume of Navy or DoW work performed by each Offeror during the previous 12 Months. Firms will be ranked based on the least amount of work to the most amount of work, but the Government will not reject the overall most highly qualified firm solely in the interest of equitable distribution of contracts. No submission is required by the Offeror. The Government will obtain the data from SAM.gov\n\nArchitect-engineer firms which meet the requirements described in this announcement are invited to submit a completed SF330 by the response date. Offerors that fail to submit an SF-330 will not be considered. Page limits, where stipulated, must be adhered to. SF330’s will be submitted electronically. At least one week prior to the closing date, offerors shall email NAVFAC_EXWC_ACQ732@us.navy.mil requesting an invitation to upload the SF330 in DoDSAFE. DoDSafe is similar to DropBox™. The site accepts files up to 8 GB and files ending with an extension of “.zip”.\n\nAMENDMENT 0001 - Attachment B is now posted for download and review; a NAVFAC-standard template for Small Business Participation and Commitment Strategy documentation. Additionally, the Contracting Office is posting multiple Clarifications in response to inquiries from industry, although no RFI period was planned or defined. Please be advised: the Contracting Office reserves the right to proceed with Qualification-Based Selection (QBS) evaluations, without answering or responding to all inquires. The advertised deadline for qualification statements (SF330) remains unchanged."
+  },
+  {
+   "noticeId": "dc890b9251714a198787d608b2694b92",
+   "title": "INDEFINITE DELIVERY/INDEFINITE QUANTITY MULTIPLE AWARD   CONTRACT FOR MULTIDISCIPLINE ARCHITECT-ENGINEER SERVICES IN SUPPORT OF CONSTRUCTION PROJECTS LOCATED PRIMARILY IN THE NORFOLK DISTRICT AREA OF RESPONSIBILITY (AOR)",
+   "solicitationNumber": "W9123626R1CCA",
+   "fullParentPathName": "DEPT OF DEFENSE.DEPT OF THE ARMY.USACE.NAD.W2SD ENDIST NORFOLK",
+   "postedDate": "2026-10-15",
+   "type": "Solicitation",
+   "baseType": "Solicitation",
+   "typeOfSetAside": null,
+   "typeOfSetAsideDescription": null,
+   "responseDeadLine": "2026-11-04T14:00:00-05:00",
+   "naicsCode": "541330",
+   "classificationCode": "C211",
+   "active": "Yes",
+   "pointOfContact": [
+    {
+     "type": "primary",
+     "fullName": "Dariya Walker",
+     "email": "dariya.m.walker@usace.army.mil",
+     "phone": "",
+     "title": null
+    },
+    {
+     "type": "secondary",
+     "fullName": "Nicholas Lizotte",
+     "email": "Nicholas.Lizotte@usace.army.mil",
+     "phone": "",
+     "title": null
+    }
+   ],
+   "placeOfPerformance": {
+    "city": null,
+    "state": null,
+    "zip": null,
+    "country": null
+   },
+   "description": "https://api.sam.gov/prod/opportunities/v1/noticedesc?noticeid=dc890b9251714a198787d608b2694b92",
+   "uiLink": "https://sam.gov/opp/dc890b9251714a198787d608b2694b92/view",
+   "descriptionText": "Multidiscipline Design and/or other Engineering Services are being procured in accordance with the Selection of Architects and Engineers Statute (PL 92-582, formerly known as the Brooks Act), 40 USC Chapter 1101 et seq., as implemented by RFO Part 36.102, as required for design support primarily for projects within or assigned predominantly to the Norfolk District (NAO) Area of Responsibility (AOR), U.S. Army Corps of Engineers (USACE). Contract capacity may be shared with North Atlantic Division (NAD) AOR and other Department of War Agencies or USACE Districts upon approval by the Contracting Officer and acceptance by the Contractor. This multiple award contract (MATOC) will support Norfolk District and all its programs."
+  },
+  {
+   "noticeId": "e0eeb91ddb6547a3bcd6e533176f91b9",
+   "title": "P1050 MAINTENANCE HANGAR AT NAS JRB FORT WORTH, TX.",
+   "solicitationNumber": "N6945027R0004",
+   "fullParentPathName": "DEPT OF DEFENSE.DEPT OF THE NAVY.NAVFAC.NAVFAC ATLANTIC CMD.NAVFAC SOUTHEAST.NAVFACSYSCOM SOUTHEAST",
+   "postedDate": "2026-10-15",
+   "type": "Presolicitation",
+   "baseType": "Presolicitation",
+   "typeOfSetAside": null,
+   "typeOfSetAsideDescription": null,
+   "responseDeadLine": "2026-10-29T15:00:00-04:00",
+   "naicsCode": "236220",
+   "classificationCode": "Z2BZ",
+   "active": "Yes",
+   "pointOfContact": [
+    {
+     "type": "primary",
+     "fullName": "Cynthia McMonigle",
+     "email": "cynthia.a.mcmonigle.civ@us.navy.mil",
+     "phone": "9045426606",
+     "title": null
+    },
+    {
+     "type": "secondary",
+     "fullName": "Aimee Johnson",
+     "email": "aimee.johnson@navy.mil",
+     "phone": "9042703166",
+     "title": null
+    }
+   ],
+   "placeOfPerformance": {
+    "city": {
+     "code": "27000",
+     "name": "Fort Worth"
+    },
+    "state": {
+     "code": "TX",
+     "name": "Texas"
+    },
+    "zip": null,
+    "country": {
+     "code": "USA",
+     "name": "UNITED STATES"
+    }
+   },
+   "description": "https://api.sam.gov/prod/opportunities/v1/noticedesc?noticeid=e0eeb91ddb6547a3bcd6e533176f91b9",
+   "uiLink": "https://sam.gov/opp/e0eeb91ddb6547a3bcd6e533176f91b9/view",
+   "descriptionText": "PRE-SOLICITATION SYNOPSIS NOTICE ONLY: THE SOLICITATION WILL BE AVAILABLE ON OR ABOUT OCTOBER 29, 2026 AT HTTPS://SAM.GOV/. THE SOLICITATION NUMBER IS N6945027R0004, FOR THE DESIGN-BID-BUILD (DBB) CONSTRUCTION PROJECT FOR P1050 MAINTENANCE HANGAR LOCATED AT NAVAL AIR STATION (NAS) JOINT RESERVE BASE (JRB) FORT WORTH, TEXAS\n\nPROJECT TITLE: DESIGN BID BUILD CONSTRUCTION PROJECT, P1050 MAINTENANCE HANGAR LOCATED AT NAVAL AIR STATION (NAS) JOINT RESERVE BASE (JRB) FORT WORTH, TEXAS\n\nPSC: Z2BZ (Repair or Alteration of Other Airfield Structures)\n\nNAICS: 236220 – Commercial and Institutional Building Construction\n\nTHIS IS NOT A REQUEST FOR PROPOSALS OR AN INVITATION FOR BID. NO CONTRACT WILL BE AWARDED FROM THIS ANNOUNCEMENT. NO REIMBURSEMENT WILL BE MADE FOR ANY COSTS ASSOCIATED WITH PROVIDING INFORMATION IN RESPONSE TO THIS ANNOUNCEMENT OR ANY FOLLOW-UP INFORMATION REQUESTS. No telephone calls will be accepted requesting a bid package or solicitation. There is no bid package or solicitation currently available. In order to protect the procurement integrity of any future procurement that may arise from this announcement, information regarding the technical point of contact will not be given and no appointments for presentations will be made.\n\nDescription: \n\nThis acquisition may result in the award of a Design Bid Build (DBB) Firm Fixed Price (FFP) Construction contract. for the renovation of a Maintenance Hangar at NAS JRB Fort Worth, Texas. The project consists of a two phased renovation of the interior and exterior of hangar 1050 including four separate interior admin spaces to better accommodate Marine Corps flight crews, equipment, and maintenance spaces for KC-130 and C-40 airframes. During renovation of Phase 1 spaces, aircraft maintenance operations will continue in Phase 2 areas. Similarly, when renovation continues into Phase 2 spaces, Phase 1 will be reoccupied and actively used for maintenance. Interior renovations encompass repair and replacement of all finishes, mechanical systems, plumbing, electrical, lighting, wet pipe fire suppression and fire alarm/mass notification systems. Exterior renovations include refinishing and repairing of the hangar doors and egress components and replacement of the hangar roof. Hangar bay renovation includes new electrical distribution, water distribution, waste water distribution, fire suppression, epoxy floor coating, compressed air system, heating and ventilation system and replacement of existing maintenance cranes and support railing. \n\nThe contract performance period is 1,190 calendar days (inclusive of the base period and any exercised options) from the date of contract award. Schedule submission and progress tracking will be governed by FAR Clause 52.236-15, Schedules for Construction Contracts.\n\nThe best value continuum source selection process to be used for this acquisition is the Tradeoff process in accordance with FAR 15.103-1. The Tradeoff process is appropriate when it may be in the best interest of the Government to consider award to other than the lowest priced offeror or other than the highest technically rated offeror.\n\nA sources sought notice was posted to sam.gov on July 1, 2026, requesting small business industry interested and capability statement. Based on responses from the notice it was determined that the requirement should be issued as Full and Open competition. The NAVFAC Small Business Office Concurs with this determination.\n\nThe solicitation will be a negotiated DBB acquisition. Proposals will be solicited in a one-phase submission for a single solicitation. The solicitation will utilize source selection procedures, which require offerors to submit a technical proposal, past performance and experience information, and a price proposal for evaluation by the Government. Award will be made to the offeror whose total price and technical proposal offers the best value to the Government.\n\nCompetition Requirements: Unrestricted basis, under full and open competition.\n\nProcurement Method: FAR Part 15, Contracting by Negotiation.\n\nType of Contract: Firm-Fixed Price\n\nThe NAICS code for this construction solicitation is 236220 with a size standard of $45,000,000.\n\nProject Magnitude is $90,000,000 or greater.\n\nThis is a new procurement. It does not replace an existing contract. No prior contract information exists.\n\nA Site Visit will be held for those offerors who choose to participate (exact date and time will be specified in the solicitation). Proposals will be due no earlier than 30 days after the solicitation is released (exact date and time will be specified in the solicitation).\n\nThis will be an electronic solicitation, which can be downloaded from Sam.gov Opportunities at https://sam.gov/. The solicitation will be available at this site no earlier than 15 days after this pre-solicitation notice is posted. Offerors are responsible for checking the Sam.gov website for the solicitation and any subsequent amendments that may be issued. NO CONTRACT AWARD WILL BE MADE TO ANY CONTRACTOR THAT IS NOT REGISTERED OR IN THE PROCESS OF REGISTERING WITH THE SYSTEM FOR AWARD MANAGEMENT (SAM). PLEASE VISIT THE SAM WEBSITE AT https://www.sam.gov FOR INSTRUCTIONS ON HOW TO REGISTER."
+  },
+  {
+   "noticeId": "ed6b781af44a4f4b924bc9331ab7ce91",
+   "title": "C1DA--578-27-003 - Renovate A Section First Floor  of Building 1 - Design   FY27",
+   "solicitationNumber": "36C25227Q0013",
+   "fullParentPathName": "VETERANS AFFAIRS, DEPARTMENT OF.VETERANS AFFAIRS, DEPARTMENT OF.252-NETWORK CONTRACT OFFICE 12 (36C252)",
+   "postedDate": "2026-10-08",
+   "type": "Combined Synopsis/Solicitation",
+   "baseType": "Combined Synopsis/Solicitation",
+   "typeOfSetAside": "SDVOSBC",
+   "typeOfSetAsideDescription": "Service-Disabled Veteran-Owned Small Business (SDVOSB) Set-Aside (FAR 19.14)",
+   "responseDeadLine": "2026-10-30T13:00:00-05:00",
+   "naicsCode": "541310",
+   "classificationCode": "C1DA",
+   "active": "Yes",
+   "pointOfContact": [
+    {
+     "type": "primary",
+     "fullName": "Donita Grace",
+     "email": "donita.grace@va.gov",
+     "phone": "(414) 844-4860",
+     "title": "Contract Specialist"
+    }
+   ],
+   "placeOfPerformance": {
+    "city": {
+     "code": "35294",
+     "name": "Hines"
+    },
+    "state": {
+     "code": "IL",
+     "name": "Illinois"
+    },
+    "zip": "60141-1457",
+    "country": {
+     "code": "USA",
+     "name": "UNITED STATES"
+    }
+   },
+   "description": "https://api.sam.gov/prod/opportunities/v1/noticedesc?noticeid=ed6b781af44a4f4b924bc9331ab7ce91",
+   "uiLink": "https://sam.gov/opp/ed6b781af44a4f4b924bc9331ab7ce91/view",
+   "descriptionText": "Combined Synopsis/Solicitation Notice\n\nCombined Synopsis/Solicitation Notice\n\nCombined Synopsis/Solicitation Notice\n\nREQUEST FOR SF 330\n36C25227Q0013 \nProject 578-27-003: Renovate A Section 1st Floor Bldg. 1 (AE)\nDesign/Engineering Services \nSF-330 Package Due: October 30, 2026, at 1:00 p.m. CST (see details below)\nPoints of Contact: Donita.Grace@va.gov\n\nINTRODUCTION: THIS IS A TOTAL 100% SERVICE-DISABLED VETERAN-OWNED SMALL BUSINESS (SDVOSB) SET-ASIDE in accordance with Public Law 109-461. This is a Request for SF330s for Architect/Engineer (A/E) Design Services for Project Number 578-27-003: Renovate A Section 1st Floor Bldg. 1 (AE) at the Edward J. Hines VA Hospital in Hines, IL.\nTHIS ANNOUNCEMENT IS NOT A REQUEST FOR PROPOSAL. NO SOLICITATION PACKAGE WILL BE ISSUED via SAM.gov. A request for proposal will be issued directly to the top-rated firm for which negotiations will commence in accordance with FAR part 36. The anticipated A/E design services, to be awarded, will be procured in accordance with the Selection of Architects and Engineers Act (Public Law 92- 582), FAR Part 36.6 and VA Acquisition Regulation 836.6.\nPeriod of Performance: 449 Calendar Days\nContract Type: Firm-Fixed-Price\nEstimated Magnitude of Construction: Between $10,000,000 and $20,000,000\nNAICS Code: 541310\nSize Standard: $12.5 Million\nSBA & SAM : in accordance with VAAR 819.7003, at the time of SF330 submission and prior to award of any contract, the offeror must represent to the contracting officer that it is a \n(1) SDVOSB eligible firm;\n(2) Small business concern under the North American Industry Classification System (NAICS) code assigned to the acquisition; and\n(3) SDVOSB listed as verified in SBA at: https://veterans.certify.sba.gov/\n\nAdditionally, all eligible firms must be registered and current in the System for Award Management (SAM) database to be evaluated and eligible for contract award. If the firm is not registered in SAM, you may register online at https://www.sam.gov. \n\n1. PURPOSE: This Source Selection Plan (SSP) outlines the procedures that will be used to solicit architectural and engineering (AE) design services for Project 578-27-003 Renovate A Section on First Floor of Building 1. The goal of this project is to provide complete AE design services to renovate section A of the 1st floor of building 1. \n2. ACQUISISTION DESCRIPTION:\n2.1: RFI: A Request for Information shall be published to https://sam.gov whereby interested architect-engineering companies shall submit an SF330 package. This competitive procurement shall utilize a best value trade-off source selection process identified in FAR 15. \n2.1.a: Source Selection Evaluation Board (SSEB): For the purpose of this acquisition, the SSEB will be same as the Technical Evaluation Board (TEB). \n2.1.b: Below are the individual (TEB) evaluation criteria and ratings for the SF330s, listed in descending order of importance. \nFACTOR 1: SPECIALIZED EXPERIENCE AND TECHNICAL COMPETENCE (30 Maximum Points) \nSubfactor 1A: Specialized Experience \n(15 Points).\n\nSubfactor 1B: Additional Experience\n(10 points).\n\nSubfactor 1C: Technical Competence\n(5 points).\n\nThe A/E Firm shall demonstrate its specialized experience and technical competence in the design and construction period services for projects of similar size and complexity. \nSpecialized project experience should include design of renovations to existing hospitals, renovations to buildings constructed prior to 1970 w/space constraints, design of Pathology Suites, and HVAC upgrades to existing hospitals. \n Additional experience includes mechanical, electrical, and structural engineering, architecture, interior design and finishes, physical security upgrades, building management systems/building automation systems (BMS/BAS), Computer-Aided Design and Drafting (CADD), critical path scheduling, fire protection, construction infection control protocols, design and installation of biological refrigeration and preservation systems, design and installation of vacuum tube transport systems, and project phasing and coordination in an active hospital setting.\n\nOfferor shall provide a minimum of three (3), and no more than five (5) recent and relevant Government and private experience projects similar in size, scope, and complexity, and experience with the type of projects/competence above. Relevant is defined as those task requirements identified in the Statement of Work. Recent is defined as services provided within the past seven (7) years with at least 50% of the Construction completed. At a minimum, include the following for each submitted project (if applicable):\n\nProject title, location, contract number, and detailed narrative describing the scope of services provided including the type of work performed by the offeror and its role in the project i.e., prime contract, Teaming Partner, or subcontractor.\nProject Owner, owner s point of contact including telephone number and email address.\nServices & Deliverables provided under the contract/task order\nPeriod of Performance, including start and completion dates for design and construction if applicable.\nEstimated cost of construction based on AE s design \nFinal construction cost (or projected final construction cost if still underway)\nThe percentage of total cost resulting from changes due to AE omissions.\n\nTo demonstrate technical competence, the offeror shall include narratives of how the firm addresses each of the following topics. Simply restating this list will not be sufficient. \n\nThe management approach \nThe coordination of disciplines and subcontractors \nQuality control procedures\nFamiliarity with VA Design Guides/Manuals, Master Specifications and other applicable standards. \n\nFACTOR 2: PROFESSIONAL QUALIFICATIONS (20 Maximum Points) \nSubfactor 2A: Key Positions\n(15 Points).\n\nSubfactor 2B: SDVOSB Compliance \n(5 Points).\n The architects and engineers on the firm s staff representing the project or signing/stamping drawings in each discipline must possess a minimum of five (5) years of experience and are required to be licensed, registered, or certified by a U.S. state, the District of Columbia, or a U.S. territory. Provide professional license jurisdiction of issue and license numbers and/or proof of licensure. \n\nA resume for each of these key positions must be provided, corresponding with the title matching the disciplines listed for the project. At a minimum, the offeror must describe the professional qualifications and specific experience in the required disciplines within the past five (5) years. Key positions and disciplines required for this project include, but are not limited to: \n\nProject Manager\nArchitect\nMechanical Engineer\nElectrical Engineer\nPlumbing Engineer\nStructural Engineer\nInterior Designer\n\nThe evaluation will consider education, certifications, training, registration, overall and relevant experience and longevity with the firm.\n\nOffer must include the following statement of SDVOSB compliance when submitting the personnel proposed to perform the work under this requirement:\n\n I [signatory authority] ______________________, [company] _____________________; certify that the team proposed to perform under this requirement demonstrates the capability of 50% SDVOSB performance in compliance of 48 CFR 852.219-10. \n\nFACTOR 3: PAST PERFORMANCE (20 Maximum Points) \nSubfactor 3A: Past Performance of projects identified in FACTOR 1.\n(15 Points).\n\nSubfactor 3B: Average Past Performance of all projects\n(5 Points).\n\nProvide CPARS data for all projects identified in FACTOR 1. For any project that does NOT have CPARS data available, a Past Performance Questionnaire (PPQ) is required to be submitted with the SF330. Please utilize the attached PPQ document. CPARS data and PPQs will not be included in the page count. All projects provided in the SF330 must be completed by the office/ branch/ individual team member performing the work under this contract. The following information must be clearly specified on each performance report: \nContract/task order number \nProject title \nPrime firm \nStart date \nCompletion date\n\nOffers shall only include CPARS data for the projects listed in FACTOR 1. The contracting officer shall directly retrieve CPARS reviews from www.CPARS.gov to determine average past performance of previous projects. Government Past Performance Information Systems may be accessed. Evaluating past performance and experience may include information provided by the firm, customer inquiries, Government databases, publicly available sources, and additional projects in CPARS. Failure to provide requested data, accessible points of contact or valid phone numbers could result in a firm being considered less qualified. \n\nFACTOR 4: QUALITY CONTROL (10 Maximum Points)\nSubfactor 4A: Management approach\n(5 Points).\n\nSubfactor 4B: Quality methodology\n(5 Points).\nThe A/E Firm shall describe its management approach, regarding coordination of disciplines and subcontractors, familiarity of the prime firm and any key subcontractors with VA Design Guides/Manuals, Master Specifications, ASHRAE standards, NEC, and other applicable standards.\nA/E Firm shall also provide the following:\nQuality Control organization, and management structure.\nMethods and procedures for control and prevention of nonconformances during design, preconstruction, and construction. \nMethods and procedures for nonconformance remediation at all stages of project.\nMethods and procedures for control and prevention of cost, and schedule overruns.\nSummarized schedules for selected three previous design projects that show initial approved project schedule, and any updates to schedule with time extensions. Provide a narrative to describe reasons and justifications for any deviations from initial schedule.\n\nSummarized cost estimates for selected three previous design projects that show initial approved total project cost estimate, and any increases to initial cost estimates. Provide a narrative to describe reasons and justifications for any deviations from initial estimates.\nDescribe any unforeseen conditions that arose during construction for your last three projects. Provide a narrative to describe how your firm assisted the project management team to correct those deficiencies, and any methods used to mitigate extra costs and increases in project schedule.\n\nFACTOR 5: CAPACITY (10 Maximum Points)\nSubfactor 5A: Capacity to complete work within required timeline\n(5 Points).\n\nSubfactor 5B: Resource management and project management\n(5 Points).\nThe A/E Firm shall attest to its capacity to accomplish the work in the required time. The evaluation will consider the firm s ability to meet the schedule of the overall project, as well as the available capacity of personnel in key disciplines. The A/E Firm shall also provide the following:\nA list that shows the total number of design and project professionals who are currently employed at the firm with professional titles for each.\nTotal number of projects in study or planning stages\nTotal number of active design projects\nTotal number of active construction phase services\nA list of personnel assigned to each of the above projects\nAn analysis and report of available capacity of key personnel for immediate new work\n\nThe respondent shall:\nSummarize its approach to staffing and company resource management\nFor the key personnel on the proposed project team, tabulate their current and projected workload as percentages of their available individual capacity.\nList all work awarded to the A/E Firm by the VA during the previous 12 months, as well as any current indefinite delivery, indefinite quantity (IDIQ) contracts that it has. \nList the current stage and percentage of completion for non-IDIQ projects. \n\nA signed statement shall be provided stating that the firm acknowledges that prior to award of the contract, it is required to notify the Government of any changes in its capacity that could limit its ability to perform the work within the required time. \n\nFACTOR 6: GEOGRAPHIC LOCATION (5 Maximum Points)\nLocation of the firm, as measured by the travel time (hours) between the Offeror s principal business location and Edward Hines, Jr. VAMC, Hines, IL. Architect must provide details of travel between their main office and Edward Hines Jr, VAMC Hines, IL. This includes but not limited to airport travel time, driving distance, etc. If the architect has a satellite location, the architect must provide details of a fully staffed and well-established satellite office. Leasing documentation may be requested.\n\nFACTOR 7: EXPERIENCE IN CONSTRUCTION PERIOD SERVICES (5 Maximum Points)\n\nThe A/E Firm shall demonstrate its experience in providing Construction Period Services for hospital facilities, particularly in HVAC renovation projects. The respondent shall provide a narrative that describes the methods and procedures used to implement each of the following Construction Period Services tasks:\n\nProfessional field inspections during the construction period, with descriptions of types of inspections provided, and methods used for inspections and reporting during each phase of construction\nReview of construction submittals\nSupport in answering requests for information during the construction period\nSupport of construction contract changes to include updated drawings, drafting statements of work, and cost estimates.\nWeekly construction meeting participation\nCloseout documents to include final inspections and as-recorded drawings.\n\nSECONDARY SELECTION CRITERION*: \nFACTOR 8: CLAIMS (-5 to 0 Maximum Points)\n Subfactor 8: Record of significant claims against the firm because of improper or incomplete architectural and engineering services. \n(-5 to 0 Points).\n* The secondary selection criterion is used as a tiebreaker, if necessary, in ranking the most highly qualified firms following the completion of discussions. The secondary selection criterion will not be applied when determining a firm s SF330 submission.\n\n2.1.c: After TEB Individual Ratings of the SF330s are completed, the TEB shall convene and develop consensus ratings for the seven evaluation factors of the SF330s as defined above.\n\nCOMMENT DESCRIPTION DEFINITIONS\n\nStrong point: Provides Merit/advantages to VA that increase the likelihood of successful\ncontract performance.\n\nWeak point: Flaws/disadvantages that increase the likelihood of unsuccessful contract\nperformance.\n\n2.2.c: The eighth factor (Secondary Selection Criterion) will only be used if needed.\nThe TEB shall provide a listing, in order of preference, of the firms considered\nmost highly qualified to perform the work. The contracting officer shall issue a\nRequest for Proposal (RFP) to the architect-engineer the TEB recommends for\nnegotiations.\n\n3. SOURCE SELECTION PROCESS:\n\n3.1 SF330 Reviews: The board will review and evaluate the submitted SF330 s in accordance\nwith the stated evaluation criteria to determine each individual offeror s ability and\ncapability to perform the work required and confirmation of determination of\nresponsibility per FAR 9.1.\n\na) TECHNICAL EVALUATION BOARD SF330 INDIVIDUAL EVALUATIONS\n(1) Each board member will conduct an independent review and evaluation and\ncomplete an evaluation rating sheet for EACH SF330. Each category will be\naddressed with strengths or weaknesses noted.\n(2) The evaluation will be in accordance with the Evaluation Factors which are listed\nin the solicitation.\n\nb) TECHNICAL EVALUATION BOARD SF330 CONSENSUS\n(1) After each member has completed their independent evaluation, the Chairperson\nwill discuss the evaluations with the entire team and assure each evaluation is\ncomplete.\n(2) During these discussions, the board will reach a consensus rating for each\nSF330 and document ratings using the consensus evaluation worksheets.\nThe SF330 can be downloaded through the GSA Forms Library at: https://www.gsa.gov/forms-library/architect-engineer-qualifications.\nNo Fax Responses will be accepted: personal visits for discussing this announcement will not be entertained or scheduled. Questions may be directed only by e-mail to Donita.Grace@va.gov. \nVA Primary Point of Contact: Donita Grace, NCO 12 Contract Specialist, Donita.Grace@va.gov. \nThe page limit for SF330 s will be 30 pages max., any pages after 30 will not be considered. \nSee attached document: P01 - SOW 578-27-003 Renovate A Section 1st Floor Bldg. 1"
+  },
+  {
+   "noticeId": "fc9cc77dda764386bd69dd2b9bd7620f",
+   "title": "Child Development Center (CDC), Tinker Air Force Base, Oklahoma",
+   "solicitationNumber": "W912BV26RA016",
+   "fullParentPathName": "DEPT OF DEFENSE.DEPT OF THE ARMY.USACE.SWD.W076 ENDIST TULSA",
+   "postedDate": "2026-10-16",
+   "type": "Solicitation",
+   "baseType": "Solicitation",
+   "typeOfSetAside": null,
+   "typeOfSetAsideDescription": null,
+   "responseDeadLine": "2026-11-13T15:00:00-05:00",
+   "naicsCode": "236220",
+   "classificationCode": "Y1CZ",
+   "active": "Yes",
+   "pointOfContact": [
+    {
+     "type": "primary",
+     "fullName": "Cheyenne Redemann",
+     "email": "cheyenne.a.redemann@usace.army.mil",
+     "phone": "9186697073",
+     "title": null
+    }
+   ],
+   "placeOfPerformance": {
+    "city": null,
+    "state": null,
+    "zip": null,
+    "country": null
+   },
+   "description": "https://api.sam.gov/prod/opportunities/v1/noticedesc?noticeid=fc9cc77dda764386bd69dd2b9bd7620f",
+   "uiLink": "https://sam.gov/opp/fc9cc77dda764386bd69dd2b9bd7620f/view",
+   "descriptionText": "THIS PROJECT IS FOR A NEWLY CONSTRUCTED CDC FACILITY WILL ACCOMMODATE 228 CHILDREN AGED FROM INFANT TO FIVE-YEARS OLD, 80 STAFF MEMBERS AND VISITORS. CONSTRUCTION INCLUDES A SINGLE-STORY FACILITY WITH DRILLED PIER FOUNDATION, CONCRETE SLAB, STEEL FRAME, DOUBLE WYTHE MASONRY EXTERIOR WALLS, AND STANDING SEAM METAL ROOF. PROJECT INCLUDES CORE ADMINISTRATIVE SPACES, STAFF AND FACILITY SUPPORT SPACES, CHILD ACTIVITY AREAS, MULTI-PURPOSE ROOMS, ISOLATION ROOMS, LAUNDRY ROOMS LACTATION ROOMS, STORAGE ROOMS, KITCHEN AND EQUIPMENT, AND AUTHORIZED EQUIPMENT SUCH AS CCTV SYSTEM, PLAYGROUND AREA AND EQUIPMENT. THIS ACQUISITION IS FULL AND OPEN COMPETITION. THIS SOLICITATION AND RESULTING CONTRACT ARE UTILIZING A BEST VALUE TRADE-OFF PROCUREMENT METHOD AS DESCRIBED IN RFO PART 15. THE MAGNITUDE OF CONSTRUCTION IS BETWEEN $50,000,000.00 AND $75,000,000.00. THE NAICS CODE FOR THIS PROJECT IS 236220, COMMERCIAL AND INSTITUTIONAL BUILDING CONSTRUCTION. THE SIZE STANDARD IS $45,000,000. DPAS RATING: DO-C2, REFER TO CLAUSE FAR 52.211-15, DEFENSE PRIORITY AND ALLOCATION REQUIREMENTS. Amendment 0001 provides site visit information. Child Development Center (CDC), Tinker Air Force Base, Oklahoma. Amendment No. 0002 is hereby issued. Please see attachments for full summary of changes."
+  }
+ ]
+}

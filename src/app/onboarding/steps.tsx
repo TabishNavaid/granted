@@ -3,17 +3,8 @@
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-const steps = [
-  { href: "/onboarding", label: "Website" },
-  { href: "/onboarding/ein", label: "EIN" },
-  { href: "/onboarding/reading", label: "Reading" },
-  { href: "/onboarding/profile", label: "Confirm" },
-  { href: "/onboarding/gaps", label: "A few questions" },
-  { href: "/onboarding/matches", label: "First matches" },
-];
-
-/** Setup progress as a line of steps: a number and a word each, the current one underlined in ink. */
-export function OnboardingSteps() {
+/** Setup progress as a line of steps: a number and a word each, the current one underlined in ink. The steps depend on what kind of applicant this is. */
+export function OnboardingSteps({ steps }: { steps: { href: string; label: string }[] }) {
   const pathname = usePathname();
   const current = Math.max(0, steps.findIndex((s) => s.href === pathname));
   return (

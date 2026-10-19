@@ -1,12 +1,13 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { ALL_ROUTES, quiet } from "./helpers";
+import { ALL_ROUTES, SAMPLE_ROUTES, openSample, quiet } from "./helpers";
 
 /** axe on every route: no serious or critical violations. */
 // The design and art galleries are internal pages (robots disallowed) and are audited by hand.
-for (const route of ALL_ROUTES.filter((r) => !r.includes("does-not-exist") && r !== "/design")) {
-  test(`axe ${route}`, async ({ page }) => {
+for (const { sample, route } of [...ALL_ROUTES.filter((r) => !r.includes("does-not-exist") && r !== "/design").map((route) => ({ sample: null as string | null, route })), ...SAMPLE_ROUTES]) {
+  test(`axe ${sample ? `${sample.replace(/^org_/, "")} ` : ""}${route}`, async ({ page }) => {
     await quiet(page);
+    await openSample(page, sample);
     await page.goto(route, { waitUntil: "networkidle" });
     const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"]).analyze();
     const bad = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");

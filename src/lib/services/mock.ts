@@ -23,11 +23,14 @@ import { planMilestones as planFromDeadline } from "@/lib/loop/milestones";
 import { BUDGET_CATEGORY_LABEL, budgetTotal } from "@/lib/loop/budget";
 import { reviseText as demoRevise } from "@/lib/agents";
 import type { LoopResult } from "./contracts";
-import { sessionTable } from "./demo-session";
+import { nextInSequence, sessionMap, sessionTable } from "./demo-session";
 import { sampleById, sampleForInput, samples, type SampleOrg } from "@/lib/mock/samples";
 import { shiftSeedDates } from "@/lib/mock/dates";
 import { DEFAULT_AUTONOMY, makeFeatureServices } from "./mock-features";
-import type { BoilerplateVersion, ScholarshipProfile } from "@/lib/types";
+import { makeMockSegments } from "./mock-segments";
+import * as firmSeed from "@/lib/mock/firm";
+import type { Addendum, BoilerplateVersion, Certification, FeeProposal, FirmProfile, FundedAnalog, GoNoGo, PersonProfile, Personnel, PortfolioProject, ResearchProfile, ScholarshipProfile } from "@/lib/types";
+import type { BidMeta } from "@/lib/bids/store";
 
 /**
  * In-memory mock adapter. State lives for the life of the page (or server
@@ -75,6 +78,18 @@ function seededState() {
     autonomy: { ...DEFAULT_AUTONOMY },
     boilerplateVersions: [] as BoilerplateVersion[],
     scholarshipProfile: null as ScholarshipProfile | null,
+    // Firms, research teams, individuals (src/lib/segments)
+    firmProfile: null as FirmProfile | null,
+    projects: [] as PortfolioProject[],
+    personnel: [] as Personnel[],
+    certifications: [] as Certification[],
+    goNoGo: [] as GoNoGo[],
+    fees: [] as FeeProposal[],
+    addenda: [] as Addendum[],
+    bidMeta: {} as Record<string, BidMeta>,
+    researchProfile: null as ResearchProfile | null,
+    personProfile: null as PersonProfile | null,
+    fundedAnalogs: [] as FundedAnalog[],
   });
 }
 
@@ -115,11 +130,41 @@ function blankState(sample: SampleOrg): DemoState {
   };
 }
 
+/** The sample firm: set up, with a portfolio, staff, credentials, and a year of bids. */
+function firmState(sample: SampleOrg): DemoState {
+  const base = blankState(sample);
+  const f = shiftSeedDates(
+    clone({
+      org: firmSeed.firmOrg,
+      members: firmSeed.firmMembers,
+      facts: firmSeed.firmFacts,
+      boilerplates: firmSeed.firmBoilerplates,
+      funders: firmSeed.firmFunders,
+      opportunities: firmSeed.firmOpportunities,
+      applications: firmSeed.firmApplications,
+      outcomes: firmSeed.firmOutcomes,
+      milestones: firmSeed.firmMilestones,
+      firmProfile: firmSeed.firmProfile,
+      projects: firmSeed.firmProjects,
+      personnel: firmSeed.firmPersonnel,
+      certifications: firmSeed.firmCertifications,
+    }),
+  );
+  return {
+    ...base,
+    ...f,
+    funders: [...base.funders.filter((x) => !f.funders.some((y) => y.id === x.id)), ...f.funders],
+    opportunities: [...base.opportunities.filter((x) => !f.opportunities.some((y) => y.id === x.id)), ...f.opportunities],
+    subscription: { ...base.subscription, plan: "growth", usage: { proposalsThisMonth: 2, proposalLimit: null, matchesThisMonth: 0, matchLimit: null } },
+  };
+}
+
 /** Organizations a visitor added in consultant mode, by id. Names only; their contents live in the visitor's session. */
-const addedWorkspaces = ((globalThis as typeof globalThis & { __firstlightAddedWorkspaces?: Map<string, string> }).__firstlightAddedWorkspaces ??= new Map<string, string>());
+const addedWorkspaces = sessionMap<string>("addedWorkspaces");
 
 const workspaces = sessionTable<DemoState>((id) => {
   const sample = sampleById(id);
+  if (sample?.id === firmSeed.FIRM_ORG_ID) return firmState(sample);
   if (sample) return sample.history ? seededState() : blankState(sample);
   const name = addedWorkspaces.get(id);
   if (name) {
@@ -129,7 +174,7 @@ const workspaces = sessionTable<DemoState>((id) => {
   return seededState();
 }, seed.ORG_ID);
 
-const sampleInfo = (s: SampleOrg) => ({ id: s.id, label: s.label, kind: s.kind, host: s.host, history: s.history });
+const sampleInfo = (s: SampleOrg) => ({ id: s.id, label: s.label, kind: s.kind, host: s.host, history: s.history, orgType: s.org.orgType });
 
 export const demoWorkspaces = workspaces;
 
@@ -146,10 +191,19 @@ export const state: DemoState = new Proxy({} as DemoState, {
   getOwnPropertyDescriptor: (_t, key) => Reflect.getOwnPropertyDescriptor(workspaces.workspace(), key),
 });
 
+/**
+ * Account connections need the server (OAuth tokens never leave it). The
+ * server registers them (./server.ts); in the browser demo there are none,
+ * and this module never imports them, so they stay out of the browser bundle.
+ */
+let integrationsServer: (() => Promise<typeof import("./mock-integrations-server")>) | null = null;
+export function registerIntegrationsServer(load: () => Promise<typeof import("./mock-integrations-server")>) {
+  integrationsServer = load;
+}
+
 export const now = () => new Date().toISOString();
 const delay = (ms = 0) => new Promise((r) => setTimeout(r, ms));
-let idCounter = 1000;
-export const newId = (prefix: string) => `${prefix}_${++idCounter}`;
+export const newId = (prefix: string) => `${prefix}_${nextInSequence("id", 1000)}`;
 
 /** Team, billing, and deleting the workspace belong to the owner (roles: owner, editor, board reviewer). */
 function requireOwner() {
@@ -231,8 +285,22 @@ function touchSection(s: Section) {
 }
 
 const features = makeFeatureServices({ state, newId, now, currentUserId: seed.CURRENT_USER_ID, toApplicationView, toMatchView });
+const { services: segments, backend: segmentBackend } = makeMockSegments({ state, newId, now, requireEditor, toApplicationView });
+
+/** Citable facts made from records: a firm's portfolio and people, a research team's records, a person's résumé. */
+async function segmentFacts(): Promise<Fact[]> {
+  const t = state.org.orgType;
+  if (t === "firm") {
+    const { recordFacts } = await import("@/lib/firm/facts");
+    return recordFacts({ org: state.org, profile: state.firmProfile, projects: state.projects, personnel: state.personnel, certifications: state.certifications, boilerplates: state.boilerplates });
+  }
+  if (t === "research" && state.researchProfile) return (await import("@/lib/research/draft")).researchFacts(state.researchProfile);
+  if (t === "individual" && state.personProfile) return (await import("@/lib/person")).personFacts(state.personProfile);
+  return [];
+}
 
 export const mockServices: Services = {
+  ...segments,
   org: {
     ...features.org,
     async get() {
@@ -308,8 +376,9 @@ export const mockServices: Services = {
       const s = sampleById(sampleId);
       if (!s) throw new Error(`sample ${sampleId} not found`);
       const w = s.history ? workspaces.switchTo(s.id) : (workspaces.switchTo(s.id), workspaces.reset(s.id));
-      w.org.websiteUrl = `https://${s.host}`;
-      w.org.onboardingStep = "ein";
+      w.org.websiteUrl = s.host ? `https://${s.host}` : "";
+      // Nonprofits confirm their EIN next; firms and labs go straight to the reading; a person starts from a résumé.
+      w.org.onboardingStep = s.org.orgType === "nonprofit" ? "ein" : s.org.orgType === "individual" ? "type" : "reading";
     },
     async reset() {
       workspaces.reset();
@@ -491,7 +560,8 @@ export const mockServices: Services = {
         sections: state.sections.filter((s) => s.applicationId === id).sort((x, y) => x.order - y.order),
         missingFacts: state.missingFacts.filter((m) => m.applicationId === id),
         complianceChecks: state.complianceChecks.filter((c) => c.applicationId === id),
-        facts: state.facts,
+        // Records a firm, a research team, or a person cites are facts too.
+        facts: [...state.facts, ...(await segmentFacts())],
         documents: state.documents,
       });
     },
@@ -720,7 +790,7 @@ export const mockServices: Services = {
       const opp = state.opportunities.find((o) => o.id === a.opportunityId) ?? notFound("opportunity", a.opportunityId);
       if (!opp.deadline) return [];
       state.milestones = state.milestones.filter((m) => m.applicationId !== applicationId || m.done);
-      const planned = planFromDeadline(opp.deadline, { boardReview: options?.boardReview, effort: opp.effort, mode: a.mode });
+      const planned = planFromDeadline(opp.deadline, { boardReview: options?.boardReview, effort: opp.effort, mode: a.mode, bidDates: opp.solicitation?.dates });
       const created = planned.map((p) => ({ id: newId("ms"), orgId: state.org.id, applicationId, title: p.title, dueDate: p.dueDate, kind: p.kind, assigneeId: a.ownerId, done: false }));
       state.milestones.push(...created);
       return clone(created);
@@ -803,16 +873,17 @@ export const mockServices: Services = {
     // The loop always runs the agent code. Without a model key the model, the
     // website reader, and Grants.gov answer from a recorded run (src/lib/replay).
     async buildProfile(input) {
-      const { buildProfile } = await import("@/lib/loop");
-      return buildProfile(await store(), input);
+      const [{ buildProfile }, { readSegmentRecords }] = await Promise.all([import("@/lib/loop"), import("@/lib/segments/setup")]);
+      return buildProfile(await store(), input, { afterRead: (pages, rec, jobId) => readSegmentRecords(state.org, pages, segmentBackend, rec, jobId) });
     },
     async confirmProfile(input) {
       const { confirmProfile } = await import("@/lib/loop");
       return confirmProfile(await store(), input);
     },
     async findMatches(jobId) {
-      const { findMatches } = await import("@/lib/loop");
-      return findMatches(await store(), jobId);
+      const [{ findMatches }, { segmentMatches }] = await Promise.all([import("@/lib/loop"), import("@/lib/segments/setup")]);
+      const st = await store();
+      return findMatches(st, jobId, (rec, job) => segmentMatches(st, segmentBackend, rec, job));
     },
     async answerGaps(answers) {
       const { answerGaps } = await import("@/lib/loop");
@@ -912,9 +983,7 @@ export const mockServices: Services = {
     async send(id, via, followUpDays) {
       const e = state.emailDrafts.find((x) => x.id === id) ?? notFound("email draft", id);
       if (!e.to) return { ok: false, code: "failed", error: "Add a recipient address first." };
-      const { sendGmail } = await import("@/lib/integrations/gmail");
-      const { sendOutlook } = await import("@/lib/integrations/outlook");
-      const r = via === "gmail" ? await sendGmail(state.org.id, { to: e.to, subject: e.subject, text: e.body }) : await sendOutlook(state.org.id, { to: e.to, subject: e.subject, text: e.body });
+      const r = integrationsServer ? await (await integrationsServer()).sendEmail(state.org.id, via, { to: e.to, subject: e.subject, text: e.body }) : { ok: false as const, reason: "not_connected" as const, message: `Connect your ${via === "gmail" ? "Google" : "Microsoft"} account first.` };
       if (!r.ok) return { ok: false, code: r.reason === "not_connected" ? "no_ai" : "failed", error: r.message };
       const sent = await mockServices.outreach.markSent(id, "manual", followUpDays);
       sent.sentVia = via;
@@ -1030,26 +1099,22 @@ export const mockServices: Services = {
       return integrationStatus();
     },
     async connections() {
-      const { connectionStore, publicView } = await import("@/lib/integrations/store");
-      return (await connectionStore().list(state.org.id)).map(publicView);
+      return integrationsServer ? (await integrationsServer()).connections(state.org.id) : [];
     },
     async connectUrl(provider, purpose) {
-      const { providerConnected } = await import("@/lib/integrations/oauth");
-      if (!providerConnected(provider)) return { ok: false, code: "no_ai", error: `${provider === "google" ? "Google" : "Microsoft"} keys are not set on this server yet. The Integrations page says how to add them.` };
+      if (!integrationsServer || !(await (await integrationsServer()).providerReady(provider))) return { ok: false, code: "no_ai", error: `${provider === "google" ? "Google" : "Microsoft"} keys are not set on this server yet. The Integrations page says how to add them.` };
       return { ok: true, data: { url: `/api/integrations/${provider}/connect?purpose=${purpose}` } };
     },
     async disconnect(provider) {
-      const { connectionStore } = await import("@/lib/integrations/store");
-      await connectionStore().remove(state.org.id, provider);
+      if (integrationsServer) await (await integrationsServer()).disconnect(state.org.id, provider);
     },
     async syncCalendar() {
-      const { pushEvents } = await import("@/lib/integrations/google-calendar");
       const events = state.milestones.filter((m) => !m.done).map((m) => {
         const a = state.applications.find((x) => x.id === m.applicationId);
         const o = a ? state.opportunities.find((x) => x.id === a.opportunityId) : null;
         return { id: m.id, title: `${m.title}${o ? `: ${o.title}` : ""}`, date: m.dueDate, description: o ? `${o.title}. ${o.sourceUrl}` : "" };
       });
-      const r = await pushEvents(state.org.id, events);
+      const r = integrationsServer ? await (await integrationsServer()).pushEvents(state.org.id, events) : { ok: false as const, reason: "not_connected" as const, message: "Connect your Google account first." };
       if (!r.ok) return { ok: false, code: r.reason === "not_connected" ? "no_ai" : "failed", error: r.message };
       return { ok: true, data: { pushed: r.pushed } };
     },

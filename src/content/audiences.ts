@@ -1,6 +1,9 @@
 import { PRODUCT_NAME } from "@/lib/brand";
 
-/** Copy for /who-its-for. Each audience: the problem, how it helps, and what is limited today. */
+/**
+ * Copy for /who-its-for. Each audience: the problem, how it helps, what is
+ * limited today, and the /for page that covers it step by step.
+ */
 
 export type Audience = {
   id: string;
@@ -9,7 +12,11 @@ export type Audience = {
   problem: string[];
   helps: string[];
   limits: string[];
+  /** The audience page with the steps, screenshots, and what it needs. */
+  page: { href: string; label: string };
 };
+
+const forNonprofits = { href: "/for/nonprofits", label: "What it does for nonprofits, step by step" };
 
 export const audiences: Audience[] = [
   {
@@ -33,6 +40,7 @@ export const audiences: Audience[] = [
       "Reminder emails and the weekly digest send once email is set up by whoever runs the service. The demo shows what would go out instead.",
       "Drafts are in English.",
     ],
+    page: forNonprofits,
   },
   {
     id: "consultants",
@@ -53,6 +61,7 @@ export const audiences: Audience[] = [
       "You switch between clients one at a time.",
       "It does not replace your judgment about which funders are worth a client's time. It gives you a faster first pass.",
     ],
+    page: forNonprofits,
   },
   {
     id: "fiscal-sponsors",
@@ -71,6 +80,49 @@ export const audiences: Audience[] = [
       "Eligibility checks read the project's facts. When a funder requires the sponsor to be the applicant, check that rule yourself.",
       "Seats for a cohort of projects are arranged by writing to us.",
     ],
+    page: forNonprofits,
+  },
+  {
+    id: "firms",
+    name: "Architecture and construction firms",
+    heading: "For the firm that wins its work by proposal.",
+    problem: [
+      "Architecture, engineering, and construction firms win most of their work through proposals. Each solicitation spreads its requirements across sections, attachments, and forms, and the people who know the projects are busy billing on them. The same résumés and project sheets get rebuilt for every SF 330.",
+    ],
+    helps: [
+      "It reads an RFP from a link, a PDF, or pasted text, and finds the requirements, evaluation factors, dates, forms, page limits, set-aside, NAICS, and bonding. A PDF is read page by page, so every requirement cites its page.",
+      "A compliance matrix shows every requirement, where it is set, which section answers it, and its status. It is rechecked from the draft each time.",
+      "A go/no-go score gives plain reasons, and a stopper such as a set-aside you do not hold turns it to no-go. The decision is yours.",
+      "The proposal and the SF 330 are built from your own projects, people, and credentials. Every claim cites a record, and anything missing becomes a question.",
+    ],
+    limits: [
+      "SAM.gov notices need your own free SAM.gov key. Without it, SAM.gov shows as not connected. Adding an RFP needs no key.",
+      "The cover letter, firm qualifications, and approach need a model key. Without one, the approach is an outline of what the solicitation asks.",
+      "The SF 330 is a Word working copy to move into the official form.",
+      "It never makes up hours, rates, or prices, and never signs or submits a bid.",
+      "Grants a for-profit firm can get are rare, and it says so.",
+    ],
+    page: { href: "/for/architecture-and-construction", label: "What it does for architecture and construction firms, step by step" },
+  },
+  {
+    id: "research",
+    name: "Research teams",
+    heading: "For the lab writing proposals between classes and experiments.",
+    problem: [
+      "University labs and small research companies repeat the same pieces in every proposal: biosketches, facilities, a data management plan. Finding the right program means working out who funds this kind of work, and each funder now has its own rule about AI in applications.",
+    ],
+    helps: [
+      "It finds research funding notices on Grants.gov that are open to universities, with plain reasons.",
+      "It shows funded projects like yours from the NSF Award Search and NIH RePORTER: which programs fund this work and which program officers manage it.",
+      "It drafts in the standard sections, with biosketches and facilities built from your records.",
+      "Each funder's rule on AI is on the checklist, with its source.",
+    ],
+    limits: [
+      "SBIR and STTR notices come through Grants.gov. There is no direct SBIR.gov feed.",
+      "The profile is read from your lab page, and your team has to check it.",
+      "Funders change their rules on AI. Read the current notice before you submit.",
+    ],
+    page: { href: "/for/research", label: "What it does for research teams, step by step" },
   },
   {
     id: "scholarships",
@@ -90,5 +142,6 @@ export const audiences: Audience[] = [
       "Many of these scholarships are limited to one school or county, and filed instructions can be out of date. Check with the foundation before applying.",
       "We never store the names of past individual recipients from the filings.",
     ],
+    page: { href: "/for/students", label: "What it does for students, step by step" },
   },
 ];

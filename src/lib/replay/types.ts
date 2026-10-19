@@ -18,7 +18,7 @@ import type { OpportunityDetail, SearchResponse } from "@/lib/grantsgov";
  * the live validators then treat the claim as unverified, exactly as they
  * would for a live model that cited a fact it should not have.
  */
-export type RecordingId = "youth" | "foodbank" | "clinic";
+export type RecordingId = "youth" | "foodbank" | "clinic" | "firm" | "lab" | "student";
 
 export interface RecordedCall {
   /** The `label` the agent code passes to the model, e.g. "extract_profile". */

@@ -53,7 +53,21 @@ import type {
   VoiceProfile,
   WinAnalytics,
   WinKit,
+  Addendum,
+  Certification,
+  FeeProposal,
+  FirmProfile,
+  FundedAnalog,
+  GoNoGo,
+  PersonProfile,
+  Personnel,
+  PortfolioProject,
+  Requirement,
+  ResearchProfile,
+  Sf330,
+  Solicitation,
 } from "@/lib/types";
+import type { BidMeta } from "@/lib/bids/store";
 
 /**
  * Service contracts. The UI only imports `services` from "@/lib/services".
@@ -99,6 +113,7 @@ export interface SampleInfo {
   kind: string;
   host: string;
   history: boolean;
+  orgType: import("@/lib/types").OrgType;
 }
 
 /** The public demo. Every method is inert outside demo mode. */
@@ -357,6 +372,98 @@ export interface LoopService {
   draftProposal(applicationId: string, jobId?: string): Promise<LoopResult<{ sectionCount: number; requirementCount: number; openQuestions: number; issues: number; wordCount: number; runId: string }>>;
 }
 
+/** A firm's knowledge base: company profile, portfolio, people, and credentials. Every record is something a bid can cite. */
+export interface FirmService {
+  getProfile(): Promise<FirmProfile | null>;
+  saveProfile(patch: Partial<Omit<FirmProfile, "orgId" | "updatedAt">>): Promise<FirmProfile>;
+  listProjects(): Promise<PortfolioProject[]>;
+  saveProject(input: Omit<PortfolioProject, "id" | "orgId"> & { id?: string }): Promise<PortfolioProject>;
+  removeProject(id: string): Promise<void>;
+  listPersonnel(): Promise<Personnel[]>;
+  savePerson(input: Omit<Personnel, "id" | "orgId"> & { id?: string }): Promise<Personnel>;
+  removePerson(id: string): Promise<void>;
+  listCertifications(): Promise<Certification[]>;
+  saveCertification(input: Omit<Certification, "id" | "orgId"> & { id?: string }): Promise<Certification>;
+  removeCertification(id: string): Promise<void>;
+  /** The records as the facts a draft may cite. */
+  recordFacts(): Promise<Fact[]>;
+}
+
+/** A SAM.gov contract opportunity, in the shape the official Opportunities API returns, trimmed to what screens use. */
+export interface SamNotice {
+  noticeId: string;
+  title: string;
+  solicitationNumber: string | null;
+  agency: string;
+  office: string | null;
+  postedDate: string | null;
+  type: string;
+  setAside: string | null;
+  setAsideCode: string | null;
+  responseDeadLine: string | null;
+  naicsCode: string | null;
+  classificationCode: string | null;
+  placeOfPerformance: string | null;
+  description: string;
+  pointOfContact: { name: string; email: string | null; phone: string | null } | null;
+  uiLink: string;
+  /** Plain-code fit for this firm: NAICS, set-aside, location, and similar projects. */
+  fit: { score: number; reasons: string[]; cautions: string[] } | null;
+  /** True when the firm already added it as a bid. */
+  added: boolean;
+}
+
+export interface BidView {
+  application: ApplicationView;
+  solicitation: Solicitation;
+  goNoGo: GoNoGo | null;
+  requirements: Requirement[];
+  addenda: Addendum[];
+  fee: FeeProposal | null;
+  meta: BidMeta | null;
+  projects: PortfolioProject[];
+  personnel: Personnel[];
+  matrix: { total: number; met: number; partial: number; open: number; firmAction: number };
+  /** How the solicitation was read: "rules", or "rules and model". */
+  readBy: string;
+  pageCount: number;
+}
+
+export interface BidService {
+  /** Read a solicitation the firm brought (a link, pasted text, an uploaded document, or a SAM.gov notice) into a bid with a compliance matrix and a go/no-go score. */
+  addRfp(input: { url?: string; text?: string; documentId?: string; samNoticeId?: string; sample?: boolean; jobId?: string }): Promise<LoopResult<{ applicationId: string; requirementCount: number; score: number }>>;
+  get(applicationId: string): Promise<BidView | null>;
+  rescore(applicationId: string): Promise<GoNoGo | null>;
+  decide(applicationId: string, decision: "go" | "no_go", note: string | null): Promise<GoNoGo | null>;
+  draft(applicationId: string, jobId?: string): Promise<LoopResult<{ sectionCount: number; openQuestions: number; issues: number; wordCount: number; met: number; total: number }>>;
+  setSelection(applicationId: string, input: { projectIds?: string[]; assignments?: BidMeta["assignments"]; teamFirms?: BidMeta["teamFirms"]; additionalInformation?: string }): Promise<BidMeta | null>;
+  saveFee(applicationId: string, fee: FeeProposal): Promise<FeeProposal>;
+  addAddendum(applicationId: string, input: { text?: string; documentId?: string; sample?: boolean }): Promise<LoopResult<Addendum>>;
+  acknowledgeAddendum(id: string, acknowledged: boolean): Promise<Addendum | null>;
+  refreshMatrix(applicationId: string): Promise<Requirement[]>;
+  sf330(applicationId: string): Promise<Sf330 | null>;
+  /** SAM.gov search for the firm's work categories. Live with a key; the recorded search in the demo; not connected otherwise. */
+  searchSam(input?: { naics?: string[]; state?: string | null }): Promise<{ status: "live" | "recorded" | "not_connected"; note: string; notices: SamNotice[]; recordedOn: string | null }>;
+}
+
+export interface ResearchService {
+  getProfile(): Promise<ResearchProfile | null>;
+  saveProfile(patch: Partial<Omit<ResearchProfile, "orgId" | "updatedAt">>): Promise<ResearchProfile>;
+  /** Funded projects at NSF and NIH like this team's work: who funds it, through which program, and who manages it. */
+  analogs(): Promise<{ status: "live" | "recorded"; analogs: FundedAnalog[]; recordedOn: string | null }>;
+  /** Draft a research proposal in the standard sections, with the funder's AI rule on the checklist. */
+  draftProposal(applicationId: string, jobId?: string): Promise<LoopResult<{ sectionCount: number; openQuestions: number; issues: number; wordCount: number }>>;
+}
+
+export interface PersonService {
+  getProfile(): Promise<PersonProfile | null>;
+  saveProfile(patch: Partial<Omit<PersonProfile, "orgId" | "updatedAt">>): Promise<PersonProfile>;
+  /** Read a résumé into a profile for the person to check. Plain rules always; a model adds more when a key is set. */
+  readResume(input: { text?: string; documentId?: string; sample?: boolean }): Promise<LoopResult<PersonProfile>>;
+  /** Draft an essay for a scholarship from the person's own experiences, in their voice. */
+  draftEssay(applicationId: string, prompt: string, jobId?: string): Promise<LoopResult<{ sectionId: string; words: number; openQuestions: number }>>;
+}
+
 export interface Services {
   org: OrgService;
   knowledge: KnowledgeService;
@@ -377,4 +484,8 @@ export interface Services {
   contacts: ContactsService;
   social: SocialService;
   integrations: IntegrationsService;
+  firm: FirmService;
+  bids: BidService;
+  research: ResearchService;
+  person: PersonService;
 }

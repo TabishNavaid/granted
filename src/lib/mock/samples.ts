@@ -1,5 +1,6 @@
 import type { Member, Organization } from "@/lib/types";
 import { CURRENT_USER_ID, organization as riverbend, members as riverbendMembers } from "./data";
+import { firmMembers, firmOrg } from "./firm";
 
 /**
  * The sample organizations the demo runs on. All three are fictional; their
@@ -12,7 +13,7 @@ import { CURRENT_USER_ID, organization as riverbend, members as riverbendMembers
  */
 export interface SampleOrg {
   id: string;
-  recording: "youth" | "foodbank" | "clinic";
+  recording: import("@/lib/replay/types").RecordingId;
   label: string;
   /** What kind of organization, in a few words, for the switcher. */
   kind: string;
@@ -24,7 +25,8 @@ export interface SampleOrg {
   members: Member[];
 }
 
-const blankOrg = (o: Pick<Organization, "id" | "name" | "websiteUrl" | "city" | "state" | "calendarToken">): Organization => ({
+const blankOrg = (o: Pick<Organization, "id" | "name" | "websiteUrl" | "city" | "state" | "calendarToken"> & { orgType?: Organization["orgType"] }): Organization => ({
+  orgType: "nonprofit",
   ...o,
   ein: "",
   mission: "",
@@ -75,6 +77,43 @@ export const samples: SampleOrg[] = [
     members: [{ id: CURRENT_USER_ID, orgId: "org_pine_hollow", fullName: "Dr. Ruth Sizemore", email: "ruth@pinehollowhealth.org", role: "owner", status: "active" }],
   },
 ];
+
+samples.push({
+  id: firmOrg.id,
+  recording: "firm",
+  label: "Cibolo Line Architecture + Engineering",
+  kind: "Architecture and engineering firm in San Antonio, Texas",
+  host: "cibololine.com",
+  aliases: ["cibolo line", "cibololine"],
+  history: true,
+  org: firmOrg,
+  members: firmMembers,
+});
+
+samples.push(
+  {
+    id: "org_freshwater_lab",
+    recording: "lab",
+    label: "Lake Erie Freshwater Systems Lab",
+    kind: "University research lab in Toledo, Ohio",
+    host: "freshwaterlab.maumeebay.example.edu",
+    aliases: ["freshwater lab", "lake erie lab", "maumee bay"],
+    history: false,
+    org: blankOrg({ id: "org_freshwater_lab", orgType: "research", name: "Lake Erie Freshwater Systems Lab", websiteUrl: "https://freshwaterlab.maumeebay.example.edu", city: "", state: "", calendarToken: "demo-calendar-freshwater-lab" }),
+    members: [{ id: CURRENT_USER_ID, orgId: "org_freshwater_lab", fullName: "Dr. Anika Sorensen", email: "asorensen@maumeebay.example.edu", role: "owner", status: "active" }],
+  },
+  {
+    id: "org_jordan_reyes",
+    recording: "student",
+    label: "Jordan Reyes",
+    kind: "High school senior in Dayton, Ohio",
+    host: "",
+    aliases: ["jordan reyes", "jordan"],
+    history: false,
+    org: blankOrg({ id: "org_jordan_reyes", orgType: "individual", name: "Jordan Reyes", websiteUrl: "", city: "Dayton", state: "OH", calendarToken: "demo-calendar-jordan-reyes" }),
+    members: [{ id: CURRENT_USER_ID, orgId: "org_jordan_reyes", fullName: "Jordan Reyes", email: "jordan.reyes@example.org", role: "owner", status: "active" }],
+  },
+);
 
 export const sampleById = (id: string) => samples.find((s) => s.id === id) ?? null;
 

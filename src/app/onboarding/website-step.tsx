@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { services, type SampleInfo } from "@/lib/services";
+import type { OrgType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +14,9 @@ import { Field } from "@/components/ui/label";
  * sites can be read, so any other address gets a plain answer and a choice
  * of sample, never a pretend reading.
  */
-export function WebsiteStep({ initialUrl, demo }: { initialUrl: string; demo: { samples: SampleInfo[] } | null }) {
+export function WebsiteStep({ initialUrl, demo, orgType = "nonprofit" }: { initialUrl: string; demo: { samples: SampleInfo[] } | null; orgType?: OrgType }) {
+  // Nonprofits confirm an EIN next; firms and labs go straight to the reading.
+  const next = orgType === "nonprofit" ? "/onboarding/ein" : "/onboarding/reading";
   const router = useRouter();
   const [url, setUrl] = React.useState(initialUrl.replace(/^https?:\/\//, ""));
   const [error, setError] = React.useState<string | null>(null);
@@ -24,7 +27,7 @@ export function WebsiteStep({ initialUrl, demo }: { initialUrl: string; demo: { 
   const startSample = async (id: string) => {
     setLoading(true);
     await services.demo.startSetup(id);
-    router.push("/onboarding/ein");
+    router.push(next);
     router.refresh();
   };
 
@@ -64,8 +67,14 @@ export function WebsiteStep({ initialUrl, demo }: { initialUrl: string; demo: { 
 
   return (
     <div className="max-w-2xl">
-      <h1 className="font-display text-h1 text-ink">What&apos;s your organization&apos;s website?</h1>
-      <p className="mt-4 max-w-[52ch] text-lg text-ink-muted">That is all we need to start. We read it the way a funder would and write down what it says, nothing more.</p>
+      <h1 className="font-display text-h1 text-ink">{orgType === "firm" ? "What's your firm's website?" : orgType === "research" ? "Where is your lab or team page?" : "What's your organization's website?"}</h1>
+      <p className="mt-4 max-w-[52ch] text-lg text-ink-muted">
+        {orgType === "firm"
+          ? "We read it the way an owner's selection panel would: your projects, people, and credentials, written down for you to check, nothing more."
+          : orgType === "research"
+            ? "We read your investigators, publications, prior awards, and facilities from it, for you to check, nothing more."
+            : "That is all we need to start. We read it the way a funder would and write down what it says, nothing more."}
+      </p>
       <form
         className="mt-8 flex max-w-md flex-col gap-5"
         onSubmit={async (e) => {
@@ -88,8 +97,8 @@ export function WebsiteStep({ initialUrl, demo }: { initialUrl: string; demo: { 
             return startSample(sample.id);
           }
           setLoading(true);
-          await services.org.update({ websiteUrl: /^https?:\/\//i.test(clean) ? clean : `https://${clean}`, onboardingStep: "ein" });
-          router.push("/onboarding/ein");
+          await services.org.update({ websiteUrl: /^https?:\/\//i.test(clean) ? clean : `https://${clean}`, onboardingStep: orgType === "nonprofit" ? "ein" : "reading" });
+          router.push(next);
         }}
       >
         <Field id="website" label="Website" error={error ?? undefined}>
@@ -103,7 +112,7 @@ export function WebsiteStep({ initialUrl, demo }: { initialUrl: string; demo: { 
       </form>
       {demo ? (
         <div className="mt-10 max-w-xl border-t border-rule pt-5">
-          <p className="text-base text-ink">In the demo, setup reads one of three sample organizations. Paste any address, or start from one of these:</p>
+          <p className="text-base text-ink">In the demo, setup reads {demo.samples.length === 1 ? "a sample" : `one of ${demo.samples.length} samples`}. Paste any address, or start from {demo.samples.length === 1 ? "it" : "one of these"}:</p>
           <ul className="mt-3 flex flex-col gap-2">
             {demo.samples.map((s) => (
               <li key={s.id}>

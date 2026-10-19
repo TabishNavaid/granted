@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
-import { services } from "@/lib/services";
-import { EinStep } from "./ein-step";
+import { demoPage } from "@/lib/demo/page";
+import render from "./render";
 
 export const metadata: Metadata = { title: "Your EIN" };
 
-export default async function EinPage() {
-  const org = await services.org.get();
-  return <EinStep initialEin={org.ein} />;
-}
+export default demoPage("onboardingEin", render);

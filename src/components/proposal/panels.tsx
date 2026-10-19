@@ -23,11 +23,14 @@ export function Checklist({
   sections,
   activeId,
   onSelect,
+  note,
 }: {
   requirements: Requirement[];
   sections: Section[];
   activeId: string;
   onSelect: (sectionId: string) => void;
+  /** Where the checklist came from, when it is not the funder's guidelines. */
+  note?: string;
 }) {
   const attachments = requirements.filter((r) => r.kind === "attachment");
   const rules = requirements.filter((r) => r.kind === "format" || r.kind === "eligibility");
@@ -41,7 +44,7 @@ export function Checklist({
             {done} of {requirements.length}
           </span>
         </div>
-        <p className="mt-1 text-sm text-ink-muted">Pulled from the funder&apos;s guidelines.</p>
+        <p className="mt-1 text-sm text-ink-muted">{note ?? "Pulled from the funder's guidelines."}</p>
       </div>
       <div>
         <p className="mb-1.5 text-sm font-semibold text-ink">Sections</p>
@@ -197,7 +200,7 @@ export function CompliancePanel({ checks, onRerun, running, onJump }: { checks: 
   return (
     <div className="flex flex-col gap-4">
       <div className={cn("border-l-[6px] py-2 pl-4 text-sm", ready ? "border-l-ink" : "border-l-alert")}>
-        <p className="font-display text-xl text-ink">{ready ? "Ready to submit" : `${fails.length} thing${fails.length === 1 ? "" : "s"} to sort out before you submit`}</p>
+        <p className="font-display text-xl text-ink">{!ready ? `${fails.length} thing${fails.length === 1 ? "" : "s"} to sort out before you submit` : warns.length ? `Nothing failed; ${warns.length} to review` : "Ready to submit"}</p>
         <p className="mt-1 flex flex-wrap gap-x-4 text-ink-muted">
           <span className="tnum">{passes.length} passed</span>
           <span className="tnum">{warns.length} to review</span>

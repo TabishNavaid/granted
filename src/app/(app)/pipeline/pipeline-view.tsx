@@ -6,7 +6,9 @@ import { GripVertical, MoreHorizontal } from "lucide-react";
 import type { ApplicationStage, ApplicationView, LossReason, Member, OutcomeResult } from "@/lib/types";
 import { LOSS_REASON_LABEL } from "@/lib/features/analytics";
 import { services } from "@/lib/services";
-import { stageMeta, stageOrder } from "@/lib/agents/meta";
+import { stageMeta } from "@/lib/agents/meta";
+import { stagesFor, stageLabel } from "@/lib/segments";
+import type { OpportunityKind } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { deadlineLabel, formatMoney, formatShortDate } from "@/lib/format";
 import { PageContainer, PageHeader } from "@/components/app/page-header";
@@ -23,7 +25,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { WonMeadow } from "@/components/drawings/won-meadow";
 
-export function PipelineView({ initial, members, orgName }: { initial: ApplicationView[]; members: Member[]; orgName: string }) {
+/** Where an application of another kind sits on this board, when its stage has no column here. */
+function columnFor(stage: ApplicationView["stage"], columns: ApplicationView["stage"][]): ApplicationView["stage"] {
+  if (columns.includes(stage)) return stage;
+  const near: Partial<Record<ApplicationView["stage"], ApplicationView["stage"][]>> = { researching: ["discovered"], go_no_go: ["researching", "discovered"], review: ["drafting"], shortlisted: ["submitted"], interview: ["submitted"] };
+  return near[stage]?.find((s) => columns.includes(s)) ?? columns[0];
+}
+
+export function PipelineView({ initial, members, orgName, kind = "grant" }: { initial: ApplicationView[]; members: Member[]; orgName: string; kind?: OpportunityKind }) {
+  const stageOrder = stagesFor(kind).map((s) => s.stage);
+  const label = (s: ApplicationView["stage"]) => stageLabel(s, kind);
   const { toast } = useToast();
   const [apps, setApps] = React.useState(initial);
   const [dragging, setDragging] = React.useState<string | null>(null);
@@ -48,10 +59,10 @@ export function PipelineView({ initial, members, orgName }: { initial: Applicati
       return;
     }
     setApps((list) => list.map((a) => (a.id === app.id ? next : a)));
-    if (liveRef.current) liveRef.current.textContent = `${app.opportunity.title} moved to ${stageMeta[stage].label}.`;
+    if (liveRef.current) liveRef.current.textContent = `${app.opportunity.title} moved to ${label(stage)}.`;
     // Only the first move to Submitted sets the reminder and drafts the email.
     const firstSubmit = stage === "submitted" && !app.submittedAt;
-    toast({ title: `Moved to ${stageMeta[stage].label}`, description: firstSubmit ? `${app.opportunity.title}. A follow-up reminder is on the calendar for 30 days out, and a follow-up email is drafted in Outreach.` : app.opportunity.title });
+    toast({ title: `Moved to ${label(stage)}`, description: firstSubmit ? `${app.opportunity.title}. A follow-up reminder is on the calendar for 30 days out, and a follow-up email is drafted in Outreach.` : app.opportunity.title });
   };
 
   const totals = {
@@ -65,18 +76,23 @@ export function PipelineView({ initial, members, orgName }: { initial: Applicati
       {won ? <WonMeadow orgName={orgName} funderName={won.funder.name} amount={won.outcome?.awardAmount ?? null} onDismiss={() => setWon(null)} /> : null}
       <PageHeader
         title="Pipeline"
-        description={`${apps.filter((a) => !["won", "lost"].includes(a.stage)).length} active applications asking ${formatMoney(totals.active)} in total. ${formatMoney(totals.won)} won this year.`}
+        description={
+          kind === "contract"
+            ? `${apps.filter((a) => !["won", "lost"].includes(a.stage)).length} bids in progress, from go/no-go to interview. ${apps.filter((a) => a.stage === "won").length} won.`
+            : `${apps.filter((a) => !["won", "lost"].includes(a.stage)).length} active applications asking ${formatMoney(totals.active)} in total. ${formatMoney(totals.won)} won this year.`
+        }
         actions={
           <Button asChild variant="secondary">
-            <Link href="/opportunities">Find more funders</Link>
+            <Link href="/opportunities">{kind === "contract" ? "Find more bids" : kind === "scholarship" ? "Find more scholarships" : "Find more funders"}</Link>
           </Button>
         }
       />
-      <div className="mt-8 -mx-4 overflow-x-auto px-4 pb-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-        <ol className="grid min-w-[88rem] grid-cols-7 gap-5" aria-label="Pipeline stages">
+      {/* The board scrolls sideways on smaller screens, so it can take keyboard focus. */}
+      <div className="mt-8 -mx-4 overflow-x-auto px-4 pb-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8" tabIndex={0} role="region" aria-label="Pipeline board">
+        <ol className="grid gap-5" style={{ gridTemplateColumns: `repeat(${stageOrder.length}, minmax(12rem, 1fr))`, minWidth: `${stageOrder.length * 12.5}rem` }} aria-label="Pipeline stages">
           {stageOrder.map((stage) => {
-            const items = apps.filter((a) => a.stage === stage);
-            const m = stageMeta[stage];
+            const items = apps.filter((a) => columnFor(a.stage, stageOrder) === stage);
+            const m = { ...stageMeta[stage], label: label(stage) };
             return (
               <li
                 key={stage}
@@ -102,7 +118,7 @@ export function PipelineView({ initial, members, orgName }: { initial: Applicati
                 <ul className="mt-3 flex flex-1 flex-col gap-3">
                   {items.map((app) => (
                     <li key={app.id}>
-                      <PipelineCard app={app} members={members} dragging={dragging === app.id} onDragStart={() => setDragging(app.id)} onDragEnd={() => setDragging(null)} onMove={(s) => move(app, s)} />
+                      <PipelineCard stageOrder={stageOrder} label={label} app={app} members={members} dragging={dragging === app.id} onDragStart={() => setDragging(app.id)} onDragEnd={() => setDragging(null)} onMove={(s) => move(app, s)} />
                     </li>
                   ))}
                   {items.length === 0 ? <li className="border border-dashed border-rule-strong p-3 text-sm text-ink-muted">Nothing here</li> : null}
@@ -143,7 +159,8 @@ export function PipelineView({ initial, members, orgName }: { initial: Applicati
   );
 }
 
-function PipelineCard({ app, members, dragging, onDragStart, onDragEnd, onMove }: { app: ApplicationView; members: Member[]; dragging: boolean; onDragStart: () => void; onDragEnd: () => void; onMove: (s: ApplicationStage) => void }) {
+function PipelineCard({ app, members, dragging, onDragStart, onDragEnd, onMove, stageOrder, label }: { app: ApplicationView; members: Member[]; dragging: boolean; onDragStart: () => void; onDragEnd: () => void; onMove: (s: ApplicationStage) => void; stageOrder: ApplicationStage[]; label: (s: ApplicationStage) => string }) {
+  const isBid = app.mode === "bid" || app.mode === "sf330";
   const dl = deadlineLabel(app.opportunity.deadline);
   const soon = dl.tone === "danger";
   const owner = members.find((m) => m.id === app.ownerId);
@@ -176,13 +193,13 @@ function PipelineCard({ app, members, dragging, onDragStart, onDragEnd, onMove }
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link href={`/applications/${app.id}`}>Open the draft</Link>
+              <Link href={`/applications/${app.id}`}>{isBid ? "Open the bid" : "Open the draft"}</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Move to</DropdownMenuLabel>
             {stageOrder.map((s) => (
               <DropdownMenuItem key={s} disabled={s === app.stage} onSelect={() => onMove(s)}>
-                {stageMeta[s].label}
+                {label(s)}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
@@ -191,7 +208,7 @@ function PipelineCard({ app, members, dragging, onDragStart, onDragEnd, onMove }
 
       {app.stage === "won" ? (
         <div className="mt-3 flex flex-wrap items-end gap-x-3 gap-y-2 text-sm">
-          <span className="font-semibold text-ink">Funded</span>
+          <span className="font-semibold text-ink">{isBid ? "Awarded" : "Funded"}</span>
           {app.outcome?.awardAmount ? <span className="font-semibold text-ink tnum">{formatMoney(app.outcome.awardAmount)}</span> : null}
         </div>
       ) : (

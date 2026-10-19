@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { sha1Hex } from "@/lib/hash";
 import { aiErrorMessage, AiError } from "@/lib/ai";
 import { cached, HOURS } from "@/lib/cache";
 import { crawlSite, CrawlError, sourceLabelFor, type CrawlResult } from "@/lib/crawl";
@@ -67,15 +67,20 @@ export interface BuildProfileOutput {
 
 export const PROFILE_STEPS = ["Reading your homepage", "Reading your other pages", "Writing down the facts", "Checking every fact against its page"];
 
-export async function buildProfile(store: LoopStore, input: { websiteUrl: string; ein: string | null; jobId?: string }): Promise<LoopResult<BuildProfileOutput>> {
+/** Extra steps an organization type adds after its site is read (a firm's projects, a lab's publications). */
+export interface ProfileHooks {
+  afterRead?: (pages: CrawlResult["pages"], rec: import("./runs").Recorder, jobId?: string) => Promise<{ kept: number; dropped: number }>;
+}
+
+export async function buildProfile(store: LoopStore, input: { websiteUrl: string; ein: string | null; jobId?: string }, hooks: ProfileHooks = {}): Promise<LoopResult<BuildProfileOutput>> {
   const job = input.jobId;
   if (job) startJob(job, PROFILE_STEPS);
-  const r = await buildProfileInner(store, input);
+  const r = await buildProfileInner(store, input, hooks);
   if (job) finishJob(job, r.ok ? "done" : "failed");
   return r;
 }
 
-async function buildProfileInner(store: LoopStore, input: { websiteUrl: string; ein: string | null; jobId?: string }): Promise<LoopResult<BuildProfileOutput>> {
+async function buildProfileInner(store: LoopStore, input: { websiteUrl: string; ein: string | null; jobId?: string }, hooks: ProfileHooks): Promise<LoopResult<BuildProfileOutput>> {
   const job = input.jobId;
   let host = input.websiteUrl;
   try {
@@ -156,9 +161,10 @@ async function buildProfileInner(store: LoopStore, input: { websiteUrl: string; 
         newFacts.push({ label: "Program", value: program, category: "organization", sourceUrl: page.url, sourceLabel: sourceLabelFor(page.url), sourceExcerpt: excerpt, confidence: 0.85, status: "needs_review" });
       }
       await store.replaceReadFacts(newFacts);
+      const extra = hooks.afterRead ? await hooks.afterRead(value.crawl.pages, rec, job) : { kept: 0, dropped: 0 };
       await store.updateOrg({ onboardingStep: "profile" });
       const programCount = newFacts.length - facts.length;
-      if (job) advanceJob(job, `${facts.length} facts kept${programCount ? ` and ${programCount} program${programCount === 1 ? "" : "s"} noted` : ""}, ${dropped.length} set aside`);
+      if (job) advanceJob(job, `${facts.length} facts kept${programCount ? ` and ${programCount} program${programCount === 1 ? "" : "s"} noted` : ""}${extra.kept ? `, ${extra.kept} records` : ""}, ${dropped.length + extra.dropped} set aside`);
       const summary = `Read ${value.crawl.pages.length} page${value.crawl.pages.length === 1 ? "" : "s"} on ${host} and found ${newFacts.length} fact${newFacts.length === 1 ? "" : "s"} for you to check.${dropped.length ? ` Set aside ${dropped.length} that did not pass the source check.` : ""}`;
       return { output: { pageCount: value.crawl.pages.length, factCount: newFacts.length, droppedCount: dropped.length, fromCache }, summary };
     });
@@ -281,7 +287,35 @@ export interface FindMatchesOutput {
 
 export const MATCH_STEPS = ["Planning the searches", "Searching Grants.gov", "Reading the strongest notices in full", "Scoring each one against your facts", "Checking private foundations' IRS filings"];
 
-export async function findMatches(store: LoopStore, jobId?: string): Promise<LoopResult<FindMatchesOutput>> {
+/** How a firm, research team, or person finds matches instead of the nonprofit search. */
+export type SegmentMatcher = (rec: import("./runs").Recorder, jobId?: string) => Promise<{ matchCount: number; screened: number; read: number; summary: string }>;
+
+export const SEGMENT_MATCH_STEPS: Record<"firm" | "research" | "individual", string[]> = {
+  firm: ["Searching Grants.gov for programs open to firms", "Reading the notices in full", "Checking eligibility and fit"],
+  research: ["Finding funded projects like yours at NSF and NIH", "Searching Grants.gov research notices", "Checking eligibility, fit, and each funder's AI rules"],
+  individual: ["Reading foundations' IRS filings for scholarship funds", "Checking your state, level, and field", "Ranking what fits"],
+};
+
+export async function findMatches(store: LoopStore, jobId?: string, segment?: SegmentMatcher): Promise<LoopResult<FindMatchesOutput>> {
+  const orgType = (await store.getOrg()).orgType ?? "nonprofit";
+  if (orgType !== "nonprofit" && segment) {
+    if (jobId) startJob(jobId, SEGMENT_MATCH_STEPS[orgType]);
+    try {
+      const { output, run } = await recordRun(store, { agent: "discovery", title: orgType === "firm" ? "Search for grants and incentives open to firms" : orgType === "research" ? "Search for research funding" : "Search for scholarships", trigger: "user" }, async (rec) => {
+        if (jobId) advanceJob(jobId);
+        const r = await segment(rec, jobId);
+        if (jobId) advanceJob(jobId, `${r.read} read`);
+        if (jobId) advanceJob(jobId, `${r.matchCount} kept`);
+        await store.updateOrg({ onboardingStep: "matches" });
+        return { output: { matchCount: r.matchCount, screened: r.screened, read: r.read, fromCache: false }, summary: r.summary };
+      });
+      if (jobId) finishJob(jobId, "done");
+      return { ok: true, data: { ...output, runId: run.id } };
+    } catch (err) {
+      if (jobId) finishJob(jobId, "failed");
+      return fail(err);
+    }
+  }
   if (jobId) startJob(jobId, MATCH_STEPS);
   const r = await findMatchesInner(store, jobId);
   if (jobId) finishJob(jobId, r.ok ? "done" : "failed");
@@ -295,7 +329,7 @@ async function findMatchesInner(store: LoopStore, jobId?: string): Promise<LoopR
     if (!facts.length) return { ok: false, code: "no_facts", error: "Confirm at least one fact about your organization first, so we have something to match against." };
     const { output, run } = await recordRun(store, { agent: "discovery", title: "Search Grants.gov for open opportunities", trigger: "user" }, async (rec) => {
       // Same profile, same day: reuse the scoring rather than paying for it again.
-      const fingerprint = createHash("sha1").update(JSON.stringify({ org: [org.name, org.mission, org.causes, org.populations, org.serviceArea], facts: facts.map((f) => [f.id, f.label, f.value]), day: new Date().toISOString().slice(0, 10) })).digest("hex");
+      const fingerprint = sha1Hex(JSON.stringify({ org: [org.name, org.mission, org.causes, org.populations, org.serviceArea], facts: facts.map((f) => [f.id, f.label, f.value]), day: new Date().toISOString().slice(0, 10) }));
       const { value: result, fromCache } = await cached<DiscoveryResult>(
         `discovery:${store.orgId}:${fingerprint}`,
         6 * HOURS,
@@ -428,7 +462,7 @@ async function draftLetterInner(store: LoopStore, applicationId: string, jobId?:
 
 // ---------- 5. Answer a question and redraft its paragraph ----------
 
-function recomputeChecks(sectionsHtml: string[], openQuestions: number): RenderedCheck[] {
+function recomputeChecks(sectionsHtml: string[], openQuestions: number, letter = true): RenderedCheck[] {
   const all = sectionsHtml.join("\n");
   const unverified = (all.match(/data-label="Unverified claim"/g) ?? []).length;
   const unsupported = (all.match(/data-label="Confirm /g) ?? []).length;
@@ -436,7 +470,7 @@ function recomputeChecks(sectionsHtml: string[], openQuestions: number): Rendere
   return [
     { rule: "Every claim about you cites a confirmed fact", status: unverified ? "fail" : "pass", detail: unverified ? `${unverified} claim${unverified === 1 ? "" : "s"} still marked as unverified.` : "Every citation points to a fact you confirmed.", sectionOrder: null },
     { rule: "Every number appears in a cited fact or the notice", status: unsupported ? "fail" : "pass", detail: unsupported ? `${unsupported} number${unsupported === 1 ? "" : "s"} still waiting on a source.` : "Every number traces to a source.", sectionOrder: null },
-    { rule: "About one page", status: words <= 500 ? "pass" : "warn", detail: `Currently ${words} words. One page is about 450.`, sectionOrder: null },
+    ...(letter ? [{ rule: "About one page", status: (words <= 500 ? "pass" : "warn") as RenderedCheck["status"], detail: `Currently ${words} words. One page is about 450.`, sectionOrder: null }] : []),
     { rule: "No open questions", status: openQuestions ? "warn" : "pass", detail: openQuestions ? `${openQuestions} question${openQuestions === 1 ? "" : "s"} waiting on you.` : "Nothing is waiting on you.", sectionOrder: null },
   ];
 }
@@ -461,8 +495,24 @@ export async function answerAndRedraft(store: LoopStore, missingFactId: string, 
     const section = sections.find((s) => s.id === mf.sectionId);
     const allMissing = await store.listMissingFacts(mf.applicationId);
     const open = allMissing.filter((m) => m.status === "open").length;
+    const appCtx = await store.getApplication(mf.applicationId);
+    const mode = appCtx?.application.mode ?? "letter";
+    const isLetter = mode === "letter";
+    // Bids, research proposals, and essays put the answer in place and cite it; their checks and matrix are recomputed, not the letter's.
+    if (mode === "bid" || mode === "sf330" || mode === "research" || mode === "essay") {
+      if (section) {
+        const html = section.bodyHtml.replace(new RegExp(`<span data-gap="${mf.id}"[^>]*></span>`), `${answer.trim().replace(/&/g, "&amp;").replace(/</g, "&lt;")}<span data-citation="${fact.id}" data-label="You"></span>`);
+        await store.updateSection(section.id, { bodyHtml: html, status: gapIdsIn(html).length ? "needs_facts" : "drafted" });
+      }
+      if (mode === "bid" || mode === "sf330") {
+        const [{ refreshMatrix }, { memoryBidStore }] = await Promise.all([import("@/lib/bids/run"), import("@/lib/bids/memory-store")]);
+        const bidStore = "firmRecords" in store ? (store as unknown as import("@/lib/bids/store").BidStore) : store.orgId === memoryBidStore.orgId ? memoryBidStore : null;
+        if (bidStore) await refreshMatrix(bidStore, mf.applicationId);
+      }
+      return { ok: true, data: { factId: fact.id, redrafted: false, note: "Saved, placed in the draft, and cited to you." } };
+    }
     if (!section) {
-      await store.replaceChecks(mf.applicationId, recomputeChecks(sections.map((s) => s.bodyHtml), open).map((c) => ({ rule: c.rule, status: c.status, detail: c.detail, sectionId: null })));
+      await store.replaceChecks(mf.applicationId, recomputeChecks(sections.map((s) => s.bodyHtml), open, isLetter).map((c) => ({ rule: c.rule, status: c.status, detail: c.detail, sectionId: null })));
       return { ok: true, data: { factId: fact.id, redrafted: false, note: "Saved as a fact you stated." } };
     }
     const keyOf = (gapId: string) => allMissing.find((m) => m.id === gapId)?.gapKey ?? gapId;

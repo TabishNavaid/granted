@@ -113,7 +113,8 @@ function Timeline({ timeline }: { timeline: WinAnalytics["timeline"] }) {
 }
 
 export function AnalyticsView({ data }: { data: WinAnalytics }) {
-  const header = <PageHeader title="Win analytics" description="What your decided applications say about where you win. Counted from your own pipeline, with the number of decisions behind every rate." />;
+  const bids = Boolean(data.bySector);
+  const header = <PageHeader title="Win analytics" description={bids ? "Where your bids win, by client, sector, and project size. Counted from your own pipeline, with the number of decisions behind every rate." : "What your decided applications say about where you win. Counted from your own pipeline, with the number of decisions behind every rate."} />;
 
   if (data.decided < SMALL) {
     return (
@@ -140,16 +141,14 @@ export function AnalyticsView({ data }: { data: WinAnalytics }) {
 
       <dl className="mt-8 grid grid-cols-2 gap-6 border-b border-rule pb-6 sm:grid-cols-4">
         <div>
-          <dt className="text-sm text-ink-muted">Dollars won</dt>
+          <dt className="text-sm text-ink-muted">{bids ? "Fees won" : "Dollars won"}</dt>
           <dd className="mt-1 font-display text-2xl text-ink tnum">{formatMoney(data.dollarsWon)}</dd>
-          <dd className="mt-1 text-sm text-ink-muted tnum">of {formatMoney(data.dollarsAsked)} asked</dd>
+          <dd className="mt-1 text-sm text-ink-muted tnum">{bids ? `across ${pluralize(data.won, "award")}` : `of ${formatMoney(data.dollarsAsked)} asked`}</dd>
         </div>
         <div>
-          <dt className="text-sm text-ink-muted">Decided applications</dt>
+          <dt className="text-sm text-ink-muted">{bids ? "Decided bids" : "Decided applications"}</dt>
           <dd className="mt-1 font-display text-2xl text-ink tnum">{data.decided}</dd>
-          <dd className="mt-1 text-sm text-ink-muted tnum">
-            {data.won} won, {data.lost} declined, {data.noResponse} no response
-          </dd>
+          <dd className="mt-1 text-sm text-ink-muted tnum">{bids ? `${data.won} won, ${data.lost} lost` : `${data.won} won, ${data.lost} declined, ${data.noResponse} no response`}</dd>
         </div>
         <div>
           <dt className="text-sm text-ink-muted">Win rate</dt>
@@ -157,9 +156,9 @@ export function AnalyticsView({ data }: { data: WinAnalytics }) {
           <dd className="mt-1 text-sm text-ink-muted tnum">n {data.decided}</dd>
         </div>
         <div>
-          <dt className="text-sm text-ink-muted">Pending asks</dt>
-          <dd className="mt-1 font-display text-2xl text-ink tnum">{formatMoney(data.pendingAsk)}</dd>
-          <dd className="mt-1 text-sm text-ink-muted tnum">{pluralize(data.pending, "application")} waiting</dd>
+          <dt className="text-sm text-ink-muted">{bids ? "Waiting on owners" : "Pending asks"}</dt>
+          <dd className="mt-1 font-display text-2xl text-ink tnum">{bids ? data.pending : formatMoney(data.pendingAsk)}</dd>
+          <dd className="mt-1 text-sm text-ink-muted tnum">{bids ? `submitted, not decided` : `${pluralize(data.pending, "application")} waiting`}</dd>
         </div>
       </dl>
 
@@ -178,18 +177,30 @@ export function AnalyticsView({ data }: { data: WinAnalytics }) {
         </section>
       ) : null}
 
-      {data.timeline.length ? <Timeline timeline={data.timeline} /> : null}
+      {data.timeline.length && !bids ? <Timeline timeline={data.timeline} /> : null}
 
-      <RowsTable id="type-title" title="By funder type" rows={data.byFunderType} />
-      <RowsTable id="size-title" title="By ask size" rows={data.byAskSize} />
-      <RowsTable id="rel-title" title="First request or returning" rows={data.byRelationship} />
-      <RowsTable
-        id="section-title"
-        title="Sections present"
-        note="Each row counts the decided applications that had this kind of section written. One application can sit in several rows."
-        rows={data.bySection}
-      />
-      <RowsTable id="funder-title" title="By funder" rows={data.byFunder} />
+      {data.bySector ? (
+        <>
+          <RowsTable id="client-title" title="By client" rows={data.byFunder} />
+          <RowsTable id="sector-title" title="By sector" rows={data.bySector} />
+          <RowsTable id="psize-title" title="By project size" note="Estimated construction value from the solicitation or your entry." rows={data.byProjectSize ?? []} />
+          <RowsTable id="rel-title" title="First bid to a client or returning" rows={data.byRelationship} />
+          {data.noGo ? <p className="mt-6 max-w-[65ch] text-base text-ink-muted">{data.noGo} bid{data.noGo === 1 ? "" : "s"} you decided not to pursue {data.noGo === 1 ? "is" : "are"} left out of the win rate. A no-go is a decision, not a loss.</p> : null}
+        </>
+      ) : (
+        <>
+          <RowsTable id="type-title" title="By funder type" rows={data.byFunderType} />
+          <RowsTable id="size-title" title="By ask size" rows={data.byAskSize} />
+          <RowsTable id="rel-title" title="First request or returning" rows={data.byRelationship} />
+          <RowsTable
+            id="section-title"
+            title="Sections present"
+            note="Each row counts the decided applications that had this kind of section written. One application can sit in several rows."
+            rows={data.bySection}
+          />
+          <RowsTable id="funder-title" title="By funder" rows={data.byFunder} />
+        </>
+      )}
 
       <section aria-labelledby="reasons-title" className="mt-12">
         <h2 id="reasons-title" className="font-display text-2xl text-ink">

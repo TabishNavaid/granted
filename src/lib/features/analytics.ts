@@ -25,7 +25,18 @@ const FUNDER_TYPE_LABEL: Record<Funder["type"], string> = {
   federal: "Federal agencies",
   state: "State agencies",
   family_fund: "Family funds",
+  local_government: "Local governments",
+  university: "Universities",
+  private_owner: "Private owners",
 };
+
+const PROJECT_BUCKETS: [number, string][] = [
+  [1_000_000, "Under $1 million"],
+  [5_000_000, "$1 million to $5 million"],
+  [20_000_000, "$5 million to $20 million"],
+  [Infinity, "$20 million or more"],
+];
+const projectBucket = (v: number | null | undefined) => (v == null ? "Value not stated" : PROJECT_BUCKETS.find(([max]) => v < max)![1]);
 
 export interface AnalyticsInput {
   applications: Application[];
@@ -85,6 +96,9 @@ export function computeWinAnalytics(input: AnalyticsInput): WinAnalytics {
   const byRel = new Map<string, { decided: number; won: number; dollars: number }>();
   const byFunder = new Map<string, { decided: number; won: number; dollars: number }>();
   const bySection = new Map<string, { decided: number; won: number; dollars: number }>();
+  const bySector = new Map<string, { decided: number; won: number; dollars: number }>();
+  const byProject = new Map<string, { decided: number; won: number; dollars: number }>();
+  let noGo = 0;
   const reasons = new Map<LossReason, number>();
   const lessons: WinAnalytics["lessons"] = [];
   let won = 0;
@@ -101,6 +115,11 @@ export function computeWinAnalytics(input: AnalyticsInput): WinAnalytics {
   for (const a of ordered) {
     const o = outcomeByApp.get(a.id) ?? null;
     const result = o?.result ?? (a.stage === "won" ? "won" : "lost");
+    // A bid the firm chose not to pursue is a decision, not a loss.
+    if (result === "withdrawn") {
+      noGo++;
+      continue;
+    }
     const isWon = result === "won";
     const opp = oppById.get(a.opportunityId);
     const funder = opp ? funderById.get(opp.funderId) : undefined;
@@ -118,6 +137,10 @@ export function computeWinAnalytics(input: AnalyticsInput): WinAnalytics {
       seen.set(funder.id, prior + 1);
     }
     bump(bySize, bucketFor(a.askAmount), isWon, award);
+    if (opp?.kind === "contract") {
+      bump(bySector, opp.sector ?? "Not set", isWon, award);
+      bump(byProject, projectBucket(opp.amountMax), isWon, award);
+    }
     const kinds = new Set(input.sections.filter((s) => s.applicationId === a.id && s.bodyHtml.replace(/<[^>]+>/g, "").trim()).map((s) => sectionKind(s.title)).filter((k): k is string => Boolean(k)));
     for (const k of kinds) bump(bySection, k, isWon, award);
     if (!isWon) for (const r of o?.lossReasons?.length ? o.lossReasons : (["unknown"] as LossReason[])) reasons.set(r, (reasons.get(r) ?? 0) + 1);
@@ -138,7 +161,18 @@ export function computeWinAnalytics(input: AnalyticsInput): WinAnalytics {
   const funderRows = rows(byFunder).sort((a, b) => b.dollarsWon - a.dollarsWon || b.decided - a.decided);
 
   const findings: string[] = [];
-  if (decided < 3) findings.push(`Only ${decided} decided application${decided === 1 ? "" : "s"} so far. Patterns will show once a few more come back.`);
+  if (bySector.size && decided >= 3) {
+    // Bids: where the firm wins, by sector, size, and client. Never stronger than the count behind it.
+    const sectorRows = rows(bySector).filter((r) => r.decided >= 2).sort((a, b) => (b.winRate ?? 0) - (a.winRate ?? 0));
+    const sizeRowsB = rows(byProject).filter((r) => r.decided >= 2).sort((a, b) => (b.winRate ?? 0) - (a.winRate ?? 0));
+    if (sectorRows[0]) findings.push(`${sectorRows[0].label} is where you win most: ${sectorRows[0].won} of ${sectorRows[0].decided}.`);
+    if (sizeRowsB[0]) findings.push(`Projects ${sizeRowsB[0].label.charAt(0).toLowerCase() + sizeRowsB[0].label.slice(1)} won ${sizeRowsB[0].won} of ${sizeRowsB[0].decided}.`);
+    const lostSize = rows(byProject).find((r) => r.decided >= 1 && r.won === 0 && /\$5 million|\$20 million/.test(r.label));
+    if (lostSize) findings.push(`Larger projects (${lostSize.label.charAt(0).toLowerCase() + lostSize.label.slice(1)}) have not come through yet: 0 of ${lostSize.decided}.`);
+    const topReason = [...reasons.entries()].filter(([r]) => r !== "unknown").sort((a, b) => b[1] - a[1])[0];
+    if (topReason && topReason[1] >= 2) findings.push(`The most common reason for a loss: ${LOSS_REASON_LABEL[topReason[0]].charAt(0).toLowerCase() + LOSS_REASON_LABEL[topReason[0]].slice(1)} (${topReason[1]}).`);
+    findings.push(`These come from ${decided} decided bids. Treat them as hints, not rules.`);
+  } else if (decided < 3) findings.push(`Only ${decided} decided application${decided === 1 ? "" : "s"} so far. Patterns will show once a few more come back.`);
   else {
     const first = relRows.find((r) => r.label.startsWith("First"));
     const back = relRows.find((r) => r.label.startsWith("Returning"));
@@ -170,6 +204,7 @@ export function computeWinAnalytics(input: AnalyticsInput): WinAnalytics {
     byRelationship: relRows,
     bySection: sectionRows,
     byFunder: funderRows,
+    ...(bySector.size ? { bySector: rows(bySector).sort((a, b) => b.decided - a.decided), byProjectSize: rows(byProject, [...PROJECT_BUCKETS.map(([, l]) => l), "Value not stated"]), noGo } : {}),
     lossReasons: [...reasons.entries()].sort((a, b) => b[1] - a[1]).map(([reason, count]) => ({ reason, label: LOSS_REASON_LABEL[reason], count })),
     lessons: lessons.sort((a, b) => b.decidedAt.localeCompare(a.decidedAt)),
     findings,

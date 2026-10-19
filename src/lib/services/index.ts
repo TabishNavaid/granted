@@ -1,14 +1,19 @@
 import { invoke } from "./server";
+import { inBrowserDemo } from "@/lib/demo/flags";
 import type { Services } from "./contracts";
 
 /**
  * The data layer the UI talks to. Every call is forwarded to the server
  * (a direct function call during server rendering, a server action from the
- * browser). Swapping mocks for Supabase touches only ./server.ts.
+ * browser), except in the demo with no keys, where it runs in the browser on
+ * the visitor's saved state (src/lib/demo). Swapping mocks for Supabase
+ * touches only ./server.ts.
  */
 function domain<D extends keyof Services>(name: D): Services[D] {
   return new Proxy({} as Services[D], {
-    get: (_target, method: string) => (...args: unknown[]) => invoke(name, method, args),
+    get: (_target, method: string) =>
+      (...args: unknown[]) =>
+        inBrowserDemo() ? import("@/lib/demo/runtime").then((rt) => rt.call(name, method, args)) : invoke(name, method, args),
   });
 }
 
@@ -32,6 +37,10 @@ export const services: Services = {
   contacts: domain("contacts"),
   social: domain("social"),
   integrations: domain("integrations"),
+  firm: domain("firm"),
+  bids: domain("bids"),
+  research: domain("research"),
+  person: domain("person"),
 };
 
 export type { Services, WorkspaceSummary, SampleInfo } from "./contracts";

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import type { MatchView, SavedSearch } from "@/lib/types";
+import type { MatchView, OrgType, SavedSearch } from "@/lib/types";
 import { PageContainer, PageHeader } from "@/components/app/page-header";
 import { OpportunityCard, hardEligibilityFails } from "@/components/app/opportunity-card";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ type Scope = "all" | "new" | "eligible" | "pipeline";
 type Deadline = "any" | "30" | "60" | "90" | "open";
 type Amount = "any" | "25" | "100" | "500";
 
-export function OpportunitiesView({ matches, demo, savedSearches }: { matches: MatchView[]; demo: boolean; savedSearches: SavedSearch[] }) {
+export function OpportunitiesView({ matches, demo, savedSearches, orgType = "nonprofit" }: { matches: MatchView[]; demo: boolean; savedSearches: SavedSearch[]; orgType?: OrgType }) {
   const [sort, setSort] = React.useState<Sort>("fit");
   const [scope, setScope] = React.useState<Scope>("all");
   const [deadline, setDeadline] = React.useState<Deadline>("any");
@@ -65,7 +65,15 @@ export function OpportunitiesView({ matches, demo, savedSearches }: { matches: M
       <PageHeader
         title="Opportunities"
         description={
-          matches.length
+          orgType === "research"
+            ? matches.length
+              ? `${matches.length} research funding notices from Grants.gov open to universities, ranked by how closely they ask for your team's work, each with the funder's rules on AI. Last searched ${formatDate(lastScan)}.`
+              : "Nothing here yet. Confirm your team's profile, then search for research funding."
+            : orgType === "individual"
+              ? matches.length
+                ? `${matches.length} scholarship funds from foundations' IRS filings, ranked for your state, level, and field. Last searched ${formatDate(lastScan)}.`
+                : "Nothing here yet. Set up your profile from your résumé, then search for scholarships."
+              : matches.length
             ? demo
               ? `${matches.length} funders you can apply to, federal and private, ranked by fit against the confirmed facts. Last searched ${formatDate(lastScan)}.`
               : `${matches.length} funders you can apply to: open federal notices from Grants.gov and private foundations from their IRS filings, ranked by fit against your confirmed facts. Last searched ${formatDate(lastScan)}.`
@@ -196,7 +204,7 @@ export function OpportunitiesView({ matches, demo, savedSearches }: { matches: M
         </ul>
       </section>
 
-      {demo ? (
+      {orgType !== "nonprofit" ? null : demo ? (
         <p className="mt-8 max-w-[65ch] text-sm text-ink-muted">In the demo, the Grants.gov searches are recorded runs, so a custom search is not available here. The foundation directory on the Funders page is searchable now.</p>
       ) : (
         <SearchPanel saved={savedSearches} />

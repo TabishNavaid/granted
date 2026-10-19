@@ -18,6 +18,10 @@ export const ALL_ROUTES = [
   "/product/analytics",
   "/how-it-works",
   "/who-its-for",
+  "/for/nonprofits",
+  "/for/architecture-and-construction",
+  "/for/research",
+  "/for/students",
   "/roadmap",
   "/sign-in",
   "/sign-up",
@@ -81,4 +85,16 @@ export async function quiet(page: Page) {
   } catch {
     // ignore
   }
+}
+
+// Screens of the firm, the research lab, and the student, crawled inside their own sample workspace.
+export const SAMPLE_ROUTES: { sample: string; route: string }[] = [
+  ...["/opportunities", "/opportunities?tab=grants", "/pipeline", "/profile?tab=company", "/profile?tab=projects", "/profile?tab=people", "/profile?tab=credentials", "/analytics", "/calendar", "/inbox", "/applications/app_seed_jail", "/applications/app_seed_jail/draft"].map((route) => ({ sample: "org_cibolo_line", route })),
+  ...["/profile?tab=team", "/profile?tab=funded", "/profile?tab=ai-rules", "/opportunities"].map((route) => ({ sample: "org_freshwater_lab", route })),
+  ...["/profile", "/opportunities", "/pipeline"].map((route) => ({ sample: "org_jordan_reyes", route })),
+];
+
+/** Open a sample workspace before visiting one of its screens. */
+export async function openSample(page: Page, sample: string | null) {
+  if (sample) await page.goto(`/api/demo/open?sample=${sample}&next=/inbox`, { waitUntil: "networkidle" });
 }

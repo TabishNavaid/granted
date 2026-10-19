@@ -21,9 +21,11 @@ interface Props {
   real: boolean;
   /** Nothing is waiting on the user; they already confirmed this profile. */
   alreadyConfirmed: boolean;
+  /** Records read alongside the facts: a firm's projects and people, a lab's investigators and papers. */
+  records?: { heading: string; items: string[]; note: string } | null;
 }
 
-export function ProfileStep({ org, facts, documents, real, alreadyConfirmed }: Props) {
+export function ProfileStep({ org, facts, documents, real, alreadyConfirmed, records }: Props) {
   const router = useRouter();
   const [name, setName] = React.useState(org.name);
   const [mission, setMission] = React.useState(org.mission);
@@ -156,6 +158,22 @@ export function ProfileStep({ org, facts, documents, real, alreadyConfirmed }: P
             </ul>
           )}
         </section>
+
+        {records && records.items.length ? (
+          <section className="mt-10" aria-labelledby="records-title">
+            <h2 id="records-title" className="font-display text-2xl text-ink">
+              {records.heading}
+            </h2>
+            <p className="mt-1 text-base text-ink-muted">{records.note}</p>
+            <ul className="mt-4 border-t border-rule">
+              {records.items.map((x) => (
+                <li key={x} className="border-b border-rule py-2.5 text-base text-ink">
+                  {x}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
 
         {failure ? (
           <p role="alert" className="mt-6 max-w-[60ch] border-l-[6px] border-alert py-1 pl-4 text-base text-ink">

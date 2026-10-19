@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { ALL_ROUTES, quiet, watch } from "./helpers";
+import { ALL_ROUTES, SAMPLE_ROUTES, quiet, watch } from "./helpers";
 
 /**
  * Visits every route, checks every internal link resolves, clicks every
@@ -31,11 +31,12 @@ async function fillValid(page: Page, form: import("@playwright/test").Locator) {
 }
 
 // The design and art galleries are static component samples, not product screens.
-for (const route of ALL_ROUTES.filter((r) => r !== "/design")) {
-  test(`crawl ${route}`, async ({ page, request, context }) => {
+for (const { sample, route } of [...ALL_ROUTES.filter((r) => r !== "/design").map((route) => ({ sample: null as string | null, route })), ...SAMPLE_ROUTES]) {
+  test(`crawl ${sample ? `${sample.replace(/^org_/, "")} ` : ""}${route}`, async ({ page, request, context }) => {
     await context.grantPermissions(["clipboard-read", "clipboard-write"]).catch(() => undefined);
     await quiet(page);
     const problems = watch(page);
+    if (sample) await page.goto(`/api/demo/open?sample=${sample}&next=/inbox`, { waitUntil: "networkidle" });
     const res = await page.goto(route, { waitUntil: "networkidle" });
     if (route.includes("does-not-exist")) {
       expect(res?.status()).toBe(404);
@@ -49,7 +50,8 @@ for (const route of ALL_ROUTES.filter((r) => r !== "/design")) {
     const hrefs = await page.locator("a[href]").evaluateAll((as) => as.map((a) => (a as HTMLAnchorElement).getAttribute("href") ?? ""));
     const internal = Array.from(new Set(hrefs.filter((h) => h.startsWith("/") && !h.startsWith("//") && !h.startsWith("/api/") && !h.endsWith(".ics"))));
     for (const h of internal) {
-      const r = await request.get(h.split("#")[0] || "/", { maxRedirects: 5 });
+      // Inside a sample workspace, links are checked with the browser's own cookies so they resolve in that workspace.
+      const r = await (sample ? page.request : request).get(h.split("#")[0] || "/", { maxRedirects: 5 });
       expect(r.status(), `link ${h} on ${route}`).toBeLessThan(400);
     }
 
@@ -68,8 +70,8 @@ for (const route of ALL_ROUTES.filter((r) => r !== "/design")) {
       if (await b.evaluate((el) => Boolean(el.closest("[role=toolbar]")) && (el.hasAttribute("aria-pressed") || /undo|redo/i.test(el.getAttribute("aria-label") ?? "")))) continue;
       // Citation and gap chips live inside the editor and are covered by the workspace flow test.
       if (await b.evaluate((el) => el.classList.contains("cite-chip") || el.classList.contains("gap-chip"))) continue;
-      // A tab that is already selected has nothing to do.
-      if ((await b.getAttribute("aria-selected")) === "true" || (await b.getAttribute("data-state")) === "active" || (await b.getAttribute("aria-checked")) === "true") continue;
+      // A tab or toggle that is already selected has nothing to do.
+      if ((await b.getAttribute("aria-selected")) === "true" || (await b.getAttribute("data-state")) === "active" || (await b.getAttribute("aria-checked")) === "true" || (await b.getAttribute("aria-pressed")) === "true") continue;
       const snapshot = () =>
         page.evaluate(() => {
           let h = 5381;
@@ -91,7 +93,7 @@ for (const route of ALL_ROUTES.filter((r) => r !== "/design")) {
       page.on("dialog", onDialog);
       page.on("filechooser", onChooser);
       await b.click({ timeout: 3000, trial: false }).catch(() => undefined);
-      // Most buttons call a server action; give the round trip time to land.
+      // Most buttons call a service (a server action, or in the browser demo a call in the tab); give it time to land.
       await page.waitForTimeout(900);
       await page.waitForLoadState("networkidle", { timeout: 3000 }).catch(() => undefined);
       page.off("request", onReq);

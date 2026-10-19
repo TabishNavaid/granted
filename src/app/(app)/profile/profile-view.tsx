@@ -4,6 +4,7 @@ import * as React from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import type { Boilerplate, Document, Fact, ImpactMetric, Organization, VoiceProfile } from "@/lib/types";
 import { services } from "@/lib/services";
+import { postUpload } from "@/lib/demo/upload";
 import { cn } from "@/lib/utils";
 import { formatDate, relativeTime, wordCount } from "@/lib/format";
 import { PageContainer, PageHeader } from "@/components/app/page-header";
@@ -30,6 +31,13 @@ const docTypeLabel: Record<Document["type"], string> = {
   determination_letter: "IRS letter",
   w9: "W-9",
   audit: "Audit or financial review",
+  rfp: "RFP or solicitation",
+  addendum: "Addendum",
+  resume: "Résumé",
+  capability_statement: "Capability statement",
+  bond_letter: "Bonding letter",
+  insurance_certificate: "Certificate of insurance",
+  project_photo: "Project photo",
   other: "Other",
 };
 
@@ -50,13 +58,14 @@ function guessType(name: string): Document["type"] {
 
 const tabs = ["overview", "facts", "impact", "voice", "boilerplate", "documents"];
 
-export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates: initialBp, documents: initialDocs, metrics, voice, initialTab }: { org: Organization; facts: Fact[]; boilerplates: Boilerplate[]; documents: Document[]; metrics: ImpactMetric[]; voice: VoiceProfile; initialTab?: string }) {
+export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates: initialBp, documents: initialDocs, metrics, voice, initialTab, extraTabs = [], hideTabs = [], title = "Profile and knowledge", description = "What drafts are allowed to say about you. Every number has a source, and nothing goes into a proposal that is not on this page." }: { org: Organization; facts: Fact[]; boilerplates: Boilerplate[]; documents: Document[]; metrics: ImpactMetric[]; voice: VoiceProfile; initialTab?: string; extraTabs?: { value: string; label: string; content: React.ReactNode }[]; hideTabs?: string[]; title?: string; description?: string }) {
   const { toast } = useToast();
   const [org, setOrg] = React.useState(initialOrg);
   const [facts, setFacts] = React.useState(initialFacts);
   const [bps, setBps] = React.useState(initialBp);
   const [docs, setDocs] = React.useState(initialDocs);
-  const [tab, setTab] = React.useState(initialTab && tabs.includes(initialTab) ? initialTab : "overview");
+  const allTabs = [...extraTabs.map((t) => t.value), ...tabs.filter((t) => !hideTabs.includes(t))];
+  const [tab, setTab] = React.useState(initialTab && allTabs.includes(initialTab) ? initialTab : allTabs[0]);
   const [versionsFor, setVersionsFor] = React.useState<Boilerplate | null>(null);
   const [uploadType, setUploadType] = React.useState<Document["type"] | "guess">("guess");
   const [editing, setEditing] = React.useState(false);
@@ -81,10 +90,9 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
       fd.append("file", file);
       fd.append("type", uploadType === "guess" ? guessType(file.name) : uploadType);
       try {
-        const r = await fetch("/api/documents/upload", { method: "POST", body: fd });
-        const data = (await r.json()) as { ok: boolean; error?: string; document?: Document; extraction?: { ok: boolean; factCount?: number; error?: string } };
-        if (!r.ok || !data.ok || !data.document) {
-          toast({ title: `Could not read ${file.name}`, description: data.error ?? "Try again in a moment.", tone: "warning" });
+        const { httpOk, body: data } = await postUpload("/api/documents/upload", fd);
+        if (!httpOk || !data?.ok || !data.document) {
+          toast({ title: `Could not read ${file.name}`, description: data?.error ?? "Try again in a moment.", tone: "warning" });
           continue;
         }
         setDocs((l) => [data.document!, ...l]);
@@ -143,21 +151,28 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
 
   return (
     <PageContainer width="wide">
-      <PageHeader
-        title="Profile and knowledge"
-        description="What drafts are allowed to say about you. Every number has a source, and nothing goes into a proposal that is not on this page."
-      />
+      <PageHeader title={title} description={description} />
       <Tabs value={tab} onValueChange={setTab} className="mt-6">
         <TabsList variant="line" aria-label="Knowledge base sections">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
+          {extraTabs.map((t) => (
+            <TabsTrigger key={t.value} value={t.value}>
+              {t.label}
+            </TabsTrigger>
+          ))}
+          {hideTabs.includes("overview") ? null : <TabsTrigger value="overview">Overview</TabsTrigger>}
           <TabsTrigger value="facts">
             Facts {needsReview ? <span className="count">{needsReview}</span> : null}
           </TabsTrigger>
-          <TabsTrigger value="impact">Impact</TabsTrigger>
-          <TabsTrigger value="voice">Voice</TabsTrigger>
-          <TabsTrigger value="boilerplate">Boilerplate</TabsTrigger>
+          {hideTabs.includes("impact") ? null : <TabsTrigger value="impact">Impact</TabsTrigger>}
+          {hideTabs.includes("voice") ? null : <TabsTrigger value="voice">Voice</TabsTrigger>}
+          {hideTabs.includes("boilerplate") ? null : <TabsTrigger value="boilerplate">Boilerplate</TabsTrigger>}
           <TabsTrigger value="documents">Documents</TabsTrigger>
         </TabsList>
+        {extraTabs.map((t) => (
+          <TabsContent key={t.value} value={t.value} className="mt-6">
+            {t.content}
+          </TabsContent>
+        ))}
 
         <TabsContent value="overview">
           <div className="grid gap-10 lg:grid-cols-[1fr_18rem]">

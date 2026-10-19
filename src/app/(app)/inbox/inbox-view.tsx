@@ -18,10 +18,10 @@ import { InboxTour } from "@/components/app/inbox-tour";
 type Filter = "all" | "proposal" | "email" | "matches" | "schedule" | "profile";
 const filters: { value: Filter; label: string; types: InboxItem["type"][] }[] = [
   { value: "all", label: "All", types: [] },
-  { value: "proposal", label: "Drafts", types: ["proposal_draft", "missing_facts"] },
+  { value: "proposal", label: "Drafts", types: ["proposal_draft", "missing_facts", "go_no_go"] },
   { value: "email", label: "Emails", types: ["email_draft"] },
   { value: "matches", label: "Funders", types: ["new_matches"] },
-  { value: "schedule", label: "Schedules", types: ["milestones"] },
+  { value: "schedule", label: "Schedules", types: ["milestones", "addendum"] },
   { value: "profile", label: "Facts", types: ["profile_update"] },
 ];
 

@@ -13,6 +13,9 @@ const funderTypeLabel = {
   federal: "Federal",
   state: "State",
   family_fund: "Family fund",
+  local_government: "Local government",
+  university: "University",
+  private_owner: "Private owner",
 };
 
 /**

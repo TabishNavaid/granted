@@ -1,7 +1,4 @@
-import { promises as fs } from "node:fs";
-import os from "node:os";
-import path from "node:path";
-import { createHash } from "node:crypto";
+import { sha1Hex } from "@/lib/hash";
 
 /**
  * A small JSON cache with a TTL so repeat runs do not call Grants.gov or the
@@ -20,18 +17,20 @@ export function registerCacheBackend(b: CacheBackend | null) {
   backend = b;
 }
 
-function cacheDir() {
+// The disk copy is a server thing; the browser demo never reads live sources, so it keeps memory only.
+// The imports are left to the runtime so a browser bundle never tries to include them.
+async function disk() {
+  if (typeof window !== "undefined") throw new Error("no disk in the browser");
+  const [fs, os, path] = await Promise.all([import(/* webpackIgnore: true */ /* turbopackIgnore: true */ "node:fs/promises"), import(/* webpackIgnore: true */ /* turbopackIgnore: true */ "node:os"), import(/* webpackIgnore: true */ /* turbopackIgnore: true */ "node:path")]);
   const dev = process.env.NODE_ENV !== "production";
-  return dev ? path.join(process.cwd(), ".cache") : path.join(os.tmpdir(), "granted-cache");
-}
-
-function fileFor(key: string) {
-  return path.join(cacheDir(), createHash("sha1").update(key).digest("hex") + ".json");
+  const dir = dev ? path.join(process.cwd(), ".cache") : path.join(os.tmpdir(), "granted-cache");
+  return { fs, dir, file: (key: string) => path.join(dir, sha1Hex(key) + ".json") };
 }
 
 async function readFile(key: string) {
   try {
-    const raw = await fs.readFile(fileFor(key), "utf8");
+    const { fs, file } = await disk();
+    const raw = await fs.readFile(file(key), "utf8");
     return JSON.parse(raw) as { value: unknown; expiresAt: number };
   } catch {
     return null;
@@ -40,8 +39,9 @@ async function readFile(key: string) {
 
 async function writeFile(key: string, entry: { value: unknown; expiresAt: number }) {
   try {
-    await fs.mkdir(cacheDir(), { recursive: true });
-    await fs.writeFile(fileFor(key), JSON.stringify(entry));
+    const { fs, dir, file } = await disk();
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(file(key), JSON.stringify(entry));
   } catch {
     // Read-only filesystem: memory and the backend still have it.
   }
