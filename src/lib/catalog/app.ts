@@ -262,12 +262,13 @@ export async function contractSources(opts: { international?: boolean } = {}): P
  * Rows from state and local portals often carry no NAICS code, so with a region we also take bids there that
  * mention the firm's kind of work.
  */
-export async function contractNotices(input: { naics: string[]; states?: string[] | null; keywords?: string[]; limit?: number }): Promise<import("@/lib/samgov").SamV2Notice[]> {
+export async function contractNotices(input: { naics: string[]; states?: string[] | null; keywords?: string[]; setAsides?: string[]; limit?: number }): Promise<import("@/lib/samgov").SamV2Notice[]> {
   const sources = await contractSources();
   const limit = input.limit ?? 60;
-  const byNaics = input.naics.length ? await searchCatalog({ types: ["contract"], naicsPrefixes: input.naics, states: input.states ?? null, sources, limit }) : { hits: [] };
+  const setAsides = input.setAsides?.length ? input.setAsides : null;
+  const byNaics = input.naics.length ? await searchCatalog({ types: ["contract"], naicsPrefixes: input.naics, states: input.states ?? null, setAsides, sources, limit }) : { hits: [] };
   const words = (input.keywords ?? []).filter(Boolean);
-  const byWords = words.length && input.states?.length ? await searchCatalog({ q: words.join(" or "), types: ["contract"], states: input.states, sources, limit: Math.ceil(limit / 2) }) : { hits: [] };
+  const byWords = words.length && (input.states?.length || !input.naics.length) ? await searchCatalog({ q: words.join(" or "), types: ["contract"], states: input.states ?? null, setAsides, sources, limit: Math.ceil(limit / 2) }) : { hits: [] };
   const ids = [...new Set([...byNaics.hits, ...byWords.hits].map((h) => h.id))].slice(0, limit);
   const rows = await getCatalogRows(ids);
   const order = new Map(ids.map((id, i) => [id, i]));
@@ -317,5 +318,21 @@ export function workspaceSearch(org: { orgType: string; state: string | null; ca
 /** Open opportunities that reached the database since `since`, for one workspace. */
 export async function newForWorkspace(org: Parameters<typeof workspaceSearch>[0], since: string, limit = 6): Promise<CatalogHit[]> {
   const { hits } = await searchCatalog({ ...workspaceSearch(org), seenAfter: since, closesAfter: new Date().toISOString(), limit });
+  return hits;
+}
+
+/** New open bids for one saved bid search since `since`. */
+export async function newForBidSearch(f: { naics: string[]; states: string[]; setAsides: string[]; keywords: string[] }, since: string, limit = 5): Promise<CatalogHit[]> {
+  const { hits } = await searchCatalog({
+    types: ["contract"],
+    naicsPrefixes: f.naics.length ? f.naics : null,
+    states: f.states.length ? f.states : null,
+    setAsides: f.setAsides.length ? f.setAsides : null,
+    q: f.keywords.length ? anyWords(f.keywords.join(" ")) : null,
+    sources: await contractSources(),
+    seenAfter: since,
+    closesAfter: new Date().toISOString(),
+    limit,
+  });
   return hits;
 }

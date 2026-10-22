@@ -48,6 +48,12 @@ export async function GET(request: NextRequest) {
     try {
       const hits = await catalog.newForWorkspace({ orgType: String(o.org_type ?? "nonprofit"), state: (o.state as string | null) ?? null, causes: (o.causes as string[] | null) ?? [], naics: firm?.naics?.map((n) => n.code), states: firm?.states }, weekAgo, 6);
       fresh = hits.map((h) => ({ title: h.title, funder: h.funder_name ?? "", url: h.source_url, deadline: h.close_at, amount: money(h.amount_max), source: catalog.sourceName(h.source) }));
+      const { data: searches } = await db.from("saved_searches").select("filters").eq("org_id", o.id).not("filters", "is", null);
+      for (const row of searches ?? []) {
+        const f = row.filters as { naics: string[]; states: string[]; setAsides: string[]; keywords: string[] };
+        for (const h of await catalog.newForBidSearch(f, weekAgo, 4)) if (!fresh.some((x) => x.url === h.source_url)) fresh.push({ title: h.title, funder: h.funder_name ?? "", url: h.source_url, deadline: h.close_at, amount: money(h.amount_max), source: catalog.sourceName(h.source) });
+      }
+      fresh = fresh.slice(0, 10);
     } catch {
       // The digest still goes out with the workspace's own news.
     }

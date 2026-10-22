@@ -489,7 +489,7 @@ export const mockServices: Services = {
       return clone(state.savedSearches);
     },
     async saveSearch(input) {
-      const s = { id: newId("search"), orgId: state.org.id, name: input.name.trim() || input.keyword, keyword: input.keyword.trim(), fundingCategories: input.fundingCategories, createdAt: now(), lastRunAt: null };
+      const s = { id: newId("search"), orgId: state.org.id, name: input.name.trim() || input.keyword, keyword: input.keyword.trim(), fundingCategories: input.fundingCategories, filters: input.filters ?? null, createdAt: now(), lastRunAt: null };
       state.savedSearches.unshift(s);
       return clone(s);
     },

@@ -1,4 +1,4 @@
-import type { ApplicationView, Certification, FirmProfile, PersonProfile, Personnel, PortfolioProject, ResearchProfile } from "@/lib/types";
+import type { ApplicationView, Certification, FirmProfile, PersonProfile, Personnel, PortfolioProject, ResearchProfile, BidSearchFilters } from "@/lib/types";
 import type { BidService, FirmService, LoopResult, PersonService, ResearchService, SamNotice } from "./contracts";
 import type { BidStore } from "@/lib/bids/store";
 import type { RfpPage } from "@/lib/bids/rfp";
@@ -111,34 +111,49 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
     },
   };
 
-  async function samNotices(): Promise<{ status: "live" | "recorded" | "not_connected"; notices: import("@/lib/samgov").SamV2Notice[]; recordedOn: string | null; note: string }> {
+  /** Recorded or database notices narrowed by a saved bid search. Empty filter lists mean "any". */
+  function matchesFilters(n: import("@/lib/samgov").SamV2Notice, f: BidSearchFilters | null | undefined): boolean {
+    if (!f) return true;
+    if (f.naics.length && !(n.naicsCode && f.naics.some((c) => n.naicsCode!.startsWith(c)))) return false;
+    const st = n.placeOfPerformance?.state?.code ?? null;
+    if (f.states.length && st && !f.states.includes(st)) return false;
+    if (f.setAsides.length && !f.setAsides.some((a) => [n.typeOfSetAside, n.typeOfSetAsideDescription].some((x) => x && x.toLowerCase().includes(a.toLowerCase())))) return false;
+    if (f.keywords.length) {
+      const text = `${n.title} ${n.descriptionText ?? ""}`.toLowerCase();
+      if (!f.keywords.some((k) => text.includes(k.toLowerCase()))) return false;
+    }
+    return true;
+  }
+
+  async function samNotices(filters?: BidSearchFilters | null): Promise<{ status: "live" | "recorded" | "not_connected"; notices: import("@/lib/samgov").SamV2Notice[]; recordedOn: string | null; note: string }> {
     const sam = await import("@/lib/samgov");
     if (isDemoMode() && (replayActive() || !sam.samKey())) {
       const rec = (await import("@/lib/replay/recordings/firm.samgov.json")).default as unknown as { recordedAt: string; opportunitiesData: import("@/lib/samgov").SamV2Notice[] };
-      return { status: "recorded", notices: rec.opportunitiesData, recordedOn: rec.recordedAt, note: `Recorded from SAM.gov on ${rec.recordedAt}. With a free SAM.gov API key, this searches live.` };
+      const notices = rec.opportunitiesData.filter((n) => matchesFilters(n, filters));
+      return { status: "recorded", notices, recordedOn: rec.recordedAt, note: `Recorded from SAM.gov on ${rec.recordedAt}. The real product reads every open SAM.gov notice and state and city bid portals daily.` };
     }
     const db = await (await import("@/lib/grantsgov")).catalogBackend();
     if (db) {
       const st = await b.store();
       const [records, org] = await Promise.all([st.firmRecords(), st.getOrg()]);
-      const codes = records.profile?.naics.map((n) => n.code) ?? [];
-      const states = [...new Set([org.state, ...(records.profile?.states ?? [])].map((s) => (s ?? "").trim().toUpperCase()))].filter((s) => /^[A-Z]{2}$/.test(s));
-      if (!codes.length && !states.length) return { status: "live", notices: [], recordedOn: null, note: "Add your NAICS codes and the states you work in on the Profile page so we know which bids to show." };
+      const codes = filters?.naics.length ? filters.naics : (records.profile?.naics.map((n) => n.code) ?? []);
+      const states = filters?.states.length ? filters.states : [...new Set([org.state, ...(records.profile?.states ?? [])].map((x) => (x ?? "").trim().toUpperCase()))].filter((x) => /^[A-Z]{2}$/.test(x));
+      if (!codes.length && !states.length && !filters?.keywords.length) return { status: "live", notices: [], recordedOn: null, note: "Add your NAICS codes and the states you work in on the Profile page so we know which bids to show." };
       try {
-        const notices = await db.contractNotices({ naics: codes, states: states.length ? states : null, keywords: ["construction", "design", "engineering", "architectural", "renovation"], limit: 60 });
-        return { status: "live", notices, recordedOn: null, note: `Open bids from the opportunity database (SAM.gov and state and local portals, refreshed daily) for ${codes.length ? `NAICS ${codes.join(", ")}` : "your region"}${states.length ? ` in ${states.join(", ")}` : ""}.` };
+        const keywords = filters?.keywords.length ? filters.keywords : ["construction", "design", "engineering", "architectural", "renovation"];
+        const notices = (await db.contractNotices({ naics: codes, states: states.length ? states : null, keywords, setAsides: filters?.setAsides ?? [], limit: 80 })).filter((n) => matchesFilters(n, filters));
+        return { status: "live", notices, recordedOn: null, note: `Open bids from the opportunity database (SAM.gov and state and city portals, refreshed daily)${codes.length ? ` for NAICS ${codes.join(", ")}` : ""}${states.length ? ` in ${states.join(", ")}` : ""}.` };
       } catch (err) {
         return { status: "live", notices: [], recordedOn: null, note: err instanceof Error ? err.message : "The opportunity search failed." };
       }
     }
-    if (!sam.samKey()) return { status: "not_connected", notices: [], recordedOn: null, note: "SAM.gov is not connected. A free public API key from your SAM.gov account turns on federal contract search. Setup steps are on the Integrations page." };
+    if (!sam.samKey()) return { status: "not_connected", notices: [], recordedOn: null, note: "This server has no opportunity database and no SAM.gov key yet." };
     const st = await b.store();
-    const [records, org] = await Promise.all([st.firmRecords(), st.getOrg()]);
-    const codes = records.profile?.naics.map((n) => n.code) ?? [];
+    const records = await st.firmRecords();
+    const codes = filters?.naics.length ? filters.naics : (records.profile?.naics.map((n) => n.code) ?? []);
     if (!codes.length) return { status: "live", notices: [], recordedOn: null, note: "Add your NAICS codes on the Profile page so we know which contract opportunities to search." };
     try {
-      const notices = await sam.searchSam({ naics: codes, state: null });
-      void org;
+      const notices = (await sam.searchSam({ naics: codes, state: filters?.states[0] ?? null })).filter((n) => matchesFilters(n, filters));
       return { status: "live", notices, recordedOn: null, note: `Searched SAM.gov for ${codes.join(", ")} in the last 90 days.` };
     } catch (err) {
       return { status: "live", notices: [], recordedOn: null, note: err instanceof Error ? err.message : "SAM.gov search failed." };
@@ -270,8 +285,8 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
       const sol = ctx.opportunity.solicitation;
       return buildSf330({ org, profile: records.profile, owner: user, notice: { title: ctx.opportunity.title, location: sol?.placeOfPerformance ?? null, date: null, number: sol?.number ?? null }, projects: records.projects, exampleProjectIds: meta?.projectIds ?? [], personnel: records.personnel, assignments: meta?.assignments ?? [], certifications: records.certifications, additionalInformation: meta?.additionalInformation ?? "", teamFirms: meta?.teamFirms ?? [] });
     },
-    async searchSam() {
-      const got = await samNotices();
+    async searchSam(input) {
+      const got = await samNotices(input?.filters ?? null);
       const { toSamNotice } = await import("@/lib/samgov");
       const st = await b.store();
       const [records, org, added] = await Promise.all([st.firmRecords(), st.getOrg(), b.addedNoticeIds()]);

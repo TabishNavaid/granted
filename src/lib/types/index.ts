@@ -491,8 +491,18 @@ export interface SavedSearch {
   name: string;
   keyword: string;
   fundingCategories: string[];
+  /** Set for a bid search over the opportunity database. */
+  filters?: BidSearchFilters | null;
   createdAt: ISODate;
   lastRunAt: ISODate | null;
+}
+
+/** A firm's bid search: work categories, region, set-asides, and words. Empty lists mean "any". */
+export interface BidSearchFilters {
+  naics: string[];
+  states: string[];
+  setAsides: string[];
+  keywords: string[];
 }
 
 /** A Grants.gov notice from a search, before anyone has scored it. Everything here is from the API. */

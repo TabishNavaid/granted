@@ -54,3 +54,6 @@ next-env.d.ts
 .env.local
 .env.*.local
 *.key
+
+# Design partner evaluation material (their proposals stay on this machine)
+/eval

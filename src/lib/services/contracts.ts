@@ -10,6 +10,7 @@ import type {
   ProposalMode,
   ReviewerCheck,
   SavedSearch,
+  BidSearchFilters,
   SearchCandidate,
   SectionVersion,
   SocialCampaign,
@@ -161,7 +162,7 @@ export interface OpportunityService {
   dismiss(id: string, reason: string): Promise<MatchView>;
   startApplication(opportunityId: string, mode?: ProposalMode): Promise<Application>;
   listSavedSearches(): Promise<SavedSearch[]>;
-  saveSearch(input: { name: string; keyword: string; fundingCategories: string[] }): Promise<SavedSearch>;
+  saveSearch(input: { name: string; keyword: string; fundingCategories: string[]; filters?: BidSearchFilters | null }): Promise<SavedSearch>;
   deleteSavedSearch(id: string): Promise<void>;
   /** Run a keyword search on Grants.gov now and return open notices nonprofits can apply for, unscored. */
   runSearch(input: { keyword: string; fundingCategories: string[]; savedSearchId?: string }): Promise<LoopResult<{ candidates: SearchCandidate[]; hitCount: number }>>;
@@ -443,7 +444,7 @@ export interface BidService {
   refreshMatrix(applicationId: string): Promise<Requirement[]>;
   sf330(applicationId: string): Promise<Sf330 | null>;
   /** SAM.gov search for the firm's work categories. Live with a key; the recorded search in the demo; not connected otherwise. */
-  searchSam(input?: { naics?: string[]; state?: string | null }): Promise<{ status: "live" | "recorded" | "not_connected"; note: string; notices: SamNotice[]; recordedOn: string | null }>;
+  searchSam(input?: { naics?: string[]; state?: string | null; filters?: BidSearchFilters | null }): Promise<{ status: "live" | "recorded" | "not_connected"; note: string; notices: SamNotice[]; recordedOn: string | null }>;
 }
 
 export interface ResearchService {

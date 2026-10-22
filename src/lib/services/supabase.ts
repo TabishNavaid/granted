@@ -33,8 +33,7 @@ import type {
   Organization,
   Outcome,
   Requirement,
-  Section,
-} from "@/lib/types";
+  Section, BidSearchFilters } from "@/lib/types";
 import { wordCount } from "@/lib/format";
 import { runtimeMode } from "@/lib/env";
 import { adminClient, createUserClient } from "@/lib/supabase/clients";
@@ -346,7 +345,7 @@ export const map = {
   orgContact: (r: Row): OrgContact => ({ id: str(r.id), orgId: str(r.org_id), name: str(r.name), organization: str(r.organization), role: str(r.role), email: (r.email as string | null) ?? null, phone: (r.phone as string | null) ?? null, kind: (r.kind as OrgContact["kind"]) ?? "other", relationship: str(r.relationship), funderId: (r.funder_id as string | null) ?? null, source: (r.source as OrgContact["source"]) ?? "manual", lastTouchAt: r.last_touch_at ? iso(r.last_touch_at) : null, createdAt: iso(r.created_at) }),
   contactNote: (r: Row): ContactNote => ({ id: str(r.id), orgId: str(r.org_id), contactId: str(r.contact_id), kind: (r.kind as ContactNote["kind"]) ?? "note", note: str(r.note), nextStep: (r.next_step as string | null) ?? null, happenedAt: iso(r.happened_at) }),
   campaign: (r: Row): SocialCampaign => ({ id: str(r.id), orgId: str(r.org_id), month: str(r.month), theme: str(r.theme), posts: (r.posts as SocialCampaign["posts"]) ?? [], status: (r.status as SocialCampaign["status"]) ?? "draft", createdAt: iso(r.created_at) }),
-  savedSearch: (r: Row): SavedSearch => ({ id: str(r.id), orgId: str(r.org_id), name: str(r.name), keyword: str(r.keyword), fundingCategories: (r.funding_categories as string[]) ?? [], createdAt: iso(r.created_at), lastRunAt: r.last_run_at ? iso(r.last_run_at) : null }),
+  savedSearch: (r: Row): SavedSearch => ({ id: str(r.id), orgId: str(r.org_id), name: str(r.name), keyword: str(r.keyword), fundingCategories: (r.funding_categories as string[]) ?? [], filters: (r.filters as BidSearchFilters | null) ?? null, createdAt: iso(r.created_at), lastRunAt: r.last_run_at ? iso(r.last_run_at) : null }),
   notifications: (r: Row | null): NotificationSettings => ({ weeklyDigest: r?.weekly_digest == null ? true : Boolean(r.weekly_digest), milestoneReminders: r?.milestone_reminders == null ? true : Boolean(r.milestone_reminders), inboxAlerts: r?.inbox_alerts == null ? true : Boolean(r.inbox_alerts), reminderDaysBefore: Number(r?.reminder_days_before ?? 3) }),
 };
 
@@ -631,9 +630,9 @@ export function makeSupabaseServices(): Services {
       const s = await ctx();
       return many(await db.from("saved_searches").select("*").eq("org_id", s.orgId).order("created_at", { ascending: false }), "saved searches").map(map.savedSearch);
     },
-    async saveSearch(input: { name: string; keyword: string; fundingCategories: string[] }) {
+    async saveSearch(input: { name: string; keyword: string; fundingCategories: string[]; filters?: BidSearchFilters | null }) {
       const s = await ctx();
-      return map.savedSearch(must(await db.from("saved_searches").insert({ org_id: s.orgId, name: input.name.trim() || input.keyword, keyword: input.keyword.trim(), funding_categories: input.fundingCategories }).select("*").single(), "saved search"));
+      return map.savedSearch(must(await db.from("saved_searches").insert({ org_id: s.orgId, name: input.name.trim() || input.keyword, keyword: input.keyword.trim(), funding_categories: input.fundingCategories, filters: input.filters ?? null }).select("*").single(), "saved search"));
     },
     async deleteSavedSearch(id: string) {
       const s = await ctx();
