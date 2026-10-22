@@ -136,8 +136,11 @@ export function toOpportunity(r: GgRecord, now = new Date()): OpportunityInput |
   const nowMs = now.getTime();
   let status: OpportunityInput["status"];
   if (forecast) {
-    // Grants.gov keeps a forecast listed until its archive date, even when the estimated dates have passed. We follow the source.
-    status = archive && new Date(`${archive}T00:00:00Z`).getTime() < nowMs ? "archived" : "forecasted";
+    // Grants.gov keeps a forecast listed until its archive date, even when the estimated dates have passed. We follow
+    // the source, except a forecast with no archive date whose estimated close has passed, which is stale.
+    if (archive && new Date(`${archive}T00:00:00Z`).getTime() < nowMs) status = "archived";
+    else if (!archive && close && new Date(close).getTime() < nowMs - 86_400_000) status = "closed";
+    else status = "forecasted";
   }
   else if (archive && new Date(`${archive}T00:00:00Z`).getTime() < nowMs) status = close && new Date(close).getTime() >= nowMs ? "open" : "archived";
   else if (close && new Date(close).getTime() < nowMs) status = "closed";
@@ -258,6 +261,10 @@ export const grantsgov: Connector = {
     let skipped = 0;
     const funders = new Map<string, FunderInput>();
     let batch: OpportunityInput[] = [];
+    // An opportunity can appear twice: as a forecast and, once posted, as a synopsis with the same id. The synopsis
+    // wins; forecasts wait until the end and are written only when no synopsis came with them.
+    const synopses = new Set<string>();
+    const forecasts = new Map<string, OpportunityInput>();
     const total = await parseExtract(stream, async (r) => {
       if (ctx.done()) return;
       const f = toFunder(r);
@@ -268,9 +275,15 @@ export const grantsgov: Connector = {
       try {
         const o = toOpportunity(r);
         if (!o) {
+          if (r._kind === "synopsis") synopses.add(s(r, "OpportunityID"));
           skipped++;
           return;
         }
+        if (r._kind === "forecast") {
+          forecasts.set(o.sourceId, o);
+          return;
+        }
+        synopses.add(o.sourceId);
         batch.push(o);
         if (batch.length >= 400) {
           const b = batch;
@@ -281,6 +294,14 @@ export const grantsgov: Connector = {
         ctx.warn(`Could not read opportunity ${s(r, "OpportunityID")}`, err);
       }
     });
+    for (const [id, o] of forecasts) {
+      if (synopses.has(id)) continue;
+      batch.push(o);
+      if (batch.length >= 400) {
+        await ctx.opportunities(batch);
+        batch = [];
+      }
+    }
     if (batch.length) await ctx.opportunities(batch);
     ctx.log(`${total} records in the extract, ${skipped} closed before the ${HISTORY_YEARS}-year window skipped`);
   },

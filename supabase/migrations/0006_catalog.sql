@@ -315,7 +315,9 @@ create or replace function catalog_expire() returns int language plpgsql as $$
 declare n int;
 begin
   update catalog_opportunities set status = 'closed'
-  where status in ('open', 'forecasted') and rolling = false and close_at is not null and close_at < now() - interval '1 day';
+  where status in ('open', 'forecasted') and rolling = false and close_at is not null and close_at < now() - interval '1 day'
+    -- A forecast stays listed until the source archives it, whatever its estimated close date says.
+    and not (status = 'forecasted' and archive_at is not null and archive_at >= current_date);
   get diagnostics n = row_count;
   return n;
 end $$;

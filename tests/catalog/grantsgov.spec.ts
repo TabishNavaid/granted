@@ -1,4 +1,6 @@
-import { createReadStream } from "node:fs";
+import { createReadStream, mkdtempSync, writeFileSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { expect, test } from "@playwright/test";
 import { grantsgov, parseExtract, toOpportunity, type GgRecord } from "@/lib/catalog/connectors/grantsgov";
 import { fixturePath, runOffline } from "./helpers";
@@ -54,5 +56,23 @@ test.describe("Grants.gov extract", () => {
     expect(sink.opportunityRows.length).toBeGreaterThanOrEqual(4);
     const keys = new Set(sink.funderRows.map((f) => f.key));
     for (const o of sink.opportunityRows) expect(keys.has(o.funderKey!)).toBe(true);
+  });
+
+  test("a forecast with no archive date whose estimated close has passed is stale, so it closes and stays closed", () => {
+    const base = { _kind: "forecast", OpportunityID: "1", OpportunityTitle: "Stale forecast", AgencyCode: "HHS", PostDate: "06012025" } as unknown as GgRecord;
+    expect(toOpportunity({ ...base, EstimatedSynopsisCloseDate: "06162025" } as GgRecord, NOW)?.status).toBe("closed");
+    expect(toOpportunity({ ...base, EstimatedSynopsisCloseDate: "06162026", ArchiveDate: "12312026" } as GgRecord, NOW)?.status).toBe("forecasted");
+    expect(toOpportunity({ ...base, EstimatedSynopsisCloseDate: "06162027" } as GgRecord, NOW)?.status).toBe("forecasted");
+  });
+
+  test("an opportunity listed as both a forecast and a synopsis is written once, as the synopsis", async () => {
+    const one = (tag: string, extra: string) => `<${tag}><OpportunityID>777</OpportunityID><OpportunityTitle>Both kinds</OpportunityTitle><AgencyCode>HHS</AgencyCode><AgencyName>Health</AgencyName><PostDate>01052026</PostDate>${extra}</${tag}>`;
+    const xml = `<?xml version="1.0" encoding="UTF-8"?><Grants>${one("OpportunitySynopsisDetail_1_0", "<CloseDate>01052027</CloseDate>")}${one("OpportunityForecastDetail_1_0", "<EstimatedSynopsisCloseDate>01052027</EstimatedSynopsisCloseDate>")}</Grants>`;
+    const file = path.join(mkdtempSync(path.join(os.tmpdir(), "gg-")), "both.xml");
+    writeFileSync(file, xml);
+    const { sink } = await runOffline(grantsgov, (async () => new Response("", { status: 404 })) as never, { env: { GRANTSGOV_EXTRACT_FILE: file } });
+    const rows = sink.opportunityRows.filter((o) => o.sourceId === "777");
+    expect(rows).toHaveLength(1);
+    expect(rows[0].status).toBe("open");
   });
 });
