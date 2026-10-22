@@ -22,6 +22,9 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
+// Background jobs run after the response in the same function (src/lib/jobs/runner.ts); give them room.
+export const maxDuration = 300;
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,

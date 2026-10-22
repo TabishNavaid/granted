@@ -317,6 +317,14 @@ export interface ActivityService {
   getRun(id: string): Promise<AgentRun | null>;
 }
 
+export interface JobsService {
+  /**
+   * Start a long step (drafting, reading an RFP) in the background when this server keeps jobs, which the
+   * real product does. "inline" means the caller should call the method directly, as the demo does.
+   */
+  start(spec: { jobId: string; kind: string; args: unknown[] }): Promise<{ mode: "background" | "inline" }>;
+}
+
 export interface AccountService {
   /** This month's AI allowance, e.g. "You have used 12 of 50 drafts this month." */
   getUsage(): Promise<UsageSummary>;
@@ -465,6 +473,7 @@ export interface Services {
   calendar: CalendarService;
   activity: ActivityService;
   account: AccountService;
+  jobs: JobsService;
   auth: AuthService;
   loop: LoopService;
   demo: DemoService;

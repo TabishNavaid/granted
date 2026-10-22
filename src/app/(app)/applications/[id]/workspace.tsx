@@ -26,7 +26,7 @@ import { BudgetPanel } from "@/components/proposal/budget-panel";
 import { VersionsDialog } from "@/components/proposal/versions-dialog";
 import { AskSuggestion, LogicModelDialog, ReuseDialog, WinKitDialog } from "@/components/proposal/feature-dialogs";
 import { ProgressSteps, type JobView } from "@/components/app/progress-steps";
-import { finalJob, newJobId, watchJob } from "@/lib/progress-client";
+import { finalJob, newJobId, watchJob, runLong } from "@/lib/progress-client";
 import { Input, Textarea } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -91,7 +91,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
     setDrafting("proposal");
     setJob(fallback);
     const stop = watchJob(jobId, setJob);
-    const r = app.mode === "essay" ? await services.person.draftEssay(app.id, essayPrompt, jobId) : await services.research.draftProposal(app.id, jobId);
+    const r = app.mode === "essay" ? await runLong(jobId, "person.draftEssay", [app.id, essayPrompt, jobId], () => services.person.draftEssay(app.id, essayPrompt, jobId)) : await runLong(jobId, "research.draftProposal", [app.id, jobId], () => services.research.draftProposal(app.id, jobId));
     stop();
     if (!r.ok) {
       setDrafting(false);
@@ -212,7 +212,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
     const stop = watchJob(jobId, setJob);
     let r: Awaited<ReturnType<typeof services.loop.draftLetter>> | Awaited<ReturnType<typeof services.loop.draftProposal>>;
     try {
-      r = mode === "proposal" ? await services.loop.draftProposal(app.id, jobId) : await services.loop.draftLetter(app.id, jobId);
+      r = mode === "proposal" ? await runLong(jobId, "loop.draftProposal", [app.id, jobId], () => services.loop.draftProposal(app.id, jobId)) : await runLong(jobId, "loop.draftLetter", [app.id, jobId], () => services.loop.draftLetter(app.id, jobId));
     } catch (err) {
       stop();
       setDrafting(false);

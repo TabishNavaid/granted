@@ -883,6 +883,16 @@ export function makeSupabaseServices(): Services {
     },
   };
 
+  const jobs = {
+    async start(spec: { jobId: string; kind: string; args: unknown[] }) {
+      const s = await ctx();
+      const { enqueue, isBackgroundKind } = await import("@/lib/jobs/runner");
+      if (!isBackgroundKind(spec.kind)) return { mode: "inline" as const };
+      await enqueue(spec, s);
+      return { mode: "background" as const };
+    },
+  };
+
   const account = {
     async getUsage() {
       const s = await ctx();
@@ -1172,6 +1182,7 @@ export function makeSupabaseServices(): Services {
     calendar: { ...calendar, ...x.calendar },
     activity,
     account,
+    jobs,
     auth,
     loop,
     demo,

@@ -16,7 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
 import { ProgressSteps, type JobView } from "@/components/app/progress-steps";
-import { newJobId, watchJob, finalJob } from "@/lib/progress-client";
+import { newJobId, watchJob, finalJob, runLong } from "@/lib/progress-client";
 import { stageLabel, MODE_LABELS } from "@/lib/segments";
 import { milestoneMeta } from "@/lib/agents/meta";
 import { feeTotals, lineTotal } from "@/lib/bids/fee";
@@ -78,7 +78,7 @@ export function BidHub({ initial, sf330: initialSf, sections, milestones, demo, 
     const jobId = newJobId();
     setJob(DRAFT_STEPS);
     const stop = watchJob(jobId, setJob);
-    const r = await services.bids.draft(app.id, jobId);
+    const r = await runLong(jobId, "bids.draft", [app.id, jobId], () => services.bids.draft(app.id, jobId));
     stop();
     if (!r.ok) {
       setJob(null);

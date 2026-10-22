@@ -804,6 +804,13 @@ export const mockServices: Services = {
     },
   },
 
+  jobs: {
+    async start() {
+      // The demo runs every step in place: in the visitor's tab, or in this server's memory with a model key.
+      return { mode: "inline" as const };
+    },
+  },
+
   account: {
     async getUsage() {
       return summarize(countRuns(state.runs));

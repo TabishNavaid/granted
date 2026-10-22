@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import { cookies } from "next/headers";
 import { adminClient, createUserClient } from "./clients";
 
@@ -22,8 +23,20 @@ export class NotSignedIn extends Error {
   }
 }
 
+/**
+ * A background job runs as the person who started it, after their request has ended, so there are no
+ * cookies to read. The job runner sets the session here for the length of the job.
+ */
+const override = new AsyncLocalStorage<SessionContext>();
+
+export function runAsSession<T>(session: SessionContext, fn: () => Promise<T>): Promise<T> {
+  return override.run(session, fn);
+}
+
 /** The signed-in user and their organization. Creates the organization on first sign-in. */
 export async function getSession(): Promise<SessionContext | null> {
+  const fixed = override.getStore();
+  if (fixed) return fixed;
   const supa = await createUserClient();
   const { data } = await supa.auth.getUser();
   const user = data.user;

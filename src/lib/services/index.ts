@@ -26,6 +26,7 @@ export const services: Services = {
   calendar: domain("calendar"),
   activity: domain("activity"),
   account: domain("account"),
+  jobs: domain("jobs"),
   auth: domain("auth"),
   loop: domain("loop"),
   demo: domain("demo"),

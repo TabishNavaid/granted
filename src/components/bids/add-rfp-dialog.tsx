@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input, Textarea } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
 import { ProgressSteps, type JobView } from "@/components/app/progress-steps";
-import { newJobId, watchJob, finalJob } from "@/lib/progress-client";
+import { newJobId, watchJob, finalJob, runLong } from "@/lib/progress-client";
 
 const STEPS: JobView = { status: "running", steps: [{ label: "Reading the solicitation", state: "active" }, { label: "Building the compliance matrix", state: "pending" }, { label: "Scoring go or no-go", state: "pending" }, { label: "Planning the deadlines", state: "pending" }] };
 
@@ -34,7 +34,7 @@ export function AddRfpDialog({ demo, trigger, samNoticeId }: { demo: boolean; tr
     const jobId = newJobId();
     setJob(STEPS);
     stop.current = watchJob(jobId, setJob);
-    const r = await services.bids.addRfp({ ...input, jobId });
+    const r = await runLong(jobId, "bids.addRfp", [{ ...input, jobId }], () => services.bids.addRfp({ ...input, jobId }));
     stop.current?.();
     if (!r.ok) {
       setJob(null);

@@ -1,9 +1,9 @@
 /**
  * Live progress for long steps, in plain words. A client starts a job with
- * an id it made up, awaits the server action, and polls `progress(jobId)`
- * in parallel. Entries live in this process's memory; on a platform that
- * spreads requests across instances the poll may miss and the UI falls back
- * to a generic "still working" line, which is honest.
+ * an id it made up and polls `progress(jobId)` while it runs. Entries live in
+ * this process's memory; in the real product a sink registered by the job
+ * runner (src/lib/jobs/runner.ts) also writes them to the jobs table, so a
+ * poll that lands on another server instance still sees them.
  */
 export interface ProgressStep {
   label: string;
@@ -39,6 +39,24 @@ const g = globalThis as typeof globalThis & { __fundfellowsJobs?: Map<string, Jo
 const jobs = (g.__fundfellowsJobs ??= new Map<string, JobProgress>());
 const TTL_MS = 15 * 60 * 1000;
 
+/** Somewhere durable to copy progress to. Called after every change; the sink decides how often to write. */
+export type ProgressSink = (job: JobProgress) => void;
+const sinks = ((g as typeof g & { __fundfellowsJobSinks?: Map<string, ProgressSink> }).__fundfellowsJobSinks ??= new Map<string, ProgressSink>());
+
+/** Copy this job's progress somewhere durable as it changes (the jobs table). */
+export function attachSink(jobId: string, sink: ProgressSink) {
+  sinks.set(jobId, sink);
+}
+
+export function detachSink(jobId: string) {
+  sinks.delete(jobId);
+}
+
+function changed(j: JobProgress) {
+  j.updatedAt = Date.now();
+  sinks.get(j.jobId)?.(j);
+}
+
 function sweep() {
   const now = Date.now();
   for (const [id, j] of jobs) if (now - j.updatedAt > TTL_MS) jobs.delete(id);
@@ -46,7 +64,9 @@ function sweep() {
 
 export function startJob(jobId: string, labels: string[]): void {
   sweep();
-  jobs.set(jobId, { jobId, status: "running", steps: labels.map((label, i) => ({ label, state: i === 0 ? "active" : "pending" })), events: [], updatedAt: Date.now() });
+  const j: JobProgress = { jobId, status: "running", steps: labels.map((label, i) => ({ label, state: i === 0 ? "active" : "pending" })), events: [], updatedAt: Date.now() };
+  jobs.set(jobId, j);
+  changed(j);
 }
 
 /** Mark the current active step done (with an optional note) and activate the next one. */
@@ -58,7 +78,7 @@ export function advanceJob(jobId: string, detail?: string): void {
     j.steps[i] = { ...j.steps[i], state: "done", detail };
     if (j.steps[i + 1]) j.steps[i + 1] = { ...j.steps[i + 1], state: "active" };
   }
-  j.updatedAt = Date.now();
+  changed(j);
 }
 
 export function noteJob(jobId: string, detail: string): void {
@@ -66,7 +86,7 @@ export function noteJob(jobId: string, detail: string): void {
   if (!j) return;
   const i = j.steps.findIndex((s) => s.state === "active");
   if (i >= 0) j.steps[i] = { ...j.steps[i], detail };
-  j.updatedAt = Date.now();
+  changed(j);
 }
 
 const MAX_EVENTS = 80;
@@ -79,7 +99,7 @@ export function logJob(jobId: string | undefined, event: Omit<JobEvent, "id">): 
   const id = (j.events[j.events.length - 1]?.id ?? 0) + 1;
   j.events.push({ ...event, id });
   if (j.events.length > MAX_EVENTS) j.events.splice(0, j.events.length - MAX_EVENTS);
-  j.updatedAt = Date.now();
+  changed(j);
 }
 
 export function finishJob(jobId: string, status: "done" | "failed"): void {
@@ -87,7 +107,7 @@ export function finishJob(jobId: string, status: "done" | "failed"): void {
   if (!j) return;
   j.steps = j.steps.map((s) => (status === "done" ? { ...s, state: "done" } : s));
   j.status = status;
-  j.updatedAt = Date.now();
+  changed(j);
 }
 
 export function readJob(jobId: string): JobProgress | null {
