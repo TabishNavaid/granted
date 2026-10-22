@@ -5,6 +5,7 @@ export const ALL_ROUTES = [
   "/",
   "/free",
   "/data",
+  "/faq",
   "/about",
   "/security",
   "/privacy",
