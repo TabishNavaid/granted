@@ -43,6 +43,8 @@ const nextConfig: NextConfig = {
   // pdf-parse and cheerio run on the server only and should not be bundled.
   serverExternalPackages: ["pdf-parse"],
   poweredByHeader: false,
+  // Server functions never need local env files, notes, tests, or ingestion caches; keep them out of every bundle.
+  outputFileTracingExcludes: { "*": [".env*", "*.md", "docs/**", "tests/**", "eval/**", ".ingest-cache/**", ".cache/**", "supabase/.temp/**", "scripts/**"] },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },
