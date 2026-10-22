@@ -498,7 +498,7 @@ export function makeFeatureServices(d: Deps) {
       const m = await memoryStore.upsertMatch({
         opportunityId: opp.id,
         fitScore: scored?.fitScore ?? 45,
-        reasons: scored?.reasons ?? [`Added from the foundation directory. It gives in ${rec.state}; its typical grant is $${(rec.grantMedian ?? 0).toLocaleString("en-US")}.`],
+        reasons: scored?.reasons ?? [`Added from foundation search. It gives in ${rec.state}; its typical grant is $${(rec.grantMedian ?? 0).toLocaleString("en-US")}.`],
         cautions: scored?.cautions ?? [rec.acceptsUnsolicited === false ? "Its filing says it gives only to organizations it chooses." : `Based on its ${rec.taxYear} filing with the IRS.`],
         eligibilityChecks: scored?.eligibilityChecks ?? [],
         status: "saved",

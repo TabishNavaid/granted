@@ -1,5 +1,5 @@
 {
- "measuredAt": "2026-10-22T09:26:18.112Z",
+ "measuredAt": "2026-10-22T11:24:41.857Z",
  "label": "a test load of the database",
  "sources": [
   {
@@ -552,17 +552,6 @@
    },
    "programs": 0
   },
-  "irs_990pf": {
-   "open": 876,
-   "forecasted": 0,
-   "total": 881,
-   "lastChecked": "2026-10-22T09:01:13.644Z",
-   "byType": {
-    "scholarship": 33,
-    "grant": 843
-   },
-   "programs": 0
-  },
   "eu_funding_tenders": {
    "open": 444,
    "forecasted": 319,
@@ -572,6 +561,17 @@
     "contract": 227,
     "grant": 139,
     "research": 397
+   },
+   "programs": 0
+  },
+  "irs_990pf": {
+   "open": 1376,
+   "forecasted": 0,
+   "total": 1381,
+   "lastChecked": "2026-10-22T09:32:38.154Z",
+   "byType": {
+    "scholarship": 56,
+    "grant": 1320
    },
    "programs": 0
   },
@@ -599,7 +599,7 @@
    "open": 664,
    "forecasted": 0,
    "total": 669,
-   "lastChecked": "2026-10-22T09:03:36.029Z",
+   "lastChecked": "2026-10-22T09:28:52.730Z",
    "byType": {
     "contract": 664
    },
@@ -687,12 +687,12 @@
    "programs": 0
   },
   "uk_contracts_finder": {
-   "open": 165,
+   "open": 164,
    "forecasted": 0,
    "total": 169,
-   "lastChecked": "2026-10-22T08:38:10.962Z",
+   "lastChecked": "2026-10-22T09:28:44.388Z",
    "byType": {
-    "contract": 165
+    "contract": 164
    },
    "programs": 0
   },
@@ -721,5 +721,5 @@
   "international": 0
  },
  "awardRows": 125551,
- "sizeMb": 280
+ "sizeMb": 205
 }

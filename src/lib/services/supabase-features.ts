@@ -399,7 +399,7 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
       const st = makeSupabaseStore(x.s);
       const scored = matchFoundations({ org: x.org, facts: x.facts.filter((f: Fact) => f.status === "confirmed"), limit: 400 }).matches.find((m) => m.foundation.ein === rec.ein);
       const stored = await st.upsertOpportunity(toOpportunity(rec), toFunder(rec), noticeTextFor(rec));
-      const m = await st.upsertMatch({ opportunityId: stored.opportunity.id, fitScore: scored?.fitScore ?? 45, reasons: scored?.reasons ?? [`Added from the foundation directory. It gives in ${rec.state}.`], cautions: scored?.cautions ?? [`Based on its ${rec.taxYear} filing with the IRS.`], eligibilityChecks: scored?.eligibilityChecks ?? [], status: "saved", dismissReason: null });
+      const m = await st.upsertMatch({ opportunityId: stored.opportunity.id, fitScore: scored?.fitScore ?? 45, reasons: scored?.reasons ?? [`Added from foundation search. It gives in ${rec.state}.`], cautions: scored?.cautions ?? [`Based on its ${rec.taxYear} filing with the IRS.`], eligibilityChecks: scored?.eligibilityChecks ?? [], status: "saved", dismissReason: null });
       return (await toMatchViews(db, [m]))[0] ?? null;
     },
   };

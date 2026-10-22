@@ -217,7 +217,7 @@ export interface AnalyticsService {
 export interface FunderService {
   list(): Promise<FunderSummary[]>;
   get(id: string): Promise<FunderProfile | null>;
-  /** Search the private foundation directory (IRS 990-PF filings). */
+  /** Search the private foundations (IRS 990-PF filings). */
   directory(query: string, state: string | null): Promise<FunderSummary[]>;
   /** Foundations that funded organizations like this one, which it has not matched yet. */
   fundersLikeYou(): Promise<{ funder: Funder; peers: string[] }[]>;

@@ -210,7 +210,7 @@ export function OpportunitiesView({ matches, demo, savedSearches, orgType = "non
       </section>
 
       {orgType !== "nonprofit" ? null : demo ? (
-        <p className="mt-8 max-w-[65ch] text-sm text-ink-muted">In the demo, the Grants.gov searches are recorded runs, so a custom search is not available here. The foundation directory on the Funders page is searchable now.</p>
+        <p className="mt-8 max-w-[65ch] text-sm text-ink-muted">In the demo, the Grants.gov searches are recorded runs, so a custom search is not available here. Foundation search on the Funders page is searchable now.</p>
       ) : (
         <SearchPanel saved={savedSearches} />
       )}
