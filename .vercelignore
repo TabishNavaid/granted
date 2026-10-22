@@ -1,6 +1,7 @@
 # Only what the build needs goes to Vercel. Private notes, local data, and tests stay here.
 .env*
 !.env.example
+!.env.localdb.example
 *.md
 !README.md
 docs/
