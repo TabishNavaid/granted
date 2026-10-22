@@ -1,5 +1,5 @@
 {
- "measuredAt": "2026-10-22T11:24:41.857Z",
+ "measuredAt": "2026-10-22T12:32:44.172Z",
  "label": "a test load of the database",
  "sources": [
   {
@@ -512,33 +512,33 @@
    "open": 217,
    "forecasted": 0,
    "total": 218,
-   "lastChecked": "2026-10-22T08:55:15.257Z",
+   "lastChecked": "2026-10-22T12:31:45.436Z",
    "byType": {
     "contract": 217
    },
    "programs": 0
   },
   "grantsgov": {
-   "open": 811,
-   "forecasted": 465,
-   "total": 11282,
-   "lastChecked": "2026-10-22T07:54:50.454Z",
+   "open": 865,
+   "forecasted": 402,
+   "total": 11327,
+   "lastChecked": "2026-10-22T11:31:17.893Z",
    "byType": {
-    "grant": 483,
-    "contract": 1,
+    "grant": 464,
+    "contract": 0,
     "scholarship": 0,
-    "research": 792
+    "research": 803
    },
    "programs": 0
   },
   "nsf_funding": {
-   "open": 260,
-   "forecasted": 36,
+   "open": 192,
+   "forecasted": 12,
    "total": 370,
-   "lastChecked": "2026-10-22T08:54:31.471Z",
+   "lastChecked": "2026-10-22T12:24:43.463Z",
    "byType": {
-    "scholarship": 7,
-    "research": 289
+    "scholarship": 2,
+    "research": 202
    },
    "programs": 48
   },
@@ -546,32 +546,32 @@
    "open": 1,
    "forecasted": 3,
    "total": 10,
-   "lastChecked": "2026-10-22T08:59:51.874Z",
+   "lastChecked": "2026-10-22T12:31:42.453Z",
    "byType": {
     "research": 4
    },
    "programs": 0
   },
   "eu_funding_tenders": {
-   "open": 444,
+   "open": 445,
    "forecasted": 319,
-   "total": 800,
-   "lastChecked": "2026-10-22T08:59:28.952Z",
+   "total": 802,
+   "lastChecked": "2026-10-22T11:30:59.095Z",
    "byType": {
     "contract": 227,
-    "grant": 139,
+    "grant": 140,
     "research": 397
    },
    "programs": 0
   },
   "irs_990pf": {
-   "open": 1376,
+   "open": 1870,
    "forecasted": 0,
-   "total": 1381,
-   "lastChecked": "2026-10-22T09:32:38.154Z",
+   "total": 1875,
+   "lastChecked": "2026-10-22T12:16:33.578Z",
    "byType": {
-    "scholarship": 56,
-    "grant": 1320
+    "scholarship": 78,
+    "grant": 1792
    },
    "programs": 0
   },
@@ -579,29 +579,29 @@
    "open": 128,
    "forecasted": 1099,
    "total": 1394,
-   "lastChecked": "2026-10-22T08:58:52.340Z",
+   "lastChecked": "2026-10-22T12:31:48.900Z",
    "byType": {
     "contract": 1227
    },
    "programs": 0
   },
   "sam_opportunities": {
-   "open": 7805,
+   "open": 7799,
    "forecasted": 839,
    "total": 8816,
-   "lastChecked": "2026-10-22T08:23:41.186Z",
+   "lastChecked": "2026-10-22T12:25:05.614Z",
    "byType": {
-    "contract": 8644
+    "contract": 8638
    },
    "programs": 0
   },
   "world_bank_procurement": {
-   "open": 664,
+   "open": 682,
    "forecasted": 0,
-   "total": 669,
-   "lastChecked": "2026-10-22T09:28:52.730Z",
+   "total": 699,
+   "lastChecked": "2026-10-22T11:57:48.761Z",
    "byType": {
-    "contract": 664
+    "contract": 682
    },
    "programs": 0
   },
@@ -609,7 +609,7 @@
    "open": 47,
    "forecasted": 0,
    "total": 53,
-   "lastChecked": "2026-10-22T09:00:19.375Z",
+   "lastChecked": "2026-10-22T12:31:49.864Z",
    "byType": {
     "contract": 47
    },
@@ -626,12 +626,12 @@
    "programs": 0
   },
   "uk_find_a_tender": {
-   "open": 1406,
+   "open": 1397,
    "forecasted": 0,
-   "total": 1488,
-   "lastChecked": "2026-10-22T09:12:45.174Z",
+   "total": 1497,
+   "lastChecked": "2026-10-22T11:57:38.248Z",
    "byType": {
-    "contract": 1406
+    "contract": 1397
    },
    "programs": 0
   },
@@ -639,19 +639,9 @@
    "open": 65,
    "forecasted": 0,
    "total": 77,
-   "lastChecked": "2026-10-22T08:57:21.199Z",
+   "lastChecked": "2026-10-22T12:31:46.164Z",
    "byType": {
     "contract": 65
-   },
-   "programs": 0
-  },
-  "state_md_montgomery_bids": {
-   "open": 20,
-   "forecasted": 0,
-   "total": 37,
-   "lastChecked": "2026-10-22T09:02:08.656Z",
-   "byType": {
-    "contract": 20
    },
    "programs": 0
   },
@@ -659,9 +649,19 @@
    "open": 0,
    "forecasted": 0,
    "total": 389,
-   "lastChecked": "2026-10-22T08:50:21.905Z",
+   "lastChecked": "2026-10-22T12:16:44.854Z",
    "byType": {
     "research": 0
+   },
+   "programs": 0
+  },
+  "state_md_montgomery_bids": {
+   "open": 20,
+   "forecasted": 0,
+   "total": 37,
+   "lastChecked": "2026-10-22T12:31:50.654Z",
+   "byType": {
+    "contract": 20
    },
    "programs": 0
   },
@@ -669,7 +669,7 @@
    "open": 3,
    "forecasted": 0,
    "total": 100,
-   "lastChecked": "2026-10-22T08:49:13.525Z",
+   "lastChecked": "2026-10-22T11:24:59.271Z",
    "byType": {
     "grant": 3,
     "research": 0
@@ -687,12 +687,12 @@
    "programs": 0
   },
   "uk_contracts_finder": {
-   "open": 164,
+   "open": 166,
    "forecasted": 0,
-   "total": 169,
-   "lastChecked": "2026-10-22T09:28:44.388Z",
+   "total": 171,
+   "lastChecked": "2026-10-22T11:33:39.587Z",
    "byType": {
-    "contract": 164
+    "contract": 166
    },
    "programs": 0
   },
@@ -700,7 +700,7 @@
    "open": 113,
    "forecasted": 0,
    "total": 238,
-   "lastChecked": "2026-10-22T08:53:27.564Z",
+   "lastChecked": "2026-10-22T12:31:44.302Z",
    "byType": {
     "contract": 113
    },
@@ -709,17 +709,17 @@
  },
  "funders": {
   "other": 49,
-  "international": 916,
+  "international": 919,
   "private_foundation": 81649,
   "state_agency": 18,
   "federal_agency": 991,
   "local_government": 90
  },
  "construction": {
-  "federal": 950,
+  "federal": 948,
   "stateLocal": 1418,
   "international": 0
  },
  "awardRows": 125551,
- "sizeMb": 205
+ "sizeMb": 211
 }
