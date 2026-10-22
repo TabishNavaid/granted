@@ -140,7 +140,7 @@ export const audiencePages: AudiencePage[] = [
     demoLabel: "Try the demo with a sample nonprofit",
     closing: {
       title: "Try it on a sample nonprofit first.",
-      lead: "Free covers your profile, five matches a month, and one letter of inquiry. Starter is $29 a month.",
+      lead: "It is free during early access: no paid plan and no card.",
       note: "Free to start, with no card.",
     },
   },

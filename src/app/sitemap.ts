@@ -20,7 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/for/architecture-and-construction",
     "/for/research",
     "/for/students",
-    "/pricing",
+    "/free",
     "/roadmap",
     "/about",
     "/security",

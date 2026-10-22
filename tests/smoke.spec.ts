@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 /** Every P0 route renders without a console error and shows its main heading. */
 const routes: { path: string; heading: RegExp }[] = [
   { path: "/", heading: /grants, bids, and scholarships from your own records/i },
-  { path: "/pricing", heading: /simple plans/i },
+  { path: "/free", heading: /free while we learn/i },
   { path: "/about", heading: /people doing the work/i },
   { path: "/security", heading: /handle your data/i },
   { path: "/privacy", heading: /privacy policy/i },

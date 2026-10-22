@@ -34,14 +34,14 @@ import type {
   Outcome,
   Requirement,
   Section,
-  Subscription,
 } from "@/lib/types";
 import { wordCount } from "@/lib/format";
 import { runtimeMode } from "@/lib/env";
 import { adminClient, createUserClient } from "@/lib/supabase/clients";
 import { getSession, requireSession, type SessionContext } from "@/lib/supabase/session";
 import type { LoopResult, Services } from "./contracts";
-import { checkUse, exportCampaign, icsUrlFor, usageThisMonth, withUsage } from "./shared";
+import { exportCampaign, icsUrlFor } from "./shared";
+import { countRuns, monthStart, summarize } from "@/lib/usage/limits";
 import { planMilestones as planFromDeadline } from "@/lib/loop/milestones";
 import { BUDGET_CATEGORY_LABEL, budgetTotal } from "@/lib/loop/budget";
 
@@ -318,6 +318,7 @@ export const map = {
     startedAt: iso(r.started_at),
     finishedAt: r.finished_at ? iso(r.finished_at) : null,
     inboxItemId: (r.inbox_item_id as string | null) ?? null,
+    usageKind: (r.usage_kind as AgentRun["usageKind"]) ?? null,
   }),
   runRow: (run: Partial<AgentRun>, extra: { models?: string[] } = {}): Row => {
     const out: Row = {};
@@ -335,6 +336,7 @@ export const map = {
     if (run.startedAt !== undefined) out.started_at = run.startedAt;
     if (run.finishedAt !== undefined) out.finished_at = run.finishedAt;
     if (run.inboxItemId !== undefined) out.inbox_item_id = run.inboxItemId;
+    if (run.usageKind !== undefined) out.usage_kind = run.usageKind;
     if (extra.models) out.models = extra.models;
     return out;
   },
@@ -345,15 +347,6 @@ export const map = {
   contactNote: (r: Row): ContactNote => ({ id: str(r.id), orgId: str(r.org_id), contactId: str(r.contact_id), kind: (r.kind as ContactNote["kind"]) ?? "note", note: str(r.note), nextStep: (r.next_step as string | null) ?? null, happenedAt: iso(r.happened_at) }),
   campaign: (r: Row): SocialCampaign => ({ id: str(r.id), orgId: str(r.org_id), month: str(r.month), theme: str(r.theme), posts: (r.posts as SocialCampaign["posts"]) ?? [], status: (r.status as SocialCampaign["status"]) ?? "draft", createdAt: iso(r.created_at) }),
   savedSearch: (r: Row): SavedSearch => ({ id: str(r.id), orgId: str(r.org_id), name: str(r.name), keyword: str(r.keyword), fundingCategories: (r.funding_categories as string[]) ?? [], createdAt: iso(r.created_at), lastRunAt: r.last_run_at ? iso(r.last_run_at) : null }),
-  subscription: (r: Row | null, orgId: string): Subscription => ({
-    id: str(r?.id, "sub"),
-    orgId,
-    plan: (r?.plan as Subscription["plan"]) ?? "free",
-    status: (r?.status as Subscription["status"]) ?? "active",
-    currentPeriodEnd: r?.current_period_end ? iso(r.current_period_end) : new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString(),
-    seats: Number(r?.seats ?? 1),
-    usage: { proposalsThisMonth: 0, proposalLimit: (r?.plan ?? "free") === "free" ? 1 : (r?.plan ?? "free") === "starter" ? 3 : null, matchesThisMonth: 0, matchLimit: (r?.plan ?? "free") === "free" ? 5 : null },
-  }),
   notifications: (r: Row | null): NotificationSettings => ({ weeklyDigest: r?.weekly_digest == null ? true : Boolean(r.weekly_digest), milestoneReminders: r?.milestone_reminders == null ? true : Boolean(r.milestone_reminders), inboxAlerts: r?.inbox_alerts == null ? true : Boolean(r.inbox_alerts), reminderDaysBefore: Number(r?.reminder_days_before ?? 3) }),
 };
 
@@ -488,7 +481,6 @@ export function makeSupabaseServices(): Services {
       const created = must(await db.from("organizations").insert({ name: name.trim() || "New organization", onboarding_step: "start" }).select("id, name").single(), "organization");
       const id = String(created.id);
       await db.from("org_members").insert({ org_id: id, user_id: s.userId, invited_email: s.email, role: "owner", status: "active" });
-      await db.from("subscriptions").insert({ org_id: id, plan: "free", status: "active", seats: 1 });
       await db.from("notification_settings").insert({ org_id: id });
       const { setActiveOrg } = await import("@/lib/supabase/session");
       await setActiveOrg(id);
@@ -876,46 +868,11 @@ export function makeSupabaseServices(): Services {
     },
   };
 
-  const billing = {
-    async getSubscription() {
+  const account = {
+    async getUsage() {
       const s = await ctx();
-      const { data } = await db.from("subscriptions").select("*").eq("org_id", s.orgId).maybeSingle();
-      const [apps, matches] = await Promise.all([db.from("applications").select("*").eq("org_id", s.orgId), db.from("matches").select("*").eq("org_id", s.orgId)]);
-      return withUsage(map.subscription(data, s.orgId), usageThisMonth((apps.data ?? []).map(map.application), (matches.data ?? []).map(map.match)));
-    },
-    async checkoutUrl(plan: "starter" | "growth") {
-      const s = await ctx();
-      const { createCheckoutSession, stripeConnected } = await import("@/lib/integrations/stripe");
-      if (!stripeConnected()) return { ok: false as const, code: "no_ai" as const, error: "Stripe is not connected on this server yet. The Integrations page says how to add it." };
-      const { data } = await db.from("subscriptions").select("stripe_customer_id").eq("org_id", s.orgId).maybeSingle();
-      const base = siteUrl();
-      const r = await createCheckoutSession({ orgId: s.orgId, email: s.email, plan, customerId: (data?.stripe_customer_id as string | null) ?? null, successUrl: `${base}/settings?tab=billing&checkout=success`, cancelUrl: `${base}/settings?tab=billing&checkout=canceled` });
-      return r.ok ? { ok: true as const, data: { url: r.url } } : { ok: false as const, code: "failed" as const, error: r.message };
-    },
-    async portalUrl() {
-      const s = await ctx();
-      const { createPortalSession, stripeConnected } = await import("@/lib/integrations/stripe");
-      if (!stripeConnected()) return { ok: false as const, code: "no_ai" as const, error: "Stripe is not connected on this server yet." };
-      const { data } = await db.from("subscriptions").select("stripe_customer_id").eq("org_id", s.orgId).maybeSingle();
-      if (!data?.stripe_customer_id) return { ok: false as const, code: "failed" as const, error: "No billing account yet. Start a paid plan first." };
-      const base = siteUrl();
-      const r = await createPortalSession({ customerId: String(data.stripe_customer_id), returnUrl: `${base}/settings?tab=billing` });
-      return r.ok ? { ok: true as const, data: { url: r.url } } : { ok: false as const, code: "failed" as const, error: r.message };
-    },
-    async canUse(what: "proposal" | "match") {
-      return checkUse(await billing.getSubscription(), what);
-    },
-    async listInvoices() {
-      await ctx();
-      return [];
-    },
-    async changePlan(plan: Subscription["plan"]) {
-      const s = await ctx();
-      const { stripeConnected } = await import("@/lib/integrations/stripe");
-      // With Stripe connected, paid plans go through Checkout; only a downgrade to Free is switched here.
-      if (stripeConnected() && plan !== "free") return billing.getSubscription();
-      const { data } = await db.from("subscriptions").upsert({ org_id: s.orgId, plan, status: "active" }, { onConflict: "org_id" }).select("*").single();
-      return map.subscription(data, s.orgId);
+      const { data } = await db.from("agent_runs").select("agent, title, usage_kind, status, tokens_in, tokens_out, cost_usd, started_at").eq("org_id", s.orgId).gte("started_at", monthStart().toISOString());
+      return summarize(countRuns((data ?? []).map((r) => ({ agent: String(r.agent), title: String(r.title), usageKind: (r.usage_kind as "draft" | "assist" | null) ?? null, status: String(r.status), tokensIn: Number(r.tokens_in ?? 0), tokensOut: Number(r.tokens_out ?? 0), costUsd: Number(r.cost_usd ?? 0), startedAt: new Date(String(r.started_at)).toISOString() }))));
     },
     async getNotificationSettings() {
       const s = await ctx();
@@ -1001,16 +958,12 @@ export function makeSupabaseServices(): Services {
       return readJob(jobId);
     },
     async draftLetter(applicationId: string, jobId?: string) {
-      const limit = await billing.canUse("proposal");
-      if (!limit.ok) return { ok: false as const, code: "failed" as const, error: limit.message ?? "Your plan's limit for this month is used up." };
       const s = await ctx();
       const { draftLetterFor } = await import("@/lib/loop");
       const { makeSupabaseStore } = await import("@/lib/loop/supabase-store");
       return draftLetterFor(makeSupabaseStore(s), applicationId, jobId);
     },
     async draftProposal(applicationId: string, jobId?: string) {
-      const limit = await billing.canUse("proposal");
-      if (!limit.ok) return { ok: false as const, code: "failed" as const, error: limit.message ?? "Your plan's limit for this month is used up." };
       const { st } = await loopStore();
       const { draftProposalFor } = await import("@/lib/loop/features");
       return draftProposalFor(st, applicationId, jobId);
@@ -1189,7 +1142,7 @@ export function makeSupabaseServices(): Services {
     },
   };
 
-  const x = makeSupabaseFeatures(db, ctx, { org, knowledge, opportunities, applications, inbox, calendar, outreach, contacts, social, integrations, billing } as never);
+  const x = makeSupabaseFeatures(db, ctx, { org, knowledge, opportunities, applications, inbox, calendar, outreach, contacts, social, integrations, account } as never);
   // Row level security scopes every segment table to the org's members; screens hide edits from reviewers.
   const seg = makeSupabaseSegments({ db, loopStore: async () => (await loopStore()).st, requireEditor: () => undefined, applicationView: (id) => applications.get(id) });
   return {
@@ -1201,7 +1154,7 @@ export function makeSupabaseServices(): Services {
     inbox: { ...inbox, ...x.inbox },
     calendar: { ...calendar, ...x.calendar },
     activity,
-    billing,
+    account,
     auth,
     loop,
     demo,

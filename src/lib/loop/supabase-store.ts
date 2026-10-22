@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { countRuns, monthStart } from "@/lib/usage/limits";
 import type { AgentRun, Application, Fact, Funder, Match, MissingFact, Opportunity, Section } from "@/lib/types";
 import { adminClient } from "@/lib/supabase/clients";
 import type { SessionContext } from "@/lib/supabase/session";
@@ -137,6 +138,10 @@ export function makeSupabaseStore(s: SessionContext): LoopStore {
     },
     async updateRun(id, patch) {
       await db.from("agent_runs").update(map.runRow(patch)).eq("id", id);
+    },
+    async usageThisMonth() {
+      const rows = many(await db.from("agent_runs").select("agent, title, usage_kind, status, tokens_in, tokens_out, cost_usd, started_at").eq("org_id", orgId).gte("started_at", monthStart().toISOString()), "runs");
+      return countRuns(rows.map((r) => ({ agent: String(r.agent), title: String(r.title), usageKind: (r.usage_kind as "draft" | "assist" | null) ?? null, status: String(r.status), tokensIn: Number(r.tokens_in ?? 0), tokensOut: Number(r.tokens_out ?? 0), costUsd: Number(r.cost_usd ?? 0), startedAt: new Date(String(r.started_at)).toISOString() })));
     },
     async listBoilerplates() {
       return many(await db.from("boilerplates").select("*").eq("org_id", orgId), "boilerplates").map(map.boilerplate);

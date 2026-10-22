@@ -25,7 +25,7 @@ export const services: Services = {
   inbox: domain("inbox"),
   calendar: domain("calendar"),
   activity: domain("activity"),
-  billing: domain("billing"),
+  account: domain("account"),
   auth: domain("auth"),
   loop: domain("loop"),
   demo: domain("demo"),

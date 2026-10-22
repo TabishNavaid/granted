@@ -74,8 +74,8 @@ export const fullFaq: { group: string; items: FaqItem[] }[] = [
         a: "The people you invite. Data is stored in a Supabase-hosted Postgres database in the United States. Drafting uses Google's Gemini API through one key set up by whoever runs the service. Google's terms for that key decide whether prompts may improve its products: not on the paid tier, possibly on the free tier. We do not train models of our own on your data, and we do not sell it. The Security page has the details.",
       },
       {
-        q: "What does it cost, and what happens if we stop paying?",
-        a: "Free is $0 and includes your profile, five matches a month, and one letter of inquiry. Starter is $29 a month and Growth is $79 a month. If you stop paying, your workspace moves to Free and your data stays.",
+        q: "What does it cost?",
+        a: "Nothing during early access. There is no paid plan and no card. Each workspace has a monthly allowance of AI work (50 drafts and 400 other AI steps), which covers what the model costs us. Searching the opportunity database never counts.",
       },
       {
         q: "How do we cancel, and can we take our work with us?",

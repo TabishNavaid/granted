@@ -7,7 +7,7 @@ import { DEMO_HREF, DEMO_LABEL, DEMO_NOTE, DemoCta } from "@/components/marketin
 import { Drawing } from "@/components/drawings/drawing";
 import { Meadow } from "@/components/drawings/meadow";
 import { drawing, plates } from "@/lib/drawings";
-import { faq, pricingTiers } from "@/content/site";
+import { faq } from "@/content/site";
 import { checked, helpCosts, source } from "@/content/costs";
 import { audiencePages } from "@/content/audience-pages";
 import * as demo from "@/lib/mock/data";
@@ -35,7 +35,7 @@ const trust = [
   "Every funder and deadline comes from a page we fetched, with the link and the date we checked it.",
   "Every claim about your organization cites a fact you confirmed. A missing fact becomes a question, not a plausible number.",
   "We never send, post, or submit. You copy the email. You click submit on the funder's portal.",
-  "Your data stays in your workspace. On paid plans the AI provider does not train on it. One click deletes everything.",
+  "Your data stays in your workspace. We use the AI provider's paid tier, which does not train on it. One click deletes everything.",
   "The Activity screen shows each step an agent took, each page it read, and what it cost.",
 ];
 
@@ -285,8 +285,8 @@ export default function LandingPage() {
               <div className="grid gap-1 border-b border-rule bg-panel-sage/60 px-3 py-5 sm:-mx-3 sm:grid-cols-[12rem_1fr] sm:gap-8">
                 <dt className="font-semibold text-ink">{PRODUCT_NAME}</dt>
                 <dd>
-                  <span className="block font-display text-2xl text-meadow tnum">$0, $29, or $79 a month</span>
-                  <span className="mt-1 block max-w-[52ch] text-base text-ink-muted">Free, Starter, or Growth. It finds the grants, drafts from your facts, and keeps the dates. It does not replace a writer&apos;s judgment or relationships.</span>
+                  <span className="block font-display text-2xl text-meadow tnum">Free during early access</span>
+                  <span className="mt-1 block max-w-[52ch] text-base text-ink-muted">No card and no paid plan. It finds the grants, drafts from your facts, and keeps the dates. It does not replace a writer&apos;s judgment or relationships.</span>
                 </dd>
               </div>
             </dl>
@@ -308,45 +308,17 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="pricing" className="scroll-mt-16">
+      {/* Free */}
+      <section id="free" className="scroll-mt-16">
         <div className="mx-auto max-w-[75rem] px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
           <SectionHeading plant="aster" className="max-w-[17ch]">
-            Priced for small organizations.
+            Free while we learn.
           </SectionHeading>
-          <p className="mt-6 max-w-[58ch] text-lg text-ink-muted">We start at free and stay cheap on purpose, so the organizations that need help most can afford to try it.</p>
-          <div className="mt-14 border-t border-ink">
-            {pricingTiers.map((t) => {
-              const lead = t.name === "Starter";
-              return (
-                <div key={t.name} className="grid gap-5 border-b border-rule py-8 sm:grid-cols-[13rem_1fr_auto] sm:items-center sm:gap-10">
-                  <div>
-                    <h3 className="font-display text-2xl text-ink">{t.name}</h3>
-                    <p className={`mt-1 font-display leading-none tracking-[-0.03em] tnum ${t.price.startsWith("$") ? "text-6xl" : "text-3xl"} ${lead ? "text-meadow" : "text-ink"}`}>{t.price}</p>
-                    {t.period ? <p className="mt-2 text-sm text-ink-muted">{t.period}</p> : null}
-                  </div>
-                  <div>
-                    <p className="text-base font-semibold text-ink">{t.who}</p>
-                    <p className="mt-1 max-w-[55ch] text-base text-ink-muted">{t.includes.join(". ")}.</p>
-                    {t.note ? <p className="mt-1 max-w-[55ch] text-sm text-ink-muted">{t.note}</p> : null}
-                  </div>
-                  {t.cta ? (
-                    <Button asChild variant={lead ? "primary" : "secondary"}>
-                      <Link href="/sign-up">{t.cta}</Link>
-                    </Button>
-                  ) : (
-                    <span className="text-sm text-ink-muted">Coming later</span>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+          <p className="mt-6 max-w-[58ch] text-lg text-ink-muted">No paid plan, no card, and no trial that runs out. We want to learn whether this is truly useful before anyone pays for it.</p>
           <p className="mt-5 max-w-[60ch] text-base text-ink-muted">
-            Details and plan questions are on the{" "}
-            <Link href="/pricing" className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
-              pricing page
+            <Link href="/free" className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
+              Why it is free, and the one limit
             </Link>
-            .
           </p>
         </div>
       </section>

@@ -32,7 +32,7 @@ export const audiences: Audience[] = [
       "It finds federal notices you can apply for and, in Ohio, Kentucky, and North Carolina, private foundations that give to work like yours.",
       "It drafts the letter or proposal with a citation on every claim, and asks you for what is missing.",
       "It plans the milestones back from each deadline and puts them on the calendar you already use.",
-      "Free covers your profile, five matches a month, and one letter of inquiry. Starter is $29 a month.",
+      "It is free during early access: no paid plan and no card.",
     ],
     limits: [
       "Foundation data covers Ohio, Kentucky, and North Carolina only. Elsewhere you get federal matches, drafting, and deadlines, but few foundation matches.",

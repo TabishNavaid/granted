@@ -9,8 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/components/ui/toast";
 
 const roles: { value: Member["role"]; label: string; can: string }[] = [
-  { value: "owner", label: "Owner", can: "Everything, including the team, billing, and agent settings." },
-  { value: "editor", label: "Editor", can: "Drafts and the knowledge base. Not the team or billing." },
+  { value: "owner", label: "Owner", can: "Everything, including the team and agent settings." },
+  { value: "editor", label: "Editor", can: "Drafts and the knowledge base. Not the team." },
   { value: "reviewer", label: "Board reviewer", can: "Reads, comments, and approves sections. No edits." },
 ];
 

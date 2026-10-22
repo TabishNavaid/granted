@@ -3,7 +3,7 @@
  * The /settings/integrations page renders this list; adapters check the same
  * `present` flags before doing anything.
  */
-export type IntegrationId = "gemini" | "supabase" | "google_auth" | "gmail" | "outlook" | "google_calendar" | "email" | "stripe" | "sam_gov";
+export type IntegrationId = "gemini" | "supabase" | "google_auth" | "gmail" | "outlook" | "google_calendar" | "email" | "sam_gov";
 
 export interface IntegrationStatus {
   id: IntegrationId;
@@ -31,7 +31,6 @@ export function integrationStatus(): IntegrationStatus[] {
     { id: "google_calendar", name: "Google Calendar", required: false, present: has("GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"), unlocks: "Push deadlines and milestones to your Google Calendar.", envVars: ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"], howTo: "Same OAuth client, with the Calendar events scope enabled.", docsUrl: "https://developers.google.com/calendar/api/guides/overview" },
     { id: "email", name: "Email delivery (Resend)", required: false, present: has("RESEND_API_KEY"), unlocks: "The weekly digest and the contact form. Milestone reminder emails are not scheduled yet.", envVars: ["RESEND_API_KEY", "EMAIL_FROM"], howTo: "Create an API key at Resend and verify your sending domain.", docsUrl: "https://resend.com/docs" },
     { id: "sam_gov", name: "SAM.gov contract opportunities", required: false, present: has("SAM_GOV_API_KEY"), unlocks: "Federal contract opportunities for a firm's NAICS codes, with a fit score. Adding an RFP you have works without it.", envVars: ["SAM_GOV_API_KEY"], howTo: "Sign in at SAM.gov, open your Workspace, then Profile, then Public API Key, and request a key. It is free; the public key allows a limited number of requests a day.", docsUrl: "https://open.gsa.gov/api/get-opportunities-public-api/" },
-    { id: "stripe", name: "Stripe", required: false, present: has("STRIPE_SECRET_KEY", "STRIPE_PRICE_STARTER", "STRIPE_PRICE_GROWTH"), unlocks: "Paid plans through Stripe Checkout and the customer portal. The Free plan works without it.", envVars: ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET", "STRIPE_PRICE_STARTER", "STRIPE_PRICE_GROWTH"], howTo: "Create two recurring prices in test mode and a webhook for checkout and subscription events.", docsUrl: "https://dashboard.stripe.com/test/apikeys" },
   ];
 }
 

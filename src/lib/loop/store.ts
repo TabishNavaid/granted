@@ -61,6 +61,8 @@ export interface LoopStore {
   addInboxItem(item: Pick<InboxItem, "agent" | "type" | "title" | "summary" | "payload" | "priority" | "sourceCount" | "agentRunId">): Promise<InboxItem>;
 
   createRun(run: Omit<AgentRun, "id">): Promise<AgentRun>;
+  /** Model runs this month by usage kind, for the monthly allowance. */
+  usageThisMonth?(): Promise<Record<"draft" | "assist", number>>;
   updateRun(id: string, patch: Partial<AgentRun>): Promise<void>;
 
   // ---- Phase 4 features ----

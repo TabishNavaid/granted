@@ -73,7 +73,7 @@ export const capabilities: Capability[] = [
       { label: "What a foundation page shows", body: "Giving focus, typical grant size, where grantees are located, past grantees, the trustees listed on the filing, whether it accepts unsolicited applications, and its application instructions as filed." },
       { label: "Eligibility checks", body: "Applicant type, location, and budget limits are checked against your profile. When a rule cannot be checked automatically, the page says so instead of guessing. A pass reads \"Looks eligible\", because automated checks can be wrong." },
       { label: "How current it is", body: "Every notice shows its link and the date we last checked it. Every foundation figure shows the tax year it covers. A foundation can change its priorities after it files, so read its current guidelines before you apply." },
-      { label: "On each plan", body: "Free includes five matches a month. Starter and Growth include unlimited matches." },
+      { label: "Cost", body: "Matching reads the opportunity database, which never counts against the monthly allowance." },
     ],
     never: [
       "Name a funder that is not in Grants.gov or the IRS filings.",
@@ -133,7 +133,7 @@ export const capabilities: Capability[] = [
       { label: "What a draft may use", body: "Facts you confirmed, documents you uploaded, and the funder's notice or 990-PF filing. Nothing else. Your profile can hold a short note about your voice." },
       { label: "Checks", body: "Citation check, number check, compliance check for limits and required sections, and reviewer notes. A failed check becomes a marked gap, not a silent fix." },
       { label: "Export", body: "DOCX and PDF. An unanswered gap is printed as a clear NEED marker so it cannot slip through to a funder." },
-      { label: "On each plan", body: "Free includes one letter of inquiry. Starter includes three full proposals a month. Growth has no proposal limit." },
+      { label: "Cost", body: "Free. Each workspace can draft 50 letters, proposals, or bid responses a month." },
     ],
     never: [
       "Invent a number, a quote, an outcome, or a partner.",

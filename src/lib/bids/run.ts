@@ -1,4 +1,5 @@
 import { sha1Hex } from "@/lib/hash";
+import { UsageLimitError } from "@/lib/usage/limits";
 import { AiError, aiErrorMessage } from "@/lib/ai";
 import { hasAi } from "@/lib/env";
 import { replayActive } from "@/lib/replay/active";
@@ -28,12 +29,13 @@ import type { BidStore } from "./store";
  * adds a tidier matrix and a written cover letter, qualifications, and
  * approach.
  */
-export type BidResult<T> = { ok: true; data: T } | { ok: false; code: "not_found" | "no_text" | "failed" | "no_ai"; error: string };
+export type BidResult<T> = { ok: true; data: T } | { ok: false; code: "not_found" | "no_text" | "failed" | "no_ai" | "usage_limit"; error: string };
 
 const factLabel = (f: Fact) => f.sourceLabel ?? (f.sourceUrl ? sourceLabelFor(f.sourceUrl) : "Source");
 const modelAvailable = () => hasAi() || replayActive();
 
 function fail(err: unknown): BidResult<never> {
+  if (err instanceof UsageLimitError) return { ok: false, code: "usage_limit", error: err.message };
   if (err instanceof AiError) return { ok: false, code: "failed", error: aiErrorMessage(err).message };
   return { ok: false, code: "failed", error: "Something went wrong on our side. Try again, and if it keeps happening, tell us." };
 }
@@ -203,7 +205,7 @@ export async function draftBid(store: BidStore, applicationId: string, jobId?: s
       if (jobId) finishJob(jobId, "failed");
       return { ok: false, code: "not_found", error: "We could not find that bid." };
     }
-    const { output } = await recordRun(store, { agent: "proposal", title: `Draft the proposal for ${ctx.opportunity.title}`, trigger: "user" }, async (rec) => {
+    const { output } = await recordRun(store, { agent: "proposal", title: `Draft the proposal for ${ctx.opportunity.title}`, trigger: "user", usage: "draft" }, async (rec) => {
       const [org, records, user, reqs, addenda, pages] = await Promise.all([store.getOrg(), store.firmRecords(), store.currentUser(), store.listRequirements(applicationId), store.listAddenda(applicationId), store.rfpPages(ctx.opportunity.id)]);
       let meta = await store.getBidMeta(applicationId);
       if (!meta) {

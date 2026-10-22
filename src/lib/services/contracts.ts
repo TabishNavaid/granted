@@ -1,3 +1,4 @@
+import type { UsageSummary } from "@/lib/usage/limits";
 import type {
   ContactKind,
   EmailKind,
@@ -24,7 +25,6 @@ import type {
   Fact,
   Funder,
   InboxItem,
-  Invoice,
   MatchView,
   Member,
   Milestone,
@@ -37,7 +37,6 @@ import type {
   PlanItem,
   ProposalWorkspace,
   Section,
-  Subscription,
   AgentAutonomy,
   AgentName,
   BoilerplateVersion,
@@ -318,16 +317,9 @@ export interface ActivityService {
   getRun(id: string): Promise<AgentRun | null>;
 }
 
-export interface BillingService {
-  getSubscription(): Promise<Subscription>;
-  listInvoices(): Promise<Invoice[]>;
-  /** Without Stripe: switches the plan in place (free only, or demo). With Stripe: use checkoutUrl instead. */
-  changePlan(plan: Subscription["plan"]): Promise<Subscription>;
-  /** Stripe Checkout for a paid plan, when Stripe is connected. */
-  checkoutUrl(plan: "starter" | "growth"): Promise<LoopResult<{ url: string }>>;
-  portalUrl(): Promise<LoopResult<{ url: string }>>;
-  /** Can this workspace do one more of these under its plan? */
-  canUse(what: "proposal" | "match"): Promise<{ ok: boolean; message: string | null }>;
+export interface AccountService {
+  /** This month's AI allowance, e.g. "You have used 12 of 50 drafts this month." */
+  getUsage(): Promise<UsageSummary>;
   getNotificationSettings(): Promise<NotificationSettings>;
   updateNotificationSettings(patch: Partial<NotificationSettings>): Promise<NotificationSettings>;
 }
@@ -344,7 +336,7 @@ export interface AuthService {
 }
 
 /** The real loop: website to facts to matches to a letter. Results carry kind, honest errors for the UI. */
-export type LoopErrorCode = "bad_url" | "unreachable" | "no_ai" | "rate_limited" | "no_facts" | "grants_gov" | "not_found" | "failed";
+export type LoopErrorCode = "bad_url" | "unreachable" | "no_ai" | "rate_limited" | "no_facts" | "grants_gov" | "not_found" | "usage_limit" | "failed";
 export type LoopResult<T> = { ok: true; data: T } | { ok: false; code: LoopErrorCode; error: string };
 
 export interface RuntimeInfo {
@@ -472,7 +464,7 @@ export interface Services {
   inbox: InboxService;
   calendar: CalendarService;
   activity: ActivityService;
-  billing: BillingService;
+  account: AccountService;
   auth: AuthService;
   loop: LoopService;
   demo: DemoService;

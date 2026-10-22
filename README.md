@@ -11,7 +11,7 @@ Next.js (App Router) · TypeScript · Tailwind CSS v4 · Supabase · Gemini · P
 - **Private foundations from IRS 990-PF filings.** 390 foundations in Ohio, Kentucky, and North Carolina (public domain IRS data; see [docs/foundations-data.md](docs/foundations-data.md)), matched in plain code beside Grants.gov, with funder pages, trustees, peer organizations, "funders like you", suggested asks, and scholarship matching.
 - **Grounded drafting.** Letters and proposal sections cite confirmed facts only. Unknown citations and unsourced numbers become highlighted gaps with a question attached; answering one saves the fact and redrafts the paragraph.
 - **Proposal workspace.** TipTap editor with citation and gap nodes, reviewer check, budget, versions, milestones, and DOCX export.
-- **Integrations.** Gmail and Outlook sending, Google Calendar push and an ICS feed, Stripe Checkout and portal, and a weekly digest through Resend.
+- **Integrations.** Gmail and Outlook sending, Google Calendar push and an ICS feed, and a weekly digest through Resend.
 - **Cost tracking.** Every model call is logged with token counts and cost on the Activity screen.
 
 - **Four kinds of applicant.** Setup asks who is applying first (nonprofit, firm, research team, individual) and every later step adapts. Opportunities have a kind (grant, contract or bid, research funding, scholarship) with its own stages, sections, dates, and eligibility rules, all in one registry (`src/lib/segments`).
@@ -66,7 +66,7 @@ npm run loop -- riverbendyouth.org   # run onboarding, discovery, and the letter
 | `src/lib/ai` | One `AiProvider` interface, the Gemini implementation with structured output and rate-limit backoff, and the price table. |
 | `src/lib/loop` | Profile extraction, discovery, drafting with citation and number checks, and the features built on them. |
 | `src/lib/crawl`, `src/lib/grantsgov` | Website reader and Grants.gov client. |
-| `src/lib/integrations` | OAuth, Gmail, Outlook, Google Calendar, Stripe, and email adapters. |
+| `src/lib/integrations` | OAuth, Gmail, Outlook, Google Calendar, and email adapters. |
 | `src/lib/agents` | Tool schemas and typed contracts for agents that still run on stubs. |
 | `src/lib/segments` | The registry of applicant types and opportunity kinds, setup and discovery for firms, research teams, and individuals. |
 | `src/lib/bids` | RFP reader, compliance matrix, go/no-go, project and personnel selection, sections built from records, SF 330 and its Word export, fee structure, addenda, and the bid workflow over a store. |

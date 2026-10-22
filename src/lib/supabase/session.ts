@@ -47,7 +47,6 @@ export async function getSession(): Promise<SessionContext | null> {
   const { data: org, error } = await db.from("organizations").insert({ name: orgName, onboarding_step: "start" }).select("id").single();
   if (error || !org) throw new Error(`Could not create the organization: ${error?.message}`);
   await db.from("org_members").insert({ org_id: org.id, user_id: user.id, invited_email: email, role: "owner", status: "active" });
-  await db.from("subscriptions").insert({ org_id: org.id, plan: "free", status: "active", seats: 1 });
   await db.from("notification_settings").insert({ org_id: org.id });
   return { userId: user.id, email, fullName, orgId: org.id as string };
 }

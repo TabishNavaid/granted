@@ -1,21 +1,12 @@
 import { EMAIL, PRODUCT_NAME } from "@/lib/brand";
 
 /**
- * Site copy: FAQ, founder note, security page, legal drafts, and pricing.
+ * Site copy: FAQ, founder note, security page, legal drafts, and the free page.
  * Plain text only. Square brackets mark details the founders fill in.
  */
 
 export type FaqItem = { q: string; a: string };
 export type Section = { heading: string; body: string[] };
-export type PricingTier = {
-  name: string;
-  price: string;
-  period: string;
-  who: string;
-  includes: string[];
-  cta: string;
-  note?: string;
-};
 
 export const faq: FaqItem[] = [
   {
@@ -43,8 +34,8 @@ export const faq: FaqItem[] = [
     a: "We do not have measured numbers yet. What it removes is the blank page and the hunt for your own facts. You still read the funder's guidelines, check each citation, edit the draft, and submit. Expect to spend real time reviewing. A solid draft in an afternoon is the goal.",
   },
   {
-    q: "What does it cost, and what happens if we cannot pay?",
-    a: "Free is $0 and includes your profile, five matches a month, and one drafted letter of inquiry. Starter is $29 a month and Growth is $79 a month. If you stop paying, your workspace drops to Free and you keep your data. We are also looking at a plan for organizations with no cash, described on the pricing page.",
+    q: "What does it cost?",
+    a: "Nothing during early access. There is no paid plan and no card. Each workspace has a monthly allowance of AI work, which covers what the model costs us. Searching the opportunity database never counts against it."
   },
   {
     q: "What if the draft is wrong or sounds nothing like us?",
@@ -141,7 +132,6 @@ export const privacySections: Section[] = [
       "Account details: your email address and name, and your Google account identifier if you sign in with Google.",
       "Workspace content: your organization's profile, the website pages and documents you give us, the drafts and matches we create, and your calendar entries.",
       "Usage data: pages visited, features used, browser type, and approximate location from your IP address. We use it to run and improve the service.",
-      "Payment details on paid plans are collected by Stripe. We never see your full card number.",
     ],
   },
   {
@@ -162,7 +152,7 @@ export const privacySections: Section[] = [
   {
     heading: "Sharing with providers",
     body: [
-      "We share data only with the providers needed to run the service: Supabase for hosting and database, Google for AI processing, Stripe for payments, and an email provider for sign-in links and notifications. Each is bound by its own terms and acts on our instructions.",
+      "We share data only with the providers needed to run the service: Supabase for hosting and the database, Vercel for serving the website, Google for AI processing, and Resend for sign-in links and notifications. Each is bound by its own terms and acts on our instructions.",
       "We may disclose data when the law requires it, or to protect the rights and safety of users. We will tell you when we are allowed to.",
     ],
   },
@@ -170,7 +160,7 @@ export const privacySections: Section[] = [
     heading: "How long we keep it",
     body: [
       "Your workspace content stays as long as your account exists. Deleted workspaces are removed from live systems at once and from backups within [30] days.",
-      "Usage logs are kept for [12 months]. Billing records are kept as long as tax law requires.",
+      "Usage logs are kept for [12 months].",
     ],
   },
   {
@@ -178,7 +168,7 @@ export const privacySections: Section[] = [
     body: [
       "You can see, edit, export, and delete your workspace content yourself in the app. You can delete your whole account from settings.",
       `Depending on where you live, you may have rights to access, correct, or delete personal data, or to object to how it is used. Email ${EMAIL.privacy} and we will respond within [30 days].`,
-      "You can turn off the digest and other reminder emails at any time. Sign-in and billing emails are part of running your account.",
+      "You can turn off the digest and other reminder emails at any time. Sign-in and security emails are part of running your account.",
     ],
   },
   {
@@ -242,10 +232,10 @@ export const termsSections: Section[] = [
     ],
   },
   {
-    heading: "Payment and plans",
+    heading: "Cost",
     body: [
-      "The Free plan costs nothing and needs no card. Paid plans are billed monthly through Stripe at the price shown when you subscribe. You can cancel at any time and keep access until the end of the paid period.",
-      "If a payment fails, we will try again and email you. After [14 days] your workspace moves to the Free plan. Your data stays. We will give at least 30 days' notice before changing a price.",
+      `${PRODUCT_NAME} is free during early access. There are no paid plans and we collect no payment details. Each workspace has a monthly allowance of AI work, shown in settings.`,
+      `If we ever introduce paid plans, we will email account holders at least 30 days before any charge applies. Nothing will be charged without your agreement, and you can export your work at any time.`,
     ],
   },
   {
@@ -257,14 +247,14 @@ export const termsSections: Section[] = [
   {
     heading: "Liability",
     body: [
-      `The service is provided as is, without warranties beyond those the law requires. To the extent the law allows, ${PRODUCT_NAME} is not liable for lost funding, lost revenue, or indirect damages arising from your use of the service. Our total liability is limited to the amount you paid us in the 12 months before the claim.`,
+      `The service is provided as is, without warranties beyond those the law requires. To the extent the law allows, ${PRODUCT_NAME} is not liable for lost funding, lost revenue, or indirect damages arising from your use of the service. Because the service is free, our total liability is limited to [$100].`,
       "Nothing here limits liability that cannot be limited by law.",
     ],
   },
   {
     heading: "Governing law and contact",
     body: [
-      "These terms are governed by the laws of [State]. Disputes will be handled in the courts of [County, State]. Questions about these terms go to [legal@yourdomain]. We may update these terms. We will email account holders before material changes take effect.",
+      `These terms are governed by the laws of [State]. Disputes will be handled in the courts of [County, State]. Questions about these terms go to ${EMAIL.hello}. We may update these terms. We will email account holders before material changes take effect.`,
     ],
   },
 ];
@@ -272,79 +262,3 @@ export const termsSections: Section[] = [
 export const legalNotice =
   "This page is a draft. It needs review by a lawyer before launch and is not yet a binding agreement.";
 
-export const pricingTiers: PricingTier[] = [
-  {
-    name: "Free",
-    price: "$0",
-    period: "no card needed",
-    who: "Anyone, for as long as you like",
-    includes: [
-      "Organization profile built from your website",
-      "5 grant matches a month",
-      "1 drafted letter of inquiry",
-      "Every fact cited to its source",
-    ],
-    cta: "Start free",
-    note: "Drafting on every plan goes through the same Gemini API key. Whether Google may use prompts to improve its products depends on that key's tier. See the Security page.",
-  },
-  {
-    name: "Starter",
-    price: "$29",
-    period: "a month",
-    who: "Organizations under $250K a year",
-    includes: [
-      "Everything in Free",
-      "Unlimited matches",
-      "3 full proposals a month",
-      "Deadline calendar",
-      "Funder email drafts you send yourself",
-    ],
-    cta: "Choose Starter",
-    note: "Paid prices are drafts we are testing with early users. They may change.",
-  },
-  {
-    name: "Growth",
-    price: "$79",
-    period: "a month",
-    who: "Organizations between $250K and $1M a year",
-    includes: [
-      "Everything in Starter",
-      "Unlimited full proposals",
-      "3 seats for your team",
-      "Connections and social posts, as each one ships",
-    ],
-    cta: "Choose Growth",
-  },
-  {
-    name: "Success plan",
-    price: "Coming later",
-    period: "",
-    who: "Organizations with no cash on hand",
-    includes: [
-      "Everything in Growth",
-      "A low monthly base",
-      "A small share of awards, paid only on grants you win",
-    ],
-    cta: "Tell us you are interested",
-    note: "We are still deciding on this plan. Many funders and fundraising ethics codes restrict paying a percentage of a grant. We are checking with an advisor and with early users before offering it.",
-  },
-];
-
-export const pricingFaq: FaqItem[] = [
-  {
-    q: "Can we switch plans?",
-    a: "Yes, at any time from settings. Moving up takes effect right away and is charged for the rest of the month. Moving down or cancelling takes effect at the end of the paid period. Your data stays on every plan.",
-  },
-  {
-    q: "What counts as a proposal?",
-    a: "A full proposal is a complete application draft for one funding opportunity, including the narrative sections the funder asks for. Each application you start counts once, whether it is a letter of inquiry or a full proposal. Re-drafting it does not count again. Funder emails do not count.",
-  },
-  {
-    q: "Is there a nonprofit discount?",
-    a: `No. Every plan is already priced for small nonprofits, so there is no separate discount. If a fiscal sponsor, community foundation, or incubator wants seats for a cohort, write to us at [hello@yourdomain] and we will work something out.`,
-  },
-  {
-    q: "What if we cannot afford it?",
-    a: "Start on Free. It is not a trial and it does not expire. If you need more than Free offers and have no budget, tell us at [hello@yourdomain]. We are looking at a plan with a low base and a small fee only on grants won. We want to hear from you before we set it.",
-  },
-];

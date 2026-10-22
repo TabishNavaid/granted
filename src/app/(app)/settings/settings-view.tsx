@@ -2,10 +2,11 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import type { AgentAutonomy, AgentName, Invoice, Member, NotificationSettings, Organization, PlanTier, ReminderPreview, Subscription } from "@/lib/types";
+import type { AgentAutonomy, AgentName, Member, NotificationSettings, Organization, ReminderPreview } from "@/lib/types";
+import type { UsageSummary } from "@/lib/usage/limits";
+import { EMAIL } from "@/lib/brand";
 import { services } from "@/lib/services";
-import { cn } from "@/lib/utils";
-import { formatDate, formatMoney } from "@/lib/format";
+import { formatDate } from "@/lib/format";
 import { PageContainer, PageHeader } from "@/components/app/page-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,6 @@ import { Field, Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { DataTable, type Column } from "@/components/ui/data-table";
 import { Avatar } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/toast";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -24,20 +24,12 @@ import { PreviewRole } from "./preview-role";
 
 type Digest = { subject: string; body: string; to: string; canSend: boolean };
 
-const plans: { tier: PlanTier; name: string; price: string; who: string; includes: string[] }[] = [
-  { tier: "free", name: "Free", price: "$0", who: "Try it out", includes: ["Profile and knowledge base", "5 matches a month", "1 drafted letter of inquiry"] },
-  { tier: "starter", name: "Starter", price: "$29", who: "Orgs under $250K", includes: ["Unlimited matches", "3 full proposals a month", "Deadline calendar", "Funder email drafts"] },
-  { tier: "growth", name: "Growth", price: "$79", who: "Orgs $250K to $1M", includes: ["Everything in Starter", "Unlimited proposals", "Connections and Social (coming)", "3 seats"] },
-];
-
 interface SettingsViewProps {
   org: Organization;
   members: Member[];
-  subscription: Subscription;
-  invoices: Invoice[];
+  usage: UsageSummary;
   notifications: NotificationSettings;
   initialTab?: string;
-  stripe: boolean;
   icsUrl: string;
   currentUserId: string;
   currentRole: Member["role"];
@@ -46,10 +38,10 @@ interface SettingsViewProps {
   demo: boolean;
 }
 
-export function SettingsView({ org, members: initialMembers, subscription: initialSub, invoices, notifications: initialNotif, initialTab, stripe, icsUrl, currentUserId, currentRole, autonomy, outbox: initialOutbox, demo }: SettingsViewProps) {
+export function SettingsView({ org, members: initialMembers, usage, notifications: initialNotif, initialTab, icsUrl, currentUserId, currentRole, autonomy, outbox: initialOutbox, demo }: SettingsViewProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const [tab, setTab] = React.useState(initialTab && ["workspace", "team", "agents", "notifications", "billing"].includes(initialTab) ? initialTab : "workspace");
+  const [tab, setTab] = React.useState(initialTab && ["workspace", "team", "agents", "notifications", "usage"].includes(initialTab) ? initialTab : "workspace");
   const [outbox, setOutbox] = React.useState(initialOutbox);
   const [digest, setDigest] = React.useState<Digest | null>(null);
   const [digestLoading, setDigestLoading] = React.useState(false);
@@ -57,7 +49,6 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
   const [linkCopied, setLinkCopied] = React.useState(false);
   const [inviting, setInviting] = React.useState(false);
   const [members, setMembers] = React.useState(initialMembers);
-  const [sub, setSub] = React.useState(initialSub);
   const [notif, setNotif] = React.useState(initialNotif);
   const [inviteEmail, setInviteEmail] = React.useState("");
   const [inviteRole, setInviteRole] = React.useState<Member["role"]>("reviewer");
@@ -65,7 +56,7 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
   const updateNotif = async (patch: Partial<NotificationSettings>) => {
     setNotif((n) => ({ ...n, ...patch }));
     try {
-      await services.billing.updateNotificationSettings(patch);
+      await services.account.updateNotificationSettings(patch);
       setOutbox(await services.calendar.reminderOutbox());
     } catch (err) {
       toast({ title: "Not saved", description: err instanceof Error ? err.message : "Try again in a moment.", tone: "warning" });
@@ -93,31 +84,16 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
     }
   };
 
-  const invoiceColumns: Column<Invoice>[] = [
-    { key: "date", header: "Date", cell: (i) => formatDate(i.date) },
-    { key: "amount", header: "Amount", align: "right", cell: (i) => formatMoney(i.amount) },
-    { key: "status", header: "Status", cell: (i) => (
-      i.status === "paid" ? <span className="text-ink-muted">Paid</span>
-      : i.status === "open" ? <span className="font-semibold text-ink">Open</span>
-      : <span className="font-semibold text-alert">Failed</span>
-    ) },
-    { key: "pdf", header: <span className="sr-only">Download</span>, align: "right", cell: () => (
-      <Button variant="ghost" size="sm" onClick={() => toast({ title: "Invoices come from Stripe", description: "They'll be here once billing is hooked up.", tone: "info" })}>
-        Download PDF
-      </Button>
-    ) },
-  ];
-
   return (
     <PageContainer>
-      <PageHeader title="Settings" description="Workspace, team, agents, notifications, and billing." />
+      <PageHeader title="Settings" description="Workspace, team, agents, notifications, and usage." />
       <Tabs value={tab} onValueChange={setTab} className="mt-6">
         <TabsList variant="line" aria-label="Settings sections">
           <TabsTrigger value="workspace">Workspace</TabsTrigger>
           <TabsTrigger value="team">Team</TabsTrigger>
           <TabsTrigger value="agents">Agents</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
-          <TabsTrigger value="billing">Billing</TabsTrigger>
+          <TabsTrigger value="usage">Usage</TabsTrigger>
           <TabsTrigger value="integrations" asChild>
             <a href="/settings/integrations">Integrations</a>
           </TabsTrigger>
@@ -366,94 +342,25 @@ export function SettingsView({ org, members: initialMembers, subscription: initi
           </section>
         </TabsContent>
 
-        <TabsContent value="billing">
-          <div className="grid gap-10 lg:grid-cols-[1fr_18rem]">
-            <div className="min-w-0">
-              <ul className="border-t border-rule">
-                {plans.map((p) => {
-                  const current = sub.plan === p.tier;
-                  return (
-                    <li key={p.tier} className="grid gap-4 border-b border-rule py-5 sm:grid-cols-[8rem_1fr_auto]">
-                      <div>
-                        <h3 className="font-display text-2xl text-ink">{p.name}</h3>
-                        <p className="mt-1 font-display text-3xl text-ink tnum">
-                          {p.price}
-                          <span className="ml-1 font-body text-sm font-normal text-ink-muted">/month</span>
-                        </p>
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm text-ink-muted">{p.who}</p>
-                        <p className="mt-1 max-w-[50ch] text-base text-ink">{p.includes.join(", ")}.</p>
-                      </div>
-                      <div className="sm:justify-self-end sm:pt-1">
-                        {current ? (
-                          <span className="font-semibold text-ink">Your plan</span>
-                        ) : (
-                          <Button
-                            variant={p.tier === "free" ? "secondary" : "primary"}
-                            size="sm"
-                            onClick={async () => {
-                              if (stripe && p.tier !== "free") {
-                                const r = await services.billing.checkoutUrl(p.tier);
-                                if (!r.ok) return toast({ title: "Could not open checkout", description: r.error, tone: "warning" });
-                                window.location.assign(r.data.url);
-                                return;
-                              }
-                              const next = await services.billing.changePlan(p.tier);
-                              setSub(next);
-                              toast({ title: `Switched to ${p.name}`, description: stripe ? "Your subscription is updated." : "Stripe is not connected on this server, so the plan switched in place." });
-                            }}
-                          >
-                            {p.tier === "free" ? "Downgrade" : "Choose " + p.name}
-                          </Button>
-                        )}
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-              <p className="mt-3 max-w-[65ch] text-sm text-ink-muted">Prices are placeholders while we test with early users. Success-fee plans are on hold until we are sure funders allow them.</p>
-              <h2 className="mt-12 font-display text-2xl text-ink">Invoices</h2>
-              <DataTable className="mt-4" columns={invoiceColumns} rows={invoices} rowKey={(i) => i.id} caption="Invoices" dense />
-            </div>
-            <aside className="flex flex-col gap-10">
-              <div className="border-t border-rule pt-4">
-                <h2 className="font-display text-xl text-ink">This month</h2>
-                <div className="mt-4">
-                  <div className="flex justify-between gap-4 text-sm">
-                    <span className="text-ink">Full proposals</span>
-                    <span className="text-ink-muted tnum">
-                      {sub.usage.proposalsThisMonth} of {sub.usage.proposalLimit ?? "unlimited"}
-                    </span>
-                  </div>
-                  {sub.usage.proposalLimit ? <Progress value={Math.min(100, (sub.usage.proposalsThisMonth / sub.usage.proposalLimit) * 100)} className="mt-2" aria-label="Proposals used" /> : null}
-                </div>
-                <div className="mt-4 flex justify-between gap-4 text-sm">
-                  <span className="text-ink">Matches</span>
-                  <span className="text-ink-muted tnum">
-                    {sub.usage.matchesThisMonth} of {sub.usage.matchLimit ?? "unlimited"}
-                  </span>
-                </div>
-                <p className="mt-4 text-sm text-ink-muted">Renews {formatDate(sub.currentPeriodEnd)}.</p>
-              </div>
-              <div className="border-t border-rule pt-4">
-                <h2 className="font-display text-xl text-ink">Payment and invoices</h2>
-                <p className="mt-3 text-base text-ink-muted">{stripe ? "Cards, invoices, and cancellation are handled in the Stripe billing portal." : "Stripe is not connected on this server. The Free plan works without it."}</p>
-                <Button
-                  variant="link"
-                  size="sm"
-                  className={cn("mt-2")}
-                  onClick={async () => {
-                    const r = await services.billing.portalUrl();
-                    if (!r.ok) return toast({ title: "Billing portal", description: r.error, tone: "info" });
-                    window.location.assign(r.data.url);
-                  }}
-                >
-                  Open the billing portal
-                </Button>
-              </div>
-            </aside>
-          </div>
+        <TabsContent value="usage">
+          <section aria-labelledby="usage-title" className="max-w-2xl">
+            <h2 id="usage-title" className="font-display text-2xl text-ink">
+              This month
+            </h2>
+            <p className="mt-1 max-w-[60ch] text-base text-ink-muted">
+              FundFellows is free. Each workspace has a monthly allowance of AI work, which covers what the model behind it costs us. The count starts again on {formatDate(usage.resetsOn)}.
+            </p>
+            <ul className="mt-6 border-t border-rule">
+              {usage.lines.map((line) => (
+                <li key={line.kind} className="border-b border-rule py-5">
+                  <p className="text-base font-semibold text-ink tnum">{line.sentence}</p>
+                  <Progress value={Math.min(100, (line.used / line.limit) * 100)} className="mt-3 max-w-md" aria-label={line.sentence} />
+                  <p className="mt-2 text-sm text-ink-muted">{line.what}</p>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4 max-w-[60ch] text-sm text-ink-muted">Searching the opportunity database, the calendar, and exports never count. If you reach a limit and need more this month, write to {EMAIL.support}.</p>
+          </section>
         </TabsContent>
       </Tabs>
       <Dialog open={!!digest} onOpenChange={(o) => !o && setDigest(null)}>

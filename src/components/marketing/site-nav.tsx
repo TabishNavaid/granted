@@ -13,7 +13,7 @@ const links = [
   { href: "/product", label: "Product" },
   { href: "/how-it-works", label: "How it works" },
   { href: "/who-its-for", label: "Who it's for" },
-  { href: "/pricing", label: "Pricing" },
+  { href: "/free", label: "Free" },
 ];
 
 /** The audience pages, listed under "Who it's for" in the nav and the footer. */
@@ -181,7 +181,7 @@ const footerGroups = [
     title: "Learn",
     links: [
       { href: "/how-it-works", label: "How it works" },
-      { href: "/pricing", label: "Pricing" },
+      { href: "/free", label: "Free while we learn" },
       { href: "/roadmap", label: "Roadmap" },
       { href: "/onboarding", label: "Try the demo" },
     ],

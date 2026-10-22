@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
   images: { qualities: [75, 90] },
   // pdf-parse and cheerio run on the server only and should not be bundled.
   serverExternalPackages: ["pdf-parse"],
+  async redirects() {
+    return [{ source: "/pricing", destination: "/free", permanent: true }];
+  },
   turbopack: {
     rules: {
       "*.css": {

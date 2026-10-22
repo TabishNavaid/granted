@@ -124,11 +124,6 @@ export function IntegrationsView({ status, connections: initial, demo, notice }:
               </Button>
             )
           ) : null}
-          {s.id === "stripe" && s.present ? (
-            <Button asChild variant="secondary" size="sm">
-              <Link href="/settings?tab=billing">Open billing</Link>
-            </Button>
-          ) : null}
         </div>
       </li>
     );

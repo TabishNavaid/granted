@@ -14,7 +14,7 @@ import { map, many, must, toMatchViews } from "./supabase";
  * runs; writes go to the tables in migration 0004.
  */
 type Row = Record<string, unknown>;
-type Base = Pick<Services, "org" | "knowledge" | "opportunities" | "applications" | "inbox" | "calendar" | "outreach" | "contacts" | "social" | "integrations" | "billing">;
+type Base = Pick<Services, "org" | "knowledge" | "opportunities" | "applications" | "inbox" | "calendar" | "outreach" | "contacts" | "social" | "integrations" | "account">;
 
 const DEFAULT_AUTONOMY: Record<AgentName, AgentAutonomy> = { profile: "draft", discovery: "draft", planner: "draft", proposal: "draft", outreach: "draft", calendar: "schedule" };
 const today = () => new Date().toISOString().slice(0, 10);
@@ -56,7 +56,7 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
   }
 
   const requireOwner = async () => {
-    if ((await base.org.currentUser()).role !== "owner") throw new Error("Only the workspace owner can change the team, billing, or the workspace itself.");
+    if ((await base.org.currentUser()).role !== "owner") throw new Error("Only the workspace owner can change the team or the workspace itself.");
   };
   const org = {
     async inviteMember(email: string, role: Member["role"]) {
@@ -276,7 +276,7 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
   const calendar = {
     async reminderOutbox() {
       const x = await snapshot();
-      const settings = await base.billing.getNotificationSettings();
+      const settings = await base.account.getNotificationSettings();
       const reminders = reminderOutbox({ milestones: x.milestones, settings, today: today(), to: x.s.email, titleFor: (m) => x.apps.find((a) => a.id === m.applicationId)?.opportunity.title ?? "an application" });
       return { reminders, canSend: Boolean(process.env.RESEND_API_KEY && process.env.CRON_SECRET) };
     },

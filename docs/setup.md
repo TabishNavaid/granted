@@ -109,28 +109,6 @@ EMAIL_FROM=FundFellows <no-reply@fundfellows.com>
 NEXT_PUBLIC_CONTACT_EMAIL=hello@your-domain.example
 ```
 
-### Stripe
-
-Starter and Growth plans through Checkout, and the customer portal. The Free plan and its limits work without it. The app calls the Stripe REST API directly; no SDK is installed.
-
-1. In test mode, create Starter and Growth products with monthly recurring prices and copy each `price_` ID.
-2. Copy the secret key (`sk_test_`) from Developers → API keys.
-3. Webhook:
-   - Locally: `stripe listen --forward-to localhost:3000/api/stripe/webhook` and use the `whsec_` it prints.
-   - Deployed: add an endpoint at `https://your-domain.example/api/stripe/webhook` for `checkout.session.completed`, `customer.subscription.updated`, and `customer.subscription.deleted`.
-4. Settings → Billing → Customer portal: allow payment method updates, invoices, and cancellation. The portal is configured per mode.
-
-```
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-STRIPE_PRICE_STARTER=price_...
-STRIPE_PRICE_GROWTH=price_...
-```
-
-Check: on `/settings` → Billing, buy Starter with `4242 4242 4242 4242`. The plan changes once `checkout.session.completed` arrives; cancelling in the portal returns it to Free. If payment succeeds but the plan doesn't change, the webhook secret is almost always the cause. The webhook answers 400 only on a bad signature.
-
-For production, repeat with live mode off: live prices, `sk_live_` key, a live webhook endpoint, and live portal settings, set only in the deployed environment.
-
 ### Weekly digest
 
 `GET /api/cron/digest` emails each workspace its new matches and deadlines in the next 14 days. It requires a secret, sent as `Authorization: Bearer <secret>` or `?secret=`, and Resend.

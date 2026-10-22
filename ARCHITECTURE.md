@@ -49,7 +49,7 @@ The full schema is in `supabase/migrations/0001_init.sql`. Every org-scoped tabl
 | email_drafts | Outreach drafts the user sends themselves | No send path exists in P0 |
 | outcomes | Won, lost, no response, withdrawn, with award and feedback | Feeds the planner |
 | monthly_plans, inbox_items, agent_runs | Orchestration | `inbox_items.payload` is a typed JSON union (see `InboxPayload`) |
-| subscriptions, notification_settings | Billing and preferences | Stripe ids live here |
+| notification_settings | Preferences | Digest and reminder switches |
 
 TypeScript types in `src/lib/types/index.ts` mirror these tables in camelCase. The Supabase adapter is the only place that maps column names.
 
@@ -79,8 +79,7 @@ All routes are under `/api` and are thin: validate input, check membership, call
 | GET /api/plans/current, PATCH /api/plans/:id/items | Monthly plan decisions |
 | GET /api/milestones, PATCH /api/milestones/:id | Calendar |
 | GET /api/agent-runs, GET /api/agent-runs/:id | Activity log |
-| GET /api/billing, POST /api/billing/checkout, POST /api/billing/portal | Stripe |
-| POST /api/webhooks/stripe, POST /api/webhooks/jobs | Inbound webhooks |
+| POST /api/webhooks/jobs | Inbound webhooks |
 | POST /api/team/invite | Invite a teammate |
 
 ## 4. Agents
@@ -131,5 +130,5 @@ Jobs run on Inngest or Trigger.dev (either works; the contract is a named event 
 9. Outreach agent and email drafts.
 10. Pipeline stages and outcomes; feed outcomes into the planner's scoring.
 11. Export: DOCX and PDF rendering with citation chips stripped and gaps marked.
-12. Stripe: plans, checkout, portal, webhook, usage limits enforced in the job runner.
+12. Usage: a monthly allowance of AI work per workspace (src/lib/usage/limits.ts), enforced where every run is recorded.
 13. Eval set: ten real past proposals from early users; run the Proposal agent against them on every prompt change and track draft acceptance rate.
