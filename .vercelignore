@@ -1,0 +1,16 @@
+# Only what the build needs goes to Vercel. Private notes, local data, and tests stay here.
+.env*
+!.env.example
+*.md
+!README.md
+docs/
+eval/
+tests/
+test-results/
+playwright-report/
+supabase/.temp/
+supabase/.branches/
+.ingest-cache/
+.cache/
+scripts/_*
+.claude/
