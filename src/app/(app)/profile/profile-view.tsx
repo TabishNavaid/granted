@@ -383,7 +383,7 @@ export function ProfileView({ org: initialOrg, facts: initialFacts, boilerplates
                       <select
                         id={`doctype-${d.id}`}
                         value={d.type}
-                        className="-ml-0.5 rounded-sm border border-transparent bg-transparent pr-1 text-sm text-ink-muted hover:border-rule focus-visible:outline-2 focus-visible:outline-focus"
+                        className="-ml-0.5 min-h-6 rounded-sm border border-transparent bg-transparent py-0.5 pr-1 text-sm text-ink-muted hover:border-rule focus-visible:outline-2 focus-visible:outline-focus"
                         onChange={async (e) => {
                           const type = e.target.value as Document["type"];
                           try {

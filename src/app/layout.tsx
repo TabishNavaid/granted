@@ -42,8 +42,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <ToastProvider>{children}</ToastProvider>
           </TooltipProvider>
         </ThemeProvider>
-        {/* Page views only, no cookies. Active on Vercel; does nothing elsewhere. */}
-        <Analytics />
+        {/* Page views only, no cookies. Only on Vercel, which serves the script. */}
+        {process.env.VERCEL ? <Analytics /> : null}
       </body>
     </html>
   );

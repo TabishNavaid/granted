@@ -48,6 +48,7 @@ function irsFetch(calls: string[] = []): PoliteFetch {
 }
 
 const ENV = {
+  IRS_990PF_MIN_GIVING: "25000",
   IRS_BMF_DIR: fx("bmf"),
   IRS_SOI_PF_FILES: `${fx("soi-24eoextract990pf.csv")},${fx("soi-23eoextract990pf.csv")}`,
   IRS_EFILE_INDEX_FILES: `2025=${fx("index_2025-slice.csv")},2026=${fx("index_2026-slice.csv")}`,

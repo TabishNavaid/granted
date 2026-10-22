@@ -2,9 +2,9 @@ import { expect, test } from "@playwright/test";
 
 /** Every P0 route renders without a console error and shows its main heading. */
 const routes: { path: string; heading: RegExp }[] = [
-  { path: "/", heading: /grants, bids, and scholarships from your own records/i },
+  { path: "/", heading: /grant and public bid you qualify for/i },
   { path: "/free", heading: /free while we learn/i },
-  { path: "/about", heading: /people doing the work/i },
+  { path: "/about", heading: /a fellow on your side of the table/i },
   { path: "/security", heading: /handle your data/i },
   { path: "/privacy", heading: /privacy policy/i },
   { path: "/terms", heading: /terms of service/i },
@@ -49,7 +49,7 @@ for (const r of routes) {
   });
 }
 
-test("inbox approve opens a flower, files the item, and offers undo", async ({ page }) => {
+test("inbox approve marks the item approved, files it, and offers undo", async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem("inbox_tour_seen", "1"));
   await page.goto("/inbox");
   const card = page.getByRole("article").filter({ has: page.getByRole("button", { name: /^(approve|save|update|add to)/i }) }).first();
@@ -79,13 +79,13 @@ test("inbox previews read their numbers from the data", async ({ page }) => {
   await expect(page.getByText("Average attendance across all sites, 2025-26: 89%")).toBeVisible();
 });
 
-test("marking a grant won fills the screen with a meadow", async ({ page }) => {
+test("marking a grant won opens the won screen", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/pipeline");
   await page.getByRole("button", { name: /^actions for /i }).first().click();
   await page.getByRole("menuitem", { name: /^won$/i }).click();
   await page.getByRole("button", { name: /^save outcome$/i }).click();
-  const dialog = page.getByRole("dialog", { name: /funded/i });
+  const dialog = page.getByRole("dialog", { name: /^won\.?$/i });
   await expect(dialog).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();

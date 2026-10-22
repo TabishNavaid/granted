@@ -20,7 +20,7 @@ test("a firm adds the sample RFP, decides, drafts, tracks addenda, and builds th
   const problems = watch(page);
   await openFirm(page);
   await page.goto("/opportunities");
-  await expect(page.getByRole("heading", { name: "From SAM.gov" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Open bids for your work" })).toBeVisible();
   await expect(page.getByText(/Recorded from SAM.gov on/)).toBeVisible();
   await page.getByRole("button", { name: "Add an RFP" }).first().click();
   await page.getByRole("button", { name: "Use the sample notice" }).click();

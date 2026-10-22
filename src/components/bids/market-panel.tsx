@@ -73,7 +73,7 @@ export function MarketPanel({ applicationId }: { applicationId: string }) {
           Set-asides reported: {c.setAsides.map((s) => `${s.label} (${s.awards})`).join(", ")}.
         </p>
       ) : null}
-      <a href={c.sourceUrl} target="_blank" rel="noreferrer" className="mt-3 inline-block text-sm text-ink underline underline-offset-4">
+      <a href={c.sourceUrl} target="_blank" rel="noreferrer" className="mt-2 inline-block py-1 text-sm text-ink underline underline-offset-4">
         Search these awards on USAspending.gov<span className="sr-only"> (opens in a new tab)</span>
       </a>
     </section>
