@@ -20,9 +20,15 @@ test.describe.configure({ mode: "serial" });
 let admin: SupabaseClient;
 let reachable = false;
 const tag = randomUUID().slice(0, 8);
-const users = { a: { email: `rls-a-${tag}@example.test`, password: `pw-${randomUUID()}`, id: "" }, b: { email: `rls-b-${tag}@example.test`, password: `pw-${randomUUID()}`, id: "" } };
+const users = {
+  a: { email: `rls-a-${tag}@example.test`, password: `pw-${randomUUID()}`, id: "" },
+  b: { email: `rls-b-${tag}@example.test`, password: `pw-${randomUUID()}`, id: "" },
+  /** A reviewer in workspace A. */
+  r: { email: `rls-r-${tag}@example.test`, password: `pw-${randomUUID()}`, id: "" },
+};
 const orgs = { a: "", b: "" };
 let asA: SupabaseClient;
+let asReviewer: SupabaseClient;
 let anon: SupabaseClient;
 
 /** Tables seeded in workspace B, with the minimum columns each needs. */
@@ -59,20 +65,31 @@ test.beforeAll(async () => {
     orgs[k] = org.id;
     await admin.from("org_members").insert({ org_id: org.id, user_id: data.user.id, invited_email: users[k].email, role: "owner", status: "active" });
   }
+  {
+    const { data, error } = await admin.auth.admin.createUser({ email: users.r.email, password: users.r.password, email_confirm: true });
+    if (error) throw error;
+    users.r.id = data.user.id;
+    await admin.from("org_members").insert({ org_id: orgs.a, user_id: data.user.id, invited_email: users.r.email, role: "reviewer", status: "active" });
+  }
   for (const [table, row] of SEED) {
     const { error } = await admin.from(table).insert({ ...row, org_id: orgs.b });
     if (error) throw new Error(`${table}: ${error.message}`);
   }
+  await admin.from("facts").insert({ org_id: orgs.a, label: "Founded", value: "1998", category: "organization" });
+  await admin.from("integration_connections").insert({ org_id: orgs.a, provider: "google", access_token: "enc:v1:not-a-real-token" });
   asA = createClient(URL, ANON, { auth: { persistSession: false } });
   const { error } = await asA.auth.signInWithPassword({ email: users.a.email, password: users.a.password });
   if (error) throw error;
+  asReviewer = createClient(URL, ANON, { auth: { persistSession: false } });
+  const r = await asReviewer.auth.signInWithPassword({ email: users.r.email, password: users.r.password });
+  if (r.error) throw r.error;
   anon = createClient(URL, ANON, { auth: { persistSession: false } });
 });
 
 test.afterAll(async () => {
   if (!reachable) return;
   await admin.from("organizations").delete().in("id", [orgs.a, orgs.b]);
-  for (const k of ["a", "b"] as const) if (users[k].id) await admin.auth.admin.deleteUser(users[k].id);
+  for (const k of ["a", "b", "r"] as const) if (users[k].id) await admin.auth.admin.deleteUser(users[k].id);
 });
 
 test("every table in the public schema has row level security on", async () => {
@@ -113,8 +130,8 @@ test("a member reads and writes their own workspace", async () => {
   test.skip(!reachable, "No local Supabase running");
   const ins = await asA.from("facts").insert({ org_id: orgs.a, label: "Meals served", value: "1,200", category: "reach" }).select("label");
   expect(ins.error).toBeNull();
-  const { data } = await asA.from("facts").select("label").eq("org_id", orgs.a);
-  expect(data).toEqual([{ label: "Meals served" }]);
+  const { data } = await asA.from("facts").select("label").eq("org_id", orgs.a).order("label");
+  expect(data).toEqual([{ label: "Founded" }, { label: "Meals served" }]);
 });
 
 test("profiles: your own and your teammates', never a stranger's, and none without signing in", async () => {
@@ -159,4 +176,24 @@ test("files in another workspace's folder cannot be read, listed, or replaced", 
   const own = await asA.storage.from("documents").upload(`${orgs.a}/mine-${tag}.txt`, new Blob(["ok"]), { contentType: "text/plain" });
   expect(own.error).toBeNull();
   await admin.storage.from("documents").remove([path, `${orgs.a}/mine-${tag}.txt`]);
+});
+
+test("a reviewer reads the workspace but cannot change it directly", async () => {
+  test.skip(!reachable, "No local Supabase running");
+  const read = await asReviewer.from("facts").select("label").eq("org_id", orgs.a);
+  expect((read.data ?? []).length).toBeGreaterThan(0);
+  const ins = await asReviewer.from("facts").insert({ org_id: orgs.a, label: "Reviewer wrote this", value: "1", category: "reach" });
+  expect(ins.error).not.toBeNull();
+  const upd = await asReviewer.from("facts").update({ value: "2000" }).eq("org_id", orgs.a).select();
+  expect(upd.data ?? []).toEqual([]);
+  const file = await asReviewer.storage.from("documents").upload(`${orgs.a}/reviewer-${tag}.txt`, new Blob(["x"]));
+  expect(file.error).not.toBeNull();
+});
+
+test("connected account tokens are never readable through the API, even by the owner", async () => {
+  test.skip(!reachable, "No local Supabase running");
+  const own = await asA.from("integration_connections").select("access_token").eq("org_id", orgs.a);
+  expect(own.data ?? []).toEqual([]);
+  const { data } = await admin.from("integration_connections").select("access_token").eq("org_id", orgs.a);
+  expect(data?.[0]?.access_token).toMatch(/^enc:/);
 });

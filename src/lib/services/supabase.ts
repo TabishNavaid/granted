@@ -416,6 +416,12 @@ async function recomputeSectionChecks(db: SupabaseClient, section: Section) {
 export function makeSupabaseServices(): Services {
   const db = adminClient();
   const ctx = (): Promise<SessionContext> => requireSession();
+  /** Reviewers read, comment, and approve; owners and editors change drafts, plans, and records. */
+  const editorOnly = async () => {
+    const s = await ctx();
+    const { data } = await db.from("org_members").select("role").eq("org_id", s.orgId).eq("user_id", s.userId).maybeSingle();
+    if (data?.role === "reviewer") throw new Error("Board reviewers can read and approve sections but cannot change this. Ask the owner or an editor.");
+  };
   const loopStore = async () => {
     const s = await ctx();
     const { makeSupabaseStore } = await import("@/lib/loop/supabase-store");
@@ -505,6 +511,7 @@ export function makeSupabaseServices(): Services {
       return many(await db.from("facts").select("*").eq("org_id", s.orgId).order("created_at"), "facts").map(map.fact);
     },
     async updateFact(id: string, patch: Partial<Fact>) {
+      await editorOnly();
       const s = await ctx();
       return map.fact(must(await db.from("facts").update(map.factPatch(patch)).eq("id", id).eq("org_id", s.orgId).select("*").single(), "fact"));
     },
@@ -536,6 +543,7 @@ export function makeSupabaseServices(): Services {
       return map.document(r);
     },
     async updateDocument(id: string, patch: { type: Document["type"] }) {
+      await editorOnly();
       const s = await ctx();
       return map.document(must(await db.from("documents").update({ type: patch.type }).eq("id", id).eq("org_id", s.orgId).select("*").single(), "document"));
     },
@@ -663,6 +671,7 @@ export function makeSupabaseServices(): Services {
       };
     },
     async updateSection(id: string, bodyHtml: string) {
+      await editorOnly();
       await ctx();
       const cur = map.section(must(await db.from("sections").select("*").eq("id", id).single(), "section"));
       const hasText = Boolean(bodyHtml.replace(/<[^>]+>/g, "").trim());
@@ -676,6 +685,7 @@ export function makeSupabaseServices(): Services {
       return map.section(must(await db.from("sections").update({ status }).eq("id", id).select("*").single(), "section"));
     },
     async answerMissingFact(id: string, answer: string) {
+      await editorOnly();
       const s = await ctx();
       const { answerAndRedraft } = await import("@/lib/loop");
       const { makeSupabaseStore } = await import("@/lib/loop/supabase-store");
@@ -706,6 +716,7 @@ export function makeSupabaseServices(): Services {
       return (await toApplicationViews(db, [map.application(r)]))[0];
     },
     async setAskAmount(id: string, askAmount: number | null) {
+      await editorOnly();
       const s = await ctx();
       const r = must(await db.from("applications").update({ ask_amount: askAmount }).eq("id", id).eq("org_id", s.orgId).select("*").single(), "application");
       return (await toApplicationViews(db, [map.application(r)]))[0];
@@ -715,6 +726,7 @@ export function makeSupabaseServices(): Services {
       return many(await db.from("section_versions").select("*").eq("section_id", sectionId).order("created_at", { ascending: false }).limit(30), "versions").map(map.version);
     },
     async restoreVersion(versionId: string) {
+      await editorOnly();
       const s = await ctx();
       const v = map.version(must(await db.from("section_versions").select("*").eq("id", versionId).single(), "version"));
       const cur = map.section(must(await db.from("sections").select("*").eq("id", v.sectionId).single(), "section"));
@@ -724,6 +736,7 @@ export function makeSupabaseServices(): Services {
       return r;
     },
     async revise(input: { sectionId: string; html: string; action: "rewrite" | "shorten" | "expand" | "tone"; tone?: "plain" | "warm" | "formal" | "confident"; wordLimit?: number | null }) {
+      await editorOnly();
       const { st } = await loopStore();
       const { reviseSection } = await import("@/lib/loop/features");
       return reviseSection(st, input);
@@ -743,6 +756,7 @@ export function makeSupabaseServices(): Services {
       return st.getBudget(id);
     },
     async saveBudget(id: string, lines: Budget["lines"], justification: string) {
+      await editorOnly();
       const { st } = await loopStore();
       return st.saveBudget(id, lines, justification);
     },
@@ -842,6 +856,7 @@ export function makeSupabaseServices(): Services {
       return map.milestone(must(await db.from("milestones").update({ assignee_id: assigneeId }).eq("id", id).eq("org_id", s.orgId).select("*").single(), "milestone"));
     },
     async planMilestones(applicationId: string, options?: { boardReview?: boolean; hours?: number }) {
+      await editorOnly();
       const { s, st } = await loopStore();
       const ctxApp = await st.getApplication(applicationId);
       if (!ctxApp || !ctxApp.opportunity.deadline) return [];
@@ -958,12 +973,14 @@ export function makeSupabaseServices(): Services {
       return readJob(jobId);
     },
     async draftLetter(applicationId: string, jobId?: string) {
+      await editorOnly();
       const s = await ctx();
       const { draftLetterFor } = await import("@/lib/loop");
       const { makeSupabaseStore } = await import("@/lib/loop/supabase-store");
       return draftLetterFor(makeSupabaseStore(s), applicationId, jobId);
     },
     async draftProposal(applicationId: string, jobId?: string) {
+      await editorOnly();
       const { st } = await loopStore();
       const { draftProposalFor } = await import("@/lib/loop/features");
       return draftProposalFor(st, applicationId, jobId);
@@ -1143,8 +1160,8 @@ export function makeSupabaseServices(): Services {
   };
 
   const x = makeSupabaseFeatures(db, ctx, { org, knowledge, opportunities, applications, inbox, calendar, outreach, contacts, social, integrations, account } as never);
-  // Row level security scopes every segment table to the org's members; screens hide edits from reviewers.
-  const seg = makeSupabaseSegments({ db, loopStore: async () => (await loopStore()).st, requireEditor: () => undefined, applicationView: (id) => applications.get(id) });
+  // Row level security scopes every segment table to the org's members. Reviewers read and approve; they do not edit records.
+  const seg = makeSupabaseSegments({ db, loopStore: async () => (await loopStore()).st, requireEditor: editorOnly, applicationView: (id) => applications.get(id) });
   return {
     ...seg.services,
     org: { ...org, ...x.org },

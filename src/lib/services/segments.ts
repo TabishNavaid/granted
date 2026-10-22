@@ -20,7 +20,7 @@ import { SET_ASIDE_CODES } from "@/lib/bids/rfp";
  */
 export interface SegmentBackend {
   store(): Promise<BidStore>;
-  requireEditor(): void;
+  requireEditor(): void | Promise<void>;
   newId(prefix: string): string;
   now(): string;
   applicationView(id: string): Promise<ApplicationView | null>;
@@ -63,7 +63,7 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
       return b.firm.get();
     },
     async saveProfile(patch) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       const cur = (await b.firm.get()) ?? emptyFirm(st.orgId, b.now());
       return b.firm.save({ ...cur, ...patch, orgId: cur.orgId, updatedAt: b.now() });
@@ -72,36 +72,36 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
       return (await b.firm.projects()).sort((x, y) => (y.completionDate ?? "9999").localeCompare(x.completionDate ?? "9999"));
     },
     async saveProject(input) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       return b.firm.saveProject({ ...input, id: input.id ?? b.newId("proj"), orgId: st.orgId });
     },
     async removeProject(id) {
-      b.requireEditor();
+      await b.requireEditor();
       await b.firm.removeProject(id);
     },
     async listPersonnel() {
       return b.firm.personnel();
     },
     async savePerson(input) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       return b.firm.savePerson({ ...input, id: input.id ?? b.newId("per"), orgId: st.orgId });
     },
     async removePerson(id) {
-      b.requireEditor();
+      await b.requireEditor();
       await b.firm.removePerson(id);
     },
     async listCertifications() {
       return b.firm.certifications();
     },
     async saveCertification(input) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       return b.firm.saveCertification({ ...input, id: input.id ?? b.newId("cert"), orgId: st.orgId });
     },
     async removeCertification(id) {
-      b.requireEditor();
+      await b.requireEditor();
       await b.firm.removeCertification(id);
     },
     async recordFacts() {
@@ -147,7 +147,7 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
 
   const bids: BidService = {
     async addRfp(input) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       if (input.sample || input.samNoticeId === "5073642275214db4a200d4010bd55522") {
         const { SAMPLE_RFP } = await import("@/lib/replay/recordings/firm-rfp");
@@ -202,21 +202,21 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
       return { application: view, solicitation: ctx.opportunity.solicitation ?? emptySolicitation(), goNoGo, requirements, addenda, fee, meta, projects: records.projects, personnel: records.personnel, matrix: matrixSummary(requirements), readBy: meta?.readBy ?? "rules", pageCount: pages?.length ?? 0 };
     },
     async rescore(applicationId) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       return scoreAndSave(st, applicationId);
     },
     async decide(applicationId, decision, note) {
-      b.requireEditor();
+      await b.requireEditor();
       return decide(await b.store(), applicationId, decision, note);
     },
     async draft(applicationId, jobId) {
-      b.requireEditor();
+      await b.requireEditor();
       const r = await draftBid(await b.store(), applicationId, jobId);
       return r.ok ? r : { ok: false, code: r.code === "not_found" ? "not_found" : "failed", error: r.error };
     },
     async setSelection(applicationId, input) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       const meta = await st.getBidMeta(applicationId);
       if (!meta) return null;
@@ -225,14 +225,14 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
       return next;
     },
     async saveFee(applicationId, fee) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       const saved = await st.saveFee({ ...fee, applicationId });
       await refreshMatrix(st, applicationId);
       return saved;
     },
     async addAddendum(applicationId, input) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       if (input.sample) {
         const { SAMPLE_RFP } = await import("@/lib/replay/recordings/firm-rfp");
@@ -252,7 +252,7 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
       return r.ok ? r : { ok: false, code: r.code === "not_found" ? "not_found" : "failed", error: r.error };
     },
     async acknowledgeAddendum(id, acknowledged) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       const a = await st.updateAddendum(id, { acknowledged });
       await refreshMatrix(st, a.applicationId);
@@ -324,7 +324,7 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
       return b.research.get();
     },
     async saveProfile(patch) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       const cur = (await b.research.get()) ?? { orgId: st.orgId, institution: "", department: null, investigators: [], publications: [], priorAwards: [], facilities: [], capabilities: [], keywords: [], smallBusiness: false, updatedAt: b.now() };
       return b.research.save({ ...cur, ...patch, orgId: cur.orgId, updatedAt: b.now() });
@@ -335,7 +335,7 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
       return fundedAnalogs(profile);
     },
     async draftProposal(applicationId, jobId) {
-      b.requireEditor();
+      await b.requireEditor();
       const { draftResearch } = await import("@/lib/research/draft");
       return draftResearch(await b.store(), await b.research.get(), applicationId, jobId);
     },
@@ -346,19 +346,19 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
       return b.person.get();
     },
     async saveProfile(patch) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       const cur = (await b.person.get()) ?? { orgId: st.orgId, fullName: "", email: null, level: "undergraduate" as const, field: "", school: null, state: "", hometown: "", gpa: null, education: [], experiences: [], awards: [], activities: [], goals: null, resumeDocumentId: null, updatedAt: b.now() };
       return b.person.save({ ...cur, ...patch, orgId: cur.orgId, updatedAt: b.now() });
     },
     async readResume(input) {
-      b.requireEditor();
+      await b.requireEditor();
       const { readResume } = await import("@/lib/person");
       const st = await b.store();
       return readResume(st, b, input) as Promise<LoopResult<PersonProfile>>;
     },
     async draftEssay(applicationId, prompt, jobId) {
-      b.requireEditor();
+      await b.requireEditor();
       const { draftEssay } = await import("@/lib/person");
       return draftEssay(await b.store(), b, applicationId, prompt, jobId);
     },

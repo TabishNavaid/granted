@@ -1,8 +1,11 @@
 import type { IntegrationConnection } from "@/lib/types";
+import { decryptToken, encryptToken } from "@/lib/crypto/tokens";
 
 /**
  * Where OAuth tokens live. Tokens never leave the server: the UI only sees
- * IntegrationConnection (provider, account, scopes, date).
+ * IntegrationConnection (provider, account, scopes, date). In the database they are
+ * encrypted with a key only the server holds (src/lib/crypto/tokens.ts), and no user
+ * policy lets anyone read the table through the API.
  */
 export interface StoredConnection extends IntegrationConnection {
   accessToken: string;
@@ -59,8 +62,8 @@ export function supabaseConnectionStore(): ConnectionStore {
     accountEmail: String(r.account_email ?? ""),
     scopes: (r.scopes as string[]) ?? [],
     connectedAt: new Date(String(r.connected_at)).toISOString(),
-    accessToken: String(r.access_token),
-    refreshToken: (r.refresh_token as string | null) ?? null,
+    accessToken: decryptToken(String(r.access_token)),
+    refreshToken: r.refresh_token ? decryptToken(String(r.refresh_token)) : null,
     expiresAt: r.expires_at ? new Date(String(r.expires_at)).toISOString() : null,
   });
   const db = () => {
@@ -81,15 +84,15 @@ export function supabaseConnectionStore(): ConnectionStore {
     async upsert(conn) {
       const { data, error } = await db()
         .from("integration_connections")
-        .upsert({ org_id: conn.orgId, provider: conn.provider, account_email: conn.accountEmail, scopes: conn.scopes, access_token: conn.accessToken, refresh_token: conn.refreshToken, expires_at: conn.expiresAt, connected_at: new Date().toISOString() }, { onConflict: "org_id,provider" })
+        .upsert({ org_id: conn.orgId, provider: conn.provider, account_email: conn.accountEmail, scopes: conn.scopes, access_token: encryptToken(conn.accessToken), refresh_token: conn.refreshToken ? encryptToken(conn.refreshToken) : null, expires_at: conn.expiresAt, connected_at: new Date().toISOString() }, { onConflict: "org_id,provider" })
         .select("*")
         .single();
       if (error || !data) throw new Error(`connection: ${error?.message}`);
       return map(data);
     },
     async updateTokens(orgId, provider, tokens) {
-      const row: Row = { access_token: tokens.accessToken, expires_at: tokens.expiresAt };
-      if (tokens.refreshToken) row.refresh_token = tokens.refreshToken;
+      const row: Row = { access_token: encryptToken(tokens.accessToken), expires_at: tokens.expiresAt };
+      if (tokens.refreshToken) row.refresh_token = encryptToken(tokens.refreshToken);
       await db().from("integration_connections").update(row).eq("org_id", orgId).eq("provider", provider);
     },
     async remove(orgId, provider) {
