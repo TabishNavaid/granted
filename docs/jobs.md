@@ -21,6 +21,6 @@ The zero-key demo never uses this: its steps run in the visitor's own tab.
 
 | Work | Where | Why |
 | --- | --- | --- |
-| Opportunity database ingestion (daily, hourly, weekly) | GitHub Actions (`.github/workflows/ingest-*.yml`) | Downloads of hundreds of megabytes and runs of many minutes do not belong in a web function. |
+| Opportunity database ingestion (daily, hourly, weekly) | GitHub Actions (`.github/workflows/ingest.yml`) | Downloads of hundreds of megabytes and runs of many minutes do not belong in a web function. |
 | Restarting stalled jobs | GitHub Actions every ten minutes, calling `/api/cron/jobs` | Vercel's Hobby plan runs cron jobs once a day at most. |
 | Weekly digest and deadline reminders | Vercel Cron, calling `/api/cron/digest` and `/api/cron/reminders` | Light: a few queries and a batch of emails. |

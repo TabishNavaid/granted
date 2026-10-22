@@ -34,6 +34,11 @@ jobs:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      # Optional tuning, set as repository variables (Settings > Secrets and variables > Actions > Variables).
+      IRS_990PF_MIN_GIVING: ${{ vars.IRS_990PF_MIN_GIVING }}
+      CATALOG_EMBED_MAX: ${{ vars.CATALOG_EMBED_MAX }}
+      GEMINI_EMBEDDING_MODEL: ${{ vars.GEMINI_EMBEDDING_MODEL }}
+      SOCRATA_APP_TOKEN: ${{ secrets.SOCRATA_APP_TOKEN }}
       INGEST_CACHE_DIR: ${{ github.workspace }}/.ingest-cache
     steps:
       - name: Wait for the database

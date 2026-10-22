@@ -303,8 +303,8 @@ export function SettingsView({ org, members: initialMembers, usage, notification
           <div className="max-w-lg border-t border-rule">
             {[
               { key: "weeklyDigest" as const, label: "Weekly match digest", desc: "A weekly email with new matches and the next two weeks of deadlines." },
-              { key: "milestoneReminders" as const, label: "Milestone reminders", desc: "An email before each milestone. Not sending yet. Your choice is saved for when it does." },
-              { key: "inboxAlerts" as const, label: "Inbox alerts", desc: "An email when a draft or plan is waiting for you. Not sending yet." },
+              { key: "milestoneReminders" as const, label: "Milestone reminders", desc: "An email to the person assigned, a few days before each milestone is due." },
+              { key: "inboxAlerts" as const, label: "Inbox alerts", desc: "An email when a long draft finishes and is waiting for you." },
             ].map((row) => (
               <div key={row.key} className="flex items-center justify-between gap-4 border-b border-rule py-4">
                 <div>

@@ -18,6 +18,8 @@ import postgres from "postgres";
 import { loadConnectors } from "@/lib/catalog/connectors";
 import { runIntoDatabase } from "@/lib/catalog/ingest/runner";
 import { prune } from "@/lib/catalog/ingest/store";
+import { embedMissing } from "@/lib/catalog/ingest/embed";
+import { geminiEmbedder } from "@/lib/ai/embed";
 import { CANONICAL_URL, PRODUCT_NAME, EMAIL } from "@/lib/brand";
 import { AUTH_TEMPLATES } from "./email-templates";
 
@@ -112,6 +114,8 @@ async function backfill(sql: postgres.Sql) {
     say(`  ${c.source.id}: ${r.status}, ${r.stats.added} added, ${r.stats.updated} updated${r.notes ? ` (${r.notes})` : ""}`);
   }
   await prune(sql as never);
+  // With a model key, the first batch of embeddings for semantic matching; scheduled runs fill in the rest.
+  if (process.env.GEMINI_API_KEY?.trim()) await embedMissing(sql as never, geminiEmbedder, { log: (m) => say(`  [embeddings] ${m}`) }).catch((e) => say(`  [embeddings] ${e instanceof Error ? e.message : e}`));
 }
 
 async function sizeReport(sql: postgres.Sql) {
