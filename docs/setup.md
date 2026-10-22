@@ -182,6 +182,10 @@ Non-essential mail (digest, reminders, draft ready) carries a one-click unsubscr
 
 On Vercel, `vercel.json` schedules both (digest Mondays at 13:00 UTC, reminders daily at 12:00 UTC); set `CRON_SECRET` and Vercel's cron adds the header itself.
 
+### Analytics
+
+Vercel Web Analytics counts page views without cookies. Enable it on the Vercel project, then set `VERCEL_ANALYTICS=on` and redeploy. Without both, no analytics script loads.
+
 ## Local database
 
 Work against a local Supabase without touching the real project. Needs Docker and the Supabase CLI.
