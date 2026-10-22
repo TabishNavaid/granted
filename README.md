@@ -80,7 +80,7 @@ npm run loop -- riverbendyouth.org   # run onboarding, discovery, and the letter
 | `src/lib/catalog` | The opportunity database. `connectors` has one module per source, `ingest` the polite fetcher, store, runner, and embedding fill, `schedule.ts` the slot each source runs in, and `app.ts` the app's read side. |
 | `src/lib/jobs`, `src/lib/email`, `src/lib/usage`, `src/lib/crypto`, `src/lib/errors` | Background jobs, the email renderer and templates with signed unsubscribe links, monthly AI allowances, OAuth token encryption, and the error log. |
 | `src/lib/integrations` | OAuth, Gmail, Outlook, Google Calendar, and email adapters. |
-| `src/lib/agents` | Tool schemas and typed contracts for agents that still run on stubs. |
+| `src/lib/agents` | Labels for agents, stages, and milestones, and the demo's inline revise stub. |
 | `src/lib/segments` | The registry of applicant types and opportunity kinds, setup and discovery for firms, research teams, and individuals. |
 | `src/lib/bids` | RFP reader, compliance matrix, go/no-go, project and personnel selection, sections built from records, SF 330 and its Word export, fee structure, addenda, and the bid workflow over a store. |
 | `src/lib/firm`, `src/lib/research`, `src/lib/person`, `src/lib/samgov` | Firm records as citable facts; NSF and NIH lookups and funders' AI rules; résumés and essays; the SAM.gov client. |
