@@ -5,7 +5,7 @@ import type { Services } from "./contracts";
 import { computeWinAnalytics } from "@/lib/features/analytics";
 import { planMonth } from "@/lib/features/planner";
 import { analyzeVoice, answerByRules, buildLogicModel, conceptNoteSections, credibilityPosts, feedbackRequestEmail, followUpEmail, logicModelHtml, recomputeCompliance, reminderOutbox, winKit } from "@/lib/features";
-import { allFoundations, foundationByFunderId, fundersLikeYou, irsPageUrl, matchFoundations, matchScholarships, noticeTextFor, peerOrganizations, recommendAsk, stateCode, toFunder, toOpportunity } from "@/lib/foundations";
+import { allFoundations, foundationByFunderId, fundersLikeYou, irsPageUrl, matchFoundations, matchScholarships, noticeTextFor, peerOrganizations, recommendAsk, stateCode, toFunder, toOpportunity, rememberFoundations } from "@/lib/foundations";
 import { map, many, must, toMatchViews } from "./supabase";
 
 /**
@@ -426,7 +426,12 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
     },
     async matches() {
       const p = await scholarships.getProfile();
-      return p ? matchScholarships(p) : [];
+      if (!p) return [];
+      const { foundationPool } = await import("@/lib/catalog/app");
+      const { stateCode: stateCodeOf } = await import("@/lib/catalog/vocab");
+      const pool = await foundationPool(stateCodeOf(p.state), { individuals: true }).catch(() => undefined);
+      if (pool) rememberFoundations(pool);
+      return matchScholarships({ ...p, pool });
     },
   };
 

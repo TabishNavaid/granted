@@ -1,4 +1,5 @@
 import { sha1Hex } from "@/lib/hash";
+import { stateCode as stateCodeOf } from "@/lib/catalog/vocab";
 import { UsageLimitError } from "@/lib/usage/limits";
 import { aiErrorMessage, AiError } from "@/lib/ai";
 import { cached, HOURS } from "@/lib/cache";
@@ -11,7 +12,7 @@ import { extractProfile, type ProfileExtraction } from "./profile";
 import { recordRun } from "./runs";
 import { advanceJob, finishJob, logJob, noteJob, startJob } from "./progress";
 import { replayActive } from "@/lib/replay/active";
-import { matchFoundations, noticeTextFor as foundationNotice, toFunder as toFoundationFunder, toOpportunity as toFoundationOpportunity } from "@/lib/foundations";
+import { rememberFoundations, matchFoundations, noticeTextFor as foundationNotice, toFunder as toFoundationFunder, toOpportunity as toFoundationOpportunity } from "@/lib/foundations";
 import type { LoopStore, NewFact } from "./store";
 import { wordCount } from "./text";
 
@@ -362,7 +363,11 @@ async function findMatchesInner(store: LoopStore, jobId?: string): Promise<LoopR
 
       // Private foundations from IRS 990-PF filings: plain code over public data, the same with or without keys.
       const t = Date.now();
-      const fs = matchFoundations({ org, facts });
+      // The real product screens every foundation in the database that gives in the organization's state.
+      const db = await (await import("@/lib/grantsgov")).catalogBackend();
+      const pool = db ? await db.foundationPool(stateCodeOf(org.state)).catch(() => undefined) : undefined;
+      if (pool) rememberFoundations(pool);
+      const fs = matchFoundations({ org, facts, pool });
       for (const m of fs.matches) {
         const stored = await store.upsertOpportunity(toFoundationOpportunity(m.foundation), toFoundationFunder(m.foundation), foundationNotice(m.foundation));
         matches.push({ opportunityId: stored.opportunity.id, fitScore: m.fitScore, reasons: m.reasons, cautions: m.cautions, eligibilityChecks: m.eligibilityChecks, status: "new", dismissReason: null });

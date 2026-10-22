@@ -1,4 +1,5 @@
 import { AiError, getAi, type JsonSchema } from "@/lib/ai";
+import { stateCode as stateCodeOf } from "@/lib/catalog/vocab";
 import { hasAi } from "@/lib/env";
 import { replayActive } from "@/lib/replay/active";
 import type { CrawledPage } from "@/lib/crawl";
@@ -6,7 +7,7 @@ import type { Certification, Organization, Personnel, PortfolioProject, Research
 import { logJob } from "@/lib/loop/progress";
 import type { Recorder } from "@/lib/loop/runs";
 import type { LoopStore } from "@/lib/loop/store";
-import { matchScholarships, toFunder as foundationFunder, toOpportunity as foundationOpportunity, foundationByFunderId } from "@/lib/foundations";
+import { matchScholarships, toFunder as foundationFunder, toOpportunity as foundationOpportunity, foundationByFunderId, rememberFoundations } from "@/lib/foundations";
 import { fundedAnalogs } from "@/lib/research";
 import { firmGrants, researchMatches } from "./discover";
 import type { SegmentBackend } from "@/lib/services/segments";
@@ -185,7 +186,10 @@ export async function segmentMatches(store: LoopStore, b: SegmentBackend, rec: R
   }
   // Individuals: scholarships from foundations' IRS filings.
   const person = await b.person.get();
-  const found = await rec.step("match_scholarships", async () => matchScholarships({ state: person?.state || org.state, level: person?.level ?? "undergraduate", field: person?.field ?? "", hometown: person?.hometown ?? org.city, limit: 10 }), (x) => `${x.length} scholarship funds in your state`);
+  const db = await (await import("@/lib/grantsgov")).catalogBackend();
+  const pool = db ? await db.foundationPool(stateCodeOf(person?.state || org.state), { individuals: true }).catch(() => undefined) : undefined;
+  if (pool) rememberFoundations(pool);
+  const found = await rec.step("match_scholarships", async () => matchScholarships({ state: person?.state || org.state, level: person?.level ?? "undergraduate", field: person?.field ?? "", hometown: person?.hometown ?? org.city, limit: 10, pool }), (x) => `${x.length} scholarship funds in your state`);
   const ms = found
     .map((s) => {
       const f = foundationByFunderId(s.funderId);

@@ -336,3 +336,55 @@ export async function newForBidSearch(f: { naics: string[]; states: string[]; se
   });
   return hits;
 }
+
+type FoundationRecord = import("@/lib/foundations").FoundationRecord;
+
+/**
+ * Foundations from IRS 990-PF filings in the database, in the shape the foundation matcher reads: those read in
+ * detail (grantees, application instructions) that are based in the state or give there, largest givers first.
+ * `individuals` asks for foundations that make grants to individuals (scholarship funds).
+ */
+export async function foundationPool(state: string | null, opts: { individuals?: boolean; limit?: number } = {}): Promise<FoundationRecord[]> {
+  const db = adminClient();
+  let q = db
+    .from("catalog_funders")
+    .select("key, name, ein, website, city, state, focus, accepts_applications, grants_to_individuals, typical_grant_median, total_giving, assets, tax_year, source_url, extra")
+    .eq("source", "irs_990pf")
+    .not("extra->grantees", "is", null)
+    .order("total_giving", { ascending: false, nullsFirst: false })
+    .limit(opts.limit ?? 1500);
+  if (opts.individuals) q = q.eq("grants_to_individuals", true);
+  if (state && /^[A-Z]{2}$/.test(state)) q = q.or(`state.eq.${state},extra->granteeStates.cs.${JSON.stringify([[state]])}`);
+  const { data, error } = await q;
+  if (error) throw new Error(`Could not read foundations: ${error.message}`);
+  return (data ?? []).map((r) => {
+    const x = (r.extra ?? {}) as Record<string, unknown>;
+    const tuples = (v: unknown) => (Array.isArray(v) ? (v as unknown[][]) : []);
+    const app = x.application as FoundationRecord["application"] | undefined;
+    return {
+      ein: String(r.ein ?? String(r.key).replace(/^ein:/, "")),
+      name: String(r.name),
+      filedName: String(x.filedName ?? r.name),
+      city: String(r.city ?? ""),
+      state: String(r.state ?? ""),
+      zip: "",
+      website: (r.website as string | null) ?? null,
+      taxYear: Number(r.tax_year ?? 0),
+      objectId: String(x.objectId ?? ""),
+      batchId: String(x.batchId ?? ""),
+      assets: r.assets == null ? null : Number(r.assets),
+      totalGiving: r.total_giving == null ? null : Number(r.total_giving),
+      grantCount: Number(x.grantCount ?? 0),
+      grantMedian: r.typical_grant_median == null ? null : Number(r.typical_grant_median),
+      grantMin: x.grantMin == null ? null : Number(x.grantMin),
+      grantMax: x.grantMax == null ? null : Number(x.grantMax),
+      acceptsUnsolicited: (r.accepts_applications as boolean | null) ?? (app?.howTo ? true : null),
+      application: app ? { contact: app.contact ?? null, howTo: app.howTo ?? null, deadlines: app.deadlines ?? null, restrictions: app.restrictions ?? null } : null,
+      focus: (r.focus as string[] | null) ?? [],
+      granteeStates: tuples(x.granteeStates).map(([state, count]) => ({ state: String(state), count: Number(count) })),
+      granteeCities: [],
+      grantees: tuples(x.grantees).map(([name, city, state, amount, purpose]) => ({ name: String(name), city: String(city ?? ""), state: String(state ?? ""), amount: Number(amount ?? 0), purpose: String(purpose ?? "") })),
+      filingUrl: /\.pdf($|\?)/i.test(String(r.source_url ?? "")) ? String(r.source_url) : null,
+    };
+  });
+}
