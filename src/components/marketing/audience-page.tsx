@@ -28,7 +28,7 @@ export function AudiencePageView({ page: a }: { page: AudiencePage }) {
             <span aria-hidden> / </span>
             <span className="text-ink">{a.name}</span>
           </p>
-          <SectionHeading as="h1" plant={a.plant} className="mt-5 max-w-[18ch] text-[clamp(2.6rem,1.5rem+3.6vw,4.5rem)] leading-[1.02]">
+          <SectionHeading as="h1" className="mt-5 max-w-[18ch] text-[clamp(2.6rem,1.5rem+3.6vw,4.5rem)] leading-[1.02]">
             {a.title}
           </SectionHeading>
           <p className="mt-6 max-w-[60ch] text-lg text-ink sm:text-xl">{a.lead}</p>

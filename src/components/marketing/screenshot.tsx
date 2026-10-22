@@ -1,13 +1,12 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
-export type PanelTone = "sage" | "cream" | "mist" | "meadow" | "none";
+export type PanelTone = "sage" | "cream" | "mist" | "none";
 
 const panelClass: Record<PanelTone, string> = {
   sage: "bg-paper-tint",
   cream: "bg-paper-tint",
   mist: "bg-paper-tint",
-  meadow: "bg-ink",
   none: "",
 };
 

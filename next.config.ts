@@ -49,7 +49,7 @@ const nextConfig: NextConfig = {
     return [
       { source: "/:path*", headers: securityHeaders },
       // Brand files and product screenshots change only with a deploy; cache them for a day, serve stale for a week.
-      { source: "/:dir(brand|screens|art)/:file*", headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }] },
+      { source: "/:dir(brand|screens)/:file*", headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }] },
     ];
   },
   async redirects() {
