@@ -4,6 +4,7 @@ import { UsageLimitError } from "@/lib/usage/limits";
 import { aiErrorMessage, AiError } from "@/lib/ai";
 import { cached, HOURS } from "@/lib/cache";
 import { crawlSite, CrawlError, sourceLabelFor, type CrawlResult } from "@/lib/crawl";
+import { factLabel } from "@/lib/crawl/label";
 import { GrantsGovError } from "@/lib/grantsgov";
 import type { Fact, Match, Organization } from "@/lib/types";
 import { runDiscovery, type DiscoveryResult } from "./discovery";
@@ -14,7 +15,7 @@ import { advanceJob, finishJob, logJob, noteJob, startJob } from "./progress";
 import { replayActive } from "@/lib/replay/active";
 import { loadFoundations, rememberFoundations, matchFoundations, noticeTextFor as foundationNotice, toFunder as toFoundationFunder, toOpportunity as toFoundationOpportunity } from "@/lib/foundations";
 import type { LoopStore, NewFact } from "./store";
-import { wordCount } from "./text";
+import { wordCount } from "@/lib/format";
 
 /**
  * The thin, real, end-to-end loop:
@@ -38,7 +39,6 @@ function fail(err: unknown): LoopResult<never> {
   return { ok: false, code: "failed", error: "Something went wrong on our side. Try again, and if it keeps happening, tell us." };
 }
 
-const factLabel = (f: Fact) => f.sourceLabel ?? (f.sourceUrl ? sourceLabelFor(f.sourceUrl) : "Source");
 
 function parseMoney(s: string): number | null {
   const m = s.replace(/,/g, "").match(/\$?\s*(\d+(?:\.\d+)?)\s*(million|m|k|thousand)?/i);

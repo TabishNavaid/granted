@@ -1,4 +1,5 @@
 import { gunzipSync } from "node:zlib";
+import { formatEin } from "@/lib/format";
 
 /**
  * Nonprofit status by EIN, from the IRS exempt organization registry (EO Business Master File and Publication 78)
@@ -129,10 +130,6 @@ export interface NonprofitVerification {
 
 const C3_PUB78 = new Set(["PC", "POF", "PF", "SO", "SONFI", "SOUNK", "UNKWN"]);
 const PF_FOUNDATION_CODES = new Set(["02", "03", "04"]);
-
-export function formatEin(ein: string): string {
-  return ein.length === 9 ? `${ein.slice(0, 2)}-${ein.slice(2)}` : ein;
-}
 
 /** Plain-words verdict from a record (exported for tests). */
 export function verdict(ein: string, r: RegistryRecord | null, available = true): NonprofitVerification {

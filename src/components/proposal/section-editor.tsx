@@ -8,7 +8,7 @@ import CharacterCount from "@tiptap/extension-character-count";
 import { Bold, Italic, List, ListOrdered, Heading3, Undo2, Redo2, Quote, ChevronDown } from "lucide-react";
 import { Citation, Gap } from "./extensions";
 import { services } from "@/lib/services";
-type ReviseTone = "plain" | "warm" | "formal" | "confident";
+import type { ReviseTone } from "@/lib/loop/revise";
 import type { Fact, Section } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";

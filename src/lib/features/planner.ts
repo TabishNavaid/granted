@@ -1,4 +1,4 @@
-import type { Application, MatchView, MonthlyPlan, Outcome, PlanItem, WinAnalytics } from "@/lib/types";
+import type { Application, MatchView, Outcome, PlanItem, WinAnalytics } from "@/lib/types";
 import { foundationByFunderId, recommendAsk } from "@/lib/foundations";
 
 /**
@@ -92,8 +92,4 @@ export function planMonth(input: PlanInput): { items: PlanItem[]; summary: strin
     ? `${items.length} for this month, about ${used} hours of your time. Together they could bring in around ${money(total)}.${typeRate.size ? " Ranked by fit, deadline, and what has worked for you before." : " Ranked by fit and deadline."}`
     : "Nothing new fits this month. Your matches are either in progress, set aside, or due later.";
   return { items, summary };
-}
-
-export function emptyPlan(orgId: string, month: string, id: string): MonthlyPlan {
-  return { id, orgId, month, summary: "", items: [], status: "proposed" };
 }

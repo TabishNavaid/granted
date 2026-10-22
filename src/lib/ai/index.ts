@@ -3,7 +3,6 @@ import type { AiProvider } from "./types";
 import { replayActive } from "@/lib/replay/active";
 
 export * from "./types";
-export { estimateCostUsd, GEMINI_PRICES } from "./pricing";
 
 let provider: AiProvider | null = null;
 let replay: AiProvider | null = null;

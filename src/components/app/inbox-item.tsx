@@ -60,8 +60,8 @@ interface InboxItemCardProps {
 
 /**
  * One item waiting on the user: what it is, when it arrived, the title, a
- * preview, and the actions. Approving opens a small watercolor flower beside
- * the confirmation for a moment, and then the item is filed, flower and all.
+ * preview, and the actions. Approving shows the approved mark beside the
+ * confirmation for a moment, and then the item is filed.
  */
 export function InboxItemCard({ item, ctx, leaving, onApprove, onReject, fileAway = true }: InboxItemCardProps) {
   const [rejectOpen, setRejectOpen] = React.useState(false);
@@ -413,10 +413,6 @@ function EmailEditDialog({
       </DialogContent>
     </Dialog>
   );
-}
-
-export function formatResolved(item: InboxItem) {
-  return item.resolvedAt ? formatDate(item.resolvedAt) : "";
 }
 
 /** A one-line row that opens into the full item. For things you can decide at a glance. */

@@ -25,7 +25,7 @@ src/
   lib/types                   Domain types, one per table
   lib/mock                    Fictional seed data
   lib/services                contracts.ts (interfaces), mock.ts (adapter), server.ts (switch), index.ts (proxy)
-  lib/agents                  tools.ts (tool schemas), index.ts (typed stubs), meta.ts (labels)
+  lib/agents                  meta.ts (labels), index.ts (the demo's inline revise stub)
   lib/catalog                 The opportunity database: connectors, ingest, schedule, the app's read side
   lib/jobs, lib/email         Background jobs; email rendering, templates, unsubscribe
 scripts/                      ingest.ts, launch-db.ts, catalog-snapshot.ts, data-quality.ts, eval-drafts.ts
@@ -93,7 +93,7 @@ All routes are under `/api` and are thin: validate input, check membership, call
 
 ## 4. Agents
 
-Every agent runs as a job with a tool-use loop against the model provider. Tool schemas are in `src/lib/agents/tools.ts`; `agentToolsets` lists which tools each agent gets. Each run writes an `agent_runs` row with tools called, sources used, and cost, and ends by calling `create_inbox_item` or writing rows that the UI reads.
+Every agent runs as a job against the model provider, which answers with structured output checked in code (`src/lib/loop`, `src/lib/bids`, `src/lib/segments`); the tool names below describe each agent's steps. Each run writes an `agent_runs` row with tools called, sources used, and cost, and ends by calling `create_inbox_item` or writing rows that the UI reads.
 
 | Agent | Purpose | Inputs | Outputs | Tools |
 | --- | --- | --- | --- | --- |
@@ -106,7 +106,7 @@ Every agent runs as a job with a tool-use loop against the model provider. Tool 
 
 Rules enforced in tool handlers, not prompts: `upsert_fact` rejects facts without a source document; `search_opportunities` is the only source of funders; `draft_section` rejects a claim without a citation or gap; nothing sends email or touches a portal.
 
-Inline editor actions call `revise_text`, which must return citation and gap nodes unchanged. The stub in `src/lib/agents/index.ts` protects those nodes with placeholders and the real handler does the same before and after the model call.
+Inline editor actions call `revise_text`, which must return citation and gap nodes unchanged. The demo stub in `src/lib/agents/index.ts` protects those nodes with placeholders and the real one (`src/lib/loop/revise.ts`) does the same before and after the model call.
 
 ## 5. Background work
 

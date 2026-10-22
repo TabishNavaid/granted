@@ -234,14 +234,3 @@ export function saveDemoSession() {
     }
   }
 }
-
-/** Forget this browser's demo: the next call starts from the samples. */
-export function clearDemoSession() {
-  if (!BROWSER) return;
-  sessions.delete("browser");
-  try {
-    storage()?.removeItem(KEY);
-  } catch {
-    // nothing saved
-  }
-}

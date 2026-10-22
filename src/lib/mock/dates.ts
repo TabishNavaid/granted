@@ -73,7 +73,3 @@ export function shiftSeedDates<T>(state: T, today = new Date()): T {
   return shifted as T;
 }
 
-/** The seed's "today", moved the same way, for code that compares against it. */
-export function seedToday(today = new Date()): string {
-  return shiftString(SEED_DAY, seedOffsetDays(today));
-}

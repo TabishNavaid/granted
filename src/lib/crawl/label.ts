@@ -1,3 +1,5 @@
+import type { Fact } from "@/lib/types";
+
 /** "riverbendyouth.org/about" for a source chip. */
 export function sourceLabelFor(url: string): string {
   try {
@@ -9,3 +11,6 @@ export function sourceLabelFor(url: string): string {
     return url;
   }
 }
+
+/** The short source name shown on a fact's citation: its own label, or where it came from. */
+export const factLabel = (f: Pick<Fact, "sourceLabel" | "sourceUrl">) => f.sourceLabel ?? (f.sourceUrl ? sourceLabelFor(f.sourceUrl) : "Source");

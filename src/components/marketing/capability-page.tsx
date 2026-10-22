@@ -4,15 +4,6 @@ import { SectionHeading } from "@/components/marketing/section-heading";
 import { ClosingCta, DemoCta } from "@/components/marketing/demo-cta";
 import { capabilities, type Capability } from "@/content/product";
 
-const plantFor: Record<Capability["slug"], string> = {
-  matching: "aster",
-  drafting: "harebell",
-  deadlines: "yarrow",
-  outreach: "wind-poppy",
-  connections: "camas",
-  analytics: "phlox",
-};
-
 /** A capability page: what it does, a real screenshot, the steps, the specifics, and what it will never do. */
 export function CapabilityPage({ capability: c }: { capability: Capability }) {
   const [first, second] = c.shots;
@@ -41,7 +32,7 @@ export function CapabilityPage({ capability: c }: { capability: Capability }) {
 
       <section className="mt-16 border-t border-rule lg:mt-24">
         <div className="mx-auto grid max-w-[75rem] gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1.5fr] lg:gap-20 lg:px-10 lg:py-24">
-          <SectionHeading plant={plantFor[c.slug]} className="max-w-[12ch] text-4xl sm:text-5xl lg:sticky lg:top-24 lg:self-start">
+          <SectionHeading className="max-w-[12ch] text-4xl sm:text-5xl lg:sticky lg:top-24 lg:self-start">
             How it works, step by step.
           </SectionHeading>
           <ol className="border-t border-rule">

@@ -103,11 +103,6 @@ export function endOfDay(value: unknown, timeZone: string): string | null {
   return day ? zonedTimestamp(`${day}T23:59:00`, timeZone) : null;
 }
 
-/** True when a Socrata timestamp has no time of day (midnight), so only the day is known. */
-export function dateOnly(value: unknown): boolean {
-  return /^\d{4}-\d{2}-\d{2}(T00:00(:00(\.0+)?)?)?$/.test(String(value ?? "").trim());
-}
-
 /** Portals use far-future dates (2099-12-31, 9999-09-09) to mean "no fixed date". */
 export function placeholderDate(value: unknown): boolean {
   const y = Number(String(value ?? "").slice(0, 4));

@@ -1,6 +1,7 @@
 import { getAi, type JsonSchema, type TokenUsage } from "@/lib/ai";
 import type { ComplianceCheck, Fact, Organization, Section, MissingFact } from "@/lib/types";
-import { contains, numberKey, numbersIn, wordCount } from "./text";
+import { numberKey, numbersIn } from "./text";
+import { wordCount } from "@/lib/format";
 
 /**
  * A one-page letter of inquiry written only from confirmed facts and the
@@ -338,4 +339,3 @@ export function htmlToMarkedText(html: string, gapKeyOf: (gapId: string) => stri
     .trim();
 }
 
-export { contains as noticeContains };

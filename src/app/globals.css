@@ -28,7 +28,6 @@
 
   /* The one accent. 7.6:1 on white, so it carries text and links. */
   --fellow: #1e5b43;
-  --fellow-deep: #154532;
   --fellow-tint: #e6f0ea;
   /* Evidence: a highlighter behind cited text and source excerpts. Never a fill for anything else. */
   --evidence: #fff1b8;
@@ -65,7 +64,6 @@
   --color-rule-strong: var(--rule-strong);
   --color-alert: var(--alert);
   --color-fellow: var(--fellow);
-  --color-fellow-deep: var(--fellow-deep);
   --color-fellow-tint: var(--fellow-tint);
   --color-evidence: var(--evidence);
   --color-on-ink: var(--on-ink);
@@ -119,7 +117,6 @@
   --shadow-lift: var(--lift);
 
   --ease-grow: cubic-bezier(0.25, 0.9, 0.3, 1);
-  --ease-pop: cubic-bezier(0.34, 1.4, 0.64, 1);
 
   --animate-draw: draw 0.5s var(--ease-grow) both;
   --animate-draw-late: draw 0.35s var(--ease-grow) 0.3s both;

@@ -45,11 +45,6 @@ export function numbersCovered(value: string, excerpt: string): { ok: boolean; m
   return { ok: missing.length === 0, missing };
 }
 
-export function wordCount(s: string): number {
-  const t = s.trim();
-  return t ? t.split(/\s+/).length : 0;
-}
-
 export function truncate(s: string, n: number): string {
   return s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s;
 }

@@ -24,8 +24,6 @@ export type AudiencePage = {
   summary: string;
   metaTitle: string;
   metaDescription: string;
-  /** One small watercolor plant beside the headline. */
-  plant: string;
   problem: { heading: string; body: string[] };
   steps: AudienceStep[];
   never: string[];
@@ -51,7 +49,6 @@ export const audiencePages: AudiencePage[] = [
     summary: "Federal, state, and city solicitations in one search, a compliance matrix with the page behind every requirement, go/no-go with reasons, and proposals and SF 330s built from your own records.",
     metaTitle: "For architecture and construction firms",
     metaDescription: `How ${PRODUCT_NAME} helps architecture, engineering, and construction firms: solicitations from SAM.gov and public bid portals, a compliance matrix with sources, go/no-go with reasons, and the SF 330 and proposals from your own records. It never prices, signs, or submits.`,
-    plant: "yarrow",
     problem: {
       heading: "The requirements are scattered, and the people who know the projects are on site.",
       body: [
@@ -176,7 +173,6 @@ export const audiencePages: AudiencePage[] = [
     summary: "Federal grants and private foundations in every state, drafts with a source on every claim, and deadlines planned backward.",
     metaTitle: "For nonprofits",
     metaDescription: `How ${PRODUCT_NAME} helps a small nonprofit: federal grants from Grants.gov, private foundations in every state from IRS filings, drafts that cite your own documents, deadlines planned backward, and nothing sent without you.`,
-    plant: "harebell",
     problem: {
       heading: "There is money to apply for, and no hours to apply for it.",
       body: [
@@ -280,7 +276,6 @@ export const audiencePages: AudiencePage[] = [
     summary: "NIH, NSF, and SBIR notices with reasons, funded projects like yours, and proposals with each funder's AI rule on the checklist.",
     metaTitle: "For research teams",
     metaDescription: `How ${PRODUCT_NAME} helps university labs and small research companies: notices from the NIH Guide, NSF, SBIR.gov, and Grants.gov, funded work like yours from NSF and NIH award data, and proposals with each funder's rule on AI on the checklist.`,
-    plant: "camas",
     problem: {
       heading: "The proposal gets written between teaching, the lab, and everything else.",
       body: [
@@ -351,7 +346,6 @@ export const audiencePages: AudiencePage[] = [
     summary: "Your résumé becomes a profile, scholarships and fellowships are matched to it, and each essay is drafted from your own experiences.",
     metaTitle: "For students",
     metaDescription: `How ${PRODUCT_NAME} helps students: a profile from your résumé, national scholarships and fellowships checked on each sponsor's page, foundations that give to individuals from IRS filings, and essays drafted from your own experiences.`,
-    plant: "aster",
     problem: {
       heading: "The scholarships nearby do not advertise.",
       body: [
