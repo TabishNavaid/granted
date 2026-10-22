@@ -1,8 +1,9 @@
 import { AiError, aiErrorMessage } from "@/lib/ai";
 import { UsageLimitError } from "@/lib/usage/limits";
 import { cached, HOURS } from "@/lib/cache";
-import { fetchPageText, sourceLabelFor } from "@/lib/crawl";
-import type { Budget, EmailDraft, EmailKind, Fact, ReviewerCheck, SocialCampaign } from "@/lib/types";
+import { fetchPageText } from "@/lib/crawl";
+import { factLabel } from "@/lib/crawl/label";
+import type { Budget, EmailDraft, EmailKind, ReviewerCheck, SocialCampaign } from "@/lib/types";
 import { writeJustification } from "./budget";
 import { extractFromDocument } from "./documents";
 import { factIdsIn, gapIdsIn, type RenderOptions } from "./letter";
@@ -17,7 +18,7 @@ import { runCustomSearch, scoreChosen } from "./search";
 import { generateCampaign } from "./social";
 import type { LoopStore, NewFact } from "./store";
 import type { LoopResult } from "./index";
-import { wordCount } from "./text";
+import { wordCount } from "@/lib/format";
 
 /** Feature orchestration over a LoopStore, used by both the mock and the Supabase services. */
 
@@ -30,7 +31,6 @@ function fail(err: unknown): LoopResult<never> {
   return { ok: false, code: "failed", error: err instanceof Error && /Grants\.gov/i.test(err.message) ? "We could not reach Grants.gov just now. Try again in a few minutes." : "Something went wrong on our side. Try again, and if it keeps happening, tell us." };
 }
 
-const factLabel = (f: Fact) => f.sourceLabel ?? (f.sourceUrl ? sourceLabelFor(f.sourceUrl) : "Source");
 
 async function guidelinesText(url: string, noticeText: string): Promise<string> {
   if (!url || /grants\.gov\/search-results-detail/.test(url)) return "";

@@ -61,6 +61,11 @@ export function pluralize(n: number, one: string, many = `${one}s`) {
   return `${n} ${n === 1 ? one : many}`;
 }
 
+/** 12-3456789 for a nine-digit EIN; anything else as given. */
+export function formatEin(ein: string): string {
+  return ein.length === 9 ? `${ein.slice(0, 2)}-${ein.slice(2)}` : ein;
+}
+
 export function wordCount(text: string) {
   return text.trim() ? text.trim().split(/\s+/).length : 0;
 }

@@ -1,6 +1,6 @@
 import type { ComplianceCheck, CopilotAnswer, Document, EmailDraft, Fact, LogicModelRow, MatchView, Milestone, MissingFact, NotificationSettings, Organization, Requirement, Section, SocialPost, VoiceProfile, WinAnalytics, WinKit } from "@/lib/types";
 import { citeSpan, gapSpan } from "@/lib/loop/letter";
-import { wordCount } from "@/lib/loop/text";
+import { wordCount } from "@/lib/format";
 
 /**
  * Features that need no model: each is plain code over the workspace's own

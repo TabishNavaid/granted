@@ -8,7 +8,7 @@ import { advanceJob, finishJob, logJob, startJob } from "@/lib/loop/progress";
 import { renderSectionText } from "@/lib/loop/proposal";
 import type { LetterGap, RenderOptions } from "@/lib/loop/letter";
 import { planMilestones } from "@/lib/loop/milestones";
-import { sourceLabelFor } from "@/lib/crawl/label";
+import { factLabel } from "@/lib/crawl/label";
 import type { Addendum, Fact, Funder, GoNoGo, Opportunity, Requirement, Section } from "@/lib/types";
 import { KINDS } from "@/lib/segments";
 import { recordFacts } from "@/lib/firm/facts";
@@ -31,7 +31,6 @@ import type { BidStore } from "./store";
  */
 export type BidResult<T> = { ok: true; data: T } | { ok: false; code: "not_found" | "no_text" | "failed" | "no_ai" | "usage_limit"; error: string };
 
-const factLabel = (f: Fact) => f.sourceLabel ?? (f.sourceUrl ? sourceLabelFor(f.sourceUrl) : "Source");
 const modelAvailable = () => hasAi() || replayActive();
 
 function fail(err: unknown): BidResult<never> {

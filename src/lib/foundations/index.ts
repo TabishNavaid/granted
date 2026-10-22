@@ -1,5 +1,6 @@
 import type { EligibilityCheck, Fact, Funder, Opportunity, Organization } from "@/lib/types";
 import { displayName } from "./names";
+import { formatEin } from "@/lib/format";
 
 /**
  * Private foundations from public IRS Form 990-PF filings (see
@@ -107,10 +108,6 @@ export function irsPageUrl(f: Pick<FoundationRecord, "ein" | "filedName" | "city
   if (f.filingUrl) return f.filingUrl;
   const q = new URLSearchParams({ ein: f.ein, name: f.filedName.toUpperCase(), city: f.city.toUpperCase(), state: f.state, countryAbbr: "US", dba: "", type: "CHARITIES", orgTags: "CHARITIES" });
   return `https://apps.irs.gov/app/eos/details/?${q.toString()}`;
-}
-
-export function formatEin(ein: string) {
-  return ein.length === 9 ? `${ein.slice(0, 2)}-${ein.slice(2)}` : ein;
 }
 
 const money = (n: number | null | undefined) => (n == null ? "not stated" : `$${Math.round(n).toLocaleString("en-US")}`);
