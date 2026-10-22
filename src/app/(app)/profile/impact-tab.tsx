@@ -114,7 +114,7 @@ export function ImpactTab({ initial, onFactsChanged }: { initial: ImpactMetric[]
                       <div className="flex h-12 items-end gap-1.5" aria-hidden>
                         {recent.map((e, i) => (
                           <div key={e.month} className="flex w-6 flex-col items-center gap-1">
-                            <div className={i === recent.length - 1 ? "w-full bg-meadow" : "w-full bg-rule-strong"} style={{ height: `${Math.max(4, (e.value / max) * 36)}px` }} title={`${monthLabel(e.month, "long")}: ${amount(e.value, m.unit)}`} />
+                            <div className={i === recent.length - 1 ? "w-full bg-fellow" : "w-full bg-rule-strong"} style={{ height: `${Math.max(4, (e.value / max) * 36)}px` }} title={`${monthLabel(e.month, "long")}: ${amount(e.value, m.unit)}`} />
                           </div>
                         ))}
                       </div>

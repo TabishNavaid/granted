@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Atkinson_Hyperlegible_Next, Newsreader } from "next/font/google";
+import { IBM_Plex_Mono, Public_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { ToastProvider } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,10 +7,10 @@ import { PRODUCT_DESCRIPTION, PRODUCT_NAME } from "@/lib/brand";
 import { canonicalUrl } from "@/lib/site-url";
 import "./globals.css";
 
-// Headlines: a text serif with an optical size axis, so it is crisp and composed at display sizes.
-const display = Newsreader({ subsets: ["latin"], axes: ["opsz"], style: ["normal", "italic"], variable: "--font-newsreader", display: "swap" });
-// Body and interface: a calm text face built for people who read with effort, so budgets and deadlines stay clear.
-const body = Atkinson_Hyperlegible_Next({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-atkinson", display: "swap", adjustFontFallback: false, fallback: ["Helvetica Neue", "Arial", "sans-serif"] });
+// Everything people read and click: Public Sans, made by the U.S. Web Design System for public services and forms.
+const sans = Public_Sans({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-public", display: "swap" });
+// Identifiers people already work with (solicitation numbers, NAICS codes, dates, counts).
+const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-plex-mono", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(canonicalUrl()),
@@ -33,7 +33,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} h-full`} suppressHydrationWarning>
+    <html lang="en" className={`${sans.variable} ${mono.variable} h-full`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-paper text-ink">
         {/* Light is the brand. Night mode is parked until it has its own design. */}
         <ThemeProvider attribute="class" forcedTheme="light" enableSystem={false} disableTransitionOnChange>

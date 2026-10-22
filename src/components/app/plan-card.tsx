@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import { formatMoney, formatShortDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { FitScore } from "./fit-score";
-import { Bloom } from "@/components/drawings/bloom";
-import { flowerFor } from "@/lib/drawings";
+import { ApprovedMark } from "@/components/brand/approved-mark";
 
 interface PlanCardProps {
   plan: MonthlyPlan;
@@ -31,7 +30,7 @@ export function PlanCard({ plan, matches, onDecision, onApprove, onSkip, leaving
     <section aria-labelledby="plan-title" className={cn("sheet relative", leaving && "animate-leave [animation-delay:1150ms]")}>
       <div className="border-b border-rule px-5 py-5 sm:px-7">
         <p className="text-sm font-semibold text-ink">Your plan for the month</p>
-        <h2 id="plan-title" className="mt-1 font-display text-3xl text-ink">
+        <h2 id="plan-title" className="mt-1 font-display text-2xl text-ink">
           {monthName}
         </h2>
         <p className="mt-2 max-w-[65ch] text-base text-ink-muted">{plan.summary}</p>
@@ -43,7 +42,7 @@ export function PlanCard({ plan, matches, onDecision, onApprove, onSkip, leaving
           const skipped = item.decision === "skip";
           return (
             <li key={item.opportunityId} className={cn("grid gap-4 px-5 py-5 sm:grid-cols-[2rem_1fr_auto] sm:px-7", skipped && "opacity-60")}>
-              <span className="font-display text-2xl leading-none text-ink tnum" aria-hidden>
+              <span className="font-mono text-xl leading-none text-ink-muted tnum" aria-hidden>
                 {i + 1}
               </span>
               <div className="min-w-0">
@@ -96,7 +95,7 @@ export function PlanCard({ plan, matches, onDecision, onApprove, onSkip, leaving
         </p>
         {leaving ? (
           <p className="flex min-h-10 items-end gap-2 text-base font-semibold text-ink">
-            <Bloom flower={flowerFor(plan.id)} grow className="-mb-1 h-12" />
+            <ApprovedMark grow className="-mb-1 h-7 w-7" />
             Plan approved
           </p>
         ) : (

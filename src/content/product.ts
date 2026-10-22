@@ -30,22 +30,22 @@ export const capabilities: Capability[] = [
   {
     slug: "matching",
     name: "Matching",
-    title: "Grants you can apply for, with the reasons.",
-    lead: `${PRODUCT_NAME} searches federal notices on Grants.gov and the public filings of a few hundred private foundations in Ohio, Kentucky, and North Carolina. Each match comes with a fit score and the plain reasons behind it.`,
-    summary: "Federal notices from Grants.gov and private foundations from IRS 990-PF filings, each scored against your facts with reasons you can check.",
-    metaDescription: `How ${PRODUCT_NAME} finds federal grants on Grants.gov and private foundations in Ohio, Kentucky, and North Carolina from IRS 990-PF filings, and explains every fit score.`,
+    title: "Opportunities you can apply for, with the reasons.",
+    lead: `${PRODUCT_NAME} searches one opportunity database built from official public sources: federal grants, public bids and contract solicitations, research funding, private foundations, and scholarships. Each match comes with a fit score and the plain reasons behind it.`,
+    summary: "Grants, public bids, research funding, foundations, and scholarships from official sources, each scored against your records with reasons you can check.",
+    metaDescription: `How ${PRODUCT_NAME} finds grants, public bids, research funding, private foundations, and scholarships from official public sources, and explains every fit score.`,
     steps: [
       {
-        title: "It starts from your confirmed facts",
-        body: "The search uses the facts you checked on your profile: what you do, where you work, who you serve, and your budget size. A fact you have not confirmed is not used.",
+        title: "It starts from your confirmed records",
+        body: "The search uses what you checked on your profile: what you do, where you work, who you serve, your size, and for a firm, your NAICS codes, certifications, and bonding. Anything you have not confirmed is not used.",
       },
       {
-        title: "Federal notices from Grants.gov",
-        body: "It searches open and forecast notices that list nonprofits as eligible applicants. Then it reads the most promising ones in full: who can apply, the award range, the deadline, and what the agency wants to fund.",
+        title: "One database, from official sources",
+        body: "Grants.gov, SAM.gov contract opportunities and assistance listings, Federal Register funding notices, the NIH Guide, NSF, SBIR.gov, state and city bid portals that publish open data, international public tenders, IRS filings for private foundations, and national scholarships checked by hand. Each source is read on a schedule, and every record links to the official page it came from. The Data page lists them all.",
       },
       {
         title: "Private foundations from their tax filings",
-        body: "Private foundations file Form 990-PF with the IRS each year, and the filings are public. For a few hundred foundations in Ohio, Kentucky, and North Carolina, the filing shows what they gave to, how much, where their grantees are, and whether they take applications from organizations they have not invited.",
+        body: "Private foundations file Form 990-PF with the IRS each year, and the filings are public. For foundations in every state that paid grants, the filing shows what they gave to, how much, where their grantees are, and whether they take applications they did not invite.",
       },
       {
         title: "A score, and the reasons for it",
@@ -53,7 +53,7 @@ export const capabilities: Capability[] = [
       },
       {
         title: "You choose what to pursue",
-        body: "Matches wait in the Inbox. You save one, dismiss it, or open its page to read the eligibility checks and the source. A dismissal tells the next search what to leave out.",
+        body: "Matches wait in the Inbox. Save one, dismiss it, or open its page to read the eligibility checks and the source. A dismissal tells the next search what to leave out. Save a search, by keyword or by NAICS code, region, and set-aside, and run it again any time.",
       },
     ],
     shots: [
@@ -69,17 +69,19 @@ export const capabilities: Capability[] = [
       },
     ],
     specs: [
-      { label: "Where funders come from", body: "Grants.gov notices, open and forecast. IRS Form 990-PF filings for private foundations in Ohio, Kentucky, and North Carolina, from each foundation's most recent electronic filing." },
+      { label: "Where opportunities come from", body: "Official public sources only, each with its license and a link, listed on the Data page with how often each is read. Grants.gov and SAM.gov are read daily. Past award data from USAspending.gov, NIH, and NSF is kept as totals and typical sizes, never who won a contract." },
       { label: "What a foundation page shows", body: "Giving focus, typical grant size, where grantees are located, past grantees, the trustees listed on the filing, whether it accepts unsolicited applications, and its application instructions as filed." },
-      { label: "Eligibility checks", body: "Applicant type, location, and budget limits are checked against your profile. When a rule cannot be checked automatically, the page says so instead of guessing. A pass reads \"Looks eligible\", because automated checks can be wrong." },
-      { label: "How current it is", body: "Every notice shows its link and the date we last checked it. Every foundation figure shows the tax year it covers. A foundation can change its priorities after it files, so read its current guidelines before you apply." },
-      { label: "Cost", body: "Matching reads the opportunity database, which never counts against the monthly allowance." },
+      { label: "Eligibility checks", body: "Applicant type, location, and size limits are checked against your profile. When a rule cannot be checked automatically, the page says so instead of guessing. A pass reads \"Looks eligible\", because automated checks can be wrong." },
+      { label: "How current it is", body: "Every notice shows its link and the date we last checked it. Every foundation figure shows the tax year it covers, often one to two years back. Read a foundation's current guidelines before you apply." },
+      { label: "Coverage limits", body: "State and local bids come from the seven portals that publish open data and allow reuse. Many state portals do not, so coverage is uneven, and any RFP can be uploaded or linked. NASA's own solicitation site has no feed, so NASA notices arrive through Grants.gov." },
+      { label: "Cost", body: "Searching the opportunity database never counts against the monthly allowance of AI work." },
     ],
     never: [
-      "Name a funder that is not in Grants.gov or the IRS filings.",
+      "Name a funder or a buyer that is not in a public source.",
       "Rank a notice whose eligibility rules leave you out.",
       "Describe a foundation's interests beyond what it filed.",
-      "Contact a funder or start an application for you.",
+      "Show who won a past contract.",
+      "Contact a funder or an agency, or start an application for you.",
       "Share your profile with funders, or sell it to anyone.",
     ],
   },
@@ -87,33 +89,33 @@ export const capabilities: Capability[] = [
     slug: "drafting",
     name: "Drafting with sources",
     title: "Drafts that show where every claim came from.",
-    lead: `${PRODUCT_NAME} writes one-page letters of inquiry and full proposals from the facts you confirmed and the funder's own text. When a fact is missing, the draft asks you for it.`,
-    summary: "Letters of inquiry and full proposals where every claim cites a confirmed fact, and every missing fact becomes a question for you.",
-    metaDescription: `How ${PRODUCT_NAME} drafts letters of inquiry and proposals with a citation on every claim, turns missing facts into questions, checks the result, and exports DOCX or PDF.`,
+    lead: `${PRODUCT_NAME} writes letters of inquiry, full proposals, bid responses, research proposals, and scholarship essays from the records you confirmed and the funder's or agency's own text. When a fact is missing, the draft asks you for it.`,
+    summary: "Letters, proposals, bid responses, and essays where every claim cites your own records, and every missing fact becomes a question for you.",
+    metaDescription: `How ${PRODUCT_NAME} drafts grant proposals, bid responses, research proposals, and essays with a citation on every claim, turns missing facts into questions, checks the result, and exports to Word or PDF.`,
     steps: [
       {
-        title: "Pick a match and a format",
-        body: "Choose a one-page letter of inquiry or a full proposal. When the notice lists required sections, the draft follows them in order.",
+        title: "Pick an opportunity and a format",
+        body: "A letter of inquiry or a full proposal for a funder, a bid response or an SF 330 for a solicitation, a research proposal, or a scholarship essay. When the notice lists required sections, the draft follows them in order.",
       },
       {
         title: "It reads your sources first",
-        body: "Your confirmed facts, the documents you uploaded (an annual report, an old proposal, a budget), and the funder's notice or filing. The reading view shows each passage it used, so you can see what the draft is built on.",
+        body: "Your confirmed facts, the documents you uploaded (an annual report, a 990, project sheets, résumés, an old proposal, a budget), and the notice, solicitation, or filing. The reading view shows each passage it used, so you can see what the draft is built on.",
       },
       {
         title: "Every claim carries a citation",
-        body: "A small marker beside each sentence opens the fact it relies on and the passage where that fact came from. You can check any line in two clicks.",
+        body: "A small marker beside each sentence opens the record it relies on and the passage where it came from. You can check any line in two clicks.",
       },
       {
         title: "Gaps become questions",
-        body: "If a section needs a number you have not given, such as how many students you served last year, the draft leaves a marked gap and adds a question to the side panel. Answer it once and it becomes a confirmed fact for every later draft.",
+        body: "If a section needs a number you have not given, such as how many students you served last year or the size of a past project, the draft leaves a marked gap and adds a question to the side panel. Answer it once and it becomes a confirmed fact for every later draft.",
       },
       {
         title: "Checks run before you see it",
-        body: "Code checks each citation against its source and each number against your facts. Compliance checks look for page and word limits, required sections, and listed attachments. A reviewer pass reads the draft as a program officer might and lists what is weak.",
+        body: "Code checks each citation against its source and each number against your records. Compliance checks look for page and word limits, required sections, and listed attachments. A reviewer check reads the draft as a program officer or a selection board might and lists what is weak.",
       },
       {
         title: "Budget, then export",
-        body: "The budget builder lays out line items and a short budget narrative from your numbers. When you are done, export the application as DOCX or PDF and upload it to the funder's portal yourself.",
+        body: "The budget builder lays out line items and a short budget narrative from your numbers. When you are done, export to Word or PDF and submit it through the funder's or agency's portal yourself.",
       },
     ],
     shots: [
@@ -129,38 +131,42 @@ export const capabilities: Capability[] = [
       },
     ],
     specs: [
-      { label: "Formats", body: "One-page letter of inquiry. Full proposal with the sections the funder asks for. Budget table with a budget narrative." },
-      { label: "What a draft may use", body: "Facts you confirmed, documents you uploaded, and the funder's notice or 990-PF filing. Nothing else. Your profile can hold a short note about your voice." },
+      { label: "Formats", body: "Letter of inquiry. Full proposal with the sections the funder asks for. Bid response and SF 330, Part I and Part II. Research proposal in the standard sections. Scholarship essay. Budget table with a budget narrative." },
+      { label: "What a draft may use", body: "Facts you confirmed, documents you uploaded, and the notice, solicitation, or filing. Nothing else. Your profile can hold a short note about your voice." },
       { label: "Checks", body: "Citation check, number check, compliance check for limits and required sections, and reviewer notes. A failed check becomes a marked gap, not a silent fix." },
-      { label: "Export", body: "DOCX and PDF. An unanswered gap is printed as a clear NEED marker so it cannot slip through to a funder." },
-      { label: "Cost", body: "Free. Each workspace can draft 50 letters, proposals, or bid responses a month." },
+      { label: "Export", body: "Word and PDF. An unanswered gap is printed as a clear marker so it cannot slip through to a funder." },
+      { label: "Cost", body: "Free during early access. Each workspace can make 50 drafts a month. Reading documents, scoring matches, and edits share a separate allowance of 400 AI steps." },
     ],
     never: [
-      "Invent a number, a quote, an outcome, or a partner.",
+      "Invent a number, a quote, an outcome, a project, or a partner.",
       "Fill a gap with a plausible guess. It asks you.",
       "Use a fact you have not confirmed.",
-      "Submit an application. You upload the file and click submit on the funder's portal.",
+      "Submit an application or a bid. You submit it through the funder's or agency's portal.",
     ],
   },
   {
     slug: "deadlines",
     name: "Deadlines and calendar",
     title: "Every deadline, with the work planned backward.",
-    lead: "Each application you pursue gets milestones counted back from the funder's deadline. You approve the schedule, and it goes on one calendar you can subscribe to from your own.",
-    summary: "Milestones planned backward from each deadline, a year plan, a calendar feed, and a push to Google Calendar when it is connected.",
-    metaDescription: `How ${PRODUCT_NAME} plans milestones backward from each grant deadline, shows a year plan, and shares it as a calendar feed or to Google Calendar.`,
+    lead: "Each application or bid you pursue gets milestones counted back from its deadline. You approve the schedule, and it goes on one calendar you can subscribe to from your own.",
+    summary: "Milestones planned backward from each deadline, addenda that move the dates, a year plan, reminders, and a calendar feed.",
+    metaDescription: `How ${PRODUCT_NAME} plans milestones backward from each grant or bid deadline, moves them when an addendum changes a date, and shares them as a calendar feed or to Google Calendar.`,
     steps: [
       {
         title: "The deadline comes from the source",
-        body: "When you save a match, its deadline is taken from the notice, with the link. Rolling or unstated deadlines are shown that way, not given a made-up date.",
+        body: "When you save an opportunity, its deadline is taken from the notice, with the link. Rolling or unstated deadlines are shown that way, not given a made-up date.",
       },
       {
         title: "Milestones counted back",
-        body: "It proposes dates for the steps before submission: first draft, board review, budget sign-off, letters of support, and submit. You can move any of them.",
+        body: "It proposes dates for the steps before submission. For a grant: first draft, board review, budget sign-off, letters of support, submit. For a bid: go/no-go, questions to the contracting officer, draft, principal review, sign forms, submit. You can move any of them.",
       },
       {
         title: "The schedule waits for you",
-        body: "The proposed schedule arrives in the Inbox as a schedule to approve. Nothing lands on the calendar until you approve it.",
+        body: "The proposed schedule arrives in the Inbox. Nothing lands on the calendar until you approve it.",
+      },
+      {
+        title: "Addenda move the dates",
+        body: "When you add an addendum that changes a due date, the deadline moves, the milestones are replanned, and a note on what changed lands in your Inbox.",
       },
       {
         title: "The month and the year",
@@ -168,7 +174,7 @@ export const capabilities: Capability[] = [
       },
       {
         title: "On the calendar you already use",
-        body: "Subscribe to a private calendar feed from Apple Calendar, Outlook, or Google Calendar. Where the Google connection is set up, you can push events straight to a Google calendar instead.",
+        body: "Subscribe to a private calendar feed from Apple Calendar, Outlook, or Google Calendar, or connect Google Calendar to push events to a calendar you choose.",
       },
     ],
     shots: [
@@ -185,9 +191,9 @@ export const capabilities: Capability[] = [
     ],
     specs: [
       { label: "Calendar feed", body: "A private ICS link that any calendar app able to subscribe to a URL can show. How often it refreshes depends on your calendar app." },
-      { label: "Google Calendar", body: "A direct push to a calendar you choose. It needs Google keys set up by whoever runs the service, so it is not connected on the demo." },
+      { label: "Google Calendar", body: "A direct push to a calendar you choose, once you connect your Google account. It is not connected in the demo." },
       { label: "Weekly digest", body: "An email with new matches and the next two weeks of deadlines. You can turn it off." },
-      { label: "Reminder emails", body: "A reminder a few days before each milestone, on the schedule in your notification settings. They send once email is set up by whoever runs the service; until then the calendar shows exactly what would go out and when." },
+      { label: "Reminder emails", body: "A reminder a few days before each milestone, on the schedule in your notification settings. You can turn them off." },
     ],
     never: [
       "Put a date on your calendar before you approve the schedule.",
@@ -200,9 +206,9 @@ export const capabilities: Capability[] = [
     slug: "outreach",
     name: "Outreach",
     title: "Emails to funders, drafted for you to send.",
-    lead: `Questions for a program officer, cover notes, thank-you notes, and follow-ups. ${PRODUCT_NAME} drafts them from the notice and your facts. You read them and send them from your own address.`,
+    lead: `Questions for a program officer or a contracting officer, cover notes, thank-you notes, and follow-ups. ${PRODUCT_NAME} drafts them from the notice and your records. You read them and send them from your own address.`,
     summary: "Drafts of the emails around an application, from a question before you apply to a thank-you after. You send each one yourself.",
-    metaDescription: `How ${PRODUCT_NAME} drafts emails to funders and program officers that you review and send from your own address. Nothing is sent without your click.`,
+    metaDescription: `How ${PRODUCT_NAME} drafts emails to funders, program officers, and contracting officers that you review and send from your own address. Nothing is sent without your click.`,
     steps: [
       {
         title: "A draft when one would help",
@@ -210,7 +216,7 @@ export const capabilities: Capability[] = [
       },
       {
         title: "Addressed from public sources",
-        body: "The recipient is the contact the funder published in its notice, program listing, or filing. If no contact is published, the draft says so and leaves the address blank.",
+        body: "The recipient is the contact the funder or agency published in its notice, program listing, or filing. If no contact is published, the draft says so and leaves the address blank.",
       },
       {
         title: "In your words, then yours to edit",
@@ -230,8 +236,8 @@ export const capabilities: Capability[] = [
     ],
     specs: [
       { label: "Kinds of email", body: "Pre-application questions, inquiry cover notes, submission notes, thank-you notes, and follow-ups after a decision." },
-      { label: "Where addresses come from", body: "Contacts the funder published in a Grants.gov notice, a program page, or a 990-PF filing. We keep to published professional details." },
-      { label: "Sending", body: "Copy, or open in your own mail app. With Gmail or Outlook connected, we hold a send-only token and use it only when you press Send. We do not read your mail." },
+      { label: "Where addresses come from", body: "Contacts the funder or agency published in a notice, a program page, or a 990-PF filing. We keep to published professional details." },
+      { label: "Sending", body: "Copy, or open in your own mail app. With Gmail or Outlook connected, we hold an encrypted send-only token and use it only when you press Send. We do not read your mail." },
       { label: "Replies", body: "Replies arrive in your own inbox as usual. Tracking replies inside the product is on the roadmap." },
     ],
     never: [
@@ -275,7 +281,7 @@ export const capabilities: Capability[] = [
     ],
     specs: [
       { label: "Import", body: "A CSV with one person per row. Name is required. Organization, role, email, and notes are optional." },
-      { label: "Trustee data", body: "Names and titles of officers, directors, and trustees as listed on each foundation's 990-PF. Compensation is not stored." },
+      { label: "Trustee data", body: "Names and titles of officers, directors, and trustees as listed on each foundation's 990-PF. Compensation is not stored. Filings are often one to two years old, so boards may have changed." },
       { label: "Peer organizations", body: "Nonprofits that received grants from the same foundations as the funders on your list, from the grantee lists in the filings." },
       { label: "Who can see it", body: "Your contacts stay in your workspace. They are not shared with other customers or used to build anyone else's list." },
     ],
@@ -289,18 +295,18 @@ export const capabilities: Capability[] = [
   {
     slug: "analytics",
     name: "Win analytics",
-    title: "What your funded applications have in common.",
-    lead: `Log the outcome of each application, and ${PRODUCT_NAME} shows which funders, ask sizes, and proposal sections go with the ones that were funded. When there are only a few outcomes, it says so.`,
-    summary: "Patterns in your own logged outcomes: which funders, ask sizes, and sections go with wins. Plain about how little a few outcomes can show.",
-    metaDescription: `How ${PRODUCT_NAME} turns your logged grant outcomes into plain patterns about funders, ask sizes, and proposal sections, and says when there are too few to tell.`,
+    title: "What your wins have in common.",
+    lead: `Log the outcome of each application or bid, and ${PRODUCT_NAME} shows which funders, clients, sectors, and sizes go with the ones you won. When there are only a few outcomes, it says so.`,
+    summary: "Patterns in your own logged outcomes: by funder or client, sector, and size. Plain about how little a few outcomes can show.",
+    metaDescription: `How ${PRODUCT_NAME} turns your logged grant and bid outcomes into plain patterns by funder, client, sector, and size, and says when there are too few to tell.`,
     steps: [
       {
         title: "Log what happened",
-        body: "On the pipeline board, move an application to Won or Lost. Add the amount and anything the funder said. It takes a minute.",
+        body: "On the pipeline board, move an application or a bid to Won or Lost. Add the amount and anything the funder or client said. It takes a minute.",
       },
       {
         title: "See your own patterns",
-        body: "Analytics reads only your logged outcomes. It shows results by funder, federal or foundation, by ask size, and by which proposal sections were included.",
+        body: "Analytics reads only your logged outcomes. For grants, it shows results by funder and funder type, by ask size, and by which proposal sections were included. For bids, it shows results by client, sector, and project size, and leaves a no-go out of the win rate.",
       },
       {
         title: "Plain about small numbers",
@@ -308,7 +314,7 @@ export const capabilities: Capability[] = [
       },
       {
         title: "Next month's plan uses it",
-        body: "The monthly plan in the Inbox takes your outcomes into account: which kinds of funders have said yes to you, and which funders have funded you before. You still approve the plan.",
+        body: "The monthly plan in the Inbox takes your outcomes into account: which kinds of funders have said yes to you, and which have funded you before. You still approve the plan.",
       },
     ],
     shots: [
@@ -319,8 +325,8 @@ export const capabilities: Capability[] = [
       },
     ],
     specs: [
-      { label: "What it reads", body: "Outcomes you logged: the stage, the award amount, the funder, the ask size, and the sections in the submitted draft." },
-      { label: "What it shows", body: "Funded and declined by funder and funder type, ask sizes compared with awards, and the sections most often present in funded applications." },
+      { label: "What it reads", body: "Outcomes you logged: the stage, the award amount, the funder or client, the ask size, and the sections in the submitted draft." },
+      { label: "What it shows", body: "Won and lost by funder, client, sector, and size, ask sizes compared with awards, and the sections most often present in funded applications." },
       { label: "Small numbers", body: "Every figure shows how many outcomes it rests on. With only a few, it shows counts and a plain caution." },
       { label: "Whose data", body: "Your workspace only. It does not compare you with other organizations." },
     ],
@@ -328,7 +334,7 @@ export const capabilities: Capability[] = [
       "Use other organizations' results to judge yours.",
       "Present a few outcomes as a trend.",
       "Promise a win rate.",
-      "Share your outcomes with funders or other customers.",
+      "Share your outcomes with funders, clients, or other customers.",
     ],
   },
 ];
@@ -342,9 +348,10 @@ export function capability(slug: Capability["slug"]): Capability {
 /** The parts of the product that do not have a page of their own. */
 export const alsoIncluded: Spec[] = [
   { label: "The Inbox", body: "Every draft, schedule, email, and question an agent prepares waits here until you approve it, edit it, or set it aside. A monthly plan is one click away." },
-  { label: "Your profile", body: "Facts read from your website and documents. Each one keeps the quoted passage it came from, and only facts whose passage is on the page are kept." },
-  { label: "Pipeline board", body: "Every application from Discovered to Won or Lost, with what the funder said." },
-  { label: "Funder pages", body: "A deep dive on each foundation from its 990-PF: giving by focus, grant sizes, grantee locations, trustees, and how to apply as filed." },
+  { label: "Your profile", body: "Facts read from your website and documents. Each one keeps the quoted passage it came from, and only facts whose passage is in the source are kept." },
+  { label: "Bid tools", body: "For firms: a compliance matrix with the page behind every requirement, go/no-go with reasons, the SF 330 exported to Word, a fee proposal structure for your numbers, and addenda tracking." },
+  { label: "Pipeline board", body: "Every application and bid from the first look to Won or Lost, with what the funder or client said." },
+  { label: "Funder pages", body: "A closer look at each foundation from its 990-PF: giving by focus, grant sizes, grantee locations, trustees, and how to apply as filed." },
   { label: "Social post drafts", body: "Short posts about a new grant or a milestone, to copy or export. It never posts for you." },
-  { label: "Activity log", body: "Each step an agent took, each page it read, and what the run cost." },
+  { label: "Activity log", body: "Each step an agent took and each page it read." },
 ];

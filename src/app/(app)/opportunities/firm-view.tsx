@@ -64,7 +64,7 @@ export function FirmOpportunitiesView({ bids, grants, sam, demo, initialTab }: P
                     </div>
                     {b.goNoGo != null ? (
                       <p className="text-base text-ink sm:text-right">
-                        <span className="font-display text-2xl tnum">{b.goNoGo}</span> <span className="text-sm text-ink-muted">go/no-go</span>
+                        <span className="font-mono text-2xl tnum">{b.goNoGo}</span> <span className="text-sm text-ink-muted">go/no-go</span>
                       </p>
                     ) : null}
                   </li>
@@ -94,7 +94,7 @@ export function FirmOpportunitiesView({ bids, grants, sam, demo, initialTab }: P
               <ul className="mt-4 border-t border-rule">
                 {sam.notices.map((n) => (
                   <li key={n.noticeId} className="grid gap-x-6 gap-y-2 border-b border-rule py-5 sm:grid-cols-[4.5rem_1fr]">
-                    <p className="font-display text-3xl leading-none text-ink tnum" aria-label={`Fit ${n.fit?.score ?? 0} of 100`}>
+                    <p className="font-mono text-3xl leading-none text-ink tnum" aria-label={`Fit ${n.fit?.score ?? 0} of 100`}>
                       {n.fit?.score ?? "–"}
                     </p>
                     <div className="min-w-0">

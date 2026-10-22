@@ -33,7 +33,7 @@ export default function WhoItsForPage() {
           <div className="mx-auto max-w-[75rem] px-4 py-16 sm:px-6 lg:px-10 lg:py-24">
             <div className="grid gap-8 lg:grid-cols-[1fr_1.5fr] lg:gap-20">
               <div>
-                <p className="font-display text-6xl leading-[0.85] tracking-[-0.03em] text-meadow tnum" aria-hidden>
+                <p className="font-display text-6xl leading-[0.85] tracking-[-0.03em] text-fellow tnum" aria-hidden>
                   {i + 1}
                 </p>
                 <h2 className="mt-5 font-display text-4xl text-ink sm:text-5xl">{a.name}</h2>

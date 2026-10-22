@@ -40,14 +40,14 @@ export default function ProductPage() {
 
       <section className="mt-16 border-t border-rule lg:mt-24">
         <div className="mx-auto max-w-[75rem] px-4 py-16 sm:px-6 lg:px-10 lg:py-24">
-          <SectionHeading plant="lupine-blue" className="max-w-[16ch] text-4xl sm:text-5xl lg:text-6xl">
+          <SectionHeading className="max-w-[16ch] text-4xl sm:text-5xl lg:text-6xl">
             Six parts, one Inbox.
           </SectionHeading>
           <ol className="mt-12 border-t border-ink lg:mt-16">
             {capabilities.map((c, i) => (
               <li key={c.slug} className="border-b border-rule">
                 <Link href={`/product/${c.slug}`} className="group grid gap-3 py-8 sm:grid-cols-[3.5rem_1fr] lg:grid-cols-[3.5rem_1fr_1.3fr] lg:items-baseline lg:gap-10">
-                  <span className="font-display text-4xl leading-none text-meadow tnum" aria-hidden>
+                  <span className="font-display text-4xl leading-none text-fellow tnum" aria-hidden>
                     {i + 1}
                   </span>
                   <span>

@@ -22,6 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/for/students",
     "/free",
     "/data",
+    "/faq",
     "/roadmap",
     "/about",
     "/security",

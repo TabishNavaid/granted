@@ -1,5 +1,6 @@
 "use client";
 
+import { ImportDialog } from "./import-dialog";
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Pencil, Plus, Trash2 } from "lucide-react";
@@ -168,9 +169,12 @@ export function ProjectsPanel({ projects, readOnly }: { projects: PortfolioProje
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <p className="max-w-[65ch] text-base text-ink-muted">Every project a bid can show. Bids choose the most relevant for each solicitation; the SF 330 shows up to ten in Section F.</p>
         {readOnly ? null : (
-          <Button size="sm" onClick={() => setEditing(blankProject())}>
-            <Plus className="size-4" aria-hidden /> Add a project
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <ImportDialog kind="projects" />
+            <Button size="sm" onClick={() => setEditing(blankProject())}>
+              <Plus className="size-4" aria-hidden /> Add a project
+            </Button>
+          </div>
         )}
       </div>
       {projects.length ? (
@@ -298,9 +302,12 @@ export function PeoplePanel({ personnel, projects, readOnly }: { personnel: Pers
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <p className="max-w-[65ch] text-base text-ink-muted">Key personnel with their registrations and the projects they worked on. Bids tailor each résumé to the solicitation from these records.</p>
         {readOnly ? null : (
-          <Button size="sm" onClick={() => setEditing({ name: "", title: "", role: "", discipline: "", yearsTotal: null, yearsWithFirm: null, education: [], registrations: [], certifications: [], summary: "", projectIds: [], resumeDocumentId: null, office: null })}>
-            <Plus className="size-4" aria-hidden /> Add a person
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <ImportDialog kind="people" />
+            <Button size="sm" onClick={() => setEditing({ name: "", title: "", role: "", discipline: "", yearsTotal: null, yearsWithFirm: null, education: [], registrations: [], certifications: [], summary: "", projectIds: [], resumeDocumentId: null, office: null })}>
+              <Plus className="size-4" aria-hidden /> Add a person
+            </Button>
+          </div>
         )}
       </div>
       <ul className="mt-4 border-t border-rule">

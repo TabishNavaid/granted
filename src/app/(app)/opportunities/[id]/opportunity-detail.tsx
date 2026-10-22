@@ -73,7 +73,7 @@ export function OpportunityDetail({ opportunity, funder, contacts, match, applic
                 {funder.name}
               </Link>
             </p>
-            <h1 className="mt-1 font-display text-h1 text-ink">{opportunity.title}</h1>
+            <h1 className="mt-1 font-display text-title text-ink">{opportunity.title}</h1>
             <p className="mt-4 max-w-[65ch] text-lg text-ink-muted">{opportunity.summary}</p>
             <div className="mt-4 flex flex-wrap items-baseline gap-x-6 gap-y-1">
               <VerifiedSource url={opportunity.sourceUrl} verifiedAt={opportunity.lastVerifiedAt} note={opportunity.sourceNote} label={opportunity.sourceNote ? "IRS filing" : undefined} />

@@ -1,4 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#ffffff"/>
-  <text x="32" y="47" text-anchor="middle" font-family="'Trebuchet MS','Segoe UI',Arial,sans-serif" font-weight="700" font-size="44" fill="#24318a">F</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#14201B"/><g fill="#FFFFFF" transform="translate(3.2 3.2) scale(0.8)"><rect x="5" y="5" width="22" height="4"/><rect x="5" y="5" width="4" height="22"/><rect x="23" y="5" width="4" height="22"/><rect x="9" y="14" width="4.5" height="3.5"/><rect x="18.5" y="14" width="4.5" height="3.5"/></g></svg>

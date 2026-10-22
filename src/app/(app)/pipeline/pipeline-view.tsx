@@ -23,7 +23,7 @@ import { Input, Textarea } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { WonMeadow } from "@/components/drawings/won-meadow";
+import { WonScreen } from "@/components/app/won-screen";
 
 /** Where an application of another kind sits on this board, when its stage has no column here. */
 function columnFor(stage: ApplicationView["stage"], columns: ApplicationView["stage"][]): ApplicationView["stage"] {
@@ -73,7 +73,7 @@ export function PipelineView({ initial, members, orgName, kind = "grant" }: { in
   return (
     <PageContainer width="full" className="lg:px-8">
       <div ref={liveRef} aria-live="polite" className="sr-only" />
-      {won ? <WonMeadow orgName={orgName} funderName={won.funder.name} amount={won.outcome?.awardAmount ?? null} onDismiss={() => setWon(null)} /> : null}
+      {won ? <WonScreen orgName={orgName} funderName={won.funder.name} amount={won.outcome?.awardAmount ?? null} onDismiss={() => setWon(null)} /> : null}
       <PageHeader
         title="Pipeline"
         description={

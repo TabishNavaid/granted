@@ -2,373 +2,332 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Screenshot } from "@/components/marketing/screenshot";
-import { Plate } from "@/components/marketing/plate";
-import { DEMO_HREF, DEMO_LABEL, DEMO_NOTE, DemoCta } from "@/components/marketing/demo-cta";
-import { Drawing } from "@/components/drawings/drawing";
-import { Meadow } from "@/components/drawings/meadow";
-import { drawing, plates } from "@/lib/drawings";
+import { LogoMark } from "@/components/brand/logo";
+import { dataPageStats } from "@/lib/catalog/stats";
 import { faq } from "@/content/site";
-import { checked, helpCosts, source } from "@/content/costs";
-import { audiencePages } from "@/content/audience-pages";
-import * as demo from "@/lib/mock/data";
-import { PRODUCT_NAME, PRODUCT_TAGLINE } from "@/lib/brand";
+import { PRODUCT_NAME } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: `${PRODUCT_NAME}: ${PRODUCT_TAGLINE.replace(/\.$/, "").toLowerCase()}`,
-  description: `${PRODUCT_NAME} is for organizations that win work through applications and proposals: nonprofits, architecture and construction firms, research teams, and students. It finds what you can apply for, drafts from your own records with a source on every claim, and keeps every deadline. Nothing moves without you.`,
+  title: { absolute: `${PRODUCT_NAME}: find and win the grants and public bids you qualify for` },
+  description: `${PRODUCT_NAME} reads Grants.gov, SAM.gov, state and city bid portals, NIH, NSF, and the filings of private foundations every day, drafts each application from your own records with a source for every claim, and plans every deadline. Free during early access.`,
   alternates: { canonical: "/" },
 };
 
-const problem = [
-  "A nonprofit director writes grants at night. A firm's principal reads the solicitation on a weekend. A researcher writes between classes. A senior writes essays after practice.",
-  "Hiring help costs more each month than most of them can spare. A grant writer on retainer can cost $2,000 a month.",
-  "The AI tools that would help will write anything, including numbers, projects, and experiences that were never true.",
-];
+// The counts on this page come from the database; read them at most every ten minutes.
+export const revalidate = 600;
+
+const nf = new Intl.NumberFormat("en-US");
 
 const steps = [
-  { n: "1", title: "Paste your website", body: "We read your pages and write down the facts a funder asks for. Each one links to the sentence it came from. You check them before anything uses them.", shot: "profile", alt: "The confirm screen: facts about the organization, each with a source link." },
-  { n: "2", title: "See grants you can apply for", body: "We search Grants.gov for open and forecast notices that 501(c)(3) organizations can apply for, read the best ones in full, and score each against your facts in plain words.", shot: "opportunities", alt: "The opportunities list: funders ranked by fit, each with a score, deadline, award range, and reasons." },
-  { n: "3", title: "Get a letter that only says what is true", body: "One click drafts a one-page letter of inquiry. Every claim cites a fact you confirmed. Anything we do not know becomes a question for you.", shot: "workspace", alt: "The proposal workspace: a drafted letter with citation chips, a checklist, and open questions on the right." },
+  {
+    n: "01",
+    title: "It finds what you qualify for",
+    body: "Tell it who you are once: your website, your documents, your work categories. It reads the database every morning and shows what fits, with the reason in your words and the line of the notice that supports it. Anything you could not apply for is set aside, with why.",
+    shot: { name: "opportunities", alt: "Matches for a sample nonprofit, each with a fit score and the reasons behind it." },
+  },
+  {
+    n: "02",
+    title: "It drafts from your own records",
+    body: "Letters, full proposals, bid responses, research proposals, and essays, written from your documents and records. Every claim links to the sentence it came from. When a fact is missing, the draft asks you instead of guessing.",
+    shot: { name: "workspace", alt: "A proposal draft with a citation on every claim and the questions it could not answer." },
+  },
+  {
+    n: "03",
+    title: "You decide, and every date is planned",
+    body: "Each deadline gets a plan worked back from the due date: go or no-go, questions due, drafts, review, signatures. Everything waits in one Inbox for a person to approve. Nothing is sent or submitted without you.",
+    shot: { name: "calendar", alt: "The calendar with deadlines and the milestones planned back from each one." },
+  },
 ];
 
-const trust = [
-  "Every funder and deadline comes from a page we fetched, with the link and the date we checked it.",
-  "Every claim about your organization cites a fact you confirmed. A missing fact becomes a question, not a plausible number.",
-  "We never send, post, or submit. You copy the email. You click submit on the funder's portal.",
-  "Your data stays in your workspace. We use the AI provider's paid tier, which does not train on it. One click deletes everything.",
-  "The Activity screen shows each step an agent took, each page it read, and what it cost.",
+const audiences = [
+  {
+    href: "/for/architecture-and-construction",
+    name: "Architecture, engineering, and construction firms",
+    finds: "Federal solicitations on SAM.gov and open bids from state and city portals, filtered by your NAICS codes, region, and set-asides.",
+    drafts: "The compliance matrix, a go/no-go with reasons, the SF 330, and a proposal built from your projects and people.",
+  },
+  {
+    href: "/for/nonprofits",
+    name: "Nonprofits",
+    finds: "Federal grants, and private foundations in every state from their IRS filings, including whether they accept applications.",
+    drafts: "Letters of inquiry and full proposals from your annual report, your 990, and your website.",
+  },
+  {
+    href: "/for/research",
+    name: "Research teams",
+    finds: "NIH and NSF notices, SBIR and STTR solicitations, and the programs that funded work like yours.",
+    drafts: "Proposal sections, biosketches, and facilities from your records, with each funder's rules on AI on the checklist.",
+  },
+  {
+    href: "/for/students",
+    name: "Students and individuals",
+    finds: "National scholarships and fellowships, each checked on the sponsor's own page, and foundations that give to individuals.",
+    drafts: "Essays in your own voice, from your own experiences. It asks instead of inventing.",
+  },
 ];
 
-/** Footnotes for the cost section, numbered in the order they first appear. */
-const costSources = Array.from(new Set(helpCosts.flatMap((c) => c.sources)));
-const costNote = (id: string) => costSources.indexOf(id) + 1;
+const never = [
+  "Send, submit, post, or sign anything for you.",
+  "Name a funder, a deadline, or an amount that is not in a public source we can link to.",
+  "Put a number in a draft that is not in your records.",
+  "Show who won a contract. Past awards are kept only as totals.",
+  "Train AI models on your documents.",
+];
 
-/** The demo match the green section is about, straight from the demo workspace. */
-const featured = (() => {
-  const match = demo.matches.find((m) => m.id === "match_meridian")!;
-  const opportunity = demo.opportunities.find((o) => o.id === match.opportunityId)!;
-  const funder = demo.funders.find((f) => f.id === opportunity.funderId)!;
-  return { match, opportunity, funder };
-})();
-
-/**
- * A section heading, with at most one small watercolor plant. The plant
- * stands on the baseline of the heading's last line, right after the last
- * word, so it is always in the same place relative to the type.
- */
-function SectionHeading({ plant, className, children }: { plant?: string; className?: string; children: string }) {
-  // The last word and the plant never break apart, so the plant cannot wrap onto a line of its own.
-  const cut = children.lastIndexOf(" ");
-  const head = children.slice(0, cut + 1);
-  const last = children.slice(cut + 1);
+export default async function HomePage() {
+  const stats = await dataPageStats();
+  const total = stats.totals.open + stats.totals.forecasted;
+  const aec = stats.construction.federal + stats.construction.stateLocal;
+  const sources = stats.sources.filter((s) => s.kinds.length > 0).length;
+  const asOf = stats.asOf ? new Date(stats.asOf).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" }) : null;
   return (
-    <h2 className={`font-display text-4xl text-ink sm:text-5xl lg:text-6xl ${className ?? ""}`}>
-      {head}
-      <span className="whitespace-nowrap">
-        {last}
-        {plant ? (
-          <span aria-hidden className="relative ml-[0.2em] inline-block h-0 w-[0.8em] align-baseline">
-            <Drawing asset={drawing(plant)} className="absolute bottom-[-0.04em] left-0 h-[1em] w-auto" />
-          </span>
-        ) : null}
-      </span>
-    </h2>
-  );
-}
-
-export default function LandingPage() {
-  const lupine = plates[0];
-  return (
-    <div className="overflow-x-clip">
-      {/* Hero: the headline beside one painting, and a strip of wildflowers that grows up as the page loads. */}
-      <section>
-        <div className="mx-auto grid max-w-[75rem] items-end gap-12 px-4 pt-12 sm:px-6 sm:pt-16 lg:grid-cols-[1fr_22rem] lg:gap-16 lg:px-10 lg:pt-20 xl:grid-cols-[1fr_25rem]">
-          <div className="pb-4 lg:pb-16">
-            <h1 className="max-w-[15ch] font-display text-[clamp(3.1rem,1.4rem+5.2vw,6rem)] leading-[0.98] text-ink">Grants, bids, and scholarships from your own records.</h1>
-            <p className="mt-8 max-w-[48ch] text-lg text-ink sm:text-xl">
-              For anyone who wins work by applying for it: nonprofits, architecture and construction firms, research teams, and students. {PRODUCT_NAME} finds what you can apply for, drafts from your own records with a source on every claim, and keeps every deadline. You read it and approve it. Nothing moves without you.
+    <>
+      {/* Hero */}
+      <section className="border-b border-rule">
+        <div className="mx-auto grid max-w-[75rem] gap-12 px-4 pb-16 pt-14 sm:px-6 lg:grid-cols-[1.25fr_1fr] lg:gap-16 lg:px-10 lg:pb-20 lg:pt-20">
+          <div>
+            <h1 className="max-w-[20ch] font-display text-[clamp(2.3rem,1.3rem+3.2vw,3.9rem)] leading-[1.04] text-ink">Find every grant and public bid you qualify for. Draft each one from your own records.</h1>
+            <p className="mt-6 max-w-[56ch] text-lg text-ink-muted sm:text-xl">
+              {PRODUCT_NAME} reads Grants.gov, SAM.gov, state and city bid portals, NIH, NSF, and the filings of private foundations every day. It drafts each application from your documents with a source for every claim, and plans every deadline. A person approves everything.
             </p>
-            <div className="mt-9 flex flex-wrap items-center gap-3">
+            <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild size="lg">
-                <Link href="/sign-up">Start free</Link>
+                <Link href="/sign-up">Create a free workspace</Link>
               </Button>
-              <Button asChild size="lg" variant="secondary" className="h-auto min-h-12 max-w-full whitespace-normal py-2.5 text-center">
-                <Link href={DEMO_HREF}>{DEMO_LABEL}</Link>
+              <Button asChild size="lg" variant="secondary">
+                <Link href="/onboarding?type=firm">Try it with a sample firm</Link>
               </Button>
             </div>
-            <p className="mt-3 text-sm text-ink-muted">Free to start. First matches in about ten minutes.</p>
-            <p className="mt-1 text-sm text-ink-muted">{DEMO_NOTE}</p>
+            <p className="mt-4 text-sm text-ink-muted">Free during early access. No card.</p>
           </div>
-          {lupine ? <Plate plate={lupine} eager className="w-[68%] max-w-[22rem] sm:w-full lg:mb-10 lg:max-w-none" /> : null}
-        </div>
-        <Meadow seed="hero" count={12} mobileMax={7} grow className="-mt-2 h-36 border-b border-rule sm:h-48" />
-      </section>
 
-      {/* The product, at full width, on a cream panel the color of Walcott's paper. */}
-      <section className="mx-auto max-w-[75rem] px-4 pt-14 sm:px-6 lg:px-10 lg:pt-20">
-        <Screenshot name="inbox" tone="cream" bleed="bottom" priority sizes="(min-width: 1200px) 1120px, 100vw" alt="The Inbox: this month's plan, and the drafts, emails, and questions waiting for approval." />
-        <p className="mt-4 text-sm text-ink-muted">The Inbox, on demo data. Everything {PRODUCT_NAME} does waits here until you approve it.</p>
-      </section>
-
-      {/* Problem */}
-      <section>
-        <div className="mx-auto grid max-w-[75rem] gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:gap-20 lg:px-10 lg:py-32">
-          <h2 className="max-w-[12ch] font-display text-5xl leading-[1.02] text-ink sm:text-6xl lg:text-[5.5rem]">
-            The writing falls on <span className="text-meadow">one person.</span>
-          </h2>
-          <ul className="self-end border-t border-rule text-lg text-ink sm:text-xl">
-            {problem.map((p) => (
-              <li key={p} className="max-w-[46ch] border-b border-rule py-5">
-                {p}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* Who it is for: the four audience pages. */}
-      <section id="who" aria-labelledby="who-heading" className="scroll-mt-16 border-t border-rule">
-        <div className="mx-auto max-w-[75rem] px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
-          <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr] lg:items-end lg:gap-20">
-            <h2 id="who-heading" className="max-w-[18ch] font-display text-4xl text-ink sm:text-5xl">
-              Four kinds of applicants, one way of working.
+          {/* The register: live counts from the database */}
+          <div className="self-end border-t-2 border-ink" aria-labelledby="counts-heading">
+            <h2 id="counts-heading" className="sr-only">
+              Open in the database
             </h2>
-            <p className="max-w-[48ch] text-lg text-ink-muted">Each starts from what it already has: a website, a firm&apos;s projects and people, a lab page, or a résumé. Every draft cites those records, and you approve every step.</p>
+            <p className="pt-5 font-mono text-[clamp(2.6rem,1.8rem+2.6vw,3.75rem)] leading-none tracking-[-0.03em] text-ink tnum">{nf.format(total)}</p>
+            <p className="mt-2 text-base text-ink">opportunities open or announced{stats.live ? " right now" : ""}</p>
+            <dl className="mt-6 border-t border-rule text-base">
+              {(
+                [
+                  ["Contracts and bids", stats.totals.byType.contract],
+                  ["Federal and other grants", stats.totals.byType.grant],
+                  ["Research funding", stats.totals.byType.research],
+                  ["Scholarships and fellowships", stats.totals.byType.scholarship],
+                  ["Private foundations on file", stats.totals.foundations],
+                ] as const
+              ).map(([label, n]) => (
+                <div key={label} className="flex items-baseline justify-between gap-4 border-b border-rule py-2.5">
+                  <dt className="text-ink-muted">{label}</dt>
+                  <dd className="font-mono text-ink tnum">{nf.format(n)}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="mt-3 text-sm text-ink-muted">
+              From {sources} official sources{asOf ? `, ${stats.live ? "counted" : "measured"} ${asOf}` : ""}.{" "}
+              <Link href="/data" className="font-semibold text-ink underline underline-offset-4">
+                See every source
+              </Link>
+            </p>
           </div>
-          <ul className="mt-12 grid border-t border-ink md:grid-cols-2 lg:mt-16">
-            {audiencePages.map((a) => (
-              <li key={a.slug} className="border-b border-rule md:odd:border-r md:odd:pr-10 md:even:pl-10">
-                <Link href={`/for/${a.slug}`} className="group block py-8">
-                  <span className="block font-display text-3xl text-ink underline-offset-[6px] group-hover:underline">{a.name}</span>
-                  <span className="mt-2 block max-w-[48ch] text-base text-ink-muted sm:text-lg">{a.summary}</span>
-                  <span className="mt-3 block text-base font-semibold text-ink underline decoration-[1.5px] underline-offset-4">{a.linkLabel}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
         </div>
       </section>
 
-      {/* How it works: three steps, three layouts. */}
-      <section id="how" className="scroll-mt-16 border-t border-rule">
-        <div className="mx-auto max-w-[75rem] px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
-          <SectionHeading plant="harebell" className="max-w-[16ch]">
-            Three steps. The last one is yours.
-          </SectionHeading>
-          <p className="mt-6 max-w-[58ch] text-lg text-ink-muted">Here they are for a nonprofit. A firm starts from its projects and an RFP, a research team from its lab page, and a student from a résumé; each has its own page above.</p>
+      {/* Construction, first and impossible to miss */}
+      <section aria-labelledby="aec-heading" className="bg-ink text-on-ink">
+        <div className="mx-auto max-w-[75rem] px-4 py-16 sm:px-6 lg:px-10 lg:py-24">
+          <div className="grid gap-10 lg:grid-cols-[1fr_1fr] lg:gap-16">
+            <div>
+              <p className="text-base font-semibold text-on-ink-muted">For architecture, engineering, and construction firms</p>
+              <h2 id="aec-heading" className="mt-3 max-w-[20ch] font-display text-[clamp(2rem,1.4rem+2vw,3rem)] leading-[1.08] text-on-ink">
+                Read the solicitation once. Get the compliance matrix, the go/no-go, and the SF 330.
+              </h2>
+            </div>
+            <div className="lg:pt-10">
+              <p className="max-w-[52ch] text-lg text-on-ink-muted">
+                Upload an RFP or pick one from the database. Every requirement becomes a row with the sentence and page it came from. The go/no-go weighs your capacity, bonding, and past work, with reasons. Sections are built from your projects and people, and the SF 330 exports to Word.
+              </p>
+              <dl className="mt-8 grid grid-cols-2 gap-x-8 gap-y-6 border-t border-on-ink-muted/40 pt-6">
+                <div>
+                  <dt className="text-sm text-on-ink-muted">Open federal construction and A/E solicitations</dt>
+                  <dd className="mt-1 font-mono text-3xl text-on-ink tnum">{nf.format(stats.construction.federal)}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm text-on-ink-muted">Open state and city construction bids</dt>
+                  <dd className="mt-1 font-mono text-3xl text-on-ink tnum">{nf.format(stats.construction.stateLocal)}</dd>
+                </div>
+              </dl>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Button asChild size="lg" className="border-on-ink bg-on-ink text-ink hover:border-white hover:bg-white">
+                  <Link href="/for/architecture-and-construction">See the construction path</Link>
+                </Button>
+                <Button asChild size="lg" variant="secondary" className="border-on-ink bg-transparent text-on-ink hover:bg-white/10">
+                  <Link href="/onboarding?type=firm">Open the sample firm</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+          <div className="mt-14">
+            <Screenshot name="bid-matrix" tone="none" onDark alt={`The compliance matrix for a real VA solicitation in the sample firm's workspace: each requirement with its source sentence, page, and status. ${aec ? `${nf.format(aec)} open construction bids in the database.` : ""}`} caption="The compliance matrix for a real VA solicitation (36C25723R0049), in the sample firm's workspace." sizes="(min-width: 1200px) 1120px, 100vw" />
+          </div>
+        </div>
+      </section>
 
-          <ol className="mt-16 flex flex-col gap-20 lg:mt-20 lg:gap-28">
-            {/* Step one: words left, screenshot right, running off its panel. */}
-            <li className="grid items-center gap-8 lg:grid-cols-[2fr_3fr] lg:gap-14">
-              <StepText step={steps[0]} />
-              <Screenshot name={steps[0].shot} alt={steps[0].alt} tone="sage" bleed="right" />
-            </li>
-            {/* Step two: screenshot left. */}
-            <li className="grid items-center gap-8 lg:grid-cols-[3fr_2fr] lg:gap-14">
-              <StepText step={steps[1]} className="lg:order-2" />
-              <Screenshot name={steps[1].shot} alt={steps[1].alt} tone="mist" bleed="left" className="lg:order-1" />
-            </li>
-            {/* Step three: words above, screenshot across the whole width. */}
-            <li>
-              <StepText step={steps[2]} />
-              <Screenshot name={steps[2].shot} alt={steps[2].alt} tone="cream" className="mt-10" sizes="(min-width: 1200px) 1120px, 100vw" />
-            </li>
+      {/* How it works */}
+      <section aria-labelledby="how-heading" className="border-b border-rule">
+        <div className="mx-auto max-w-[75rem] px-4 py-16 sm:px-6 lg:px-10 lg:py-24">
+          <h2 id="how-heading" className="max-w-[22ch] font-display text-4xl text-ink sm:text-5xl">
+            A colleague who has every record in reach.
+          </h2>
+          <ol className="mt-12 flex flex-col gap-16">
+            {steps.map((s) => (
+              <li key={s.n} className="grid gap-8 border-t border-ink pt-6 lg:grid-cols-[1fr_1.5fr] lg:gap-14">
+                <div>
+                  <p className="font-mono text-sm text-ink-muted">{s.n}</p>
+                  <h3 className="mt-2 font-display text-2xl text-ink sm:text-3xl">{s.title}</h3>
+                  <p className="mt-4 max-w-[48ch] text-base text-ink-muted">{s.body}</p>
+                </div>
+                <Screenshot name={s.shot.name} alt={s.shot.alt} tone="sage" />
+              </li>
+            ))}
           </ol>
         </div>
       </section>
 
-      {/* The one full-bleed meadow green section: matching, with the number large. */}
-      <section id="matching" className="scroll-mt-16 bg-meadow text-white">
-        <div className="mx-auto grid max-w-[75rem] items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_1.35fr] lg:gap-16 lg:px-10 lg:py-28">
+      {/* Evidence */}
+      <section aria-labelledby="evidence-heading" className="border-b border-rule bg-paper-tint">
+        <div className="mx-auto grid max-w-[75rem] gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1.3fr] lg:gap-16 lg:px-10 lg:py-24">
           <div>
-            <h2 className="max-w-[14ch] font-display text-4xl text-white sm:text-5xl">Every match comes with its reasons.</h2>
-            <div className="mt-10 flex items-end gap-5">
-              <p className="font-display text-[8rem] leading-[0.8] tracking-[-0.04em] text-white tnum sm:text-[10rem]">
-                <span className="sr-only">Fit score </span>
-                {featured.match.fitScore}
-              </p>
-              <div className="pb-2 text-base text-white/85">
-                <p className="font-semibold text-white">Strong fit</p>
-                <p>{featured.opportunity.title}</p>
-                <p>{featured.funder.name}</p>
+            <h2 id="evidence-heading" className="max-w-[16ch] font-display text-4xl text-ink sm:text-5xl">
+              Every line shows where it came from.
+            </h2>
+            <p className="mt-6 max-w-[48ch] text-lg text-ink-muted">
+              A requirement in the matrix quotes the solicitation. A claim in a draft links to your document. When the source is not there, the draft asks you a question instead of making something up.
+            </p>
+          </div>
+          <figure className="sheet overflow-hidden">
+            <div className="border-b border-rule px-5 py-3 text-sm text-ink-muted">
+              <span className="font-mono text-ink">36C25723R0049</span>, amendment <span className="font-mono text-ink">A0002</span>, answer A4. Department of Veterans Affairs.
+            </div>
+            <blockquote className="px-5 py-5 text-base leading-relaxed text-ink">
+              &ldquo;Whatever documents provided, from cover letter, SF330 and SAM screen shot is to be part of the entire submission and therefore, <mark className="bg-evidence px-0.5 text-ink">counts towards the limit to 20 pages</mark>.&rdquo;
+            </blockquote>
+            <div className="grid gap-px border-t border-rule bg-rule sm:grid-cols-[1fr_auto]">
+              <div className="bg-paper px-5 py-4">
+                <p className="text-sm text-ink-muted">In the compliance matrix</p>
+                <p className="mt-1 text-base font-semibold text-ink">Whole submission, cover letter through SAM screenshot, within 20 pages.</p>
+              </div>
+              <div className="flex items-center bg-paper px-5 py-4">
+                <span className="tag tag-ink">Checked against the draft</span>
               </div>
             </div>
-            <ul className="mt-8 border-t border-white/25 text-base sm:text-lg">
-              {featured.match.reasons.map((r) => (
-                <li key={r} className="max-w-[48ch] border-b border-white/25 py-3.5">
-                  {r}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-6 max-w-[48ch] text-sm text-white/80">If you cannot apply, you never see it. The source page and the date we checked it are one click away. Demo data.</p>
-          </div>
-          <Screenshot name="opportunity" alt="An opportunity page with fit reasons, eligibility checks, and the verified source link." tone="meadow" bleed="right" />
+            <figcaption className="border-t border-rule px-5 py-3 text-sm text-ink-muted">A real amendment to a real solicitation, read by the rules {PRODUCT_NAME} runs on every RFP. The sample firm&apos;s workspace is fictional.</figcaption>
+          </figure>
         </div>
       </section>
 
-      {/* Drafts and outreach as plain words, deadlines with a picture. */}
-      <section className="border-b border-rule">
-        <div className="mx-auto max-w-[75rem] px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
-          <div className="grid gap-12 border-b border-rule pb-16 md:grid-cols-2 md:gap-16 lg:pb-20">
-            <div id="drafts" className="scroll-mt-20">
-              <h2 className="max-w-[16ch] font-display text-3xl text-ink lg:text-4xl">Drafts built from your own sources</h2>
-              <p className="mt-4 max-w-[46ch] text-lg text-ink-muted">Letters and proposals use facts you confirmed and the funder&apos;s own text, with citations inline. After drafting, code checks every citation and every number. Anything that fails becomes a marked gap and a question in the side panel.</p>
-            </div>
-            <div id="outreach" className="scroll-mt-20">
-              <h2 className="max-w-[16ch] font-display text-3xl text-ink lg:text-4xl">Emails you send yourself</h2>
-              <p className="mt-4 max-w-[46ch] text-lg text-ink-muted">Questions for a program officer, cover notes, thank-yous, and follow-ups are drafted for you. You read them and send them from your own address. Nothing goes out on its own.</p>
-            </div>
-          </div>
-          <div id="deadlines" className="grid scroll-mt-20 items-center gap-10 pt-16 lg:grid-cols-[2fr_3fr] lg:gap-14 lg:pt-20">
-            <div>
-              <h2 className="max-w-[14ch] font-display text-3xl text-ink lg:text-4xl">Deadlines, planned backward</h2>
-              <p className="mt-4 max-w-[44ch] text-lg text-ink-muted">Each application gets milestones counted back from the deadline: draft due, board review, budget sign-off, submit. They sit on one calendar you can subscribe to from your own.</p>
-            </div>
-            <Screenshot name="calendar" alt="The calendar with deadlines and milestones across a month." tone="sage" />
-          </div>
-        </div>
-      </section>
-
-      {/* The one dark band: trust, with the wildflowers against the ink. */}
-      <section id="trust" className="scroll-mt-16 bg-ink text-on-ink">
-        <div className="mx-auto grid max-w-[75rem] gap-12 px-4 pb-6 pt-20 sm:px-6 lg:grid-cols-[1fr_1.3fr] lg:gap-20 lg:px-10 lg:pt-28">
-          <div>
-            <h2 className="max-w-[12ch] font-display text-5xl leading-[1.02] text-on-ink lg:text-6xl">Nothing leaves without you.</h2>
-            <p className="mt-6 max-w-[38ch] text-lg text-on-ink-muted">Funders can spot a made-up number from across the room. So can you.</p>
-            <Link href="/security" className="mt-8 inline-flex h-12 items-center rounded-md border-[1.5px] border-on-ink px-6 text-lg font-bold text-on-ink transition-colors hover:bg-on-ink hover:text-ink">
-              How we handle your data
-            </Link>
-          </div>
-          <ul className="border-t border-white/20 text-base sm:text-lg">
-            {trust.map((t) => (
-              <li key={t} className="max-w-[56ch] border-b border-white/20 py-4">
-                {t}
+      {/* Who it is for */}
+      <section aria-labelledby="who-heading" className="border-b border-rule">
+        <div className="mx-auto max-w-[75rem] px-4 py-16 sm:px-6 lg:px-10 lg:py-24">
+          <h2 id="who-heading" className="max-w-[20ch] font-display text-4xl text-ink sm:text-5xl">
+            One engine for four kinds of applicant.
+          </h2>
+          <ul className="mt-12 border-t border-ink">
+            {audiences.map((a) => (
+              <li key={a.href} className="grid gap-4 border-b border-rule py-7 lg:grid-cols-[1fr_1.2fr_1.2fr] lg:gap-10">
+                <h3 className="font-display text-2xl text-ink">
+                  <Link href={a.href} className="underline decoration-rule-strong decoration-[1.5px] underline-offset-[6px] hover:decoration-ink">
+                    {a.name}
+                  </Link>
+                </h3>
+                <div>
+                  <p className="text-sm text-ink-muted">Finds</p>
+                  <p className="mt-1 text-base text-ink">{a.finds}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-ink-muted">Drafts</p>
+                  <p className="mt-1 text-base text-ink">{a.drafts}</p>
+                </div>
               </li>
             ))}
           </ul>
         </div>
-        <Meadow seed="trust" count={11} mobileMax={6} onDark className="h-40 opacity-95 sm:h-56" />
       </section>
 
-      {/* What help costs: hiring a writer next to our plans. */}
-      <section id="costs" className="scroll-mt-16">
-        <div className="mx-auto grid max-w-[75rem] gap-10 px-4 pt-20 sm:px-6 lg:grid-cols-[1fr_1.6fr] lg:gap-20 lg:px-10 lg:pt-28">
+      {/* Never */}
+      <section aria-labelledby="never-heading" className="border-b border-rule">
+        <div className="mx-auto grid max-w-[75rem] gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1.3fr] lg:gap-16 lg:px-10 lg:py-24">
           <div>
-            <h2 className="max-w-[12ch] font-display text-4xl text-ink sm:text-5xl">What help costs</h2>
-            <p className="mt-5 max-w-[38ch] text-lg text-ink-muted">What hiring grant help typically costs, and what we charge. With either, you still review and submit.</p>
+            <LogoMark className="h-9 w-9 text-fellow" />
+            <h2 id="never-heading" className="mt-6 max-w-[14ch] font-display text-4xl text-ink sm:text-5xl">
+              What it will never do.
+            </h2>
           </div>
-          <div>
-            <dl className="border-t border-ink">
-              {helpCosts.map((c) => (
-                <div key={c.label} className="grid gap-1 border-b border-rule py-5 sm:grid-cols-[12rem_1fr] sm:gap-8">
-                  <dt className="font-semibold text-ink">{c.label}</dt>
-                  <dd>
-                    <span className="block font-display text-2xl text-ink tnum">
-                      {c.cost}
-                      {c.sources.length ? (
-                        <sup className="ml-0.5 font-body text-xs">
-                          {c.sources.map((id, i) => (
-                            <span key={id}>
-                              {i > 0 ? ", " : null}
-                              <a href={`#cost-source-${costNote(id)}`} className="text-ink-muted underline underline-offset-2 hover:text-ink" aria-label={`${costNote(id)}, source: ${source(id).publisher}`}>
-                                {costNote(id)}
-                              </a>
-                            </span>
-                          ))}
-                        </sup>
-                      ) : null}
-                    </span>
-                    <span className="mt-1 block max-w-[52ch] text-base text-ink-muted">{c.detail}</span>
-                  </dd>
-                </div>
-              ))}
-              <div className="grid gap-1 border-b border-rule bg-panel-sage/60 px-3 py-5 sm:-mx-3 sm:grid-cols-[12rem_1fr] sm:gap-8">
-                <dt className="font-semibold text-ink">{PRODUCT_NAME}</dt>
-                <dd>
-                  <span className="block font-display text-2xl text-meadow tnum">Free during early access</span>
-                  <span className="mt-1 block max-w-[52ch] text-base text-ink-muted">No card and no paid plan. It finds the grants, drafts from your facts, and keeps the dates. It does not replace a writer&apos;s judgment or relationships.</span>
-                </dd>
-              </div>
-            </dl>
-            <ol className="mt-5 flex flex-col gap-1 text-xs leading-relaxed text-ink-muted">
-              {costSources.map((id) => {
-                const s = source(id);
-                return (
-                  <li key={id} id={`cost-source-${costNote(id)}`} className="scroll-mt-24">
-                    {costNote(id)}.{" "}
-                    <a href={s.url} className="underline underline-offset-2 hover:text-ink" rel="noopener noreferrer" target="_blank">
-                      {s.publisher}, {s.title}
-                    </a>
-                    . Accessed {checked.long}.
-                  </li>
-                );
-              })}
-            </ol>
-          </div>
+          <ul className="border-t border-ink">
+            {never.map((n) => (
+              <li key={n} className="border-b border-rule py-4 text-lg text-ink">
+                {n}
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
       {/* Free */}
-      <section id="free" className="scroll-mt-16">
-        <div className="mx-auto max-w-[75rem] px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
-          <SectionHeading plant="aster" className="max-w-[17ch]">
+      <section aria-labelledby="free-heading" className="border-b border-rule bg-fellow-tint">
+        <div className="mx-auto grid max-w-[75rem] gap-8 px-4 py-14 sm:px-6 lg:grid-cols-[1fr_1.3fr] lg:gap-16 lg:px-10">
+          <h2 id="free-heading" className="font-display text-3xl text-ink sm:text-4xl">
             Free while we learn.
-          </SectionHeading>
-          <p className="mt-6 max-w-[58ch] text-lg text-ink-muted">No paid plan, no card, and no trial that runs out. We want to learn whether this is truly useful before anyone pays for it.</p>
-          <p className="mt-5 max-w-[60ch] text-base text-ink-muted">
-            <Link href="/free" className="font-semibold text-ink underline decoration-[1.5px] underline-offset-4 hover:decoration-ink">
-              Why it is free, and the one limit
-            </Link>
-          </p>
+          </h2>
+          <div>
+            <p className="max-w-[56ch] text-lg text-ink">No paid plan, no card, and no trial that runs out. We want to find out whether this is truly useful before anyone pays for it. Each workspace has a monthly allowance of AI work, and searching the database never counts against it.</p>
+            <p className="mt-4">
+              <Link href="/free" className="font-semibold text-ink underline underline-offset-4">
+                Why it is free, and the one limit
+              </Link>
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* FAQ */}
-      <section id="questions" className="scroll-mt-16 border-t border-rule">
-        <div className="mx-auto max-w-[75rem] px-4 py-20 sm:px-6 lg:grid lg:grid-cols-[1fr_1.4fr] lg:gap-20 lg:px-10 lg:py-28">
-          <SectionHeading plant="wind-poppy" className="max-w-[12ch] lg:text-5xl">
-            Questions a careful director asks first.
-          </SectionHeading>
-          <div className="mt-10 border-t border-rule lg:mt-0">
+      {/* Questions */}
+      <section id="questions" aria-labelledby="faq-heading" className="scroll-mt-16 border-b border-rule">
+        <div className="mx-auto max-w-[75rem] px-4 py-16 sm:px-6 lg:grid lg:grid-cols-[1fr_1.4fr] lg:gap-20 lg:px-10 lg:py-24">
+          <h2 id="faq-heading" className="max-w-[12ch] font-display text-4xl text-ink sm:text-5xl">
+            Questions people ask first.
+          </h2>
+          <div className="mt-10 border-t border-ink lg:mt-0">
             {faq.map((f) => (
               <details key={f.q} className="group border-b border-rule py-5">
-                <summary className="flex cursor-pointer list-none items-baseline justify-between gap-4 rounded-sm font-display text-xl text-ink [&::-webkit-details-marker]:hidden">
-                  {f.q}
-                  <span className="font-body text-base text-ink-muted group-open:hidden" aria-hidden>
-                    Show
-                  </span>
-                  <span className="hidden font-body text-base text-ink-muted group-open:inline" aria-hidden>
-                    Hide
+                <summary className="cursor-pointer list-none text-lg font-semibold text-ink [&::-webkit-details-marker]:hidden">
+                  <span className="flex items-start justify-between gap-6">
+                    {f.q}
+                    <span aria-hidden className="font-mono text-ink-muted group-open:hidden">+</span>
+                    <span aria-hidden className="hidden font-mono text-ink-muted group-open:inline">-</span>
                   </span>
                 </summary>
-                <p className="mt-3 max-w-[60ch] text-base text-ink-muted">{f.a}</p>
+                <p className="mt-3 max-w-[62ch] text-base text-ink-muted">{f.a}</p>
               </details>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Closing, over a meadow that stands on the footer rule. */}
-      <section className="border-t border-rule">
-        <div className="mx-auto max-w-[75rem] px-4 pb-10 pt-20 sm:px-6 lg:px-10 lg:pt-28">
-          <h2 className="max-w-[14ch] font-display text-5xl leading-[1.02] text-ink sm:text-6xl lg:text-[5.5rem]">Start with what you already have.</h2>
-          <p className="mt-6 max-w-[44ch] text-lg text-ink-muted">A website, a lab page, a résumé, or the RFP in front of you. Free to start, and nothing is sent without you.</p>
-          <DemoCta className="mt-8" />
+      {/* Close */}
+      <section>
+        <div className="mx-auto max-w-[75rem] px-4 py-16 sm:px-6 lg:px-10 lg:py-24">
+          <h2 className="max-w-[20ch] font-display text-4xl text-ink sm:text-5xl">See what you qualify for this week.</h2>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Button asChild size="lg">
+              <Link href="/sign-up">Create a free workspace</Link>
+            </Button>
+            <Button asChild size="lg" variant="secondary">
+              <Link href="/onboarding">Try the demo with a sample</Link>
+            </Button>
+          </div>
         </div>
-        <Meadow seed="closing" count={12} mobileMax={7} className="h-40 opacity-90 sm:h-56" />
       </section>
-    </div>
-  );
-}
-
-function StepText({ step, className }: { step: (typeof steps)[number]; className?: string }) {
-  return (
-    <div className={className}>
-      <span className="block font-display text-[5.5rem] leading-[0.85] tracking-[-0.03em] text-meadow tnum" aria-hidden>
-        {step.n}
-      </span>
-      <h3 className="mt-5 max-w-[18ch] font-display text-3xl text-ink lg:text-4xl">{step.title}</h3>
-      <p className="mt-4 max-w-[46ch] text-lg text-ink-muted">{step.body}</p>
-    </div>
+    </>
   );
 }

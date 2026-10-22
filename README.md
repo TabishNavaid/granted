@@ -53,14 +53,13 @@ npm run loop -- riverbendyouth.org   # run onboarding, discovery, and the letter
 | `python3 -I scripts/samgov/convert_capture.py CAPTURE_DIR OUT.json` | Maps a keyless SAM.gov capture to the official Opportunities API v2 fields for the demo; see docs/segments-data.md. |
 | `python3 -I scripts/foundations/build_foundations.py ...` | Rebuilds the foundation dataset from IRS files; see docs/foundations-data.md. |
 | `npm run loop -- <domain>` | The real loop end to end, printed as a report. |
-| `npm run drawings` | Rebuilds `public/drawings` from `scripts/drawings.json`. |
 
 ## Layout
 
 | Path | What |
 | --- | --- |
 | `src/app` | Routes. `(marketing)` is the public site, `(app)` the signed-in product, `(auth)` sign in and sign up, `onboarding` the setup flow, `api` route handlers. A product page's body lives in `render.tsx` next to its `page.tsx`, so the same code renders on the server or in the browser demo. |
-| `src/components` | `ui` base components, `app` product components, `proposal` the workspace, `marketing` the site, `drawings` the watercolor accents. |
+| `src/components` | `ui` base components, `app` product components, `proposal` the workspace, `marketing` the site, `brand` the logo and the approval mark. |
 | `src/lib/services` | The data layer the UI calls. `contracts.ts` is the interface, `mock.ts` the in-memory adapter, `supabase.ts` the real one, `server.ts` the switch. |
 | `src/lib/demo`, `src/components/demo` | The browser demo: the flag the server sets, the runtime that runs the in-memory adapter in the tab and saves it (`demo-session.ts` in services), and the page and layout shells that render each page's `render.tsx` in the browser. |
 | `src/lib/ai` | One `AiProvider` interface, the Gemini implementation with structured output and rate-limit backoff, and the price table. |
@@ -75,7 +74,3 @@ npm run loop -- riverbendyouth.org   # run onboarding, discovery, and the letter
 | `tests` | Playwright suites. |
 
 The longer design, including the data model and the agent and job plan, is in [ARCHITECTURE.md](ARCHITECTURE.md).
-
-## Credits
-
-The botanical watercolors are by Mary Vaux Walcott, from the Smithsonian American Art Museum, released as CC0 through Smithsonian Open Access. Details are in [public/drawings/CREDITS.md](public/drawings/CREDITS.md).

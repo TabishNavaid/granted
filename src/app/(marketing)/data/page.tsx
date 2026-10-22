@@ -39,18 +39,18 @@ export default async function DataPage() {
           <h2 id="counts-title" className="sr-only">
             Open right now
           </h2>
-          <p className="font-display text-5xl leading-none tracking-[-0.03em] text-ink tnum sm:text-6xl">{nf.format(stats.totals.open + stats.totals.forecasted)}</p>
+          <p className="font-mono text-5xl leading-none tracking-[-0.03em] text-ink tnum sm:text-6xl">{nf.format(stats.totals.open + stats.totals.forecasted)}</p>
           <p className="mt-3 text-lg text-ink">opportunities open or announced{stats.live ? " right now" : ""}.</p>
           <dl className="mt-8 grid gap-x-8 gap-y-5 border-t border-rule pt-6 sm:grid-cols-2 lg:grid-cols-5">
             {TYPES.map((t) => (
               <div key={t}>
                 <dt className="text-sm text-ink-muted">{TYPE_LABELS[t]}</dt>
-                <dd className="mt-1 font-display text-3xl text-ink tnum">{nf.format(stats.totals.byType[t])}</dd>
+                <dd className="mt-1 font-mono text-3xl text-ink tnum">{nf.format(stats.totals.byType[t])}</dd>
               </div>
             ))}
             <div>
               <dt className="text-sm text-ink-muted">Private foundations on file</dt>
-              <dd className="mt-1 font-display text-3xl text-ink tnum">{nf.format(stats.totals.foundations)}</dd>
+              <dd className="mt-1 font-mono text-3xl text-ink tnum">{nf.format(stats.totals.foundations)}</dd>
             </div>
           </dl>
           <p className="mt-6 max-w-[70ch] text-sm text-ink-muted">
@@ -59,7 +59,7 @@ export default async function DataPage() {
               : asOf
                 ? `Measured on ${asOf} from ${stats.label ?? "a test load of the database"}. This site is running without its database, so the counts are not live.`
                 : "Counts appear here once the database is loaded."}{" "}
-            Open means you can apply now; announced means the funder has published a forecast with expected dates.
+            Open means you can apply now; announced means the funder has published a forecast with expected dates. Federal assistance programs ({nf.format(stats.totals.programs)} listed) are counted apart, because a program is not an open call.
           </p>
         </div>
       </section>
@@ -98,9 +98,14 @@ export default async function DataPage() {
                       </p>
                     </div>
                     <div className="md:text-right">
-                      {s.count && s.count.open + s.count.forecasted > 0 ? (
+                      {s.count?.programs ? (
                         <>
-                          <p className="font-display text-2xl text-ink tnum">{nf.format(s.count.open + s.count.forecasted)}</p>
+                          <p className="font-mono text-2xl text-ink tnum">{nf.format(s.count.programs)}</p>
+                          <p className="text-sm text-ink-muted">programs listed</p>
+                        </>
+                      ) : s.count && s.count.open + s.count.forecasted > 0 ? (
+                        <>
+                          <p className="font-mono text-2xl text-ink tnum">{nf.format(s.count.open + s.count.forecasted)}</p>
                           <p className="text-sm text-ink-muted">open or announced</p>
                         </>
                       ) : s.count ? (
