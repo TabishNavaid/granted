@@ -1,8 +1,8 @@
 # Architecture
 
-This is the target design. The README lists what is implemented today; the job runner, several API routes, and the stubbed agents below are planned.
+Sections 3 and 4 are the target design: the README lists what is implemented today, and several API routes and the stubbed agents there are planned. Sections 5 and 7 describe what runs now.
 
-The product (working name in `src/lib/brand.ts`) is a Next.js App Router front end that talks to a thin service layer. The backend is Supabase (Postgres, auth, storage, pgvector), a job runner for agent runs, and a model provider behind `src/lib/ai` (Gemini today) called with tool use and structured output. Agents never talk to the user directly; every output lands in the Inbox as a row the user approves, edits, or rejects.
+The product (working name in `src/lib/brand.ts`) is a Next.js App Router front end that talks to a thin service layer. The backend is Supabase (Postgres, auth, storage, pgvector), a shared opportunity database loaded by scheduled jobs, background jobs in Postgres for long agent runs, and a model provider behind `src/lib/ai` (Gemini today) called with tool use and structured output. Agents never talk to the user directly; every output lands in the Inbox as a row the user approves, edits, or rejects.
 
 ## 1. Folder structure
 
@@ -26,15 +26,19 @@ src/
   lib/mock                    Fictional seed data
   lib/services                contracts.ts (interfaces), mock.ts (adapter), server.ts (switch), index.ts (proxy)
   lib/agents                  tools.ts (tool schemas), index.ts (typed stubs), meta.ts (labels)
-supabase/migrations           0001_init.sql
-tests/smoke.spec.ts           One Playwright test: every route renders
+  lib/catalog                 The opportunity database: connectors, ingest, schedule, the app's read side
+  lib/jobs, lib/email         Background jobs; email rendering, templates, unsubscribe
+scripts/                      ingest.ts, launch-db.ts, catalog-snapshot.ts, data-quality.ts, eval-drafts.ts
+supabase/migrations           0001_init.sql through 0014_errors.sql
+.github/workflows             ci.yml, ingest.yml, sweep-jobs.yml
+tests/                        Playwright: browser suites on the demo, plain-code suites, database suites
 ```
 
 Why one `services` object: the UI imports `services` and nothing else. In the browser each call becomes a server action, so mock state lives in one place and survives navigation. Replacing the mock with Supabase touches `src/lib/services/server.ts` only.
 
 ## 2. Data model
 
-The full schema is in `supabase/migrations/0001_init.sql`. Every org-scoped table carries `org_id` and is protected by row level security through `is_org_member()`. Funders, opportunities, and contacts are shared reference data written only by the ingest job.
+The schema starts in `supabase/migrations/0001_init.sql`; later migrations add to it in order. Every org-scoped table carries `org_id` and is protected by row level security (section 7). Funders, opportunities, and contacts are shared reference data that signed-in users read and only the server writes, when a match copies a row in from the opportunity database or a live source.
 
 | Table | Purpose | Note |
 | --- | --- | --- |
@@ -46,16 +50,21 @@ The full schema is in `supabase/migrations/0001_init.sql`. Every org-scoped tabl
 | matches | Org to opportunity with fit score, reasons, cautions, eligibility checks | Unique per org and opportunity |
 | applications, requirements, sections, citations, missing_facts, compliance_checks | One application and everything the Proposal agent produces | Sections store TipTap HTML; citation and gap nodes are inline spans |
 | milestones | Backward-planned dates with reminder state | Reminder job reads `reminder_sent_at` |
-| email_drafts | Outreach drafts the user sends themselves | No send path exists in P0 |
+| email_drafts | Outreach drafts | Sent only when the user sends them, from their own Gmail or Outlook |
 | outcomes | Won, lost, no response, withdrawn, with award and feedback | Feeds the planner |
 | monthly_plans, inbox_items, agent_runs | Orchestration | `inbox_items.payload` is a typed JSON union (see `InboxPayload`) |
-| notification_settings | Preferences | Digest and reminder switches |
+| notification_settings, email_opt_outs | Preferences | Digest and reminder switches; one-click unsubscribes per person and workspace |
+| saved_searches | Saved keyword searches and bid searches | A row with `filters` (NAICS, states, set-asides, keywords) is a bid search |
+| jobs | Long work a person started | Progress, heartbeat, result, attempts (section 5) |
+| integration_connections | Connected Gmail, Outlook, and Calendar accounts | Tokens encrypted with `TOKEN_ENCRYPTION_KEY`; server only |
+| app_errors | Server and browser errors grouped by fingerprint | Service role only; shown at `/admin/errors` |
+| catalog_* | The shared opportunity database | Section 7 |
 
 TypeScript types in `src/lib/types/index.ts` mirror these tables in camelCase. The Supabase adapter is the only place that maps column names.
 
 ## 3. API routes
 
-All routes are under `/api` and are thin: validate input, check membership, call a service or enqueue a job. The UI does not call them directly in P0 (it uses server actions through `services`), but webhooks, the job runner, and future clients need them.
+All routes are under `/api` and are thin: validate input, check membership, call a service or enqueue a job. The UI mostly uses server actions through `services`. Route handlers that exist today: `/api/uploads/sign` (a one-time URL so the browser uploads straight to private storage), `/api/documents/upload`, `/api/import/sheet` (reads a spreadsheet for the firm import preview), `/api/progress/[jobId]`, `/api/cron/digest`, `/api/cron/reminders`, `/api/cron/jobs`, `/api/email/unsubscribe`, `/api/errors`, `/api/contact`, the OAuth callbacks under `/api/integrations`, the SF 330 Word export, RFP, addendum, and résumé uploads, the ICS calendar feed, and the demo. The table below is the fuller target.
 
 | Method and path | Does |
 | --- | --- |
@@ -99,30 +108,27 @@ Rules enforced in tool handlers, not prompts: `upsert_fact` rejects facts withou
 
 Inline editor actions call `revise_text`, which must return citation and gap nodes unchanged. The stub in `src/lib/agents/index.ts` protects those nodes with placeholders and the real handler does the same before and after the model call.
 
-## 5. Background jobs
+## 5. Background work
 
-Jobs run on Inngest or Trigger.dev (either works; the contract is a named event with a JSON payload and retries).
+Details are in [docs/jobs.md](docs/jobs.md).
 
-| Job | Trigger | Flow |
+Long work a person starts (reading a website, scoring matches, reading a long RFP, drafting a letter, proposal, bid, or essay) runs as a row in `jobs` (migration 0011). The server writes the row, answers at once, and runs the step with `after()` as the person who started it, so row level security applies as if they had clicked (`src/lib/jobs/runner.ts`). Progress is written to the row; the browser polls `/api/progress/[jobId]`, so any server instance can answer. A sweeper (`/api/cron/jobs`, called every ten minutes by `.github/workflows/sweep-jobs.yml`) restarts a step whose heartbeat stopped, up to three tries. The zero-key demo runs its steps in the visitor's tab instead.
+
+| Scheduled work | Where | When |
 | --- | --- | --- |
-| profile.build | Onboarding step 1 | fetch website, pull 990 from public data, run Profile agent, write facts and boilerplate, mark onboarding step |
-| documents.extract | Storage upload complete | extract text, chunk, embed into document_chunks, run Profile agent in update mode, propose fact updates to Inbox |
-| discovery.weekly | Cron, Monday 06:00 org local time | run Discovery agent, create matches, send digest email through Resend |
-| planner.monthly | Cron, 1st of month 06:00 | run Planner agent, write monthly_plan and Inbox item |
-| plan.approved | Inbox approve on monthly_plan | for each kept item: create application, enqueue proposal.draft and calendar.plan |
-| proposal.draft | Application created or user asks | run Proposal agent, write requirements, sections, missing_facts, compliance_checks, Inbox items |
-| calendar.plan | Application created | run Calendar agent, write milestones as a pending Inbox item; on approve, schedule reminders |
-| reminders.send | Cron, hourly | find milestones due in `reminder_days_before`, email via Resend, set reminder_sent_at |
-| outreach.draft | Application reaches Researching, or outcome logged | run Outreach agent for a question, thank-you, or follow-up email |
-| funders.ingest | Cron, nightly | pull Grants.gov and IRS 990 bulk data, upsert funders and opportunities, set last_verified_at |
-| export.build | Export requested | render DOCX (docx) or PDF (headless Chromium), upload to storage, return signed URL |
+| Opportunity database ingestion | GitHub Actions, `ingest.yml` | Hourly, daily, weekly, and monthly slots (section 7) |
+| Restart stalled jobs | GitHub Actions, `sweep-jobs.yml` | Every ten minutes |
+| Weekly digest | Vercel Cron, `/api/cron/digest` | Mondays 13:00 UTC |
+| Milestone reminders | Vercel Cron, `/api/cron/reminders` | Daily 12:00 UTC |
+
+Ingestion stays out of Vercel because its downloads run to hundreds of megabytes and many minutes. There is no hosted queue: Postgres and `after()` cover the load and keep every job visible in the database.
 
 ## 6. Backend build order
 
-1. Supabase project: apply `0001_init.sql`, enable email auth, create the `documents` bucket. Wire the Supabase adapter into `src/lib/services/server.ts` for org, members, billing, and notification settings. Sign in and settings work end to end.
-2. Documents and knowledge: upload to storage, `documents.extract` job, embeddings, `facts` and `boilerplates` CRUD. Profile page runs on real data.
+1. Supabase project: apply the migrations (which create the `documents` bucket) and configure email auth; `npm run launch:db` does both and the backfill. Wire the Supabase adapter into `src/lib/services/server.ts` for org, members, and notification settings. Sign in and settings work end to end.
+2. Documents and knowledge: upload to storage, text extraction, embeddings, `facts` and `boilerplates` CRUD. Profile page runs on real data.
 3. Profile agent and onboarding: `fetch_url`, 990 lookup, interview, fact extraction with sources. Onboarding produces a real profile.
-4. Funder ingest: Grants.gov API and IRS 990 bulk data into `funders` and `opportunities` with verification dates. Eligibility rules stored as structured JSON.
+4. Opportunity database: a connector per public source into the `catalog_*` tables with verification dates, scheduled ingestion, and matching that reads it (section 7).
 5. Discovery agent and weekly job: matches with scores and reasons, digest email. Opportunities page runs on real data.
 6. Applications and the Proposal agent: guidelines fetch, requirement parsing, grounded drafting with citations, missing facts, compliance checks, `revise_text`. Workspace runs on real data.
 7. Inbox and orchestration: `inbox_items` with the typed payload union, approve and reject side effects, Planner agent and monthly job.
@@ -131,4 +137,33 @@ Jobs run on Inngest or Trigger.dev (either works; the contract is a named event 
 10. Pipeline stages and outcomes; feed outcomes into the planner's scoring.
 11. Export: DOCX and PDF rendering with citation chips stripped and gaps marked.
 12. Usage: a monthly allowance of AI work per workspace (src/lib/usage/limits.ts), enforced where every run is recorded.
-13. Eval set: ten real past proposals from early users; run the Proposal agent against them on every prompt change and track draft acceptance rate.
+13. Eval set: a design partner's winning proposals beside our drafts for the same solicitations, compared by `scripts/eval-drafts.ts` (plain measures always, model scoring against the evaluation criteria with a key). The material stays in the gitignored `eval/` folder. Run it on every prompt change.
+
+## 7. Opportunity database, email, and security
+
+### Opportunity database
+
+One set of `catalog_*` tables (migration 0006) holds every grant, bid, research funding notice, and scholarship from public sources, normalized into one model: sources, funders and buying agencies, giving history, opportunities (with a weighted full text column and a 768-dimension embedding), a history of changes to the fields people plan around, past award totals, and the ingestion log. Past awards are aggregates only; who won a contract is never stored. The IRS exempt organization registry (about two million rows) is not in Postgres: the ingestion job writes it as small gzip shards by EIN prefix to the private `registry` bucket (migration 0007), and setup reads one shard to check an EIN (`src/lib/catalog/registry.ts`).
+
+Ingestion (`src/lib/catalog`):
+
+- `connectors/` has one module per source, each exporting `connectors`. Each source declares its schedule, priority, license, and any key it needs. Modules load on demand, so one broken source never stops the others.
+- `ingest/http.ts` is the polite fetcher: an identifying User-Agent, a minimum gap per host, robots.txt honored, backoff on 429 and 5xx, and timeouts. `ingest/store.ts` writes over a direct Postgres connection (`DATABASE_URL` or `SUPABASE_DB_URL`) as the database owner. `ingest/runner.ts` runs a connector into the database or into memory for tests and dry runs, and logs each run in `catalog_ingest_runs`. `ingest/embed.ts` fills missing embeddings after a run when `GEMINI_API_KEY` is set, capped by `CATALOG_EMBED_MAX`.
+- `schedule.ts` maps each source's cron to the hourly, daily, weekly, or monthly slot that `scripts/ingest.ts --due` runs. Full-snapshot sources close notices that disappear; others read incrementally. Expired notices close after each run, and duplicates across sources merge under the highest-priority source.
+- `app.ts` is the read side. When the app runs on Supabase and `CATALOG_MATCHING` is not `off`, discovery for every applicant type reads here: `catalog_search` for full text with filters, plus `catalog_match_embedding` for the closest matches by meaning. The demo keeps its recorded runs.
+
+Sources, terms, and refresh rules are in [docs/data-sources.md](docs/data-sources.md).
+
+### Email
+
+`src/lib/email` renders every email from one layout, as HTML and a plain-text twin. The Supabase auth templates in `supabase/templates` are generated from it by `scripts/email-templates.ts`, so sign-in mail matches the rest. Non-essential mail carries an HMAC-signed one-click unsubscribe link (`EMAIL_SIGNING_SECRET`) that writes to `email_opt_outs`. Invitations use `auth.admin.generateLink` and go only to the invitee, so the inviter never holds a link that signs in as someone else.
+
+### Security model
+
+- Row level security on every table. Members of a workspace read its rows through `is_org_member()`; only owners and editors write them directly through `is_org_editor()` (migration 0010). Reviewers read, comment, and approve through the app. The server checks roles too, so this is defense in depth against anyone using a session token against the REST API.
+- Shared reference data (`catalog_*` except the log, funders, opportunities, contacts) is readable by signed-in users and written only by the server or ingestion.
+- Service role only, with no user policy at all: `catalog_ingest_runs`, `integration_connections`, `email_opt_outs`, `app_errors`, and the `registry` bucket. A few `security definer` functions with a fixed search path expose public counts to anonymous visitors.
+- Profiles are readable only by the person and their workspace colleagues (migration 0009). Workspace files live under `<org_id>/` in the private `documents` bucket; the browser uploads there directly with a one-time signed URL.
+- OAuth tokens are encrypted with AES-256-GCM before they reach the database (`src/lib/crypto/tokens.ts`).
+- `next.config.ts` sets a content security policy, HSTS, frame denial, and related headers. Errors from `src/instrumentation.ts` and `src/instrumentation-client.ts` (through `/api/errors`) are scrubbed of emails and long tokens and grouped in `app_errors`. `/admin/ingestion` and `/admin/errors` return 404 to any signed-in person not in `ADMIN_EMAILS`.
+- Tests prove it against a real Postgres: `tests/rls.spec.ts` checks that one workspace can never read or change another's data.

@@ -5,7 +5,7 @@ import type { Services } from "./contracts";
 import { computeWinAnalytics } from "@/lib/features/analytics";
 import { planMonth } from "@/lib/features/planner";
 import { analyzeVoice, answerByRules, buildLogicModel, conceptNoteSections, credibilityPosts, feedbackRequestEmail, followUpEmail, logicModelHtml, recomputeCompliance, reminderOutbox, winKit } from "@/lib/features";
-import { allFoundations, foundationByFunderId, fundersLikeYou, irsPageUrl, matchFoundations, matchScholarships, noticeTextFor, peerOrganizations, recommendAsk, stateCode, toFunder, toOpportunity, rememberFoundations } from "@/lib/foundations";
+import { allFoundations, foundationByFunderId, fundersLikeYou, irsPageUrl, matchFoundations, matchScholarships, noticeTextFor, peerOrganizations, recommendAsk, stateCode, toFunder, toOpportunity, rememberFoundations, loadFoundations } from "@/lib/foundations";
 import { map, many, must, toMatchViews } from "./supabase";
 
 /**
@@ -192,6 +192,7 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
       return view;
     },
     async recommendAsk(id: string) {
+      await loadFoundations();
       const x = await snapshot();
       const a = appView(x, id);
       const f = foundationByFunderId(a.funder.id);
@@ -260,6 +261,7 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
 
   const inbox = {
     async planNextMonth(): Promise<MonthlyPlan> {
+      await loadFoundations();
       const x = await snapshot();
       const now = new Date();
       const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
@@ -316,6 +318,7 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
 
   const contacts = {
     async overlaps() {
+      await loadFoundations();
       const x = await snapshot();
       const norm = (s: string) => s.toLowerCase().replace(/[^a-z]+/g, " ").trim();
       const out: { contact: (typeof x.orgContacts)[number]; funderId: string; funderName: string; how: string }[] = [];
@@ -340,11 +343,13 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
   };
   const funderSvc: Services["funders"] = {
     async list() {
+      await loadFoundations();
       const x = await snapshot();
       const applied = new Set(x.apps.map((a) => a.funder.id));
       return x.funders.map((f) => summaryOf(x, f, applied.has(f.id) ? "applied" : "matched")).sort((a, b) => b.applications - a.applications || (b.fitScore ?? 0) - (a.fitScore ?? 0));
     },
     async get(id) {
+      await loadFoundations();
       const x = await snapshot();
       const rec = foundationByFunderId(id);
       const funder = x.funders.find((f) => f.id === id) ?? (rec ? toFunder(rec) : null);
@@ -364,6 +369,7 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
       return profile;
     },
     async directory(query, st) {
+      await loadFoundations();
       const x = await snapshot();
       const q = query.trim().toLowerCase();
       const want = st ? stateCode(st) : null;
@@ -373,16 +379,19 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
         .map((f) => summaryOf(x, x.funders.find((y) => y.id === `pf_${f.ein}`) ?? toFunder(f), x.funders.some((y) => y.id === `pf_${f.ein}`) ? "matched" : "directory"));
     },
     async fundersLikeYou() {
+      await loadFoundations();
       const x = await snapshot();
       const mine = [...new Set(x.matches.map((m) => m.funder.id).filter((id) => id.startsWith("pf_")))];
       const peers = peerOrganizations({ org: x.org, funderIds: mine, limit: 25 });
       return fundersLikeYou({ org: x.org, peers, exclude: mine, limit: 8 }).map((r) => ({ funder: toFunder(r.foundation), peers: r.peers.slice(0, 4) }));
     },
     async peers() {
+      await loadFoundations();
       const x = await snapshot();
       return peerOrganizations({ org: x.org, funderIds: [...new Set([...x.matches.map((m) => m.funder.id), ...x.apps.map((a) => a.funder.id)].filter((id) => id.startsWith("pf_")))], limit: 16 });
     },
     async addToMatches(funderId) {
+      await loadFoundations();
       const rec = foundationByFunderId(funderId);
       if (!rec) return null;
       const x = await snapshot();
@@ -425,6 +434,7 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
       return p;
     },
     async matches() {
+      await loadFoundations();
       const p = await scholarships.getProfile();
       if (!p) return [];
       const { foundationPool } = await import("@/lib/catalog/app");

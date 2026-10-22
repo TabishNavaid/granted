@@ -175,13 +175,18 @@ export function OpportunitiesView({ matches, demo, savedSearches, orgType = "non
           action={demo || matches.length ? undefined : <FindMatchesButton size="md" />}
         />
       ) : (
-        <ul className="mt-6 border-b border-rule">
+        <section aria-labelledby="matches-heading">
+          <h2 id="matches-heading" className="sr-only">
+            Matches
+          </h2>
+          <ul className="mt-6 border-b border-rule">
           {sorted.map((m) => (
             <li key={m.id}>
               <OpportunityCard match={m} />
             </li>
           ))}
-        </ul>
+          </ul>
+        </section>
       )}
 
       <section aria-labelledby="more-places" className="mt-10 border-t border-rule pt-5">

@@ -12,7 +12,7 @@ import { extractProfile, type ProfileExtraction } from "./profile";
 import { recordRun } from "./runs";
 import { advanceJob, finishJob, logJob, noteJob, startJob } from "./progress";
 import { replayActive } from "@/lib/replay/active";
-import { rememberFoundations, matchFoundations, noticeTextFor as foundationNotice, toFunder as toFoundationFunder, toOpportunity as toFoundationOpportunity } from "@/lib/foundations";
+import { loadFoundations, rememberFoundations, matchFoundations, noticeTextFor as foundationNotice, toFunder as toFoundationFunder, toOpportunity as toFoundationOpportunity } from "@/lib/foundations";
 import type { LoopStore, NewFact } from "./store";
 import { wordCount } from "./text";
 
@@ -367,6 +367,7 @@ async function findMatchesInner(store: LoopStore, jobId?: string): Promise<LoopR
       const db = await (await import("@/lib/grantsgov")).catalogBackend();
       const pool = db ? await db.foundationPool(stateCodeOf(org.state)).catch(() => undefined) : undefined;
       if (pool) rememberFoundations(pool);
+      else await loadFoundations();
       const fs = matchFoundations({ org, facts, pool });
       for (const m of fs.matches) {
         const stored = await store.upsertOpportunity(toFoundationOpportunity(m.foundation), toFoundationFunder(m.foundation), foundationNotice(m.foundation));

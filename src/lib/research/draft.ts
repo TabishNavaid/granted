@@ -6,7 +6,7 @@ import { recordRun } from "@/lib/loop/runs";
 import { advanceJob, finishJob, logJob, startJob } from "@/lib/loop/progress";
 import { renderSectionText } from "@/lib/loop/proposal";
 import type { LetterGap, RenderOptions } from "@/lib/loop/letter";
-import { sourceLabelFor } from "@/lib/crawl";
+import { sourceLabelFor } from "@/lib/crawl/label";
 import type { Fact, ResearchProfile } from "@/lib/types";
 import type { LoopStore } from "@/lib/loop/store";
 import type { LoopResult } from "@/lib/services/contracts";

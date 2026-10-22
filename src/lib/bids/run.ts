@@ -8,7 +8,7 @@ import { advanceJob, finishJob, logJob, startJob } from "@/lib/loop/progress";
 import { renderSectionText } from "@/lib/loop/proposal";
 import type { LetterGap, RenderOptions } from "@/lib/loop/letter";
 import { planMilestones } from "@/lib/loop/milestones";
-import { sourceLabelFor } from "@/lib/crawl";
+import { sourceLabelFor } from "@/lib/crawl/label";
 import type { Addendum, Fact, Funder, GoNoGo, Opportunity, Requirement, Section } from "@/lib/types";
 import { KINDS } from "@/lib/segments";
 import { recordFacts } from "@/lib/firm/facts";

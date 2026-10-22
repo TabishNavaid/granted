@@ -12,7 +12,7 @@ import { sf330Docx } from "@/lib/bids/sf330-docx";
 import { SAMPLE_RFP } from "@/lib/replay/recordings/firm-rfp";
 import { parseResume, personFacts } from "@/lib/person";
 import { SAMPLE_RESUME } from "@/lib/replay/recordings/student-resume";
-import { matchScholarships } from "@/lib/foundations";
+import { loadFoundations, matchScholarships } from "@/lib/foundations";
 import { aiPolicyFor } from "@/lib/research/policies";
 import { stagesFor, stageLabel, ORG_TYPES } from "@/lib/segments";
 import { planMilestones } from "@/lib/loop/milestones";
@@ -217,6 +217,7 @@ test.describe("SF 330, fee, addenda, deadlines", () => {
 });
 
 test.describe("segments, research, and individuals", () => {
+  test.beforeAll(() => loadFoundations());
   test("each kind of opportunity has its own stages, and bids use the bid board", () => {
     expect(stagesFor("contract").map((s) => s.label)).toEqual(["Found", "Go/no-go", "Preparing", "Submitted", "Shortlisted", "Interview", "Won", "Lost"]);
     expect(stageLabel("drafting", "contract")).toBe("Preparing");

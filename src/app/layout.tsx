@@ -11,7 +11,7 @@ import "./globals.css";
 // Everything people read and click: Public Sans, made by the U.S. Web Design System for public services and forms.
 const sans = Public_Sans({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-public", display: "swap" });
 // Identifiers people already work with (solicitation numbers, NAICS codes, dates, counts).
-const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-plex-mono", display: "swap" });
+const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-plex-mono", display: "swap", preload: false });
 
 export const metadata: Metadata = {
   metadataBase: new URL(canonicalUrl()),

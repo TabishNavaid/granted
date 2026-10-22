@@ -8,7 +8,7 @@ const RECORDINGS: Record<"youth" | "foodbank" | "clinic", Recording> = { youth, 
 import { validateFacts, type ExtractedFact } from "@/lib/loop/profile";
 import * as gg from "@/lib/grantsgov";
 import { contains } from "@/lib/loop/text";
-import { allFoundations, irsPageUrl, matchFoundations, matchScholarships, nextDeadline, recommendAsk } from "@/lib/foundations";
+import { allFoundations, irsPageUrl, loadFoundations, matchFoundations, matchScholarships, nextDeadline, recommendAsk } from "@/lib/foundations";
 import { displayName } from "@/lib/foundations/names";
 import { computeWinAnalytics } from "@/lib/features/analytics";
 import { answerByRules } from "@/lib/features";
@@ -61,6 +61,7 @@ const facts: Fact[] = [
 ];
 
 test.describe("foundation matching", () => {
+  test.beforeAll(() => loadFoundations());
   test("the dataset is real IRS data for three states", () => {
     const all = allFoundations();
     expect(all.length).toBeGreaterThan(300);

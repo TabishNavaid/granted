@@ -135,6 +135,7 @@ export function MatchesStep({ initial, total, demo, orgType = "nonprofit" }: { i
                 ? `We kept ${count} scholarship funds. Pick one and paste its essay prompt; we draft from your own experiences.`
                 : `We kept ${count} you can apply for, federal and private, and these are the strongest. Each one says why it fits in plain words. Pick one and we will draft a letter from ${demo ? "the" : "your"} confirmed facts.`}
       </p>
+      {matches.length ? <h2 className="sr-only">Matches</h2> : null}
       {matches.length ? (
         <ul className="mt-8 border-b border-rule">
           {matches.map((m) => (
