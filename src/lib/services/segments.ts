@@ -285,6 +285,23 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
       const sol = ctx.opportunity.solicitation;
       return buildSf330({ org, profile: records.profile, owner: user, notice: { title: ctx.opportunity.title, location: sol?.placeOfPerformance ?? null, date: null, number: sol?.number ?? null }, projects: records.projects, exampleProjectIds: meta?.projectIds ?? [], personnel: records.personnel, assignments: meta?.assignments ?? [], certifications: records.certifications, additionalInformation: meta?.additionalInformation ?? "", teamFirms: meta?.teamFirms ?? [] });
     },
+    async marketContext(applicationId) {
+      const st = await b.store();
+      const [ctx, records, org] = await Promise.all([st.getApplication(applicationId), st.firmRecords(), st.getOrg()]);
+      const naics = ctx?.opportunity.solicitation?.naics?.[0] ?? records.profile?.naics.find((n) => n.primary)?.code ?? records.profile?.naics[0]?.code;
+      if (!naics) return null;
+      const db = await (await import("@/lib/grantsgov")).catalogBackend();
+      if (db) {
+        const states = [...new Set([org.state, ...(records.profile?.states ?? [])].map((x) => (x ?? "").trim().toUpperCase()))].filter((x) => /^[A-Z]{2}$/.test(x));
+        const context = await db.marketContext({ naics, states }).catch(() => null);
+        return context ? { context, recordedOn: null } : null;
+      }
+      if (isDemoMode()) {
+        const rec = (await import("@/lib/replay/recordings/firm.market.json")).default as unknown as { recordedAt: string; context: import("@/lib/catalog/app").MarketContext };
+        return rec.context.naics === naics ? { context: rec.context, recordedOn: rec.recordedAt } : null;
+      }
+      return null;
+    },
     async searchSam(input) {
       const got = await samNotices(input?.filters ?? null);
       const { toSamNotice } = await import("@/lib/samgov");

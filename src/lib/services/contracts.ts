@@ -433,6 +433,8 @@ export interface BidView {
 }
 
 export interface BidService {
+  /** Past federal awards for the bid's NAICS code: who buys this work and for how much. Totals only, never who won. */
+  marketContext(applicationId: string): Promise<{ context: import("@/lib/catalog/app").MarketContext; recordedOn: string | null } | null>;
   /** Read a solicitation the firm brought (a link, pasted text, an uploaded document, or a SAM.gov notice) into a bid with a compliance matrix and a go/no-go score. */
   addRfp(input: { url?: string; text?: string; documentId?: string; samNoticeId?: string; sample?: boolean; jobId?: string }): Promise<LoopResult<{ applicationId: string; requirementCount: number; score: number }>>;
   get(applicationId: string): Promise<BidView | null>;

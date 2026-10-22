@@ -1,5 +1,6 @@
 "use client";
 
+import { MarketPanel } from "./market-panel";
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -139,7 +140,7 @@ export function BidHub({ initial, sf330: initialSf, sections, milestones, demo, 
           <div className="grid gap-10 lg:grid-cols-[1fr_20rem] [&>*]:min-w-0">
             <section aria-labelledby="gng">
               <div className="flex flex-wrap items-end gap-6">
-                <p className="font-display text-[5.5rem] leading-[0.85] text-ink tnum" aria-label={`Go/no-go score ${g?.score ?? 0} of 100`}>
+                <p className="font-mono text-[4.5rem] leading-[0.85] tracking-[-0.04em] text-ink tnum" aria-label={`Go/no-go score ${g?.score ?? 0} of 100`}>
                   {g?.score ?? "–"}
                 </p>
                 <div className="pb-1">
@@ -267,6 +268,9 @@ export function BidHub({ initial, sf330: initialSf, sections, milestones, demo, 
                   Read the original<span className="sr-only"> (opens in a new tab)</span>
                 </a>
               ) : null}
+              <div className="mt-10">
+                <MarketPanel applicationId={app.id} />
+              </div>
             </aside>
           </div>
         </TabsContent>

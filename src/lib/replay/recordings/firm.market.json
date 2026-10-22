@@ -1,0 +1,128 @@
+{
+ "recordedAt": "2026-10-22",
+ "context": {
+  "naics": "541310",
+  "fiscalYear": 2026,
+  "buyers": [
+   {
+    "agency": "Department of Defense",
+    "awards": 115,
+    "total": 125974386.89000002
+   },
+   {
+    "agency": "General Services Administration",
+    "awards": 240,
+    "total": 117840548.38
+   },
+   {
+    "agency": "Department of Justice",
+    "awards": 46,
+    "total": 38119396.57999999
+   },
+   {
+    "agency": "Department of State",
+    "awards": 73,
+    "total": 36980040.82
+   },
+   {
+    "agency": "Department of Veterans Affairs",
+    "awards": 83,
+    "total": 34533902.8
+   },
+   {
+    "agency": "Department of the Interior",
+    "awards": 75,
+    "total": 18516880.009999998
+   }
+  ],
+  "local": [
+   {
+    "agency": "Department of Veterans Affairs",
+    "office": "Department of Veterans Affairs",
+    "state": "TX",
+    "awards": 19,
+    "median": 259009.58,
+    "p25": 177702.46,
+    "p75": 342109.74
+   },
+   {
+    "agency": "General Services Administration",
+    "office": "Public Buildings Service",
+    "state": "TX",
+    "awards": 30,
+    "median": 119477.88,
+    "p25": 68168.2,
+    "p75": 206698.11
+   },
+   {
+    "agency": "Department of Housing and Urban Development",
+    "office": "Department of Housing and Urban Development",
+    "state": "TX",
+    "awards": 2,
+    "median": 1000725.5,
+    "p25": 745736.25,
+    "p75": 1255714.75
+   },
+   {
+    "agency": "Department of Transportation",
+    "office": "Federal Aviation Administration",
+    "state": "OK",
+    "awards": 1,
+    "median": 1297987,
+    "p25": 1297987,
+    "p75": 1297987
+   },
+   {
+    "agency": "Department of Justice",
+    "office": "Federal Prison System / Bureau of Prisons",
+    "state": "TX",
+    "awards": 2,
+    "median": 403394.79,
+    "p25": 260548.4,
+    "p75": 546241.18
+   },
+   {
+    "agency": "Department of Defense",
+    "office": "Department of the Air Force",
+    "state": "TX",
+    "awards": 1,
+    "median": 479113.69,
+    "p25": 479113.69,
+    "p75": 479113.69
+   },
+   {
+    "agency": "Department of Justice",
+    "office": "Federal Prison System / Bureau of Prisons",
+    "state": "OK",
+    "awards": 2,
+    "median": 173166,
+    "p25": 116014,
+    "p75": 230318
+   },
+   {
+    "agency": "General Services Administration",
+    "office": "Public Buildings Service",
+    "state": "OK",
+    "awards": 1,
+    "median": 213698.25,
+    "p25": 213698.25,
+    "p75": 213698.25
+   }
+  ],
+  "setAsides": [
+   {
+    "label": "Service-disabled veteran-owned small business",
+    "awards": 49
+   },
+   {
+    "label": "Total small business",
+    "awards": 20
+   },
+   {
+    "label": "Service-disabled veteran-owned sole source",
+    "awards": 1
+   }
+  ],
+  "sourceUrl": "https://www.usaspending.gov/search?naics=541310"
+ }
+}

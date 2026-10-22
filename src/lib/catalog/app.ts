@@ -388,3 +388,59 @@ export async function foundationPool(state: string | null, opts: { individuals?:
     };
   });
 }
+
+export interface MarketContext {
+  naics: string;
+  fiscalYear: number;
+  /** Agencies that bought this kind of work, by dollars, across all states. */
+  buyers: { agency: string; awards: number; total: number }[];
+  /** Awards in the firm's states, by buying office, with typical sizes. */
+  local: { agency: string; office: string | null; state: string; awards: number; median: number | null; p25: number | null; p75: number | null }[];
+  /** Share of awards by set-aside, among awards that reported one. */
+  setAsides: { label: string; awards: number }[];
+  sourceUrl: string;
+}
+
+/**
+ * Past federal contract awards for one NAICS code, from USAspending totals: who buys this work, how often, and for
+ * how much. Totals and typical sizes only; who won is never stored, so it is never shown.
+ */
+export async function marketContext(input: { naics: string; states: string[] }): Promise<MarketContext | null> {
+  const db = adminClient();
+  const now = new Date();
+  const fy = now.getUTCMonth() >= 9 ? now.getUTCFullYear() : now.getUTCFullYear() - 1; // last complete federal fiscal year
+  const { data, error } = await db
+    .from("catalog_award_stats")
+    .select("agency, sub_agency, place_state, set_aside, award_count, total_amount, median_amount, p25_amount, p75_amount")
+    .eq("source", "usaspending")
+    .eq("award_type", "contract")
+    .eq("naics", input.naics)
+    .eq("fiscal_year", fy)
+    .limit(2000);
+  if (error) throw new Error(`Could not read award totals: ${error.message}`);
+  const rows = data ?? [];
+  if (!rows.length) return null;
+  const plain = rows.filter((r) => !r.set_aside);
+  const byAgency = new Map<string, { awards: number; total: number }>();
+  for (const r of plain) {
+    const a = byAgency.get(r.agency) ?? { awards: 0, total: 0 };
+    a.awards += Number(r.award_count);
+    a.total += Number(r.total_amount);
+    byAgency.set(r.agency, a);
+  }
+  const bySetAside = new Map<string, number>();
+  for (const r of rows.filter((x) => x.set_aside && x.set_aside !== "No set-aside")) bySetAside.set(r.set_aside, (bySetAside.get(r.set_aside) ?? 0) + Number(r.award_count));
+  const num = (v: unknown) => (v == null ? null : Number(v));
+  return {
+    naics: input.naics,
+    fiscalYear: fy,
+    buyers: [...byAgency].map(([agency, v]) => ({ agency, ...v })).sort((a, b) => b.total - a.total).slice(0, 6),
+    local: plain
+      .filter((r) => r.place_state && input.states.includes(r.place_state))
+      .sort((a, b) => Number(b.total_amount) - Number(a.total_amount))
+      .slice(0, 8)
+      .map((r) => ({ agency: r.agency, office: r.sub_agency, state: r.place_state, awards: Number(r.award_count), median: num(r.median_amount), p25: num(r.p25_amount), p75: num(r.p75_amount) })),
+    setAsides: [...bySetAside].map(([label, awards]) => ({ label, awards })).sort((a, b) => b.awards - a.awards).slice(0, 6),
+    sourceUrl: `https://www.usaspending.gov/search?naics=${input.naics}`,
+  };
+}
