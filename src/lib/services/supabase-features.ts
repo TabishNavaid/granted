@@ -289,8 +289,18 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
       const fresh = x.matches.filter((m) => m.createdAt >= weekAgo && m.status === "new").sort((a, b) => b.fitScore - a.fitScore);
       const horizon = new Date(Date.now() + 14 * 86_400_000).toISOString().slice(0, 10);
       const soon = x.milestones.filter((m) => !m.done && m.dueDate >= today() && m.dueDate <= horizon);
-      const body = [`Hi ${(x.s.fullName || "").split(" ")[0] || "there"},`, "", fresh.length ? `${fresh.length} new matches this week:` : "No new matches this week.", ...fresh.slice(0, 5).map((m) => `- ${m.opportunity.title} (${m.funder.name}), fit ${m.fitScore}`), "", soon.length ? "Due in the next two weeks:" : "Nothing is due in the next two weeks.", ...soon.map((m) => `- ${m.dueDate}: ${m.title}`)].join("\n");
-      return { subject: fresh.length ? `${fresh.length} new matches and what is due` : "Your week in grants", body, to: x.s.email, canSend: Boolean(process.env.RESEND_API_KEY) };
+      const { weeklyDigestEmail } = await import("@/lib/email/templates");
+      const { canonicalUrl } = await import("@/lib/site-url");
+      const base = canonicalUrl();
+      const t = weeklyDigestEmail({
+        workspaceName: x.org.name,
+        matches: fresh.slice(0, 6).map((m) => ({ title: m.opportunity.title, funder: m.funder.name, url: `${base}/inbox`, deadline: m.opportunity.deadline, source: "your matches", fit: m.fitScore })),
+        databaseNew: [],
+        deadlines: soon.map((m) => ({ title: m.title, application: x.apps.find((a) => a.id === m.applicationId)?.opportunity.title ?? "An application", date: m.dueDate, url: `${base}/applications/${m.applicationId}` })),
+        inboxUrl: `${base}/inbox`,
+        unsubscribeUrl: `${base}/settings?tab=notifications`,
+      });
+      return { subject: t.subject, body: t.text, to: x.s.email, canSend: Boolean(process.env.RESEND_API_KEY) };
     },
   };
 

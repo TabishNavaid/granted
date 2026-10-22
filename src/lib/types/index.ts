@@ -81,6 +81,8 @@ export interface Member {
   email: string;
   role: MemberRole;
   status: "active" | "invited";
+  /** Set on a fresh invite: whether the invitation email went out (false when email is not set up). */
+  inviteEmailSent?: boolean;
 }
 
 /** documents */

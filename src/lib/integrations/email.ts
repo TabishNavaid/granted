@@ -11,6 +11,10 @@ export interface OutgoingEmail {
   text: string;
   html?: string;
   replyTo?: string;
+  /** One-click unsubscribe (RFC 8058) for non-essential mail. Adds List-Unsubscribe headers. */
+  unsubscribeUrl?: string | null;
+  /** Resend tags, for filtering in its dashboard: e.g. [{ name: "category", value: "digest" }]. */
+  tags?: { name: string; value: string }[];
 }
 
 export type SendResult = { ok: true; id: string } | { ok: false; reason: "not_connected" | "failed"; message: string };
@@ -32,7 +36,16 @@ export async function sendEmail(msg: OutgoingEmail): Promise<SendResult> {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
-      body: JSON.stringify({ from, to: [msg.to], subject: msg.subject, text: msg.text, html: msg.html, reply_to: msg.replyTo }),
+      body: JSON.stringify({
+        from,
+        to: [msg.to],
+        subject: msg.subject,
+        text: msg.text,
+        html: msg.html,
+        reply_to: msg.replyTo ?? EMAIL.support,
+        headers: msg.unsubscribeUrl ? { "List-Unsubscribe": `<${msg.unsubscribeUrl}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" } : undefined,
+        tags: msg.tags,
+      }),
     });
     if (!res.ok) return { ok: false, reason: "failed", message: `Resend answered ${res.status}.` };
     const data = (await res.json()) as { id?: string };

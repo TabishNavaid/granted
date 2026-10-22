@@ -222,10 +222,11 @@ export async function upsertOpportunities(sql: Sql, source: string, license: str
         content_hash = excluded.content_hash, last_checked = excluded.last_checked,
         embedding = case when catalog_opportunities.title = excluded.title and catalog_opportunities.summary is not distinct from excluded.summary then catalog_opportunities.embedding else null end
       where catalog_opportunities.content_hash is distinct from excluded.content_hash
+         or catalog_opportunities.status is distinct from excluded.status
       returning (xmax = 0) as inserted`;
     for (const r of out) (r.inserted ? added++ : updated++);
     // Unchanged rows were still seen today.
-    await sql`update catalog_opportunities set last_checked = now() where source = ${source} and source_id = any(${part.map((p) => p.sourceId.slice(0, 300))}) and last_checked < now() - interval '1 minute'`;
+    await sql`update catalog_opportunities set last_checked = now() where source = ${source} and source_id = any(${part.map((p) => p.sourceId.slice(0, 300))})`;
   }
   return { added, updated };
 }

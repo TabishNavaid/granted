@@ -324,6 +324,7 @@ create or replace function catalog_search(
   closes_after timestamptz default null,
   closes_before timestamptz default null,
   include_rolling boolean default true,
+  seen_after timestamptz default null,
   lim int default 25,
   off int default 0
 ) returns table (
@@ -358,6 +359,7 @@ create or replace function catalog_search(
     and (amount_at_most is null or coalesce(o.amount_min, o.amount_max) is null or coalesce(o.amount_min, o.amount_max) <= amount_at_most)
     and (closes_after is null or o.close_at >= closes_after or (include_rolling and o.close_at is null))
     and (closes_before is null or o.close_at <= closes_before or (include_rolling and o.close_at is null))
+    and (seen_after is null or o.first_seen >= seen_after)
   order by
     case when query.tsq is null then 0 else ts_rank_cd(o.search, query.tsq) end desc,
     o.close_at asc nulls last,
@@ -437,7 +439,7 @@ revoke all on function catalog_expire() from public, anon, authenticated;
 grant execute on function catalog_public_stats() to anon, authenticated;
 grant execute on function catalog_public_runs() to anon, authenticated;
 grant execute on function catalog_public_funder_counts() to anon, authenticated;
-revoke all on function catalog_search(text, text[], text[], text[], text[], text[], text[], text[], text[], text[], text[], text[], numeric, numeric, timestamptz, timestamptz, boolean, int, int) from public, anon;
-grant execute on function catalog_search(text, text[], text[], text[], text[], text[], text[], text[], text[], text[], text[], text[], numeric, numeric, timestamptz, timestamptz, boolean, int, int) to authenticated, service_role;
+revoke all on function catalog_search(text, text[], text[], text[], text[], text[], text[], text[], text[], text[], text[], text[], numeric, numeric, timestamptz, timestamptz, boolean, timestamptz, int, int) from public, anon;
+grant execute on function catalog_search(text, text[], text[], text[], text[], text[], text[], text[], text[], text[], text[], text[], numeric, numeric, timestamptz, timestamptz, boolean, timestamptz, int, int) to authenticated, service_role;
 revoke all on function catalog_match_embedding(vector, text[], text[], text[], int) from public, anon;
 grant execute on function catalog_match_embedding(vector, text[], text[], text[], int) to authenticated, service_role;

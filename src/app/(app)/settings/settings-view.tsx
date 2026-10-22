@@ -211,7 +211,7 @@ export function SettingsView({ org, members: initialMembers, usage, notification
                 const m = await services.org.inviteMember(inviteEmail, inviteRole);
                 setMembers((l) => [...l, m]);
                 setInviteEmail("");
-                if (demo) {
+                if (demo || m.inviteEmailSent === false) {
                   setInviteLink({ email: m.email, url: `${window.location.origin}/sign-up?invite=${encodeURIComponent(m.email)}` });
                   toast({ title: "Invite ready", description: `Share the sign-up link with ${m.email}.` });
                 } else {

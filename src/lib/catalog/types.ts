@@ -32,6 +32,8 @@ export interface SourceDefinition {
   schedule?: string;
   /** Env var that must hold a free key, when the source needs one. */
   needsKey?: string;
+  /** Env var for a free key the source works without but uses when present (faster or fresher updates). */
+  optionalKey?: string;
   /** Off until its terms are confirmed or it is turned on in config. */
   enabled: boolean;
   /** Lower wins when the same opportunity is listed by two sources. */

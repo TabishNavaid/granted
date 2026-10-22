@@ -416,6 +416,29 @@ async function recomputeSectionChecks(db: SupabaseClient, section: Section) {
 export function makeSupabaseServices(): Services {
   const db = adminClient();
   const ctx = (): Promise<SessionContext> => requireSession();
+  /**
+   * The invitation email: a one-time sign-in link that only the invitee receives (it never goes back to the
+   * inviter, who could otherwise sign in as them). Returns false when email delivery is not set up.
+   */
+  const sendInvite = async (input: { email: string; role: Member["role"]; inviterName: string; orgId: string }): Promise<boolean> => {
+    const { emailConnected, sendEmail } = await import("@/lib/integrations/email");
+    if (!emailConnected()) return false;
+    const base = siteUrl();
+    const next = `${base}/auth/callback?next=/inbox`;
+    let link = await db.auth.admin.generateLink({ type: "invite", email: input.email, options: { redirectTo: next } });
+    let type = "invite";
+    if (link.error) {
+      link = await db.auth.admin.generateLink({ type: "magiclink", email: input.email, options: { redirectTo: next } });
+      type = "magiclink";
+    }
+    const hashed = link.data?.properties?.hashed_token;
+    if (!hashed) return false;
+    const { data: org } = await db.from("organizations").select("name").eq("id", input.orgId).maybeSingle();
+    const { inviteEmail } = await import("@/lib/email/templates");
+    const t = inviteEmail({ inviterName: input.inviterName, workspaceName: String(org?.name ?? "a workspace"), role: input.role, link: `${base}/auth/callback?token_hash=${encodeURIComponent(hashed)}&type=${type}&next=/inbox` });
+    const r = await sendEmail({ to: input.email, subject: t.subject, text: t.text, html: t.html, tags: [{ name: "category", value: "invite" }] });
+    return r.ok;
+  };
   /** Reviewers read, comment, and approve; owners and editors change drafts, plans, and records. */
   const editorOnly = async () => {
     const s = await ctx();
@@ -447,8 +470,11 @@ export function makeSupabaseServices(): Services {
     },
     async inviteMember(email: string, role: Member["role"]) {
       const s = await ctx();
-      const r = must(await db.from("org_members").insert({ org_id: s.orgId, invited_email: email, role, status: "invited" }).select("*").single(), "invite");
-      return { id: String(r.id), orgId: s.orgId, fullName: "", email, role, status: "invited" as const };
+      const address = email.trim().toLowerCase();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(address)) throw new Error("That does not look like an email address.");
+      const r = must(await db.from("org_members").insert({ org_id: s.orgId, invited_email: address, role, status: "invited" }).select("*").single(), "invite");
+      const inviteEmailSent = await sendInvite({ email: address, role, inviterName: s.fullName || s.email, orgId: s.orgId });
+      return { id: String(r.id), orgId: s.orgId, fullName: "", email: address, role, status: "invited" as const, inviteEmailSent };
     },
     async currentUser() {
       const s = await ctx();

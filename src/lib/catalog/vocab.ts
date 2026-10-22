@@ -229,6 +229,7 @@ export const SET_ASIDES: Record<string, string> = {
   IEE: "Indian economic enterprise",
   BICiv: "Buy Indian",
   LAS: "Local area set-aside",
+  ESB: "Emerging small business",
 };
 
 export const US_STATES: Record<string, string> = {

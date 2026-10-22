@@ -35,6 +35,8 @@ export interface CatalogSearchParams {
   closesAfter?: string | null;
   closesBefore?: string | null;
   includeRolling?: boolean;
+  /** Only rows first seen after this time (new this week). */
+  seenAfter?: string | null;
   limit?: number;
   offset?: number;
 }
@@ -113,6 +115,7 @@ export async function searchCatalog(p: CatalogSearchParams): Promise<{ hits: Cat
     closes_after: p.closesAfter ?? null,
     closes_before: p.closesBefore ?? null,
     include_rolling: p.includeRolling ?? true,
+    seen_after: p.seenAfter ?? null,
     lim: p.limit ?? 25,
     off: p.offset ?? 0,
   });
@@ -294,4 +297,25 @@ export function toSamV2(r: CatalogRow): import("@/lib/samgov").SamV2Notice {
     uiLink: r.source_url,
     descriptionText: [r.summary ?? "", r.eligibility_text ? `Eligibility: ${r.eligibility_text}` : "", files, `Source: ${sourceName(r.source)}, last checked ${r.last_checked.slice(0, 10)}.`].filter(Boolean).join("\n\n"),
   };
+}
+
+/** What a workspace would want from the database, from what it told us: its kind, place, causes, and work categories. */
+export function workspaceSearch(org: { orgType: string; state: string | null; causes: string[]; naics?: string[]; states?: string[] }): CatalogSearchParams {
+  const states = [...new Set([org.state, ...(org.states ?? [])].filter((s): s is string => Boolean(s && /^[A-Z]{2}$/.test(s))))];
+  switch (org.orgType) {
+    case "firm":
+      return { types: ["contract"], naicsPrefixes: org.naics?.length ? org.naics : null, states: states.length ? states : null };
+    case "research":
+      return { types: ["research"], eligibility: ["university", "small_business", "nonprofit"] };
+    case "individual":
+      return { types: ["scholarship"], eligibility: ["individual"] };
+    default:
+      return { types: ["grant"], eligibility: ["nonprofit"], states: states.length ? states : null, q: org.causes.length ? anyWords(org.causes.join(" ")) : null };
+  }
+}
+
+/** Open opportunities that reached the database since `since`, for one workspace. */
+export async function newForWorkspace(org: Parameters<typeof workspaceSearch>[0], since: string, limit = 6): Promise<CatalogHit[]> {
+  const { hits } = await searchCatalog({ ...workspaceSearch(org), seenAfter: since, closesAfter: new Date().toISOString(), limit });
+  return hits;
 }
