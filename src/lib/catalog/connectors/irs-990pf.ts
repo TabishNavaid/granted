@@ -18,7 +18,7 @@ import { RemoteZips } from "./_irs-zip";
  * grants in its newest return in the SOI annual 990-PF extract becomes a funder row with its giving, assets, and
  * tax year. About 80,000 foundations.
  *
- * Tier 2 (resumable): foundations above IRS_990PF_MIN_GIVING (default $25,000), largest first and at most
+ * Tier 2 (resumable): foundations above IRS_990PF_MIN_GIVING (default $100,000, chosen to keep the whole database well inside the free plan; see LAUNCH.md), largest first and at most
  * IRS_990PF_MAX_XML (default 2,000) a run, get their newest 990-PF e-file read out of the IRS batch zips with
  * HTTP Range requests: application info, the preselected-only flag, grant statistics, top grantees (organizations
  * only), grantee states, focus labels, and a count of grants to individuals (never their names). A foundation is
@@ -632,7 +632,7 @@ async function lastModified(ctx: IngestContext, url: string): Promise<Date | nul
 export const irs990pf: Connector = {
   source,
   async run(ctx) {
-    const minGiving = envNumber(ctx.env.IRS_990PF_MIN_GIVING, 25_000);
+    const minGiving = envNumber(ctx.env.IRS_990PF_MIN_GIVING, 100_000);
     const tier1Min = envNumber(ctx.env.IRS_990PF_TIER1_MIN_GIVING, 1);
     const maxXml = envNumber(ctx.env.IRS_990PF_MAX_XML, 2_000);
     const concurrency = Math.max(1, Math.min(8, envNumber(ctx.env.IRS_990PF_CONCURRENCY, 4)));

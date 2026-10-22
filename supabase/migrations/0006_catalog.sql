@@ -345,7 +345,7 @@ create or replace function catalog_search(
   research_areas text[], causes text[], place_state text, place_country text, also_listed jsonb, last_checked timestamptz,
   rank real, total bigint
 ) language sql stable as $$
-  with query as (select case when coalesce(trim(q), '') = '' then null else websearch_to_tsquery('english', q) end as tsq)
+  with query as (select case when coalesce(trim(catalog_search.q), '') = '' then null else websearch_to_tsquery('english', catalog_search.q) end as tsq)
   select o.id, o.source, o.source_url, o.opportunity_number, o.type, o.notice_type, o.title, o.summary,
     o.funder_id, o.funder_name, o.status, o.posted_at, o.close_at, o.close_text, o.rolling,
     o.amount_min, o.amount_max, o.eligibility, o.naics, o.set_aside, o.assistance_listings,
@@ -353,29 +353,31 @@ create or replace function catalog_search(
     case when query.tsq is null then 0 else ts_rank_cd(o.search, query.tsq) end::real as rank,
     count(*) over () as total
   from catalog_opportunities o, query
+  -- Parameters are qualified with the function name: several share a name with a column, and in a SQL
+  -- function an unqualified name means the column.
   where o.duplicate_of is null
-    and (statuses is null or o.status = any(statuses))
+    and (catalog_search.statuses is null or o.status = any(catalog_search.statuses))
     and (query.tsq is null or o.search @@ query.tsq)
-    and (types is null or o.type = any(types))
-    and (eligibility is null or o.eligibility && eligibility or 'unrestricted' = any(o.eligibility))
-    and (naics_prefixes is null or exists (select 1 from unnest(o.naics) n, unnest(naics_prefixes) p where n like p || '%'))
-    and (set_asides is null or o.set_aside = any(set_asides))
-    and (states is null or o.place_state is null or o.place_state = any(states))
-    and (assistance_listings is null or o.assistance_listings && assistance_listings)
-    and (research_areas is null or o.research_areas && research_areas)
-    and (causes is null or o.causes && causes)
-    and (sources is null or o.source = any(sources))
-    and (categories is null or o.categories && categories)
-    and (amount_at_least is null or coalesce(o.amount_max, o.amount_min) is null or coalesce(o.amount_max, o.amount_min) >= amount_at_least)
-    and (amount_at_most is null or coalesce(o.amount_min, o.amount_max) is null or coalesce(o.amount_min, o.amount_max) <= amount_at_most)
-    and (closes_after is null or o.close_at >= closes_after or (include_rolling and o.close_at is null))
-    and (closes_before is null or o.close_at <= closes_before or (include_rolling and o.close_at is null))
-    and (seen_after is null or o.first_seen >= seen_after)
+    and (catalog_search.types is null or o.type = any(catalog_search.types))
+    and (catalog_search.eligibility is null or o.eligibility && catalog_search.eligibility or 'unrestricted' = any(o.eligibility))
+    and (catalog_search.naics_prefixes is null or exists (select 1 from unnest(o.naics) as nx(code), unnest(catalog_search.naics_prefixes) as px(prefix) where nx.code like px.prefix || '%'))
+    and (catalog_search.set_asides is null or o.set_aside = any(catalog_search.set_asides))
+    and (catalog_search.states is null or o.place_state is null or o.place_state = any(catalog_search.states))
+    and (catalog_search.assistance_listings is null or o.assistance_listings && catalog_search.assistance_listings)
+    and (catalog_search.research_areas is null or o.research_areas && catalog_search.research_areas)
+    and (catalog_search.causes is null or o.causes && catalog_search.causes)
+    and (catalog_search.sources is null or o.source = any(catalog_search.sources))
+    and (catalog_search.categories is null or o.categories && catalog_search.categories)
+    and (catalog_search.amount_at_least is null or coalesce(o.amount_max, o.amount_min) is null or coalesce(o.amount_max, o.amount_min) >= catalog_search.amount_at_least)
+    and (catalog_search.amount_at_most is null or coalesce(o.amount_min, o.amount_max) is null or coalesce(o.amount_min, o.amount_max) <= catalog_search.amount_at_most)
+    and (catalog_search.closes_after is null or o.close_at >= catalog_search.closes_after or (catalog_search.include_rolling and o.close_at is null))
+    and (catalog_search.closes_before is null or o.close_at <= catalog_search.closes_before or (catalog_search.include_rolling and o.close_at is null))
+    and (catalog_search.seen_after is null or o.first_seen >= catalog_search.seen_after)
   order by
     case when query.tsq is null then 0 else ts_rank_cd(o.search, query.tsq) end desc,
     o.close_at asc nulls last,
     o.id
-  limit greatest(1, least(lim, 200)) offset greatest(0, off)
+  limit greatest(1, least(catalog_search.lim, 200)) offset greatest(0, catalog_search.off)
 $$;
 
 -- Semantic matching, used when embeddings exist (GEMINI_API_KEY at ingestion time).
@@ -389,11 +391,11 @@ create or replace function catalog_match_embedding(
   select o.id, (1 - (o.embedding <=> query_embedding))::real as similarity
   from catalog_opportunities o
   where o.embedding is not null and o.duplicate_of is null and o.status in ('open', 'forecasted')
-    and (types is null or o.type = any(types))
-    and (eligibility is null or o.eligibility && eligibility or 'unrestricted' = any(o.eligibility))
-    and (states is null or o.place_state is null or o.place_state = any(states))
+    and (catalog_match_embedding.types is null or o.type = any(catalog_match_embedding.types))
+    and (catalog_match_embedding.eligibility is null or o.eligibility && catalog_match_embedding.eligibility or 'unrestricted' = any(o.eligibility))
+    and (catalog_match_embedding.states is null or o.place_state is null or o.place_state = any(catalog_match_embedding.states))
   order by o.embedding <=> query_embedding
-  limit greatest(1, least(lim, 200))
+  limit greatest(1, least(catalog_match_embedding.lim, 200))
 $$;
 
 -- Public counts for the /data page. Anyone may read totals; nobody reads rows without signing in.
