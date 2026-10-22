@@ -20,13 +20,13 @@ function authTemplates() {
   const confirm = signInEmail({ link: link("email"), code: "{{ .Token }}", firstTime: true });
   const invite = { subject: "You have been invited to FundFellows", ...renderEmail({ preheader: "One click to join.", heading: "You are invited", blocks: [{ kind: "p", text: "Someone invited you to a FundFellows workspace. Use this link to accept and sign in." }, { kind: "button", label: "Accept the invitation", url: "{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=invite&next=/inbox" }], reason: "You get this because someone invited this address." }) };
   const change = { subject: "Confirm your new email for FundFellows", ...renderEmail({ preheader: "Confirm the change.", heading: "Confirm your new email", blocks: [{ kind: "p", text: "Confirm that {{ .NewEmail }} should be the address for your FundFellows account." }, { kind: "button", label: "Confirm the change", url: "{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email_change&next=/settings" }, { kind: "note", text: "If you did not ask for this, ignore this email and write to support@fundfellows.com." }], reason: "You get this because someone asked to change the email on a FundFellows account." }) };
-  const recovery = { subject: "Sign in to FundFellows", ...signInEmail({ link: "{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=recovery&next=/inbox", code: "{{ .Token }}" }) };
+  const recovery = { ...signInEmail({ link: "{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=recovery&next=/inbox", code: "{{ .Token }}" }) };
   return {
     magic_link: { subject: magic.subject, html: magic.html },
     confirmation: { subject: confirm.subject, html: confirm.html },
     invite: { subject: invite.subject, html: invite.html },
     email_change: { subject: change.subject, html: change.html },
-    recovery: { subject: recovery.subject, html: recovery.html },
+    recovery: { subject: "Sign in to FundFellows", html: recovery.html },
   };
 }
 
