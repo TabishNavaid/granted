@@ -12,6 +12,7 @@ export function tierOf(s: Pick<SourceDefinition, "schedule">): Tier {
   const [, hour, dom, , dow] = parts;
   if (hour === "*" || hour.includes("/") || hour.includes(",")) return "hourly";
   if (dom !== "*") return "monthly";
-  if (dow !== "*") return "weekly";
+  // One weekday is weekly; a range or list of weekdays ("1-5") runs in the daily slot.
+  if (dow !== "*" && !/[-,]/.test(dow)) return "weekly";
   return "daily";
 }
