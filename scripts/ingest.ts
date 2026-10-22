@@ -56,6 +56,11 @@ async function main() {
     try {
       for (const c of selected) results.push(await runIntoDatabase(sql, c, { mode: modeFor(c), limit, trigger }));
       await prune(sql);
+      // Semantic matching: embed new live rows when a model key is set (search stays full text without one).
+      if (process.env.GEMINI_API_KEY?.trim() && !flag("no-embed")) {
+        const [{ embedMissing }, { geminiEmbedder }] = await Promise.all([import("@/lib/catalog/ingest/embed"), import("@/lib/ai/embed")]);
+        await embedMissing(sql, geminiEmbedder, { log: (m) => console.log(`[embeddings] ${m}`) }).catch((e) => console.error(`[embeddings] ${e instanceof Error ? e.message : e}`));
+      }
     } finally {
       await sql.end({ timeout: 5 });
     }

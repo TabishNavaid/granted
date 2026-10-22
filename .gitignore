@@ -49,6 +49,7 @@ next-env.d.ts
 
 # keep the example env file
 !.env.example
+!.env.localdb.example
 
 # secrets: never commit local env files or keys
 .env.local

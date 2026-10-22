@@ -444,3 +444,19 @@ export async function marketContext(input: { naics: string; states: string[] }):
     sourceUrl: `https://www.usaspending.gov/search?naics=${input.naics}`,
   };
 }
+
+/**
+ * Opportunities closest in meaning to a query, when a model key is set and rows have embeddings. Used to add
+ * what a keyword search misses ("after-school tutoring" finding "out-of-school time learning"). Null without a key.
+ */
+export async function semanticMatches(q: string, filters: { types?: CatalogType[] | null; eligibility?: EligibilityCode[] | null; states?: string[] | null; sources?: string[] | null }, limit = 20): Promise<CatalogRow[] | null> {
+  if (!process.env.GEMINI_API_KEY?.trim() || !q.trim()) return null;
+  const { geminiEmbedder, queryText, toVector } = await import("@/lib/ai/embed");
+  const [vector] = await geminiEmbedder([queryText(q)]);
+  const { data, error } = await adminClient().rpc("catalog_match_embedding", { query_embedding: toVector(vector), types: filters.types ?? null, eligibility: filters.eligibility ?? null, states: filters.states ?? null, lim: limit * 2 });
+  if (error) throw new Error(`Semantic search failed: ${error.message}`);
+  const ids = ((data ?? []) as { id: string; similarity: number }[]).filter((r) => r.similarity >= 0.55).map((r) => r.id);
+  const rows = await getCatalogRows(ids);
+  const order = new Map(ids.map((id, i) => [id, i]));
+  return rows.filter((r) => !filters.sources || filters.sources.includes(r.source)).sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0)).slice(0, limit);
+}

@@ -168,6 +168,10 @@ begin
       setweight(to_tsvector('english', array_to_string(new.research_areas, ' ') || ' ' || array_to_string(new.causes, ' ') || ' ' ||
         array_to_string(new.categories, ' ') || ' ' || coalesce(new.set_aside, '')), 'B') ||
       setweight(to_tsvector('english', coalesce(new.summary, '') || ' ' || coalesce(new.eligibility_text, '')), 'C');
+    -- The embedding describes the title and summary; when either changes it is cleared and the next run refills it.
+    if tg_op = 'UPDATE' and (new.title is distinct from old.title or new.summary is distinct from old.summary or new.funder_name is distinct from old.funder_name) then
+      new.embedding := null;
+    end if;
   else
     new.search := null;
     new.summary := null;

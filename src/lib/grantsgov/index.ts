@@ -192,7 +192,11 @@ export async function search(params: SearchParams): Promise<{ result: SearchResp
       limit: params.rows ?? 25,
       offset: params.startRecordNum ?? 0,
     });
-    return { result: { hitCount: total, oppHits: hits.map(db.toSearchHit) }, fromCache: false, from: "database" };
+    const oppHits = hits.map(db.toSearchHit);
+    // With a model key, add the closest matches by meaning that the keyword search missed.
+    const semantic = await db.semanticMatches(params.keyword, { types: ["grant", "research", "scholarship"], eligibility: params.eligibilities ? db.eligibilityFromGrantsGov(params.eligibilities) : null, sources: db.FEDERAL_NOTICE_SOURCES }, Math.ceil((params.rows ?? 25) / 2)).catch(() => null);
+    for (const r of semantic ?? []) if (!oppHits.some((h) => h.id === r.id) && (r.status === "open" || r.status === "forecasted")) oppHits.push(db.toSearchHit({ ...r, rank: 0, total }));
+    return { result: { hitCount: Math.max(total, oppHits.length), oppHits }, fromCache: false, from: "database" };
   }
   const body = {
     keyword: params.keyword,
