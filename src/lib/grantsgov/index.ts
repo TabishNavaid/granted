@@ -51,6 +51,8 @@ export interface SearchHit {
   oppStatus: "forecasted" | "posted" | "closed" | "archived";
   docType: "synopsis" | "forecast";
   cfdaList: string[];
+  /** The notice's page, when it comes from the opportunity database rather than Grants.gov itself. */
+  url?: string;
 }
 
 export interface SearchResponse {
@@ -100,6 +102,10 @@ export interface OpportunityDetail {
   cfdas?: { cfdaNumber: string; programTitle: string }[];
   docType: "synopsis" | "forecast";
   ost?: string;
+  /** Set when the notice comes from the opportunity database: its page and the source that published it. */
+  sourceUrl?: string;
+  sourceName?: string;
+  lastCheckedAt?: string;
 }
 
 export class GrantsGovError extends Error {
@@ -148,8 +154,46 @@ async function post<T>(path: string, body: unknown): Promise<T> {
   });
 }
 
-export async function search(params: SearchParams): Promise<{ result: SearchResponse; fromCache: boolean }> {
+/**
+ * Where searches go. The zero-key demo replays recorded runs; the real product reads the opportunity database,
+ * which is refreshed daily from Grants.gov and the other federal sources; anything else asks Grants.gov live.
+ */
+type CatalogBackend = typeof import("@/lib/catalog/app");
+let catalogLoader: (() => Promise<CatalogBackend>) | null = null;
+
+/** The server registers the database reader (src/lib/services/server.ts); the browser demo never loads it. */
+export function registerCatalogBackend(load: () => Promise<CatalogBackend>) {
+  catalogLoader = load;
+}
+
+/** The database reader when the product runs on Supabase, else null (demo, or no database). */
+export async function catalogBackend(): Promise<CatalogBackend | null> {
+  return catalog();
+}
+
+async function catalog(): Promise<CatalogBackend | null> {
+  if (!catalogLoader) return null;
+  const mod = await catalogLoader();
+  return mod.catalogActive() ? mod : null;
+}
+
+export async function search(params: SearchParams): Promise<{ result: SearchResponse; fromCache: boolean; from?: "database" | "grants.gov" }> {
   if (replayActive()) return { result: await (await import("@/lib/replay")).replaySearch(params), fromCache: false };
+  const db = await catalog();
+  if (db) {
+    const statuses = (params.oppStatuses ?? "forecasted|posted").split("|").map((s) => (s === "posted" ? "open" : s)) as ("open" | "forecasted" | "closed" | "archived")[];
+    const { hits, total } = await db.searchCatalog({
+      q: db.anyWords(params.keyword),
+      types: ["grant", "research", "scholarship"],
+      statuses,
+      eligibility: params.eligibilities ? db.eligibilityFromGrantsGov(params.eligibilities) : null,
+      categories: params.fundingCategories ? db.categoriesFromGrantsGov(params.fundingCategories) : null,
+      sources: db.FEDERAL_NOTICE_SOURCES,
+      limit: params.rows ?? 25,
+      offset: params.startRecordNum ?? 0,
+    });
+    return { result: { hitCount: total, oppHits: hits.map(db.toSearchHit) }, fromCache: false, from: "database" };
+  }
   const body = {
     keyword: params.keyword,
     oppStatuses: params.oppStatuses ?? "forecasted|posted",
@@ -168,12 +212,23 @@ export async function search(params: SearchParams): Promise<{ result: SearchResp
 
 export async function fetchOpportunity(id: string | number): Promise<{ detail: OpportunityDetail; fromCache: boolean }> {
   if (replayActive()) return { detail: await (await import("@/lib/replay")).replayFetchOpportunity(id), fromCache: false };
+  const db = await catalog();
+  if (db && /^[0-9a-f-]{36}$/i.test(String(id))) {
+    const row = await db.getCatalogRow(String(id));
+    if (!row) throw new GrantsGovError("That notice is no longer in the opportunity database.");
+    return { detail: db.toOpportunityDetail(row) as unknown as OpportunityDetail, fromCache: true };
+  }
   const { value, fromCache } = await cached(`gg:opp:${id}`, CACHE_TTL, () => post<OpportunityDetail>("fetchOpportunity", { opportunityId: String(id) }));
   return { detail: value, fromCache };
 }
 
 export function opportunityPageUrl(id: string | number) {
   return `https://www.grants.gov/search-results-detail/${id}`;
+}
+
+/** The public page for a notice: its source's page when it came from the opportunity database, else Grants.gov. */
+export function pageUrlOf(detail: Pick<OpportunityDetail, "id" | "sourceUrl">) {
+  return detail.sourceUrl ?? opportunityPageUrl(detail.id);
 }
 
 function htmlToText(html: string | undefined): string {
@@ -268,15 +323,15 @@ export function toOpportunity(detail: OpportunityDetail, checkedAt = new Date().
     name: agencyName,
     ein: null,
     type: "federal",
-    description: top && top !== agencyName ? `${agencyName}, part of the ${top}. Federal funding opportunities are listed on Grants.gov.` : `${agencyName}. Federal funding opportunities are listed on Grants.gov.`,
+    description: top && top !== agencyName ? `${agencyName}, part of the ${top}. Its funding opportunities are listed on ${detail.sourceName ?? "Grants.gov"}.` : `${agencyName}. Its funding opportunities are listed on ${detail.sourceName ?? "Grants.gov"}.`,
     focusAreas: (n?.fundingActivityCategories ?? []).map((c) => c.description),
     geography: "United States",
     givingMin: null,
     givingMax: null,
-    websiteUrl: opportunityPageUrl(detail.id),
-    sourceUrl: opportunityPageUrl(detail.id),
+    websiteUrl: pageUrlOf(detail),
+    sourceUrl: pageUrlOf(detail),
     aiPolicy: null,
-    lastVerifiedAt: checkedAt,
+    lastVerifiedAt: detail.lastCheckedAt ?? checkedAt,
     recentGrantees: [],
   };
   const opportunity: Opportunity = {
@@ -289,9 +344,9 @@ export function toOpportunity(detail: OpportunityDetail, checkedAt = new Date().
     amountMin: floor,
     amountMax: ceiling,
     eligibility,
-    guidelinesUrl: n?.fundingDescLinkUrl?.trim() || opportunityPageUrl(detail.id),
-    sourceUrl: opportunityPageUrl(detail.id),
-    lastVerifiedAt: checkedAt,
+    guidelinesUrl: n?.fundingDescLinkUrl?.trim() || pageUrlOf(detail),
+    sourceUrl: pageUrlOf(detail),
+    lastVerifiedAt: detail.lastCheckedAt ?? checkedAt,
     effort: ceiling != null && ceiling <= 100_000 ? "medium" : "high",
     forecasted: detail.docType === "forecast",
   };

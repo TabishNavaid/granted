@@ -117,6 +117,20 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
       const rec = (await import("@/lib/replay/recordings/firm.samgov.json")).default as unknown as { recordedAt: string; opportunitiesData: import("@/lib/samgov").SamV2Notice[] };
       return { status: "recorded", notices: rec.opportunitiesData, recordedOn: rec.recordedAt, note: `Recorded from SAM.gov on ${rec.recordedAt}. With a free SAM.gov API key, this searches live.` };
     }
+    const db = await (await import("@/lib/grantsgov")).catalogBackend();
+    if (db) {
+      const st = await b.store();
+      const [records, org] = await Promise.all([st.firmRecords(), st.getOrg()]);
+      const codes = records.profile?.naics.map((n) => n.code) ?? [];
+      const states = [...new Set([org.state, ...(records.profile?.states ?? [])].map((s) => (s ?? "").trim().toUpperCase()))].filter((s) => /^[A-Z]{2}$/.test(s));
+      if (!codes.length && !states.length) return { status: "live", notices: [], recordedOn: null, note: "Add your NAICS codes and the states you work in on the Profile page so we know which bids to show." };
+      try {
+        const notices = await db.contractNotices({ naics: codes, states: states.length ? states : null, keywords: ["construction", "design", "engineering", "architectural", "renovation"], limit: 60 });
+        return { status: "live", notices, recordedOn: null, note: `Open bids from the opportunity database (SAM.gov and state and local portals, refreshed daily) for ${codes.length ? `NAICS ${codes.join(", ")}` : "your region"}${states.length ? ` in ${states.join(", ")}` : ""}.` };
+      } catch (err) {
+        return { status: "live", notices: [], recordedOn: null, note: err instanceof Error ? err.message : "The opportunity search failed." };
+      }
+    }
     if (!sam.samKey()) return { status: "not_connected", notices: [], recordedOn: null, note: "SAM.gov is not connected. A free public API key from your SAM.gov account turns on federal contract search. Setup steps are on the Integrations page." };
     const st = await b.store();
     const [records, org] = await Promise.all([st.firmRecords(), st.getOrg()]);

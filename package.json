@@ -9,7 +9,10 @@
     "lint": "eslint",
     "loop": "tsx --tsconfig tsconfig.json scripts/real-loop.ts",
     "drawings": "node scripts/clean-drawing.mjs",
-    "test": "playwright test"
+    "test": "playwright test",
+    "dev:localdb": "node scripts/dev-localdb.mjs",
+    "ingest": "tsx --tsconfig tsconfig.json scripts/ingest.ts",
+    "catalog:snapshot": "tsx --tsconfig tsconfig.json scripts/catalog-snapshot.ts"
   },
   "dependencies": {
     "@google/genai": "^2.30.0",

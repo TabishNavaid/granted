@@ -1,0 +1,82 @@
+{
+ "measuredAt": "2026-10-22T08:13:37.554Z",
+ "label": "a test load of the database",
+ "sources": [
+  {
+   "id": "grantsgov",
+   "name": "Grants.gov",
+   "covers": "Every federal grant and cooperative agreement notice, forecasts included, from all 26 federal grant-making agencies.",
+   "homepage": "https://www.grants.gov",
+   "docsUrl": "https://www.grants.gov/xml-extract",
+   "termsUrl": "https://www.grants.gov/policies",
+   "license": "Public domain (U.S. government work)",
+   "attribution": "Source: Grants.gov",
+   "kinds": [
+    "grant",
+    "research",
+    "scholarship"
+   ],
+   "region": "us",
+   "cadence": "Daily",
+   "needsKey": null,
+   "enabled": true,
+   "notes": null
+  },
+  {
+   "id": "sam_assistance",
+   "name": "SAM.gov Assistance Listings",
+   "covers": "Every federal grant and cooperative agreement program in the Assistance Listings catalog (formerly CFDA), with objectives, who may apply, and typical award ranges.",
+   "homepage": "https://sam.gov/content/assistance-listings",
+   "docsUrl": "https://sam.gov/data-services/Assistance%20Listings/datagov?privacy=Public",
+   "termsUrl": "https://sam.gov/content/about/terms-of-use",
+   "license": "Public domain (U.S. government work)",
+   "attribution": "Source: SAM.gov Assistance Listings",
+   "kinds": [
+    "grant",
+    "research"
+   ],
+   "region": "us",
+   "cadence": "Weekly",
+   "needsKey": null,
+   "enabled": true,
+   "notes": null
+  },
+  {
+   "id": "sam_opportunities",
+   "name": "SAM.gov Contract Opportunities",
+   "covers": "Every federal contract notice still open for responses on SAM.gov: solicitations, combined synopses, presolicitations, sources sought, and special notices, one row per solicitation.",
+   "homepage": "https://sam.gov/content/opportunities",
+   "docsUrl": "https://open.gsa.gov/api/get-opportunities-public-api/",
+   "termsUrl": "https://sam.gov/content/about/terms-of-use",
+   "license": "Public domain (U.S. government work)",
+   "attribution": "Source: SAM.gov",
+   "kinds": [
+    "contract"
+   ],
+   "region": "us",
+   "cadence": "Hourly with a free SAM.gov API key, daily from the public extract without one",
+   "needsKey": null,
+   "enabled": true,
+   "notes": "Backfill: the public daily Contract Opportunities extract, no key. Incremental: the Opportunities API v2 when SAM_GOV_API_KEY is set (a key with a SAM.gov role allows 1,000 requests a day; one without a role allows 10), otherwise the extract when it has changed."
+  }
+ ],
+ "counts": {
+  "grantsgov": {
+   "open": 811,
+   "forecasted": 465,
+   "total": 11282,
+   "lastChecked": "2026-10-22T07:54:50.454Z",
+   "byType": {
+    "scholarship": 0,
+    "contract": 1,
+    "grant": 483,
+    "research": 792
+   }
+  }
+ },
+ "funders": {
+  "federal_agency": 712
+ },
+ "awardRows": 0,
+ "sizeMb": 21
+}

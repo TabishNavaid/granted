@@ -5,6 +5,7 @@ import { isDemoMode } from "@/lib/env";
 import { mockServices, registerIntegrationsServer } from "./mock";
 import { DEMO_COOKIE, runInSession } from "./demo-session";
 import type { Services } from "./contracts";
+import { registerCatalogBackend } from "@/lib/grantsgov";
 
 type Domain = keyof Services;
 
@@ -17,6 +18,7 @@ type Domain = keyof Services;
 let real: Services | null = null;
 
 registerIntegrationsServer(() => import("./mock-integrations-server"));
+registerCatalogBackend(() => import("@/lib/catalog/app"));
 
 async function current(): Promise<Services> {
   if (isDemoMode()) return mockServices;

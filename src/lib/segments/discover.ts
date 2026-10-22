@@ -35,9 +35,9 @@ async function runSearches(searches: readonly Search[], eligibilities: string, p
   const ids: string[] = [];
   const searched: SegmentDiscovery["searched"] = [];
   for (const s of searches) {
-    const { result } = await gg.search({ keyword: s.keyword, oppStatuses: "forecasted|posted", eligibilities, fundingCategories: s.fundingCategories.join("|"), rows: 25 });
+    const { result, from } = await gg.search({ keyword: s.keyword, oppStatuses: "forecasted|posted", eligibilities, fundingCategories: s.fundingCategories.join("|"), rows: 25 });
     searched.push({ keyword: s.keyword, hits: result.hitCount });
-    onEvent?.({ kind: "search", text: `Searched Grants.gov for "${s.keyword}"`, detail: `${result.hitCount.toLocaleString("en-US")} notices` });
+    onEvent?.({ kind: "search", text: `Searched ${from === "database" ? "the opportunity database" : "Grants.gov"} for "${s.keyword}"`, detail: `${result.hitCount.toLocaleString("en-US")} notices` });
     for (const h of result.oppHits.slice(0, perSearch)) if (!ids.includes(String(h.id))) ids.push(String(h.id));
   }
   const details: gg.OpportunityDetail[] = [];

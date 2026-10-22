@@ -4,6 +4,7 @@ import type { Page } from "@playwright/test";
 export const ALL_ROUTES = [
   "/",
   "/free",
+  "/data",
   "/about",
   "/security",
   "/privacy",

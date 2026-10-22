@@ -182,6 +182,7 @@ const footerGroups = [
     links: [
       { href: "/how-it-works", label: "How it works" },
       { href: "/free", label: "Free while we learn" },
+      { href: "/data", label: "Where the data comes from" },
       { href: "/roadmap", label: "Roadmap" },
       { href: "/onboarding", label: "Try the demo" },
     ],

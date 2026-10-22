@@ -21,7 +21,7 @@ export async function runCustomSearch(input: { keyword: string; fundingCategorie
   const ranked = preRank(live, [{ keyword: input.keyword }], input.org);
   return {
     hitCount: result.hitCount,
-    candidates: ranked.slice(0, 40).map((h) => ({ externalId: h.id, number: h.number, title: h.title, agency: h.agency.trim(), status: h.oppStatus === "forecasted" ? "forecasted" : "posted", closeDate: us(h.closeDate), url: gg.opportunityPageUrl(h.id) })),
+    candidates: ranked.slice(0, 40).map((h) => ({ externalId: h.id, number: h.number, title: h.title, agency: h.agency.trim(), status: h.oppStatus === "forecasted" ? "forecasted" : "posted", closeDate: us(h.closeDate), url: h.url ?? gg.opportunityPageUrl(h.id) })),
   };
 }
 

@@ -150,6 +150,7 @@ create index if not exists catalog_opps_causes_idx on catalog_opportunities usin
 create index if not exists catalog_opps_areas_idx on catalog_opportunities using gin (research_areas);
 create index if not exists catalog_opps_state_idx on catalog_opportunities (place_state);
 create index if not exists catalog_opps_funder_idx on catalog_opportunities (funder_id);
+create index if not exists catalog_opps_categories_idx on catalog_opportunities using gin (categories);
 create index if not exists catalog_opps_embedding_idx on catalog_opportunities using hnsw (embedding vector_cosine_ops);
 
 -- The search document: title first, then funder and numbers, then the summary and labels.
@@ -317,6 +318,7 @@ create or replace function catalog_search(
   research_areas text[] default null,
   causes text[] default null,
   sources text[] default null,
+  categories text[] default null,
   amount_at_least numeric default null,
   amount_at_most numeric default null,
   closes_after timestamptz default null,
@@ -351,6 +353,7 @@ create or replace function catalog_search(
     and (research_areas is null or o.research_areas && research_areas)
     and (causes is null or o.causes && causes)
     and (sources is null or o.source = any(sources))
+    and (categories is null or o.categories && categories)
     and (amount_at_least is null or coalesce(o.amount_max, o.amount_min) is null or coalesce(o.amount_max, o.amount_min) >= amount_at_least)
     and (amount_at_most is null or coalesce(o.amount_min, o.amount_max) is null or coalesce(o.amount_min, o.amount_max) <= amount_at_most)
     and (closes_after is null or o.close_at >= closes_after or (include_rolling and o.close_at is null))
@@ -434,5 +437,7 @@ revoke all on function catalog_expire() from public, anon, authenticated;
 grant execute on function catalog_public_stats() to anon, authenticated;
 grant execute on function catalog_public_runs() to anon, authenticated;
 grant execute on function catalog_public_funder_counts() to anon, authenticated;
-grant execute on function catalog_search(text, text[], text[], text[], text[], text[], text[], text[], text[], text[], text[], numeric, numeric, timestamptz, timestamptz, boolean, int, int) to authenticated;
-grant execute on function catalog_match_embedding(vector, text[], text[], text[], int) to authenticated;
+revoke all on function catalog_search(text, text[], text[], text[], text[], text[], text[], text[], text[], text[], text[], text[], numeric, numeric, timestamptz, timestamptz, boolean, int, int) from public, anon;
+grant execute on function catalog_search(text, text[], text[], text[], text[], text[], text[], text[], text[], text[], text[], text[], numeric, numeric, timestamptz, timestamptz, boolean, int, int) to authenticated, service_role;
+revoke all on function catalog_match_embedding(vector, text[], text[], text[], int) from public, anon;
+grant execute on function catalog_match_embedding(vector, text[], text[], text[], int) to authenticated, service_role;
