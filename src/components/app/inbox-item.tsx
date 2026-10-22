@@ -415,10 +415,6 @@ function EmailEditDialog({
   );
 }
 
-export function formatResolved(item: InboxItem) {
-  return item.resolvedAt ? formatDate(item.resolvedAt) : "";
-}
-
 /** A one-line row that opens into the full item. For things you can decide at a glance. */
 export function CompactInboxRow({ item, ctx, leaving, onApprove, onReject, defaultOpen = false }: InboxItemCardProps & { defaultOpen?: boolean }) {
   const [open, setOpen] = React.useState(defaultOpen);

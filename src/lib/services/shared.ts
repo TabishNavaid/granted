@@ -12,10 +12,6 @@ export function exportCampaign(c: SocialCampaign, format: "text" | "csv"): strin
   return [`${c.month}: ${c.theme}`, "", ...posts.map((p) => `${p.date} (${p.platform})\n${p.text}\n`)].join("\n");
 }
 
-export function monthKey(d = new Date()) {
-  return d.toISOString().slice(0, 7);
-}
-
 export function icsUrlFor(token: string) {
   const base = siteUrl();
   return `${base}/api/calendar/${token}.ics`;

@@ -214,9 +214,7 @@ export const ORG_TYPES: Record<OrgType, OrgTypeDef> = {
   },
 };
 
-export const orgTypeOf = (o: { orgType?: OrgType | null }): OrgType => o.orgType ?? "nonprofit";
 export const kindOf = (o: { kind?: OpportunityKind | null }): OpportunityKind => o.kind ?? "grant";
-export const kindDef = (o: { kind?: OpportunityKind | null }) => KINDS[kindOf(o)];
 
 /** The stages an application of this kind can be in, in board order. */
 export function stagesFor(kind: OpportunityKind | undefined | null): StageDef[] {

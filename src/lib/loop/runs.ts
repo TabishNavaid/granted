@@ -9,16 +9,6 @@ import { UsageLimitError, canRun, type UsageKind } from "@/lib/usage/limits";
  * how many tokens it used, and what it cost. A failure is recorded too, with
  * the error, so the Activity log never has a hole.
  */
-export interface RunOutcome<T> {
-  output: T;
-  summary: string;
-  tools: ToolCall[];
-  sources: SourceUsed[];
-  usage: TokenUsage;
-  costUsd: number;
-  models: string[];
-}
-
 export class Recorder {
   readonly tools: ToolCall[] = [];
   readonly sources: SourceUsed[] = [];

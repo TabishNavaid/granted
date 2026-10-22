@@ -26,7 +26,6 @@ import { computeWinAnalytics } from "@/lib/features/analytics";
 import { planMonth } from "@/lib/features/planner";
 import { analyzeVoice, answerByRules, buildLogicModel, conceptNoteSections, credibilityPosts, feedbackRequestEmail, followUpEmail, logicModelHtml, recomputeCompliance, reminderOutbox, winKit } from "@/lib/features";
 import { allFoundations, foundationByFunderId, fundersLikeYou, irsPageUrl, matchFoundations, matchScholarships, noticeTextFor, peerOrganizations, recommendAsk, stateCode, toFunder, toOpportunity, loadFoundations } from "@/lib/foundations";
-import { seedToday } from "@/lib/mock/dates";
 import { wordCount } from "@/lib/format";
 
 /**
@@ -544,10 +543,6 @@ export function makeFeatureServices(d: Deps) {
   };
 
   return { org, knowledge, applications, ruleReview, inbox: inboxSvc, calendar, integrations, social, contacts, analytics: analyticsSvc, funders, copilot, scholarships };
-}
-
-export function seedTodayIso() {
-  return seedToday();
 }
 
 export type { BoilerplateVersion };

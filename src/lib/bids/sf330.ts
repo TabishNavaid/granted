@@ -15,9 +15,6 @@ import { certWords } from "@/lib/firm/facts";
 
 export const SF330_LIMITS = { exampleProjects: 10, projectsPerResume: 5 };
 
-/** SF 330 Part II revenue index: 1 is under $100,000, 10 is $50 million or more. */
-export const REVENUE_INDEX = ["Less than $100,000", "$100,000 to less than $250,000", "$250,000 to less than $500,000", "$500,000 to less than $1 million", "$1 million to less than $2 million", "$2 million to less than $5 million", "$5 million to less than $10 million", "$10 million to less than $25 million", "$25 million to less than $50 million", "$50 million or greater"];
-
 const where = (p: { city: string; state: string }) => [p.city, p.state].filter(Boolean).join(", ");
 
 export interface Sf330Input {

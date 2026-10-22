@@ -110,5 +110,3 @@ export function recordFacts(input: { org: Organization; profile: FirmProfile | n
   }
   return out;
 }
-
-export const isRecordFact = (id: string) => id.startsWith("rec_");
