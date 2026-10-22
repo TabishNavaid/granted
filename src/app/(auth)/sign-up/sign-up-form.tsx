@@ -30,7 +30,7 @@ export function SignUpForm({ magicLink }: { magicLink: boolean }) {
   return (
     <div>
       <h1 className="font-display text-3xl text-ink">Create your workspace</h1>
-      <p className="mt-3 text-lg text-ink-muted">Free to start. Setup ends with your first grant matches.</p>
+      <p className="mt-3 text-lg text-ink-muted">Free while we learn. Setup ends with the first opportunities you qualify for.</p>
       <form
         className="mt-8 flex flex-col gap-5"
         onSubmit={async (e) => {

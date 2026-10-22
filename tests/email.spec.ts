@@ -57,3 +57,10 @@ test.describe("emails", () => {
     expect(links.oneClick).toMatch(/^https:\/\/fundfellows\.com\/api\/email\/unsubscribe\?t=/);
   });
 });
+
+test("attribute values never contain a raw double quote (email clients and Supabase reject the HTML)", () => {
+  for (const [, t] of all) {
+    for (const m of t.html.matchAll(/style="([^"]*)"/g)) expect(m[1]).not.toContain('"');
+    expect(t.html).not.toMatch(/style="[^"]*"[A-Za-z]/);
+  }
+});

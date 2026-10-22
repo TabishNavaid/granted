@@ -10,6 +10,6 @@ export const EMAIL_THEME = {
   rule: "#E3E6E1",
   accent: "#1F5A43",
   accentInk: "#FFFFFF",
-  font: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
-  serif: 'Georgia, "Times New Roman", serif',
+  font: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif",
+  serif: "Georgia, 'Times New Roman', serif",
 } as const;
