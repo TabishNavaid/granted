@@ -15,7 +15,7 @@ function demo() {
   return !keys;
 }
 
-const DEMO_COOKIE = "fl_demo";
+const DEMO_COOKIE = "ff_demo";
 
 export async function proxy(request: NextRequest) {
   if (demo()) {

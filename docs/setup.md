@@ -105,7 +105,7 @@ Email the app sends itself: the weekly digest and the contact form. Without it t
 
 ```
 RESEND_API_KEY=re_...
-EMAIL_FROM=Firstlight <hello@your-domain.example>
+EMAIL_FROM=FundFellows <no-reply@fundfellows.com>
 NEXT_PUBLIC_CONTACT_EMAIL=hello@your-domain.example
 ```
 

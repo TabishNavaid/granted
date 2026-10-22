@@ -1,4 +1,4 @@
-import { PRODUCT_NAME } from "@/lib/brand";
+import { EMAIL, PRODUCT_NAME } from "@/lib/brand";
 
 /**
  * Site copy: FAQ, founder note, security page, legal drafts, and pricing.
@@ -62,7 +62,7 @@ export const founderNote: {
     "I spent [a period of time] volunteering with [the organization where I volunteered] in [city]. The person running it did programs, finance, and every grant application alone, mostly after hours. There was money to apply for. There were no hours to apply for it.",
     "Grant writers cost more than most small organizations can spend. The research tools are priced for development offices. The AI tools we tried wrote confident drafts with invented numbers. When a funder is reading, that is worse than no draft.",
     `So we built ${PRODUCT_NAME} around one rule: every fact comes from your own documents or a real funding notice, with a link to where it came from. Nothing goes out until you approve it. It writes a draft and keeps a calendar. It does not speak for you.`,
-    "It is early. The federal listings are in. Foundation data from public IRS 990-PF filings now covers Ohio, Kentucky, and North Carolina, and more states come next. We are building it with [number] organizations who tell us what is wrong every week. If you run a small nonprofit and want to be one of them, write to us at [founders@yourdomain].",
+    `It is early. The federal listings are in. Foundation data from public IRS 990-PF filings now covers Ohio, Kentucky, and North Carolina, and more states come next. We are building it with [number] organizations who tell us what is wrong every week. If you run a small nonprofit and want to be one of them, write to us at ${EMAIL.hello}.`,
   ],
   signoff: `[Name] and [Name], founders of ${PRODUCT_NAME}`,
 };
@@ -122,7 +122,7 @@ export const securitySections: Section[] = [
   {
     heading: "Reporting a problem",
     body: [
-      "If you find a security issue, or a fact in a draft that does not match its source, write to [security@yourdomain]. We read every report and will reply within [two business days].",
+      `If you find a security issue, or a fact in a draft that does not match its source, write to ${EMAIL.security}. We read every report and will reply within [two business days].`,
       "Please do not test against other customers' workspaces. If you need a safe place to look, ask and we will set one up.",
     ],
   },
@@ -177,7 +177,7 @@ export const privacySections: Section[] = [
     heading: "Your rights and choices",
     body: [
       "You can see, edit, export, and delete your workspace content yourself in the app. You can delete your whole account from settings.",
-      "Depending on where you live, you may have rights to access, correct, or delete personal data, or to object to how it is used. Email [privacy@yourdomain] and we will respond within [30 days].",
+      `Depending on where you live, you may have rights to access, correct, or delete personal data, or to object to how it is used. Email ${EMAIL.privacy} and we will respond within [30 days].`,
       "You can turn off the digest and other reminder emails at any time. Sign-in and billing emails are part of running your account.",
     ],
   },
@@ -196,7 +196,7 @@ export const privacySections: Section[] = [
   {
     heading: "Contact",
     body: [
-      "Questions about privacy go to [privacy@yourdomain]. Our mailing address is [address].",
+      `Questions about privacy go to ${EMAIL.privacy}. Our mailing address is [address].`,
     ],
   },
 ];

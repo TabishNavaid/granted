@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
-import { siteUrl } from "@/lib/site-url";
+import { canonicalUrl } from "@/lib/site-url";
 
-const base = siteUrl();
+const base = canonicalUrl();
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

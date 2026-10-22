@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { adminClient, createUserClient } from "./clients";
 
-const ACTIVE_ORG_COOKIE = "fl_org";
+const ACTIVE_ORG_COOKIE = "ff_org";
 
 /** Remember which organization a consultant has open. Checked against memberships on every request. */
 export async function setActiveOrg(orgId: string) {

@@ -1,4 +1,4 @@
-# Firstlight
+# FundFellows
 
 One engine that finds, writes, and tracks applications for organizations that win work through applications and proposals: nonprofits (grants), architecture, engineering, and construction firms (bids, RFPs, and the SF 330), research teams (research funding), and individuals (scholarships). Every claim in a draft cites the applicant's own records, and nothing is sent, priced, or submitted for them.
 

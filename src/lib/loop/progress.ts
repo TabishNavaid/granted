@@ -35,8 +35,8 @@ export interface JobProgress {
 }
 
 // One table per process. Route handlers and server actions can load separate copies of this module, so it lives on globalThis.
-const g = globalThis as typeof globalThis & { __firstlightJobs?: Map<string, JobProgress> };
-const jobs = (g.__firstlightJobs ??= new Map<string, JobProgress>());
+const g = globalThis as typeof globalThis & { __fundfellowsJobs?: Map<string, JobProgress> };
+const jobs = (g.__fundfellowsJobs ??= new Map<string, JobProgress>());
 const TTL_MS = 15 * 60 * 1000;
 
 function sweep() {

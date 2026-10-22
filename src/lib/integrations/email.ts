@@ -1,3 +1,5 @@
+import { DEFAULT_EMAIL_FROM, EMAIL } from "@/lib/brand";
+
 /**
  * Transactional email through Resend. Without RESEND_API_KEY every send
  * returns { ok: false, reason: "not_connected" } and callers show a copy
@@ -17,14 +19,15 @@ export function emailConnected() {
   return Boolean(process.env.RESEND_API_KEY?.trim());
 }
 
-export function contactAddress(): string | null {
-  return process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || null;
+/** Where the contact form delivers and the address the site shows. */
+export function contactAddress(): string {
+  return process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || EMAIL.hello;
 }
 
 export async function sendEmail(msg: OutgoingEmail): Promise<SendResult> {
   const key = process.env.RESEND_API_KEY?.trim();
   if (!key) return { ok: false, reason: "not_connected", message: "Email delivery is not set up yet." };
-  const from = process.env.EMAIL_FROM?.trim() || "onboarding@resend.dev";
+  const from = process.env.EMAIL_FROM?.trim() || DEFAULT_EMAIL_FROM;
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
