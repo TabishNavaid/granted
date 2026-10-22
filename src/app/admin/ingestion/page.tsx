@@ -60,9 +60,12 @@ export default async function IngestionPage() {
 
   return (
     <main className="mx-auto max-w-[80rem] px-4 py-12 sm:px-6 lg:px-10">
-      <p className="text-sm text-ink-muted">
+      <p className="flex gap-4 text-sm text-ink-muted">
         <Link href="/inbox" className="underline underline-offset-2">
           Back to the app
+        </Link>
+        <Link href="/admin/errors" className="underline underline-offset-2">
+          Errors
         </Link>
       </p>
       <h1 className="mt-4 font-display text-h1 text-ink">Ingestion log</h1>

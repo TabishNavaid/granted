@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Public_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { Analytics } from "@vercel/analytics/next";
 import { ToastProvider } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { PRODUCT_DESCRIPTION, PRODUCT_NAME } from "@/lib/brand";
@@ -41,6 +42,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <ToastProvider>{children}</ToastProvider>
           </TooltipProvider>
         </ThemeProvider>
+        {/* Page views only, no cookies. Active on Vercel; does nothing elsewhere. */}
+        <Analytics />
       </body>
     </html>
   );

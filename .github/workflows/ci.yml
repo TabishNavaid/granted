@@ -44,6 +44,6 @@ jobs:
           eval "$(supabase status -o env | grep -E '^(API_URL|ANON_KEY|SERVICE_ROLE_KEY|DB_URL)=')"
           printf 'NEXT_PUBLIC_SUPABASE_URL=%s\nNEXT_PUBLIC_SUPABASE_ANON_KEY=%s\nSUPABASE_SERVICE_ROLE_KEY=%s\nDATABASE_URL=%s\n' "$API_URL" "$ANON_KEY" "$SERVICE_ROLE_KEY" "$DB_URL" > .env.localdb
       - name: Row level security and background jobs against Postgres
-        run: npx playwright test tests/rls.spec.ts tests/jobs.spec.ts tests/search.spec.ts
+        run: npx playwright test tests/rls.spec.ts tests/jobs.spec.ts tests/search.spec.ts tests/embed.spec.ts tests/errors.spec.ts
         env:
           BASE_URL: http://127.0.0.1:9
