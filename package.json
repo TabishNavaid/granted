@@ -12,7 +12,9 @@
     "test": "playwright test",
     "dev:localdb": "node scripts/dev-localdb.mjs",
     "ingest": "tsx --tsconfig tsconfig.json scripts/ingest.ts",
-    "catalog:snapshot": "tsx --tsconfig tsconfig.json scripts/catalog-snapshot.ts"
+    "catalog:snapshot": "tsx --tsconfig tsconfig.json scripts/catalog-snapshot.ts",
+    "launch:db": "tsx --tsconfig tsconfig.json scripts/launch-db.ts",
+    "email:templates": "tsx --tsconfig tsconfig.json scripts/email-templates.ts"
   },
   "dependencies": {
     "@google/genai": "^2.30.0",

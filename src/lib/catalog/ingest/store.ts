@@ -1,5 +1,5 @@
 import postgres from "postgres";
-import { canonicalKey, contentHash, trimSummary } from "../normalize";
+import { canonicalKey, contentHash, sha1, stableStringify, trimSummary } from "../normalize";
 import type { AwardStatInput, FunderInput, OpportunityInput, SourceDefinition } from "../types";
 
 /**
@@ -94,6 +94,7 @@ export async function upsertFunders(sql: Sql, source: string, rows: FunderInput[
       source,
       source_url: f.sourceUrl,
       extra: sql.json((f.extra ?? {}) as postgres.JSONValue),
+      content_hash: sha1(stableStringify({ ...f, giving: undefined })),
     }));
     const out = await sql<{ id: string; key: string }[]>`
       insert into catalog_funders ${sql(values)}
@@ -110,8 +111,11 @@ export async function upsertFunders(sql: Sql, source: string, rows: FunderInput[
         typical_grant_max = coalesce(excluded.typical_grant_max, catalog_funders.typical_grant_max),
         total_giving = coalesce(excluded.total_giving, catalog_funders.total_giving), assets = coalesce(excluded.assets, catalog_funders.assets),
         tax_year = coalesce(excluded.tax_year, catalog_funders.tax_year),
-        source_url = excluded.source_url, extra = catalog_funders.extra || excluded.extra, last_checked = now(), updated_at = now()
+        source_url = excluded.source_url, extra = catalog_funders.extra || excluded.extra, content_hash = excluded.content_hash, last_checked = now(), updated_at = now()
+      where catalog_funders.content_hash is distinct from excluded.content_hash
       returning id, key`;
+    // Unchanged funders were skipped by the update and returned no id; look theirs up.
+    await index.resolve(part.map((f) => f.key));
     for (const r of out) index.set(r.key, r.id);
     n += out.length;
     const giving = part.flatMap((f) => (f.giving ?? []).map((g) => ({ f, g })));

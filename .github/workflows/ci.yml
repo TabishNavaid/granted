@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm run build
+      - name: Plain-code tests (connectors on recorded responses, email, usage, encryption)
+        run: npx playwright test tests/catalog tests/email.spec.ts tests/usage.spec.ts tests/crypto.spec.ts tests/logic.spec.ts
+        env:
+          BASE_URL: http://127.0.0.1:9
+
+  database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: npm ci --no-audit --no-fund
+      - name: Start a local Supabase with every migration
+        run: supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor
+      - name: Write the local env file
+        run: |
+          eval "$(supabase status -o env | grep -E '^(API_URL|ANON_KEY|SERVICE_ROLE_KEY|DB_URL)=')"
+          printf 'NEXT_PUBLIC_SUPABASE_URL=%s\nNEXT_PUBLIC_SUPABASE_ANON_KEY=%s\nSUPABASE_SERVICE_ROLE_KEY=%s\nDATABASE_URL=%s\n' "$API_URL" "$ANON_KEY" "$SERVICE_ROLE_KEY" "$DB_URL" > .env.localdb
+      - name: Row level security and background jobs against Postgres
+        run: npx playwright test tests/rls.spec.ts tests/jobs.spec.ts
+        env:
+          BASE_URL: http://127.0.0.1:9

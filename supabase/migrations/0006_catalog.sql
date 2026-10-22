@@ -55,6 +55,7 @@ create table if not exists catalog_funders (
   source text not null references catalog_sources(id),
   source_url text not null,
   extra jsonb not null default '{}',          -- small, source-specific fields (application info, top grantees)
+  content_hash text,                         -- unchanged funders are not rewritten on each run
   first_seen timestamptz not null default now(),
   last_checked timestamptz not null default now(),
   updated_at timestamptz not null default now()
