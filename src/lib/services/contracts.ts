@@ -78,6 +78,8 @@ import type { BidMeta } from "@/lib/bids/store";
 export interface OrgService {
   get(): Promise<Organization>;
   update(patch: Partial<Organization>): Promise<Organization>;
+  /** What the IRS registry says about an EIN, in plain words. Null when this server has no registry (the demo). */
+  verifyEin(ein: string): Promise<{ status: "eligible" | "not_eligible" | "not_found" | "unavailable"; message: string } | null>;
   listMembers(): Promise<Member[]>;
   inviteMember(email: string, role: Member["role"]): Promise<Member>;
   updateMemberRole(id: string, role: Member["role"]): Promise<Member>;

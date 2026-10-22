@@ -459,6 +459,12 @@ export function makeSupabaseServices(): Services {
       const s = await ctx();
       return map.org(must(await db.from("organizations").update(map.orgPatch(patch)).eq("id", s.orgId).select("*").single(), "organization"));
     },
+    async verifyEin(ein: string) {
+      await ctx();
+      const { verifyNonprofit } = await import("@/lib/catalog/registry");
+      const v = await verifyNonprofit(ein);
+      return { status: v.status, message: v.message };
+    },
     async listMembers() {
       const s = await ctx();
       const rows = many(await db.from("org_members").select("id, org_id, user_id, invited_email, role, status, profiles(full_name, email)").eq("org_id", s.orgId), "members");

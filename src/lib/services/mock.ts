@@ -305,6 +305,10 @@ export const mockServices: Services = {
       Object.assign(state.org, patch);
       return clone(state.org);
     },
+    async verifyEin() {
+      // The demo has no copy of the IRS registry.
+      return null;
+    },
     async listMembers() {
       return clone(state.members);
     },
