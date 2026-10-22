@@ -57,6 +57,19 @@ test("a job runs as its owner and stores its result", async () => {
   expect(await readStoredJob(id, randomUUID())).toBeNull();
 });
 
+test("a job another runner is working on is left alone until its heartbeat goes stale", async () => {
+  test.skip(!reachable, "No local Supabase running");
+  const busy = `job_t${tag}d`;
+  await admin.from("jobs").insert({ id: busy, org_id: orgId, user_id: userId, kind: "account.getUsage", args: [], status: "running", attempts: 1, heartbeat_at: new Date().toISOString() });
+  await runStoredJob(busy);
+  const fresh = await admin.from("jobs").select("status, attempts").eq("id", busy).single();
+  expect(fresh.data).toEqual({ status: "running", attempts: 1 });
+  await admin.from("jobs").update({ heartbeat_at: new Date(Date.now() - 600_000).toISOString() }).eq("id", busy);
+  await runStoredJob(busy);
+  const stale = await admin.from("jobs").select("status, attempts").eq("id", busy).single();
+  expect(stale.data).toEqual({ status: "done", attempts: 2 });
+});
+
 test("a failing job records a plain error, and a job that keeps dying is given up on", async () => {
   test.skip(!reachable, "No local Supabase running");
   const bad = `job_t${tag}b`;

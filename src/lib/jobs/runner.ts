@@ -77,11 +77,14 @@ export async function runStoredJob(jobId: string): Promise<void> {
     await db.from("jobs").update({ status: "failed", error: "This stopped three times before finishing. Try again, and tell us if it keeps happening.", finished_at: new Date().toISOString() }).eq("id", jobId);
     return;
   }
+  // A running job with a fresh heartbeat belongs to the runner that claimed it; only a stale one is taken over.
+  if (row.status === "running" && Date.now() - new Date(String(row.heartbeat_at)).getTime() < STALE_MS) return;
   const now = new Date().toISOString();
   const { data: claimed } = await db
     .from("jobs")
     .update({ status: "running", started_at: row.started_at ?? now, heartbeat_at: now, attempts: row.attempts + 1 })
     .eq("id", jobId)
+    .eq("status", row.status)
     .eq("attempts", row.attempts)
     .select("id")
     .maybeSingle();
