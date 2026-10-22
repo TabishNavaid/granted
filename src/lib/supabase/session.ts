@@ -1,7 +1,8 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import { cookies } from "next/headers";
 import { adminClient, createUserClient } from "./clients";
 
-const ACTIVE_ORG_COOKIE = "fl_org";
+const ACTIVE_ORG_COOKIE = "ff_org";
 
 /** Remember which organization a consultant has open. Checked against memberships on every request. */
 export async function setActiveOrg(orgId: string) {
@@ -22,8 +23,20 @@ export class NotSignedIn extends Error {
   }
 }
 
+/**
+ * A background job runs as the person who started it, after their request has ended, so there are no
+ * cookies to read. The job runner sets the session here for the length of the job.
+ */
+const override = new AsyncLocalStorage<SessionContext>();
+
+export function runAsSession<T>(session: SessionContext, fn: () => Promise<T>): Promise<T> {
+  return override.run(session, fn);
+}
+
 /** The signed-in user and their organization. Creates the organization on first sign-in. */
 export async function getSession(): Promise<SessionContext | null> {
+  const fixed = override.getStore();
+  if (fixed) return fixed;
   const supa = await createUserClient();
   const { data } = await supa.auth.getUser();
   const user = data.user;
@@ -47,7 +60,6 @@ export async function getSession(): Promise<SessionContext | null> {
   const { data: org, error } = await db.from("organizations").insert({ name: orgName, onboarding_step: "start" }).select("id").single();
   if (error || !org) throw new Error(`Could not create the organization: ${error?.message}`);
   await db.from("org_members").insert({ org_id: org.id, user_id: user.id, invited_email: email, role: "owner", status: "active" });
-  await db.from("subscriptions").insert({ org_id: org.id, plan: "free", status: "active", seats: 1 });
   await db.from("notification_settings").insert({ org_id: org.id });
   return { userId: user.id, email, fullName, orgId: org.id as string };
 }

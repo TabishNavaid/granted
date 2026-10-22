@@ -141,7 +141,7 @@ export function AudiencePageView({ page: a }: { page: AudiencePage }) {
 function StepText({ step, n, className }: { step: AudienceStep; n: number; className?: string }) {
   return (
     <div className={className}>
-      <span className="block font-display text-6xl leading-[0.85] tracking-[-0.03em] text-meadow tnum" aria-hidden>
+      <span className="block font-display text-6xl leading-[0.85] tracking-[-0.03em] text-fellow tnum" aria-hidden>
         {n}
       </span>
       <h3 className="mt-4 max-w-[22ch] font-display text-3xl text-ink">{step.title}</h3>

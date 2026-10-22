@@ -1,3 +1,4 @@
+import type { UsageSummary } from "@/lib/usage/limits";
 import type {
   ContactKind,
   EmailKind,
@@ -9,6 +10,7 @@ import type {
   ProposalMode,
   ReviewerCheck,
   SavedSearch,
+  BidSearchFilters,
   SearchCandidate,
   SectionVersion,
   SocialCampaign,
@@ -24,7 +26,6 @@ import type {
   Fact,
   Funder,
   InboxItem,
-  Invoice,
   MatchView,
   Member,
   Milestone,
@@ -37,7 +38,6 @@ import type {
   PlanItem,
   ProposalWorkspace,
   Section,
-  Subscription,
   AgentAutonomy,
   AgentName,
   BoilerplateVersion,
@@ -78,6 +78,8 @@ import type { BidMeta } from "@/lib/bids/store";
 export interface OrgService {
   get(): Promise<Organization>;
   update(patch: Partial<Organization>): Promise<Organization>;
+  /** What the IRS registry says about an EIN, in plain words. Null when this server has no registry (the demo). */
+  verifyEin(ein: string): Promise<{ status: "eligible" | "not_eligible" | "not_found" | "unavailable"; message: string } | null>;
   listMembers(): Promise<Member[]>;
   inviteMember(email: string, role: Member["role"]): Promise<Member>;
   updateMemberRole(id: string, role: Member["role"]): Promise<Member>;
@@ -162,7 +164,7 @@ export interface OpportunityService {
   dismiss(id: string, reason: string): Promise<MatchView>;
   startApplication(opportunityId: string, mode?: ProposalMode): Promise<Application>;
   listSavedSearches(): Promise<SavedSearch[]>;
-  saveSearch(input: { name: string; keyword: string; fundingCategories: string[] }): Promise<SavedSearch>;
+  saveSearch(input: { name: string; keyword: string; fundingCategories: string[]; filters?: BidSearchFilters | null }): Promise<SavedSearch>;
   deleteSavedSearch(id: string): Promise<void>;
   /** Run a keyword search on Grants.gov now and return open notices nonprofits can apply for, unscored. */
   runSearch(input: { keyword: string; fundingCategories: string[]; savedSearchId?: string }): Promise<LoopResult<{ candidates: SearchCandidate[]; hitCount: number }>>;
@@ -215,7 +217,7 @@ export interface AnalyticsService {
 export interface FunderService {
   list(): Promise<FunderSummary[]>;
   get(id: string): Promise<FunderProfile | null>;
-  /** Search the private foundation directory (IRS 990-PF filings). */
+  /** Search the private foundations (IRS 990-PF filings). */
   directory(query: string, state: string | null): Promise<FunderSummary[]>;
   /** Foundations that funded organizations like this one, which it has not matched yet. */
   fundersLikeYou(): Promise<{ funder: Funder; peers: string[] }[]>;
@@ -318,16 +320,17 @@ export interface ActivityService {
   getRun(id: string): Promise<AgentRun | null>;
 }
 
-export interface BillingService {
-  getSubscription(): Promise<Subscription>;
-  listInvoices(): Promise<Invoice[]>;
-  /** Without Stripe: switches the plan in place (free only, or demo). With Stripe: use checkoutUrl instead. */
-  changePlan(plan: Subscription["plan"]): Promise<Subscription>;
-  /** Stripe Checkout for a paid plan, when Stripe is connected. */
-  checkoutUrl(plan: "starter" | "growth"): Promise<LoopResult<{ url: string }>>;
-  portalUrl(): Promise<LoopResult<{ url: string }>>;
-  /** Can this workspace do one more of these under its plan? */
-  canUse(what: "proposal" | "match"): Promise<{ ok: boolean; message: string | null }>;
+export interface JobsService {
+  /**
+   * Start a long step (drafting, reading an RFP) in the background when this server keeps jobs, which the
+   * real product does. "inline" means the caller should call the method directly, as the demo does.
+   */
+  start(spec: { jobId: string; kind: string; args: unknown[] }): Promise<{ mode: "background" | "inline" }>;
+}
+
+export interface AccountService {
+  /** This month's AI allowance, e.g. "You have used 12 of 50 drafts this month." */
+  getUsage(): Promise<UsageSummary>;
   getNotificationSettings(): Promise<NotificationSettings>;
   updateNotificationSettings(patch: Partial<NotificationSettings>): Promise<NotificationSettings>;
 }
@@ -344,7 +347,7 @@ export interface AuthService {
 }
 
 /** The real loop: website to facts to matches to a letter. Results carry kind, honest errors for the UI. */
-export type LoopErrorCode = "bad_url" | "unreachable" | "no_ai" | "rate_limited" | "no_facts" | "grants_gov" | "not_found" | "failed";
+export type LoopErrorCode = "bad_url" | "unreachable" | "no_ai" | "rate_limited" | "no_facts" | "grants_gov" | "not_found" | "usage_limit" | "failed";
 export type LoopResult<T> = { ok: true; data: T } | { ok: false; code: LoopErrorCode; error: string };
 
 export interface RuntimeInfo {
@@ -430,6 +433,8 @@ export interface BidView {
 }
 
 export interface BidService {
+  /** Past federal awards for the bid's NAICS code: who buys this work and for how much. Totals only, never who won. */
+  marketContext(applicationId: string): Promise<{ context: import("@/lib/catalog/app").MarketContext; recordedOn: string | null } | null>;
   /** Read a solicitation the firm brought (a link, pasted text, an uploaded document, or a SAM.gov notice) into a bid with a compliance matrix and a go/no-go score. */
   addRfp(input: { url?: string; text?: string; documentId?: string; samNoticeId?: string; sample?: boolean; jobId?: string }): Promise<LoopResult<{ applicationId: string; requirementCount: number; score: number }>>;
   get(applicationId: string): Promise<BidView | null>;
@@ -443,7 +448,7 @@ export interface BidService {
   refreshMatrix(applicationId: string): Promise<Requirement[]>;
   sf330(applicationId: string): Promise<Sf330 | null>;
   /** SAM.gov search for the firm's work categories. Live with a key; the recorded search in the demo; not connected otherwise. */
-  searchSam(input?: { naics?: string[]; state?: string | null }): Promise<{ status: "live" | "recorded" | "not_connected"; note: string; notices: SamNotice[]; recordedOn: string | null }>;
+  searchSam(input?: { naics?: string[]; state?: string | null; filters?: BidSearchFilters | null }): Promise<{ status: "live" | "recorded" | "not_connected"; note: string; notices: SamNotice[]; recordedOn: string | null }>;
 }
 
 export interface ResearchService {
@@ -472,7 +477,8 @@ export interface Services {
   inbox: InboxService;
   calendar: CalendarService;
   activity: ActivityService;
-  billing: BillingService;
+  account: AccountService;
+  jobs: JobsService;
   auth: AuthService;
   loop: LoopService;
   demo: DemoService;

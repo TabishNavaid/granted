@@ -1,0 +1,498 @@
+{
+    "uri": "https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?stages=tender&limit=4&publishedFrom=2026-10-20T00:00:00&publishedTo=2026-10-21T00:00:00",
+    "version": "1.1",
+    "extensions": [
+        "https://standard.open-contracting.org/profiles/eu/master/en/extension.json",
+        "https://raw.githubusercontent.com/portaledcahn/ocds_tenderDatePublished_extension/master/extension.json",
+        "https://raw.githubusercontent.com/open-contracting-extensions/ocds_budget_breakdown_extension/master/extension.json",
+        "https://raw.githubusercontent.com/Crown-Commercial-Service/ocds_awards_datePublished_extension/main/extension.json",
+        "https://raw.githubusercontent.com/Crown-Commercial-Service/ocds_partyDetails_vcse_extension/main/extension.json",
+        "https://raw.githubusercontent.com/Crown-Commercial-Service/ocds_tender_suitability_extension/main/extension.json",
+        "https://raw.githubusercontent.com/open-contracting-extensions/ocds_pagination_extension/master/extension.json"
+    ],
+    "publishedDate": "2026-10-20T17:45:13+01:00",
+    "publisher": {
+        "name": "Cabinet Office",
+        "scheme": "GB-GOR",
+        "uid": "D2",
+        "uri": "https://www.gov.uk/government/organisations/cabinet-office"
+    },
+    "license": "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+    "publicationPolicy": "https://www.gov.uk/government/publications/open-contracting",
+    "releases": [
+        {
+            "ocid": "ocds-b5fd17-6d2fdb4a-f7d1-4ae0-be80-9ee046ceb4e2",
+            "id": "265c4ca8-b618-4426-a1e2-f2e6e7ec92e6-918492",
+            "language": "en",
+            "date": "2026-10-20T17:45:13+01:00",
+            "tag": [
+                "tender"
+            ],
+            "initiationType": "tender",
+            "tender": {
+                "id": "MT238376",
+                "title": "Tourism Campaign - OOH Marketing",
+                "description": "This contract is to provide North York Moors National Park with Out of Home Marketing for our Tourism Campaign running through 2027.\r\nThe contract will commence in December 2026 and complete in December 2027.",
+                "datePublished": "2026-10-20T17:45:13+01:00",
+                "status": "active",
+                "classification": {
+                    "scheme": "CPV",
+                    "id": "79342100",
+                    "description": "Direct marketing services"
+                },
+                "items": [
+                    {
+                        "id": "1",
+                        "deliveryAddresses": [
+                            {
+                                "region": "Scotland",
+                                "countryName": "United Kingdom"
+                            },
+                            {
+                                "region": "North East",
+                                "countryName": "United Kingdom"
+                            },
+                            {
+                                "region": "Yorkshire and the Humber",
+                                "countryName": "United Kingdom"
+                            },
+                            {
+                                "region": "North West",
+                                "countryName": "United Kingdom"
+                            },
+                            {
+                                "region": "East Midlands",
+                                "countryName": "United Kingdom"
+                            },
+                            {
+                                "region": "East of England",
+                                "countryName": "United Kingdom"
+                            },
+                            {
+                                "region": "South West",
+                                "countryName": "United Kingdom"
+                            },
+                            {
+                                "region": "London",
+                                "countryName": "United Kingdom"
+                            }
+                        ]
+                    }
+                ],
+                "procurementMethod": "open",
+                "procurementMethodDetails": "Open procedure (below threshold)",
+                "tenderPeriod": {
+                    "endDate": "2026-11-13T17:00:00Z"
+                },
+                "contractPeriod": {
+                    "startDate": "2026-12-01T00:00:00Z",
+                    "endDate": "2027-12-20T23:59:59Z"
+                },
+                "suitability": {
+                    "sme": true,
+                    "vcse": false
+                },
+                "mainProcurementCategory": "services",
+                "documents": [
+                    {
+                        "id": "1",
+                        "documentType": "tenderNotice",
+                        "description": "Opportunity notice on Contracts Finder",
+                        "url": "https://www.contractsfinder.service.gov.uk/Notice/265c4ca8-b618-4426-a1e2-f2e6e7ec92e6",
+                        "datePublished": "2026-10-20T17:45:13+01:00",
+                        "format": "text/html",
+                        "language": "en"
+                    },
+                    {
+                        "id": "2",
+                        "documentType": "tenderNotice",
+                        "description": "NOTE: To register your interest in this notice and obtain any additional information please visit the myTenders Web Site at the link provided.",
+                        "url": "https://www.mytenders.co.uk/search/show/search_view.aspx?ID=OCT171998"
+                    }
+                ]
+            },
+            "parties": [
+                {
+                    "id": "GB-CFS-234546",
+                    "name": "North York Moors National Park",
+                    "identifier": {
+                        "legalName": "North York Moors National Park"
+                    },
+                    "address": {
+                        "streetAddress": "The Old Vicarage, Bondgate, Helmsley, York, North Yorkshir, Bondgate",
+                        "locality": "York",
+                        "postalCode": "YO62 5BP",
+                        "countryName": "England"
+                    },
+                    "contactPoint": {
+                        "name": "Tom Outing",
+                        "email": "t.outing@northyorkmoors.org.uk",
+                        "telephone": "+44 7896056846"
+                    },
+                    "details": {
+                        "url": "https://www.northyorkmoors.org.uk"
+                    },
+                    "roles": [
+                        "buyer"
+                    ]
+                }
+            ],
+            "buyer": {
+                "id": "GB-CFS-234546",
+                "name": "North York Moors National Park"
+            }
+        },
+        {
+            "ocid": "ocds-b5fd17-3ce0720b-73aa-4e52-836c-8927f718fa9f",
+            "id": "98652581-804b-458b-9a02-384cd1bf0afa-918491",
+            "language": "en",
+            "date": "2026-10-20T17:45:08+01:00",
+            "tag": [
+                "tender"
+            ],
+            "initiationType": "tender",
+            "tender": {
+                "id": "MT238374",
+                "title": "Tourism Campaign - Digital Marketing",
+                "description": "This contract is to provide North York Moors National Park with Media Marketing for our Tourism Campaign running through 2027.\r\nThe contract will commence in November 2026 and complete in February 2028.",
+                "datePublished": "2026-10-20T17:45:08+01:00",
+                "status": "active",
+                "classification": {
+                    "scheme": "CPV",
+                    "id": "79342100",
+                    "description": "Direct marketing services"
+                },
+                "items": [
+                    {
+                        "id": "1",
+                        "deliveryAddresses": [
+                            {
+                                "region": "Scotland",
+                                "countryName": "United Kingdom"
+                            },
+                            {
+                                "region": "North East",
+                                "countryName": "United Kingdom"
+                            },
+                            {
+                                "region": "Yorkshire and the Humber",
+                                "countryName": "United Kingdom"
+                            },
+                            {
+                                "region": "North West",
+                                "countryName": "United Kingdom"
+                            },
+                            {
+                                "region": "East Midlands",
+                                "countryName": "United Kingdom"
+                            },
+                            {
+                                "region": "East of England",
+                                "countryName": "United Kingdom"
+                            },
+                            {
+                                "region": "South West",
+                                "countryName": "United Kingdom"
+                            },
+                            {
+                                "region": "London",
+                                "countryName": "United Kingdom"
+                            }
+                        ]
+                    }
+                ],
+                "procurementMethod": "open",
+                "procurementMethodDetails": "Open procedure (below threshold)",
+                "tenderPeriod": {
+                    "endDate": "2026-11-13T17:00:00Z"
+                },
+                "contractPeriod": {
+                    "startDate": "2026-11-23T00:00:00Z",
+                    "endDate": "2027-12-20T23:59:59Z"
+                },
+                "suitability": {
+                    "sme": true,
+                    "vcse": false
+                },
+                "mainProcurementCategory": "services",
+                "documents": [
+                    {
+                        "id": "1",
+                        "documentType": "tenderNotice",
+                        "description": "Opportunity notice on Contracts Finder",
+                        "url": "https://www.contractsfinder.service.gov.uk/Notice/98652581-804b-458b-9a02-384cd1bf0afa",
+                        "datePublished": "2026-10-20T17:45:08+01:00",
+                        "format": "text/html",
+                        "language": "en"
+                    },
+                    {
+                        "id": "2",
+                        "documentType": "tenderNotice",
+                        "description": "NOTE: To register your interest in this notice and obtain any additional information please visit the myTenders Web Site at the link provided.",
+                        "url": "https://www.mytenders.co.uk/search/show/search_view.aspx?ID=OCT171997"
+                    }
+                ]
+            },
+            "parties": [
+                {
+                    "id": "GB-CFS-234546",
+                    "name": "North York Moors National Park",
+                    "identifier": {
+                        "legalName": "North York Moors National Park"
+                    },
+                    "address": {
+                        "streetAddress": "The Old Vicarage, Bondgate, Helmsley, York, North Yorkshir, Bondgate",
+                        "locality": "York",
+                        "postalCode": "YO62 5BP",
+                        "countryName": "England"
+                    },
+                    "contactPoint": {
+                        "name": "Tom Outing",
+                        "email": "t.outing@northyorkmoors.org.uk",
+                        "telephone": "+44 7896056846"
+                    },
+                    "details": {
+                        "url": "https://www.northyorkmoors.org.uk"
+                    },
+                    "roles": [
+                        "buyer"
+                    ]
+                }
+            ],
+            "buyer": {
+                "id": "GB-CFS-234546",
+                "name": "North York Moors National Park"
+            }
+        },
+        {
+            "ocid": "ocds-b5fd17-f9ab5048-f747-4ee2-84ff-b2b58669ce3e",
+            "id": "c5220f56-6af4-449e-ac5f-ec2993bbe258-917973",
+            "language": "en",
+            "date": "2026-10-20T16:32:07+01:00",
+            "tag": [
+                "tender"
+            ],
+            "initiationType": "tender",
+            "tender": {
+                "id": "STC Footpaths (15)",
+                "title": "Swanley Park Footpath Refurbishment",
+                "description": "Swanley Town Council is seeking suitably qualified and experienced contractors to undertake the excavation, removal, reconstruction and improvement of two existing footpaths. The project aims to improve accessibility, durability and the overall quality of the footpath network through the installation of wider, fit-for-purpose pathways that meet the requirements of their intended use.\r\n\r\nThe works will comprise the following:\r\n\r\nFootpath One\r\n\r\nFootpath One extends approximately 355.4 linear metres and will broadly follow the alignment of the existing footpath. The pathway will be widened to provide a finished width of approximately 2.5 metres, excluding edging. The construction must be suitable for occasional vehicular access, with the appropriate sub-base and construction specification provided to accommodate this requirement.\r\n\r\nFootpath Two\r\n\r\nFootpath Two currently measures approximately 29 linear metres and will be extended to approximately 62.3 linear metres. The completed pathway will provide a finished width of approximately 2 metres, excluding edging, improving the provision and usability of the route.\r\n\r\nSurfacing Options and Construction Requirements\r\n\r\nThe Council is currently exploring a range of surfacing options for the proposed footpaths, including self-binding gravel, tarmac and block paving. Contractors may be required to consider the suitability, durability, maintenance requirements, accessibility and whole-life costs associated with these options to help inform the Council's final decision on the preferred surfacing materials.\r\n\r\nThe appointed contractor will be expected to undertake the necessary excavation and removal of existing footpath materials, prepare the underlying formation, install an appropriate sub-base and construct the new footpaths in accordance with the agreed specification. The works will also include suitable edging, finishing details and any associated reinstatement required to leave the completed pathways in a safe, stable and serviceable condition.\r\n\r\nAll works must be carried out to an appropriate professional standard, with due consideration given to site conditions, public safety, drainage, accessibility and the long-term performance of the finished surfaces. The contractor will be responsible for ensuring that the construction methods and materials used are suitable for the intended use of each footpath.\r\n\r\nThe Council is seeking a cost-effective and durable solution that provides improved pedestrian routes, meets the operational requirements of the site and offers good long-term value for money.\r\n\r\nArrange for a site visit if required by contacting (George) gbrooker@swanleytowncouncil.gov.uk\r\n\r\nApply by sending your quote to (Ryan) rhayman@swanleytowncouncil.gov.uk",
+                "datePublished": "2026-10-20T16:32:07+01:00",
+                "status": "active",
+                "classification": {
+                    "scheme": "CPV",
+                    "id": "45233161",
+                    "description": "Footpath construction work"
+                },
+                "additionalClassifications": [
+                    {
+                        "scheme": "CPV",
+                        "id": "45233253",
+                        "description": "Surface work for footpaths"
+                    }
+                ],
+                "items": [
+                    {
+                        "id": "1",
+                        "deliveryAddresses": [
+                            {
+                                "postalCode": "BR87PW"
+                            }
+                        ]
+                    }
+                ],
+                "value": {
+                    "amount": 20000,
+                    "currency": "GBP"
+                },
+                "procurementMethod": "open",
+                "procurementMethodDetails": "Open procedure (above threshold)",
+                "tenderPeriod": {
+                    "endDate": "2026-11-30T12:00:00Z"
+                },
+                "contractPeriod": {
+                    "startDate": "2027-01-18T00:00:00Z",
+                    "endDate": "2027-02-12T23:59:59Z"
+                },
+                "suitability": {
+                    "sme": true,
+                    "vcse": false
+                },
+                "mainProcurementCategory": "works",
+                "documents": [
+                    {
+                        "id": "1",
+                        "documentType": "tenderNotice",
+                        "description": "Opportunity notice on Contracts Finder",
+                        "url": "https://www.contractsfinder.service.gov.uk/Notice/c5220f56-6af4-449e-ac5f-ec2993bbe258",
+                        "datePublished": "2026-10-20T16:32:07+01:00",
+                        "format": "text/html",
+                        "language": "en"
+                    },
+                    {
+                        "id": "2",
+                        "documentType": "projectPlan",
+                        "url": "https://www.contractsfinder.service.gov.uk/Notice/Attachment/26b9e463-0639-4af4-951e-cab90856bdf3",
+                        "format": "image/png"
+                    },
+                    {
+                        "id": "3",
+                        "documentType": "projectPlan",
+                        "url": "https://www.contractsfinder.service.gov.uk/Notice/Attachment/15a0e433-e921-48ef-b79b-8237537d2ec5",
+                        "format": "image/png"
+                    },
+                    {
+                        "id": "4",
+                        "documentType": "biddingDocuments",
+                        "url": "https://www.contractsfinder.service.gov.uk/Notice/Attachment/cf2cb80f-5f90-4fed-b2c3-7adeefdde21f",
+                        "format": "application/pdf"
+                    }
+                ]
+            },
+            "parties": [
+                {
+                    "id": "GB-SRS-sid4gov.cabinetoffice.gov.uk/AeDJ2htU",
+                    "name": "Swanley Town Council",
+                    "identifier": {
+                        "legalName": "Swanley Town Council",
+                        "scheme": "GB-SRS",
+                        "id": "sid4gov.cabinetoffice.gov.uk/AeDJ2htU"
+                    },
+                    "address": {
+                        "streetAddress": "St Marys Road",
+                        "locality": "SWANLEY",
+                        "postalCode": "BR87BU",
+                        "countryName": "England"
+                    },
+                    "contactPoint": {
+                        "name": "Ryan Hayman",
+                        "email": "rhayman@swanleytowncouncil.gov.uk",
+                        "telephone": "01322665855"
+                    },
+                    "details": {
+                        "url": "http://www.swanleytowncouncil.gov.uk"
+                    },
+                    "roles": [
+                        "buyer"
+                    ]
+                }
+            ],
+            "buyer": {
+                "id": "GB-SRS-sid4gov.cabinetoffice.gov.uk/AeDJ2htU",
+                "name": "Swanley Town Council"
+            }
+        },
+        {
+            "ocid": "ocds-b5fd17-f3604036-a3ec-4244-a9ef-2ac6c2aafe2d",
+            "id": "fabc3259-4de6-4e24-9763-be703564c29c-918449",
+            "language": "en",
+            "date": "2026-10-20T14:54:13+01:00",
+            "tag": [
+                "tender"
+            ],
+            "initiationType": "tender",
+            "tender": {
+                "id": "adde261d-f3a9-4bd9-ba96-074714caead9",
+                "title": "CA18586 - Holy Trinity Academy Tender for Cleaning Services",
+                "description": "To provide cleaning services at Holy Trinity Academy, Teece Drive, Priorslee, Telford TF2 9SQ\r\n\r\nTo access this competition: \r\n\r\nRegistered:\r\nLogin to https://suppliers.multiquote.com and view the opportunity CA18586.\r\n\r\nNot registered:\r\nVisit https://suppliers.multiquote.com then register and quote CA18586 as the reason for registration. \r\n\r\n Any queries please contact MultiQuote on 020 3920 8054.",
+                "datePublished": "2026-10-20T14:54:13+01:00",
+                "status": "active",
+                "classification": {
+                    "scheme": "CPV",
+                    "id": "90919300",
+                    "description": "School cleaning services"
+                },
+                "items": [
+                    {
+                        "id": "1",
+                        "deliveryAddresses": [
+                            {
+                                "postalCode": "TF2 9SF"
+                            },
+                            {
+                                "countryName": "British Oversea Territories"
+                            },
+                            {
+                                "countryName": "Channel Islands"
+                            },
+                            {
+                                "countryName": "Europe"
+                            },
+                            {
+                                "countryName": "Isle of Man"
+                            },
+                            {
+                                "countryName": "Rest of the World"
+                            },
+                            {
+                                "countryName": "United Kingdom"
+                            }
+                        ]
+                    }
+                ],
+                "value": {
+                    "amount": 668100,
+                    "currency": "GBP"
+                },
+                "procurementMethod": "open",
+                "procurementMethodDetails": "Open procedure",
+                "tenderPeriod": {
+                    "endDate": "2026-11-25T10:00:00Z"
+                },
+                "contractPeriod": {
+                    "startDate": "2027-08-01T00:00:00+01:00",
+                    "endDate": "2030-07-31T23:59:59+01:00"
+                },
+                "suitability": {
+                    "sme": true,
+                    "vcse": false
+                },
+                "mainProcurementCategory": "services",
+                "documents": [
+                    {
+                        "id": "1",
+                        "documentType": "tenderNotice",
+                        "description": "Opportunity notice on Contracts Finder",
+                        "url": "https://www.contractsfinder.service.gov.uk/Notice/fabc3259-4de6-4e24-9763-be703564c29c",
+                        "datePublished": "2026-10-20T14:54:13+01:00",
+                        "format": "text/html",
+                        "language": "en"
+                    }
+                ]
+            },
+            "parties": [
+                {
+                    "id": "GB-CFS-339331",
+                    "name": "Holy Trinity Academy",
+                    "identifier": {
+                        "legalName": "Holy Trinity Academy"
+                    },
+                    "address": {
+                        "streetAddress": "Teece Drive",
+                        "locality": "Telford-",
+                        "postalCode": "TF2 9SF",
+                        "countryName": "England"
+                    },
+                    "contactPoint": {
+                        "name": "Diane Herbert",
+                        "email": "support@multiquote.com",
+                        "telephone": "0151 482 9230"
+                    },
+                    "details": {
+                        "url": "https://suppliers.multiquote.com"
+                    },
+                    "roles": [
+                        "buyer"
+                    ]
+                }
+            ],
+            "buyer": {
+                "id": "GB-CFS-339331",
+                "name": "Holy Trinity Academy"
+            }
+        }
+    ],
+    "links": {
+        "next": "https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?stages=tender&limit=4&publishedFrom=2026-10-20T00:00:00&publishedTo=2026-10-21T00:00:00&cursor=cHVibGlzaGVkRnJvbT0yMDI2LTEwLTIwVDAwOjAwOjAwfHB1Ymxpc2hlZFRvPTIwMjYtMTAtMjFUMDA6MDA6MDB8c3RhZ2VzPXRlbmRlcnxsaW1pdD00fG5leHRDdXJzb3I9Nzg3MTg5"
+    }
+}

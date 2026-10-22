@@ -1,4 +1,5 @@
 import { AiError, aiErrorMessage } from "@/lib/ai";
+import { UsageLimitError } from "@/lib/usage/limits";
 import { cached, HOURS } from "@/lib/cache";
 import { fetchPageText, sourceLabelFor } from "@/lib/crawl";
 import type { Budget, EmailDraft, EmailKind, Fact, ReviewerCheck, SocialCampaign } from "@/lib/types";
@@ -21,6 +22,7 @@ import { wordCount } from "./text";
 /** Feature orchestration over a LoopStore, used by both the mock and the Supabase services. */
 
 function fail(err: unknown): LoopResult<never> {
+  if (err instanceof UsageLimitError) return { ok: false, code: "usage_limit", error: err.message };
   if (err instanceof AiError) {
     const m = aiErrorMessage(err);
     return { ok: false, code: m.code, error: m.message };
@@ -58,7 +60,7 @@ export async function draftProposalFor(store: LoopStore, applicationId: string, 
     const c = await appContext(store, applicationId);
     if (!c) return { ok: false, code: "not_found", error: "We could not find that application." };
     if (!c.facts.length) return { ok: false, code: "no_facts", error: "Confirm a few facts about your organization first. The proposal can only say what you have confirmed." };
-    const { output, run } = await recordRun(store, { agent: "proposal", title: `Draft a full proposal for ${c.opportunity.title}`, trigger: "user" }, async (rec) => {
+    const { output, run } = await recordRun(store, { agent: "proposal", title: `Draft a full proposal for ${c.opportunity.title}`, trigger: "user", usage: "draft" }, async (rec) => {
       const guidelines = await rec.step("fetch_guidelines", () => guidelinesText(c.opportunity.guidelinesUrl, c.noticeText), (t) => (t ? `${t.length.toLocaleString("en-US")} characters read` : "No separate guidelines page; using the notice"));
       if (guidelines && c.opportunity.guidelinesUrl) rec.source("Funder guidelines", c.opportunity.guidelinesUrl, "web");
       if (jobId) advanceJob(jobId, guidelines ? "Guidelines read" : "Using the notice");

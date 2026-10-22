@@ -25,7 +25,7 @@ import type { AnalyticsService, ApplicationService, CalendarService, ContactsSer
 import { computeWinAnalytics } from "@/lib/features/analytics";
 import { planMonth } from "@/lib/features/planner";
 import { analyzeVoice, answerByRules, buildLogicModel, conceptNoteSections, credibilityPosts, feedbackRequestEmail, followUpEmail, logicModelHtml, recomputeCompliance, reminderOutbox, winKit } from "@/lib/features";
-import { allFoundations, foundationByFunderId, fundersLikeYou, irsPageUrl, matchFoundations, matchScholarships, noticeTextFor, peerOrganizations, recommendAsk, stateCode, toFunder, toOpportunity } from "@/lib/foundations";
+import { allFoundations, foundationByFunderId, fundersLikeYou, irsPageUrl, matchFoundations, matchScholarships, noticeTextFor, peerOrganizations, recommendAsk, stateCode, toFunder, toOpportunity, loadFoundations } from "@/lib/foundations";
 import { seedToday } from "@/lib/mock/dates";
 import { wordCount } from "@/lib/format";
 
@@ -209,6 +209,7 @@ export function makeFeatureServices(d: Deps) {
       return d.toApplicationView(a);
     },
     async recommendAsk(id) {
+      await loadFoundations();
       const a = findApp(id);
       const opp = oppOf(a);
       const funder = funderOf(a);
@@ -316,6 +317,7 @@ export function makeFeatureServices(d: Deps) {
   // ---------- inbox ----------
   const inboxSvc: Pick<InboxService, "planNextMonth"> = {
     async planNextMonth() {
+      await loadFoundations();
       const now = new Date();
       const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
       const month = next.toISOString().slice(0, 7);
@@ -384,6 +386,7 @@ export function makeFeatureServices(d: Deps) {
   // ---------- contacts ----------
   const contacts: Pick<ContactsService, "overlaps"> = {
     async overlaps() {
+      await loadFoundations();
       const norm = (s: string) => s.toLowerCase().replace(/[^a-z]+/g, " ").replace(/\b(jr|sr|ii|iii|dr|mr|mrs|ms)\b/g, "").trim();
       const out: Awaited<ReturnType<ContactsService["overlaps"]>> = [];
       for (const c of state.orgContacts) {
@@ -426,11 +429,13 @@ export function makeFeatureServices(d: Deps) {
   };
   const funders: FunderService = {
     async list() {
+      await loadFoundations();
       const applied = new Set(state.applications.map((a) => oppOf(a).funderId));
       const matched = new Set(state.matches.map((m) => state.opportunities.find((o) => o.id === m.opportunityId)?.funderId));
       return state.funders.filter((f) => applied.has(f.id) || matched.has(f.id)).map((f) => summaryOf(f, applied.has(f.id) ? "applied" : "matched")).sort((a, b) => b.applications - a.applications || (b.fitScore ?? 0) - (a.fitScore ?? 0));
     },
     async get(id) {
+      await loadFoundations();
       const funder = ensureFunder(id);
       if (!funder) return null;
       const rec = foundationByFunderId(id);
@@ -456,6 +461,7 @@ export function makeFeatureServices(d: Deps) {
       return profile;
     },
     async directory(query, st) {
+      await loadFoundations();
       const q = query.trim().toLowerCase();
       const want = st ? stateCode(st) : null;
       return allFoundations()
@@ -467,15 +473,18 @@ export function makeFeatureServices(d: Deps) {
         });
     },
     async fundersLikeYou() {
+      await loadFoundations();
       const myFunders = [...new Set(state.matches.map((m) => state.opportunities.find((o) => o.id === m.opportunityId)?.funderId).filter((x): x is string => Boolean(x?.startsWith("pf_"))))];
       const peers = peerOrganizations({ org: state.org, funderIds: myFunders, limit: 25 });
       return fundersLikeYou({ org: state.org, peers, exclude: myFunders, limit: 8 }).map((x) => ({ funder: toFunder(x.foundation), peers: x.peers.slice(0, 4) }));
     },
     async peers() {
+      await loadFoundations();
       const myFunders = [...new Set([...state.matches.map((m) => state.opportunities.find((o) => o.id === m.opportunityId)?.funderId), ...state.applications.map((a) => oppOf(a).funderId)].filter((x): x is string => Boolean(x?.startsWith("pf_"))))];
       return peerOrganizations({ org: state.org, funderIds: myFunders, limit: 16 });
     },
     async addToMatches(funderId) {
+      await loadFoundations();
       const rec = foundationByFunderId(funderId);
       if (!rec) return null;
       const screen = matchFoundations({ org: state.org, facts: state.facts.filter((f) => f.status === "confirmed"), limit: 400 });
@@ -489,7 +498,7 @@ export function makeFeatureServices(d: Deps) {
       const m = await memoryStore.upsertMatch({
         opportunityId: opp.id,
         fitScore: scored?.fitScore ?? 45,
-        reasons: scored?.reasons ?? [`Added from the foundation directory. It gives in ${rec.state}; its typical grant is $${(rec.grantMedian ?? 0).toLocaleString("en-US")}.`],
+        reasons: scored?.reasons ?? [`Added from foundation search. It gives in ${rec.state}; its typical grant is $${(rec.grantMedian ?? 0).toLocaleString("en-US")}.`],
         cautions: scored?.cautions ?? [rec.acceptsUnsolicited === false ? "Its filing says it gives only to organizations it chooses." : `Based on its ${rec.taxYear} filing with the IRS.`],
         eligibilityChecks: scored?.eligibilityChecks ?? [],
         status: "saved",
@@ -527,6 +536,7 @@ export function makeFeatureServices(d: Deps) {
       return clone(state.scholarshipProfile);
     },
     async matches() {
+      await loadFoundations();
       const p = state.scholarshipProfile;
       if (!p) return [];
       return matchScholarships(p);

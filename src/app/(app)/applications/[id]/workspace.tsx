@@ -16,8 +16,7 @@ import { Skeleton, SkeletonText } from "@/components/ui/skeleton";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { StageBadge } from "@/components/app/badges";
 import { PageContainer } from "@/components/app/page-header";
-import { Bloom } from "@/components/drawings/bloom";
-import { flowerFor } from "@/lib/drawings";
+import { ApprovedMark } from "@/components/brand/approved-mark";
 import { SectionEditor } from "@/components/proposal/section-editor";
 import { Checklist, CompliancePanel, QuestionsPanel, SourcesPanel } from "@/components/proposal/panels";
 import { ExportDialog } from "@/components/proposal/export-dialog";
@@ -26,7 +25,7 @@ import { BudgetPanel } from "@/components/proposal/budget-panel";
 import { VersionsDialog } from "@/components/proposal/versions-dialog";
 import { AskSuggestion, LogicModelDialog, ReuseDialog, WinKitDialog } from "@/components/proposal/feature-dialogs";
 import { ProgressSteps, type JobView } from "@/components/app/progress-steps";
-import { finalJob, newJobId, watchJob } from "@/lib/progress-client";
+import { finalJob, newJobId, watchJob, runLong } from "@/lib/progress-client";
 import { Input, Textarea } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -91,7 +90,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
     setDrafting("proposal");
     setJob(fallback);
     const stop = watchJob(jobId, setJob);
-    const r = app.mode === "essay" ? await services.person.draftEssay(app.id, essayPrompt, jobId) : await services.research.draftProposal(app.id, jobId);
+    const r = app.mode === "essay" ? await runLong(jobId, "person.draftEssay", [app.id, essayPrompt, jobId], () => services.person.draftEssay(app.id, essayPrompt, jobId)) : await runLong(jobId, "research.draftProposal", [app.id, jobId], () => services.research.draftProposal(app.id, jobId));
     stop();
     if (!r.ok) {
       setDrafting(false);
@@ -212,7 +211,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
     const stop = watchJob(jobId, setJob);
     let r: Awaited<ReturnType<typeof services.loop.draftLetter>> | Awaited<ReturnType<typeof services.loop.draftProposal>>;
     try {
-      r = mode === "proposal" ? await services.loop.draftProposal(app.id, jobId) : await services.loop.draftLetter(app.id, jobId);
+      r = mode === "proposal" ? await runLong(jobId, "loop.draftProposal", [app.id, jobId], () => services.loop.draftProposal(app.id, jobId)) : await runLong(jobId, "loop.draftLetter", [app.id, jobId], () => services.loop.draftLetter(app.id, jobId));
     } catch (err) {
       stop();
       setDrafting(false);
@@ -397,7 +396,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
         </Link>
         <header className="mt-4 border-b border-rule pb-6">
           <p className="text-base text-ink-muted">{app.funder.name}</p>
-          <h1 className="mt-1 font-display text-h1 text-ink">{app.opportunity.title}</h1>
+          <h1 className="mt-1 font-display text-title text-ink">{app.opportunity.title}</h1>
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-ink-muted">
             <StageBadge stage={app.stage} />
             {app.opportunity.deadline ? <span>Due {formatDate(app.opportunity.deadline)}</span> : null}
@@ -643,7 +642,7 @@ export function Workspace({ initial, members, orgName, demo, reviewer: initialRe
                 </p>
                 {active.status === "approved" ? (
                   <div className="flex items-center gap-4">
-                    {justApproved === active.id ? <Bloom key={active.id} flower={flowerFor(active.id)} grow className="fleeting -my-2 h-10 self-end" /> : null}
+                    {justApproved === active.id ? <ApprovedMark grow className="fleeting -my-2 h-7 w-7 self-end" /> : null}
                     <Button variant="ghost" size="sm" onClick={approveSection}>
                       Undo approval
                     </Button>

@@ -1,0 +1,20 @@
+{
+ "errorcode": 0,
+ "msg": "Webservice Succeeds",
+ "data": {
+  "id": 362807,
+  "revision": 0,
+  "opportunityNumber": "ED-GRANTS-061526-002",
+  "opportunityTitle": "OSERS-OSEP: National Center on Academic Interventions Assistance Listing Number (ALN): 84.326Q",
+  "owningAgencyCode": "ED",
+  "listed": "L",
+  "synopsis": {
+   "opportunityId": 362807,
+   "agencyCode": "ED",
+   "responseDate": "Aug 10, 2026 12:00:00 AM EDT",
+   "postingDate": "Jun 15, 2026 12:00:00 AM EDT",
+   "awardCeiling": "3700000",
+   "awardFloor": "none"
+  }
+ }
+}

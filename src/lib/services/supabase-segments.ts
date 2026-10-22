@@ -140,7 +140,7 @@ export function makeSupabaseBidStore(db: Db, base: LoopStore): BidStore {
   };
 }
 
-export function makeSupabaseSegments(input: { db: Db; loopStore: () => Promise<LoopStore>; requireEditor: () => void; applicationView: (id: string) => Promise<ApplicationView | null> }) {
+export function makeSupabaseSegments(input: { db: Db; loopStore: () => Promise<LoopStore>; requireEditor: () => void | Promise<void>; applicationView: (id: string) => Promise<ApplicationView | null> }) {
   const { db } = input;
   const store = async () => makeSupabaseBidStore(db, await input.loopStore());
   const orgId = async () => (await input.loopStore()).orgId;

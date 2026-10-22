@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { services } from "@/lib/services";
 import { Button } from "@/components/ui/button";
 import { ProgressSteps, type JobView } from "@/components/app/progress-steps";
-import { finalJob, newJobId, watchJob } from "@/lib/progress-client";
+import { finalJob, newJobId, watchJob, runLong } from "@/lib/progress-client";
 import { formatDate } from "@/lib/format";
 
 const FALLBACK: JobView = { status: "running", steps: [{ label: "Reading your homepage", state: "active" }, { label: "Reading your other pages", state: "pending" }, { label: "Writing down the facts", state: "pending" }, { label: "Checking every fact against its page", state: "pending" }] };
@@ -28,7 +28,7 @@ export function ReadingStep({ websiteUrl, ein, recordedOn }: { websiteUrl: strin
     let alive = true;
     if (!run.current || run.current.attempt !== attempt) {
       const id = newJobId();
-      run.current = { attempt, jobId: id, result: services.loop.buildProfile({ websiteUrl, ein, jobId: id }) };
+      run.current = { attempt, jobId: id, result: runLong(id, "loop.buildProfile", [{ websiteUrl, ein, jobId: id }], () => services.loop.buildProfile({ websiteUrl, ein, jobId: id })) };
     }
     const { jobId, result } = run.current;
     const stop = watchJob(jobId, (j) => {

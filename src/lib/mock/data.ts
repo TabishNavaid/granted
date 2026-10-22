@@ -19,7 +19,6 @@ import type {
   Fact,
   Funder,
   InboxItem,
-  Invoice,
   Match,
   Member,
   Milestone,
@@ -31,7 +30,6 @@ import type {
   Outcome,
   Requirement,
   Section,
-  Subscription,
 } from "@/lib/types";
 
 import * as history from "./history";
@@ -359,21 +357,6 @@ export const agentRuns: AgentRun[] = [
   { id: "run_planner_oct", orgId: ORG_ID, agent: "planner", trigger: "schedule", title: "Build October plan", status: "succeeded", toolsCalled: [{ name: "list_matches", summary: "9 matches reviewed", durationMs: 80 }, { name: "list_applications", summary: "8 applications, 2 in progress", durationMs: 60 }, { name: "estimate_effort", summary: "3 selected, 14 hours total", durationMs: 4100 }, { name: "create_inbox_item", summary: "Plan sent to Inbox", durationMs: 50 }], sourcesUsed: [{ label: "Opportunity database", url: null, documentId: null, kind: "database" }], outputSummary: "Picked 3 opportunities for October.", costUsd: 0.09, tokensIn: 0, tokensOut: 0, startedAt: "2026-10-01T05:59:10Z", finishedAt: "2026-10-01T06:00:01Z", inboxItemId: "inbox_plan" },
   { id: "run_profile_onboard", orgId: ORG_ID, agent: "profile", trigger: "user", title: "Build profile from website and 3 documents", status: "succeeded", toolsCalled: [{ name: "fetch_url", summary: "riverbendyouth.org, 6 pages", durationMs: 3800 }, { name: "extract_document_text", summary: "3 documents, 51 pages", durationMs: 9200 }, { name: "upsert_fact", summary: "15 facts with sources", durationMs: 140 }, { name: "upsert_boilerplate", summary: "7 pieces written", durationMs: 22000 }], sourcesUsed: [{ label: "riverbendyouth.org", url: "https://riverbendyouth.org", documentId: null, kind: "web" }, { label: "2025 Annual Report", url: null, documentId: "doc_annual_2025", kind: "document" }, { label: "IRS Form 990 (FY2025)", url: null, documentId: "doc_990_2024", kind: "document" }, { label: "Meridian Family Foundation proposal (2024)", url: null, documentId: "doc_meridian_2024", kind: "document" }], outputSummary: "Put together your profile, 15 facts, and 7 reusable paragraphs for you to check.", costUsd: 0.47, tokensIn: 0, tokensOut: 0, startedAt: "2026-09-02T14:35:00Z", finishedAt: "2026-09-02T14:36:10Z", inboxItemId: null },
   { id: "run_discovery_failed", orgId: ORG_ID, agent: "discovery", trigger: "schedule", title: "Weekly match scan", status: "failed", toolsCalled: [{ name: "get_org_profile", summary: "Profile and 15 facts", durationMs: 90 }, { name: "search_opportunities", summary: "Timed out after 30s", durationMs: 30000 }], sourcesUsed: [], outputSummary: "The opportunity database was down. Tried again 20 minutes later and it worked.", costUsd: 0.0, tokensIn: 0, tokensOut: 0, startedAt: "2026-10-08T08:58:00Z", finishedAt: "2026-10-08T08:58:31Z", inboxItemId: null },
-];
-
-export const subscription: Subscription = {
-  id: "sub_riverbend",
-  orgId: ORG_ID,
-  plan: "starter",
-  status: "active",
-  currentPeriodEnd: "2026-11-02T00:00:00Z",
-  seats: 1,
-  usage: { proposalsThisMonth: 2, proposalLimit: 3, matchesThisMonth: 9, matchLimit: null },
-};
-
-export const invoices: Invoice[] = [
-  { id: "inv_2026_10", date: "2026-10-02", amount: 29, status: "paid", pdfUrl: "#" },
-  { id: "inv_2026_09", date: "2026-09-02", amount: 29, status: "paid", pdfUrl: "#" },
 ];
 
 export const notificationSettings: NotificationSettings = {

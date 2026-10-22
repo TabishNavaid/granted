@@ -22,9 +22,7 @@ import { FitScore } from "@/components/app/fit-score";
 import { CitationChip, VerifiedSource } from "@/components/app/citation-chip";
 import { MilestoneBadge, StageBadge } from "@/components/app/badges";
 import { InboxItemCard, type InboxContext } from "@/components/app/inbox-item";
-import { Bloom } from "@/components/drawings/bloom";
-import { Meadow } from "@/components/drawings/meadow";
-import { flowers } from "@/lib/drawings";
+import { ApprovedMark } from "@/components/brand/approved-mark";
 import * as seed from "@/lib/mock/data";
 import { stageOrder } from "@/lib/agents/meta";
 import type { FunderType, MilestoneKind } from "@/lib/types";
@@ -77,8 +75,7 @@ const funderTypeLabel: Record<FunderType, string> = {
 const sections: { id: string; title: string }[] = [
   { id: "color", title: "Color" },
   { id: "type", title: "Type" },
-  { id: "bloom", title: "Bloom" },
-  { id: "meadow", title: "Meadow" },
+  { id: "approved", title: "Approved" },
   { id: "wordmark", title: "Wordmark" },
   { id: "button", title: "Button" },
   { id: "form", title: "Form" },
@@ -178,26 +175,20 @@ export function DesignView() {
           </ul>
         </Section>
 
-        <Section id="bloom" title="Bloom" description="When something is approved, a small watercolor flower opens beside the confirmation for a moment: leaves first, then the flowers. It leaves with the item. This is the only orchestrated motion in the product.">
-          <div className="flex flex-wrap items-end gap-6">
-            {flowers.map((f) => (
-              <p key={`${f.slug}-${bloomKey}`} className="flex items-end gap-2 text-sm text-ink-muted">
-                <Bloom flower={f} grow className="-mb-1 h-12" />
-                <span className="font-semibold text-ink">Approved</span>
-                <span>Just now</span>
-              </p>
-            ))}
+        <Section id="approved" title="Approved" description="When a person approves something, a fellow-green check draws itself beside the confirmation, then leaves with the item. It is the only orchestrated motion in the product.">
+          <div className="flex flex-wrap items-center gap-6">
+            <p key={bloomKey} className="flex items-center gap-2 text-sm text-ink-muted">
+              <ApprovedMark grow className="h-7 w-7" />
+              <span className="font-semibold text-ink">Approved</span>
+              <span>Just now</span>
+            </p>
             <Button variant="secondary" size="sm" onClick={() => setBloomKey((k) => k + 1)}>
               Play it again
             </Button>
           </div>
         </Section>
 
-        <Section id="meadow" title="Meadow" description="Watercolor wildflowers by Mary Vaux Walcott, used only as framing: along the bottom of the landing hero, above the footer, and on the Funded screen.">
-          <Meadow seed="design" count={11} className="h-44" />
-        </Section>
-
-        <Section id="wordmark" title="Wordmark" description="The name in Newsreader, semibold and tightly spaced. No drawn logo yet.">
+        <Section id="wordmark" title="Wordmark" description="The mark, two Fs facing under one beam, and the name in Public Sans semibold.">
           <div className="flex flex-col items-start gap-8">
             <Wordmark size="xl" />
             <Wordmark size="md" />

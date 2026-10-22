@@ -198,7 +198,7 @@ export function InboxView({ items: initial, plan: initialPlan, planItemId: initi
       <header className="border-b border-rule pb-7">
         <p className="text-base text-ink-muted">{new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</p>
         <div className="mt-1 flex flex-wrap items-end justify-between gap-4">
-          <h1 className="font-display text-h1 text-ink">{totalPending === 0 ? (firstName ? `Nothing waiting on you, ${firstName}.` : "Nothing waiting on you.") : "Waiting on you"}</h1>
+          <h1 className="font-display text-title text-ink">{totalPending === 0 ? (firstName ? `Nothing waiting on you, ${firstName}.` : "Nothing waiting on you.") : "Waiting on you"}</h1>
           {!brandNew ? (
             <Button variant="secondary" onClick={planNextMonth} loading={planning}>
               {plan && plan.month === nextMonthKey() ? "Plan next month again" : "Plan next month"}

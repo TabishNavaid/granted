@@ -1,0 +1,34 @@
+{
+ "meta": {
+  "search_id": "kKqeRcaStUC3M3gRddUZ5Q",
+  "total": 57285,
+  "offset": 0,
+  "limit": 1,
+  "sort_field": "appl_id",
+  "sort_order": "asc",
+  "sorted_by_relevance": false,
+  "properties": {
+   "URL": "https:/reporter.nih.gov/search/kKqeRcaStUC3M3gRddUZ5Q/projects"
+  }
+ },
+ "results": [
+  {
+   "appl_id": 10646176,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "MN",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "U44",
+   "award_amount": 1499369,
+   "agency_ic_admin": {
+    "code": "NS",
+    "abbreviation": "NINDS",
+    "name": "National Institute of Neurological Disorders and Stroke",
+    "admin_org_id": "12500053",
+    "admin_funding_url": ""
+   }
+  }
+ ]
+}

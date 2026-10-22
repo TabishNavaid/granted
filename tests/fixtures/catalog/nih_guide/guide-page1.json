@@ -1,0 +1,203 @@
+{
+ "statusCode": 200,
+ "data": {
+  "took": 32,
+  "timed_out": false,
+  "_shards": {
+   "total": 1,
+   "successful": 1,
+   "skipped": 0,
+   "failed": 0
+  },
+  "hits": {
+   "total": 6,
+   "max_score": 0,
+   "hits": [
+    {
+     "_index": "nih-guidedocs",
+     "_id": "42179",
+     "_score": 0,
+     "_source": {
+      "rowid": "42179",
+      "type": "active",
+      "title": "NIH Research Project Grant (Parent R01 Clinical Trial Required)",
+      "docnum": "PA-25-305",
+      "organization": {
+       "parent": "NIH",
+       "primary": "NIH"
+      },
+      "parentIC": "NIH",
+      "primaryIC": "NIH",
+      "reldate": "2024-12-18T12:41:54.000Z",
+      "expdate": "2028-01-08T00:00:00.000Z",
+      "parentFOA": "Yes",
+      "doctype": "PA",
+      "ac": [
+       "R01"
+      ],
+      "filename": "PA-25-305.html",
+      "clinicaltrials": "Required",
+      "sponsors": [
+       "NCCIH",
+       "NCI",
+       "NEI",
+       "NHGRI",
+       "NIA",
+       "NIAAA",
+       "NIAID",
+       "NIAMS",
+       "NIBIB",
+       "NICHD",
+       "NIDA",
+       "NIDCD",
+       "NIDDK",
+       "NIEHS",
+       "NIGMS",
+       "NIMH",
+       "NIMHD",
+       "NINDS",
+       "NINR",
+       "NLM"
+      ],
+      "noticeSubject": null,
+      "urgetFoaMother": null,
+      "opendate": "2025-01-05T00:00:00.000Z",
+      "appreceiptdate": "Multiple dates, see announcement.",
+      "lard": "2028-01-07T00:00:00.000Z",
+      "intentdate": "Not applicable",
+      "fadirectcosts": "none",
+      "purpose": "The NIH Research Project Grant supports a discrete, specified, circumscribed project in areas representing the specific interests and competencies of the investigator(s). This Parent Notice of Funding Opportunity Announcement requires that at lease 1 clinical trial be proposed. The proposed project must be related to the programmatic interests of one or more of the participating NIH Institutes and Centers (ICs) based on their scientific missions.\n",
+      "ggid": "357813",
+      "ApplicationType": [
+       "New",
+       "Renewal",
+       "Resubmission",
+       "Revision"
+      ],
+      "relatedDocs": [
+       "NOT-CA-26-009",
+       "Reissue of PA-20-183",
+       "NOT-HL-27-001",
+       "NOT-OD-26-067",
+       "NOT-OD-26-029",
+       "NOT-OD-24-084",
+       "NOT-MH-23-375",
+       "NOT-OD-22-198",
+       "NOT-OD-22-189",
+       "Companion of PA-25-301",
+       "Companion of PA-25-303",
+       "NOT-OD-15-015"
+      ],
+      "doctext": "Key DatesPosted Date December 18, 2024 Open Date Earliest Submission Date) January 05, 2025 The following table includes NIH standard due dates marked with an asterisk. Application Due DatesReview and Award Cycles NewRenewal / Resubmission / Revision as allowed)AIDS - New/Renewal/Resubmission/Revision, as allowedScientific Merit ReviewAdvisory Council ReviewEarliest Start DateFebruary 05, 2025  * March 05, 2025 * May 07, 2025 * July 2025October 2025December 2025June 05, 2025  * July 05, 2025 * September 07, 2025 * November 2025January 2026April 2026October 05, 2025  * November 05, 2025 * January 07, 2026 * March 2026May 2026July 2026February 05, 2026  * March 05, 2026 * May 07, 2026 * July 2026October 2026December 2026June 05, 2026  * July 05, 2026 * Not ApplicableNovember 2026January 2027April 2027October 05, 2026  * November 05, 2026 * Not ApplicableMarch 2027May 2027July 2027February 05, 2027  * March 05, 2027 * Not ApplicableJuly 2027October 2027December 2027June 05, 2027  * July 05, 2027 * Not ApplicableNovember 2027January 2028April 2028October 05, 2027  * November 05, 2027 * Not Applicable March 2028May 2028July 2028 All applications are due by 5:00 PM local time of applicant organization.&#x00a0;Applicants are encouraged to apply early to allow adequate time to make any corrections to errors found in the application during the submission process by the due date. Expiration Date January 08, 2028 Due Dates for E.O. 12372 Not Applicable Required Application Instructions It is critica ... Eligible Organizations Higher Education InstitutionsPublic/State Controlled Institutions of Higher EducationPrivate Institutions of Higher EducationNonprofits Other Than Institutions of Higher EducationNonprofits with 501(c)(3) IRS Status Other than Institutions of Higher Education)Nonprofits without 501(c)(3) IRS Status Other than Institutions of Higher Education)For-Profit OrganizationsSmall BusinessesFor-Profit Organizations Other than Small Businesses)Local GovernmentsState GovernmentsCounty GovernmentsCity or Township GovernmentsSpecial District GovernmentsIndian/Native American Tribal Governments Federally Recognized)Indian/Native American Tribal Governments Other than Federally Recognized). Federal GovernmentsEligible Agencies of the Federal GovernmentU.S. Territory or Possession OtherIndependent School DistrictsPublic Housing Authorities/Indian Housing AuthoritiesNative American Tribal Organizations other than Federally recognized tribal governments)Faith-based or Community-based OrganizationsRegional OrganizationsNon-domestic non-U.S.) Entities Foreign Organizations) Foreign Organizations Non-domestic non-U.S.) Entities Foreign Organizations) are eligible to apply. Non-domestic non-U.S.) components of U.S. Organizations are eligible to apply. Foreign components, as&#160;defined in the NIH Grants Policy Statement, are allowed.NIH will no longer issue awards i.e., new, renewal, or non-competing continuation) to domestic or foreign entities that involve foreign subawards/subcontracts. All NIH-funded research involving foreign subawards/subcontracts must be submitted in response to a NOFO that is specifically designated for funded international collaborations. See NIH Grants Policy Statement 16.8 Collaborative International Research Awards.Applications involving foreign subawards/subcontracts submitted in response to this NOFO will be deemed noncompliant and will not be considered for funding. This policy applies to all monetary international collaborations resulting in foreign subawards/subcontracts, however, it does not preclude unfunded international collaborations or foreign components, funding for foreign consultants, or procurement of unique equipment or supplies from foreign vendors. Required Registrations Applicant Organiz"
+     },
+     "sort": [
+      1734525714000
+     ]
+    },
+    {
+     "_index": "nih-guidedocs",
+     "_id": "43163",
+     "_score": 0,
+     "_source": {
+      "rowid": "43163",
+      "type": "active",
+      "title": "Immune Tolerance Network (UM1 Clinical Trial Required)",
+      "docnum": "RFA-AI-28-005",
+      "organization": {
+       "parent": "NIH",
+       "primary": "NIAID"
+      },
+      "parentIC": "NIH",
+      "primaryIC": "NIAID",
+      "reldate": "2026-10-20T00:00:00.000Z",
+      "expdate": "2027-01-30T00:00:00.000Z",
+      "parentFOA": "No",
+      "doctype": "RFA",
+      "ac": [
+       "UM1"
+      ],
+      "filename": null,
+      "clinicaltrials": "Required",
+      "sponsors": [
+       "none"
+      ],
+      "noticeSubject": null,
+      "urgetFoaMother": null,
+      "opendate": "2026-12-29T00:00:00.000Z",
+      "appreceiptdate": null,
+      "lard": null,
+      "intentdate": null,
+      "fadirectcosts": null,
+      "purpose": "<p>The purpose of this notice of funding opportunity (NOFO) is to support&nbsp;applications to continue the Immune Tolerance Network (ITN).&nbsp;The primary objective of the Network is to develop tolerogenic therapies for immune-mediated disorders. The three main clinical areas of work are: 1) Allergic diseases and asthma; 2) Autoimmune diseases; and 3) Immune-mediated consequences of transplantation. The core functions of the ITN include designing, conducting, and sharing the results of clinical trials and performing integrated mechanistic studies.</p>",
+      "ggid": "362946",
+      "doctext": "Key Dates Posted Date October 20, 2026 Open Date Earliest Submission Date) December 29, 2026 Application Due Dates Review and Award Cycles New Renewal / Resubmission / Revision as allowed) AIDS - New/Renewal/Resubmission/Revision, as allowed Scientific Merit Review Advisory Council Review Earliest Start Date January 29, 2027 January 29, 2027 Not Applicable July 2027 October 2027 February 2028 All applications are due by 5:00 PM local time of applicant organization. Applicants are encouraged to apply early to allow adequate time to make any corrections to errors found in the application during the submission process by the due date. Expiration Date January 30, 2027 Due Dates for E.O. 12372 Not Applicable Required Application Instructions It is critica ... Eligible Organizations Higher Education Institutions - Includes all typesPublic/State Controlled Institutions of Higher EducationPrivate Institutions of Higher EducationNonprofits Other Than Institutions of Higher EducationNonprofits with 501(c)(3) IRS Status Other than Institutions of Higher Education)Nonprofits without 501(c)(3) IRS Status Other than Institutions of Higher Education)For-Profit OrganizationsSmall BusinessesFor-Profit Organizations Other than Small Businesses)Local GovernmentsState GovernmentsCounty GovernmentsCity or Township GovernmentsSpecial District GovernmentsIndian/Native American Tribal Governments Federally Recognized)Indian/Native American Tribal Governments Other than Federally Recognized) Federal Governments Eligible Agencies of the Federal Government U.S. Territory or Possession Other Independent School Districts Public Housing Authorities/Indian Housing Authorities Native American Tribal Organizations other than Federally recognized tribal governments) Faith-based or Community-based Organizations Regional Organizations Foreign Organizations/Foreign Collaborations Non-domestic non-U.S.) Entities Foreign Organizations) are not eligible to apply. Non-domestic non-U.S.) components of U.S. Organizations are not eligible to apply. Foreign components, as defined in the NIH Grants Policy Statement, are allowed. NIH will no longer issue awards i.e., new, renewal, or non-competing continuation) to domestic or foreign entities that involve foreign subawards/subcontracts. All NIH-funded research involving foreign subawards/subcontracts must be submitted in response to a NOFO that is specifically designated for funded international collaborations. See NIH Grants Policy Statement 16.8 Collaborative International Research Awards.Applications involving foreign subawards/subcontracts submitted in response to this NOFO will be deemed noncompliant and will not be considered for funding. This policy applies to all monetary international collaborations resulting in foreign subawards/subcontracts, however, it does not preclude unfunded international collaborations or foreign components, funding for foreign consultants, or procurement of unique equipment or supplies from foreign vendors. Required Registrations Applicant Organiz"
+     },
+     "sort": [
+      1792454400000
+     ]
+    },
+    {
+     "_index": "nih-guidedocs",
+     "_id": "42034",
+     "_score": 0,
+     "_source": {
+      "rowid": "42034",
+      "type": "active",
+      "title": "NCCIH Natural Product Mid Phase Clinical Trial (R01 Clinical Trial Required)",
+      "docnum": "PAR-25-271",
+      "organization": {
+       "parent": "NIH",
+       "primary": "NCCIH"
+      },
+      "parentIC": "NIH",
+      "primaryIC": "NCCIH",
+      "reldate": "2024-12-02T17:11:14.000Z",
+      "expdate": "2026-11-14T00:00:00.000Z",
+      "parentFOA": "No",
+      "doctype": "PAR",
+      "ac": [
+       "R01"
+      ],
+      "filename": "PAR-25-271.html",
+      "clinicaltrials": "Required",
+      "sponsors": [
+       "none"
+      ],
+      "noticeSubject": null,
+      "urgetFoaMother": null,
+      "opendate": "2025-05-23T00:00:00.000Z",
+      "appreceiptdate": "Multiple dates, see announcement.",
+      "lard": "2026-11-13T00:00:00.000Z",
+      "intentdate": "Not applicable",
+      "fadirectcosts": "none",
+      "purpose": "This Notice of Funding Opportunity (NOFO) encourages applications for investigator-initiated mid-phase clinical trials of natural products(i.e., botanicals, dietary supplements, and probiotics), which have a strong scientific premise to justify further clinical testing. For this NOFO, natural products include promising nutritional regimens that standardize the amount of a specific naturally occurring nutritional compound (e.g., omega-3 fatty acids, anthocyanidins, or polyphenols) and have compelling preliminary evidence. All applications submitted under this NOFO must be supported by sufficient preliminary data demonstrating  bioavailability (if applicable) and documentation that the natural product produces a reproducible and measurable impact on target engagement (i.e., measure of the mechanism of action). Only in cases when it is not possible/practical to measure target engagement in the patient population of interest or when there is a fundamental understanding of the products mechanism of action will this preliminary data requirement be waived. \nApplications submitted to this NOFO should propose a mid-phase clinical trial to do the following: determine the optimal dose or formulation of a given natural product for use in a future multi-site efficacy trial; or determine which patient phenotypes will be responders versus non-responders to the natural product to inform inclusion/exclusion criteria of a future efficacy trial. Clinical trials submitted under this NOFO are expected to be hypothesis based, milestone-driven, and directly related to the research priorities and mission of NCCIH. This NOFO will not support single-site or multi-site efficacy or effectiveness trials, nor will it support trials to test natural products for the treatment or prevention of cancer. \nApplicants are encouraged to contact the appropriate NCCIH Scientific/Research contact for the area of science for which they are planning to develop an application prior to submitting to this NO",
+      "ggid": "357493",
+      "ApplicationType": [
+       "New",
+       "Resubmission",
+       "Revision"
+      ],
+      "relatedDocs": [
+       "Reissue of PAR-24-115",
+       "NOT-OD-26-029",
+       "NOT-AT-25-010",
+       "NOT-OD-24-084",
+       "NOT-OD-22-198",
+       "NOT-OD-22-189",
+       "Companion of PAR-24-312",
+       "Companion of PAR-24-313",
+       "Companion of PAR-25-269",
+       "Companion of PAR-25-270",
+       "NOT-OD-18-116",
+       "NOT-OD-00-038"
+      ],
+      "doctext": "Key DatesPosted Date December 02, 2024 Open Date Earliest Submission Date) May 23, 2025 Application Due DatesReview and Award Cycles NewRenewal / Resubmission / Revision as allowed)AIDS - New/Renewal/Resubmission/Revision, as allowedScientific Merit ReviewAdvisory Council ReviewEarliest Start DateJune 23, 2025 June 23, 2025July 17, 2025November 2025January 2026April 2026February 23, 2026 February 23, 2026March 17, 2026July 2026October 2026December 2026October 20, 2026 October 20, 2026Not ApplicableMarch 2027May 2027July 2027 All applications are due by 5:00 PM local time of applicant organization.&nbsp;Applicants are encouraged to apply early to allow adequate time to make any corrections to errors found in the application during the submission process by the due date. Expiration Date November 14, 2026 Due Dates for E.O. 12372 Not Applicable Required Application Instructions It is critic ... Eligible Organizations Higher Education InstitutionsPublic/State Controlled Institutions of Higher EducationPrivate Institutions of Higher EducationNonprofits Other Than Institutions of Higher EducationNonprofits with 501(c)(3) IRS Status Other than Institutions of Higher Education)Nonprofits without 501(c)(3) IRS Status Other than Institutions of Higher Education)For-Profit OrganizationsSmall BusinessesFor-Profit Organizations Other than Small Businesses)Local GovernmentsState GovernmentsCounty GovernmentsCity or Township GovernmentsSpecial District GovernmentsIndian/Native American Tribal Governments Federally Recognized)Indian/Native American Tribal Governments Other than Federally Recognized). Federal GovernmentsEligible Agencies of the Federal GovernmentU.S. Territory or Possession OtherIndependent School DistrictsPublic Housing Authorities/Indian Housing AuthoritiesNative American Tribal Organizations other than Federally recognized tribal governments)Faith-based or Community-based OrganizationsRegional Organizations Foreign Organizations Non-domestic non-U.S.) Entities Foreign Organizations) are not eligible to apply. Non-domestic non-U.S.) components of U.S. Organizations are not eligible to apply. Foreign components, as&#160;defined in the NIH Grants Policy Statement, are allowed. Required Registrations Applicant Organiz"
+     },
+     "sort": [
+      1733159474000
+     ]
+    }
+   ]
+  }
+ }
+}

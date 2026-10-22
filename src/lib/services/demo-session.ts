@@ -14,7 +14,7 @@
  * that reads demo state outside a session (an ICS feed fetched by a calendar
  * app, a test) gets the shared default session.
  */
-export const DEMO_COOKIE = "fl_demo";
+export const DEMO_COOKIE = "ff_demo";
 
 export interface DemoSession<W> {
   id: string;
@@ -34,12 +34,12 @@ const BROWSER = typeof window !== "undefined";
 type Als = { run<T>(store: string, fn: () => T): T; getStore(): string | undefined };
 const g = globalThis as typeof globalThis & {
   AsyncLocalStorage?: new () => Als;
-  __firstlightDemoAls?: Als | null;
-  __firstlightDemoSessions?: Map<string, DemoSession<unknown>>;
+  __fundfellowsDemoAls?: Als | null;
+  __fundfellowsDemoSessions?: Map<string, DemoSession<unknown>>;
 };
 function als(): Als | null {
-  if (g.__firstlightDemoAls === undefined) g.__firstlightDemoAls = !BROWSER && typeof g.AsyncLocalStorage === "function" ? new g.AsyncLocalStorage() : null;
-  return g.__firstlightDemoAls;
+  if (g.__fundfellowsDemoAls === undefined) g.__fundfellowsDemoAls = !BROWSER && typeof g.AsyncLocalStorage === "function" ? new g.AsyncLocalStorage() : null;
+  return g.__fundfellowsDemoAls;
 }
 
 export function runInSession<T>(sessionId: string | null | undefined, fn: () => T): T {
@@ -52,7 +52,7 @@ export function currentSessionId(): string {
 }
 
 // Route handlers and server actions can load separate copies of a module; the sessions must be one table.
-const sessions = (g.__firstlightDemoSessions ??= new Map());
+const sessions = (g.__fundfellowsDemoSessions ??= new Map());
 
 function sweep(now: number) {
   for (const [id, s] of sessions) if (now - s.touchedAt > IDLE_MS && id !== "shared") sessions.delete(id);
@@ -149,7 +149,7 @@ export function sessionTable<W>(factory: (workspaceId: string) => W, defaultWork
 
 // ---------- Browser storage ----------
 
-const KEY = "fl_demo_v1";
+const KEY = "ff_demo_v1";
 const VERSION = 1;
 
 interface Snapshot {

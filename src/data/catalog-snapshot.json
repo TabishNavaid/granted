@@ -1,0 +1,725 @@
+{
+ "measuredAt": "2026-10-22T12:32:44.172Z",
+ "label": "a test load of the database",
+ "sources": [
+  {
+   "id": "uk_contracts_finder",
+   "name": "Contracts Finder (UK)",
+   "covers": "Open UK public sector tenders published on Contracts Finder, mostly English contracts from about 12,000 pounds up to the Find a Tender threshold.",
+   "homepage": "https://www.contractsfinder.service.gov.uk",
+   "docsUrl": "https://www.contractsfinder.service.gov.uk/apidocumentation/Notices/1/GET-Published-Notice-OCDS-Search",
+   "termsUrl": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+   "license": "Open Government Licence v3.0",
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0.",
+   "kinds": [
+    "contract"
+   ],
+   "region": "international",
+   "cadence": "Daily",
+   "needsKey": null,
+   "enabled": true,
+   "notes": null
+  },
+  {
+   "id": "state_de_mmp_bids",
+   "name": "Delaware open bids",
+   "covers": "Open bids posted by Delaware state agencies, school districts, and colleges on the Delaware Bids marketplace.",
+   "homepage": "https://mmp.delaware.gov/Bids",
+   "docsUrl": "https://data.delaware.gov/d/2hnj-zwix",
+   "termsUrl": "http://opendatacouncil.delaware.gov/open-data-portal-terms-of-service/",
+   "license": "Public information (Delaware Open Data Portal)",
+   "attribution": "Source: Delaware Office of Management and Budget, Government Support Services, via data.delaware.gov",
+   "kinds": [
+    "contract"
+   ],
+   "region": "state",
+   "cadence": "Weekly at the source; checked daily",
+   "needsKey": null,
+   "enabled": true,
+   "notes": "The dataset gives the due day only; we set the close to the end of that day, Eastern time."
+  },
+  {
+   "id": "eu_funding_tenders",
+   "name": "EU Funding & Tenders Portal",
+   "covers": "Open and forthcoming European Union calls for proposals (Horizon Europe, Erasmus+, LIFE, CERV, Digital Europe, and more), EU external action grants, cascade funding calls, and calls for tenders from EU institutions.",
+   "homepage": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/home",
+   "docsUrl": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/support/apis",
+   "termsUrl": "https://commission.europa.eu/legal-notice_en",
+   "license": "CC BY 4.0 (European Commission reuse policy, Decision 2011/833/EU)",
+   "attribution": "Source: EU Funding & Tenders Portal, European Commission",
+   "kinds": [
+    "research",
+    "grant",
+    "contract"
+   ],
+   "region": "international",
+   "cadence": "Daily",
+   "needsKey": null,
+   "enabled": true,
+   "notes": null
+  },
+  {
+   "id": "federal_register",
+   "name": "Federal Register",
+   "covers": "Funding notices federal agencies publish in the Federal Register, such as notices of funding opportunity and applications for new awards, with deadlines read from each notice.",
+   "homepage": "https://www.federalregister.gov",
+   "docsUrl": "https://www.federalregister.gov/developers/documentation/api/v1",
+   "termsUrl": "https://www.federalregister.gov/reader-aids/government-policy-and-ofr-procedures/about-this-site",
+   "license": "Public domain (1 CFR 2.6: anyone may reproduce Federal Register material)",
+   "attribution": "Source: FederalRegister.gov, Office of the Federal Register",
+   "kinds": [
+    "grant",
+    "research"
+   ],
+   "region": "us",
+   "cadence": "Daily on weekdays",
+   "needsKey": null,
+   "enabled": true,
+   "notes": null
+  },
+  {
+   "id": "uk_find_a_grant",
+   "name": "Find a grant (GOV.UK)",
+   "covers": "UK government grants listed on GOV.UK Find a grant.",
+   "homepage": "https://www.find-government-grants.service.gov.uk",
+   "docsUrl": null,
+   "termsUrl": "https://www.find-government-grants.service.gov.uk/info/terms-and-conditions",
+   "license": "Open Government Licence v3.0",
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0.",
+   "kinds": [
+    "grant"
+   ],
+   "region": "international",
+   "cadence": "Not scheduled",
+   "needsKey": null,
+   "enabled": false,
+   "notes": "Off: the content is under the Open Government Licence, but the service offers no API or open data export of its listings, and we do not scrape web pages. Turn on if GOV.UK publishes a feed."
+  },
+  {
+   "id": "uk_find_a_tender",
+   "name": "Find a Tender (UK)",
+   "covers": "Open UK public sector tenders above the procurement thresholds, from every part of the UK, published on Find a Tender.",
+   "homepage": "https://www.find-tender.service.gov.uk",
+   "docsUrl": "https://www.find-tender.service.gov.uk/apidocumentation/1.0/GET-ocdsReleasePackages",
+   "termsUrl": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+   "license": "Open Government Licence v3.0",
+   "attribution": "Contains public sector information licensed under the Open Government Licence v3.0.",
+   "kinds": [
+    "contract"
+   ],
+   "region": "international",
+   "cadence": "Daily",
+   "needsKey": null,
+   "enabled": true,
+   "notes": null
+  },
+  {
+   "id": "grantsgov",
+   "name": "Grants.gov",
+   "covers": "Every federal grant and cooperative agreement notice, forecasts included, from all 26 federal grant-making agencies.",
+   "homepage": "https://www.grants.gov",
+   "docsUrl": "https://www.grants.gov/xml-extract",
+   "termsUrl": "https://www.grants.gov/policies",
+   "license": "Public domain (U.S. government work)",
+   "attribution": "Source: Grants.gov",
+   "kinds": [
+    "grant",
+    "research",
+    "scholarship"
+   ],
+   "region": "us",
+   "cadence": "Daily",
+   "needsKey": null,
+   "enabled": true,
+   "notes": null
+  },
+  {
+   "id": "state_il_cdb_future",
+   "name": "Illinois CDB upcoming construction bids",
+   "covers": "State construction projects the Illinois Capital Development Board expects to put out to bid soon, with estimated bid dates and cost ranges.",
+   "homepage": "https://cdb.illinois.gov",
+   "docsUrl": "https://data.illinois.gov/d/6rb8-ntpm",
+   "termsUrl": "https://data.illinois.gov/",
+   "license": "Public information (Illinois Open Data Portal)",
+   "attribution": "Source: Illinois Capital Development Board, via data.illinois.gov",
+   "kinds": [
+    "contract"
+   ],
+   "region": "state",
+   "cadence": "Weekly",
+   "needsKey": null,
+   "enabled": true,
+   "notes": "A forecast list: every row is forecasted until it leaves the list. The architect or engineer of record is not stored."
+  },
+  {
+   "id": "irs_registry",
+   "name": "IRS exempt organization registry (EO BMF and Publication 78)",
+   "covers": "Every organization the IRS recognizes as tax exempt, with its 501(c) subsection and whether gifts to it are deductible, for checking an applicant's status by EIN.",
+   "homepage": "https://www.irs.gov/charities-non-profits/exempt-organizations-business-master-file-extract-eo-bmf",
+   "docsUrl": "https://www.irs.gov/charities-non-profits/tax-exempt-organization-search-bulk-data-downloads",
+   "termsUrl": "https://www.irs.gov/about-irs/use-of-content-from-irsgov",
+   "license": "Public domain (U.S. government work)",
+   "attribution": "Source: Internal Revenue Service",
+   "kinds": [],
+   "region": "us",
+   "cadence": "Monthly",
+   "needsKey": "SUPABASE_SERVICE_ROLE_KEY",
+   "enabled": true,
+   "notes": null
+  },
+  {
+   "id": "irs_990pf",
+   "name": "IRS Form 990-PF (private foundations)",
+   "covers": "Private grantmaking foundations in every state from IRS filings, with how to apply, deadlines, typical grant sizes, and past grantees for the larger ones.",
+   "homepage": "https://www.irs.gov/charities-non-profits/private-foundations",
+   "docsUrl": "https://www.irs.gov/charities-non-profits/form-990-series-downloads",
+   "termsUrl": "https://www.irs.gov/about-irs/use-of-content-from-irsgov",
+   "license": "Public domain (U.S. government work)",
+   "attribution": "Source: Internal Revenue Service",
+   "kinds": [
+    "grant",
+    "scholarship"
+   ],
+   "region": "us",
+   "cadence": "Daily (detail for up to 2,000 foundations a run)",
+   "needsKey": null,
+   "enabled": true,
+   "notes": null
+  },
+  {
+   "id": "state_ca_la_ramp",
+   "name": "Los Angeles RAMP open bids",
+   "covers": "Open bids, proposals, and qualification requests from City of Los Angeles departments (Public Works, LADWP, Airports, Harbor) and other agencies posting on RAMP.",
+   "homepage": "https://www.rampla.org",
+   "docsUrl": "https://data.lacity.org/d/hf3r-utnq",
+   "termsUrl": "https://data.lacity.org/terms-of-use",
+   "license": "CC0 1.0 (public domain dedication)",
+   "attribution": "Source: City of Los Angeles, RAMP, via data.lacity.org",
+   "kinds": [
+    "contract"
+   ],
+   "region": "local",
+   "cadence": "Daily (the dataset refreshes hourly)",
+   "needsKey": null,
+   "enabled": true,
+   "notes": "Close dates in this dataset are UTC."
+  },
+  {
+   "id": "state_md_montgomery_bids",
+   "name": "Montgomery County, MD solicitations",
+   "covers": "Active invitations for bids, requests for proposals, and informal solicitations from the Montgomery County, Maryland Office of Procurement, with construction and local small business reserve flags.",
+   "homepage": "https://www.montgomerycountymd.gov/PRO/",
+   "docsUrl": "https://data.montgomerycountymd.gov/d/eeq6-nnwe",
+   "termsUrl": "https://opendatapolicyhub.sunlightfoundation.com/collection/montgomery-county-md-2012-12-17/",
+   "license": "Public information (Montgomery County Open Data Act, no restriction on use)",
+   "attribution": "Source: Montgomery County, Maryland, Office of Procurement, via dataMontgomery",
+   "kinds": [
+    "contract"
+   ],
+   "region": "local",
+   "cadence": "Daily",
+   "needsKey": null,
+   "enabled": true,
+   "notes": "Closing dates carry no time; we set the close to the end of that day, Eastern time."
+  },
+  {
+   "id": "nasa_nspires",
+   "name": "NASA NSPIRES",
+   "covers": "NASA research solicitations (ROSES and others) as listed in NSPIRES. Off: no sanctioned feed; NASA notices reach the catalog through Grants.gov.",
+   "homepage": "https://nspires.nasaprs.com/external/",
+   "docsUrl": "https://nspires.nasaprs.com/external/solicitations/solicitations!init.do",
+   "termsUrl": "https://www.nasa.gov/nasa-web-privacy-policy-and-important-notices/",
+   "license": "Public domain (U.S. government work)",
+   "attribution": "Source: NASA NSPIRES",
+   "kinds": [
+    "research"
+   ],
+   "region": "us",
+   "cadence": "Not scheduled",
+   "needsKey": null,
+   "enabled": false,
+   "notes": "Off: NSPIRES has no RSS, export, or API; its list loads through an undocumented script call. NASA notices are covered by Grants.gov (agency NASA-HQ)."
+  },
+  {
+   "id": "nih_guide",
+   "name": "NIH Guide for Grants and Contracts",
+   "covers": "Active NIH funding notices (RFAs, program announcements, and PARs) with due dates, activity codes, and participating institutes.",
+   "homepage": "https://grants.nih.gov/funding/nih-guide-for-grants-and-contracts",
+   "docsUrl": "https://grants.nih.gov/funding/nih-guide-for-grants-and-contracts",
+   "termsUrl": "https://www.nih.gov/web-policies-notices",
+   "license": "Public domain (U.S. government work)",
+   "attribution": "Source: NIH Guide for Grants and Contracts",
+   "kinds": [
+    "research"
+   ],
+   "region": "us",
+   "cadence": "Daily",
+   "needsKey": null,
+   "enabled": true,
+   "notes": null
+  },
+  {
+   "id": "nih_reporter",
+   "name": "NIH RePORTER",
+   "covers": "Past NIH awards, summarized by institute, activity code, state, and fiscal year (counts, totals, and typical award sizes).",
+   "homepage": "https://reporter.nih.gov",
+   "docsUrl": "https://api.reporter.nih.gov/",
+   "termsUrl": "https://www.nih.gov/web-policies-notices",
+   "license": "Public domain (U.S. government work)",
+   "attribution": "Source: NIH RePORTER",
+   "kinds": [
+    "research"
+   ],
+   "region": "us",
+   "cadence": "Weekly",
+   "needsKey": null,
+   "enabled": true,
+   "notes": null
+  },
+  {
+   "id": "nsf_awards",
+   "name": "NSF Award Search",
+   "covers": "Past NSF awards, summarized by directorate, program, state, and fiscal year (counts, totals, and typical award sizes).",
+   "homepage": "https://www.nsf.gov/awardsearch/",
+   "docsUrl": "https://resources.research.gov/common/webapi/awardapisearch-v1.htm",
+   "termsUrl": "https://www.nsf.gov/policies/reuse.jsp",
+   "license": "Public domain (U.S. government work)",
+   "attribution": "Courtesy: U.S. National Science Foundation",
+   "kinds": [
+    "research"
+   ],
+   "region": "us",
+   "cadence": "Weekly",
+   "needsKey": null,
+   "enabled": true,
+   "notes": null
+  },
+  {
+   "id": "nsf_funding",
+   "name": "NSF funding opportunities",
+   "covers": "Every NSF program, solicitation, program description, and Dear Colleague Letter inviting proposals, with due dates, target dates, and accepted-anytime programs.",
+   "homepage": "https://www.nsf.gov/funding/opportunities",
+   "docsUrl": "https://www.nsf.gov/sitemap.xml",
+   "termsUrl": "https://www.nsf.gov/policies/reuse.jsp",
+   "license": "Public domain (U.S. government work)",
+   "attribution": "Courtesy: U.S. National Science Foundation",
+   "kinds": [
+    "research",
+    "scholarship"
+   ],
+   "region": "us",
+   "cadence": "Daily",
+   "needsKey": null,
+   "enabled": true,
+   "notes": null
+  },
+  {
+   "id": "state_ny_nyc_cityrecord",
+   "name": "NYC City Record Online",
+   "covers": "Open solicitations from every New York City agency as published in the City Record, including construction and design work from DDC, DEP, Parks, NYCHA, and Health + Hospitals.",
+   "homepage": "https://a856-cityrecord.nyc.gov/",
+   "docsUrl": "https://data.cityofnewyork.us/City-Government/City-Record-Online/dg92-zbpx",
+   "termsUrl": "https://www.nyc.gov/main/terms-of-use",
+   "license": "Public domain (NYC Open Data)",
+   "attribution": "Source: The City Record, NYC Department of Citywide Administrative Services, via NYC Open Data",
+   "kinds": [
+    "contract"
+   ],
+   "region": "local",
+   "cadence": "Daily",
+   "needsKey": null,
+   "enabled": true,
+   "notes": "Procurement section, solicitation notices only. Award notices are skipped (they name vendors)."
+  },
+  {
+   "id": "sam_assistance",
+   "name": "SAM.gov Assistance Listings",
+   "covers": "Every federal grant and cooperative agreement program in the Assistance Listings catalog (formerly CFDA), with objectives, who may apply, and typical award ranges.",
+   "homepage": "https://sam.gov/content/assistance-listings",
+   "docsUrl": "https://sam.gov/data-services/Assistance%20Listings/datagov?privacy=Public",
+   "termsUrl": "https://sam.gov/content/about/terms-of-use",
+   "license": "Public domain (U.S. government work)",
+   "attribution": "Source: SAM.gov Assistance Listings",
+   "kinds": [
+    "grant",
+    "research"
+   ],
+   "region": "us",
+   "cadence": "Weekly",
+   "needsKey": null,
+   "enabled": true,
+   "notes": null
+  },
+  {
+   "id": "sam_opportunities",
+   "name": "SAM.gov Contract Opportunities",
+   "covers": "Every federal contract notice still open for responses on SAM.gov: solicitations, combined synopses, presolicitations, sources sought, and special notices, one row per solicitation.",
+   "homepage": "https://sam.gov/content/opportunities",
+   "docsUrl": "https://open.gsa.gov/api/get-opportunities-public-api/",
+   "termsUrl": "https://sam.gov/content/about/terms-of-use",
+   "license": "Public domain (U.S. government work)",
+   "attribution": "Source: SAM.gov",
+   "kinds": [
+    "contract"
+   ],
+   "region": "us",
+   "cadence": "Hourly with a free SAM.gov API key, daily from the public extract without one",
+   "needsKey": null,
+   "enabled": true,
+   "notes": "Backfill: the public daily Contract Opportunities extract, no key. Incremental: the Opportunities API v2 when SAM_GOV_API_KEY is set (a key with a SAM.gov role allows 1,000 requests a day; one without a role allows 10), otherwise the extract when it has changed."
+  },
+  {
+   "id": "state_ca_sf_citypartner",
+   "name": "San Francisco open bids",
+   "covers": "Open bid events from San Francisco departments on SF City Partner, including Public Works, Recreation and Park, and Public Utilities construction packages.",
+   "homepage": "https://sfcitypartner.sfgov.org",
+   "docsUrl": "https://data.sf.gov/d/eshn-8t3a",
+   "termsUrl": "https://www.sf.gov/reports--april-2017--datasf-terms-use",
+   "license": "Open Data Commons PDDL 1.0",
+   "attribution": "Source: City and County of San Francisco, Controller's Office, via DataSF",
+   "kinds": [
+    "contract"
+   ],
+   "region": "local",
+   "cadence": "Weekly at the source; checked daily",
+   "needsKey": null,
+   "enabled": true,
+   "notes": null
+  },
+  {
+   "id": "sbir_awards",
+   "name": "SBIR.gov awards",
+   "covers": "Past SBIR and STTR awards, summarized by agency, branch, phase, program, state, and fiscal year (counts, totals, and typical award sizes).",
+   "homepage": "https://www.sbir.gov/awards",
+   "docsUrl": "https://www.sbir.gov/data-resources",
+   "termsUrl": "https://www.sba.gov/about-sba/open-government/about-sbagov-website/policies-notices",
+   "license": "Public domain (U.S. government work)",
+   "attribution": "Source: SBIR.gov, U.S. Small Business Administration",
+   "kinds": [
+    "research"
+   ],
+   "region": "us",
+   "cadence": "Weekly",
+   "needsKey": null,
+   "enabled": true,
+   "notes": null
+  },
+  {
+   "id": "sbir_topics",
+   "name": "SBIR.gov solicitations",
+   "covers": "Open SBIR and STTR solicitations from all eleven participating agencies, with topic counts and open and close dates, for U.S. small businesses.",
+   "homepage": "https://www.sbir.gov/topics",
+   "docsUrl": "https://www.sbir.gov/data-resources",
+   "termsUrl": "https://www.sba.gov/about-sba/open-government/about-sbagov-website/policies-notices",
+   "license": "Public domain (U.S. government work)",
+   "attribution": "Source: SBIR.gov, U.S. Small Business Administration",
+   "kinds": [
+    "research"
+   ],
+   "region": "us",
+   "cadence": "Daily",
+   "needsKey": null,
+   "enabled": true,
+   "notes": null
+  },
+  {
+   "id": "curated_scholarships",
+   "name": "Scholarships and fellowships, checked by hand",
+   "covers": "Well-known national scholarships and fellowships for U.S. students and individuals, each checked on the sponsor's official page.",
+   "homepage": "https://fundfellows.com/data",
+   "docsUrl": null,
+   "termsUrl": null,
+   "license": "Facts from each sponsor's official page; links only",
+   "attribution": "Source: each sponsor's official program page",
+   "kinds": [
+    "scholarship"
+   ],
+   "region": "us",
+   "cadence": "Checked by hand each month",
+   "needsKey": null,
+   "enabled": true,
+   "notes": "Federal notices already on Grants.gov and NSF solicitations are left to those connectors."
+  },
+  {
+   "id": "state_tx_txdot_lettings",
+   "name": "TxDOT highway lettings",
+   "covers": "Texas Department of Transportation construction and maintenance contracts: those advertised for the next letting, and those scheduled to let in the coming twelve months.",
+   "homepage": "https://www.txdot.gov",
+   "docsUrl": "https://data.texas.gov/d/drau-zphx",
+   "termsUrl": "https://data.texas.gov/",
+   "license": "Public information (State of Texas open data)",
+   "attribution": "Source: Texas Department of Transportation, TxDOTCONNECT, via the Texas Open Data Portal",
+   "kinds": [
+    "contract"
+   ],
+   "region": "state",
+   "cadence": "Daily (the dataset refreshes several times a day)",
+   "needsKey": null,
+   "enabled": true,
+   "notes": "One opportunity per controlling project (CCSJ), which is how TxDOT lets contracts. Projects not yet advertised are forecasted."
+  },
+  {
+   "id": "usaspending",
+   "name": "USAspending.gov",
+   "covers": "Past federal contract and grant awards as yearly totals: how many awards, how much, and typical award sizes by NAICS code, Assistance Listing, agency, and state.",
+   "homepage": "https://www.usaspending.gov",
+   "docsUrl": "https://api.usaspending.gov/docs/endpoints",
+   "termsUrl": "https://www.usaspending.gov/about",
+   "license": "Public domain (U.S. government data; free to copy, adapt, and redistribute, per usaspending.gov/about)",
+   "attribution": "Source: USAspending.gov, U.S. Department of the Treasury",
+   "kinds": [
+    "contract",
+    "grant"
+   ],
+   "region": "us",
+   "cadence": "Weekly",
+   "needsKey": null,
+   "enabled": true,
+   "notes": "Aggregates only. Rows count new awards by fiscal year of the original award date, with amounts obligated to date. Contracts outside construction and A/E count awards of $250,000 or more."
+  },
+  {
+   "id": "world_bank_procurement",
+   "name": "World Bank procurement notices",
+   "covers": "Open invitations for bids and requests for expressions of interest on World Bank financed projects worldwide.",
+   "homepage": "https://projects.worldbank.org/en/projects-operations/procurement",
+   "docsUrl": "https://financesone.worldbank.org/api-explorer?id=DS01594",
+   "termsUrl": "https://www.worldbank.org/ext/en/legal/terms-conditions/datasets",
+   "license": "CC BY 4.0 (World Bank Data Catalog dataset terms)",
+   "attribution": "Source: World Bank procurement notices",
+   "kinds": [
+    "contract"
+   ],
+   "region": "international",
+   "cadence": "Daily",
+   "needsKey": null,
+   "enabled": true,
+   "notes": null
+  }
+ ],
+ "counts": {
+  "sam_assistance": {
+   "open": 0,
+   "forecasted": 0,
+   "total": 2608,
+   "lastChecked": "2026-10-22T08:22:00.041Z",
+   "byType": {
+    "research": 0,
+    "grant": 0
+   },
+   "programs": 2608
+  },
+  "state_ca_la_ramp": {
+   "open": 217,
+   "forecasted": 0,
+   "total": 218,
+   "lastChecked": "2026-10-22T12:31:45.436Z",
+   "byType": {
+    "contract": 217
+   },
+   "programs": 0
+  },
+  "grantsgov": {
+   "open": 865,
+   "forecasted": 402,
+   "total": 11327,
+   "lastChecked": "2026-10-22T11:31:17.893Z",
+   "byType": {
+    "grant": 464,
+    "contract": 0,
+    "scholarship": 0,
+    "research": 803
+   },
+   "programs": 0
+  },
+  "nsf_funding": {
+   "open": 192,
+   "forecasted": 12,
+   "total": 370,
+   "lastChecked": "2026-10-22T12:24:43.463Z",
+   "byType": {
+    "scholarship": 2,
+    "research": 202
+   },
+   "programs": 48
+  },
+  "sbir_topics": {
+   "open": 1,
+   "forecasted": 3,
+   "total": 10,
+   "lastChecked": "2026-10-22T12:31:42.453Z",
+   "byType": {
+    "research": 4
+   },
+   "programs": 0
+  },
+  "eu_funding_tenders": {
+   "open": 445,
+   "forecasted": 319,
+   "total": 802,
+   "lastChecked": "2026-10-22T11:30:59.095Z",
+   "byType": {
+    "contract": 227,
+    "grant": 140,
+    "research": 397
+   },
+   "programs": 0
+  },
+  "irs_990pf": {
+   "open": 1870,
+   "forecasted": 0,
+   "total": 1875,
+   "lastChecked": "2026-10-22T12:16:33.578Z",
+   "byType": {
+    "scholarship": 78,
+    "grant": 1792
+   },
+   "programs": 0
+  },
+  "state_tx_txdot_lettings": {
+   "open": 128,
+   "forecasted": 1099,
+   "total": 1394,
+   "lastChecked": "2026-10-22T12:31:48.900Z",
+   "byType": {
+    "contract": 1227
+   },
+   "programs": 0
+  },
+  "sam_opportunities": {
+   "open": 7799,
+   "forecasted": 839,
+   "total": 8816,
+   "lastChecked": "2026-10-22T12:25:05.614Z",
+   "byType": {
+    "contract": 8638
+   },
+   "programs": 0
+  },
+  "world_bank_procurement": {
+   "open": 682,
+   "forecasted": 0,
+   "total": 699,
+   "lastChecked": "2026-10-22T11:57:48.761Z",
+   "byType": {
+    "contract": 682
+   },
+   "programs": 0
+  },
+  "state_de_mmp_bids": {
+   "open": 47,
+   "forecasted": 0,
+   "total": 53,
+   "lastChecked": "2026-10-22T12:31:49.864Z",
+   "byType": {
+    "contract": 47
+   },
+   "programs": 0
+  },
+  "curated_scholarships": {
+   "open": 34,
+   "forecasted": 25,
+   "total": 79,
+   "lastChecked": "2026-10-22T08:22:11.570Z",
+   "byType": {
+    "scholarship": 59
+   },
+   "programs": 0
+  },
+  "uk_find_a_tender": {
+   "open": 1397,
+   "forecasted": 0,
+   "total": 1497,
+   "lastChecked": "2026-10-22T11:57:38.248Z",
+   "byType": {
+    "contract": 1397
+   },
+   "programs": 0
+  },
+  "state_ca_sf_citypartner": {
+   "open": 65,
+   "forecasted": 0,
+   "total": 77,
+   "lastChecked": "2026-10-22T12:31:46.164Z",
+   "byType": {
+    "contract": 65
+   },
+   "programs": 0
+  },
+  "nih_guide": {
+   "open": 0,
+   "forecasted": 0,
+   "total": 389,
+   "lastChecked": "2026-10-22T12:16:44.854Z",
+   "byType": {
+    "research": 0
+   },
+   "programs": 0
+  },
+  "state_md_montgomery_bids": {
+   "open": 20,
+   "forecasted": 0,
+   "total": 37,
+   "lastChecked": "2026-10-22T12:31:50.654Z",
+   "byType": {
+    "contract": 20
+   },
+   "programs": 0
+  },
+  "federal_register": {
+   "open": 3,
+   "forecasted": 0,
+   "total": 100,
+   "lastChecked": "2026-10-22T11:24:59.271Z",
+   "byType": {
+    "grant": 3,
+    "research": 0
+   },
+   "programs": 0
+  },
+  "state_il_cdb_future": {
+   "open": 0,
+   "forecasted": 47,
+   "total": 47,
+   "lastChecked": "2026-10-22T09:03:51.115Z",
+   "byType": {
+    "contract": 47
+   },
+   "programs": 0
+  },
+  "uk_contracts_finder": {
+   "open": 166,
+   "forecasted": 0,
+   "total": 171,
+   "lastChecked": "2026-10-22T11:33:39.587Z",
+   "byType": {
+    "contract": 166
+   },
+   "programs": 0
+  },
+  "state_ny_nyc_cityrecord": {
+   "open": 113,
+   "forecasted": 0,
+   "total": 238,
+   "lastChecked": "2026-10-22T12:31:44.302Z",
+   "byType": {
+    "contract": 113
+   },
+   "programs": 0
+  }
+ },
+ "funders": {
+  "other": 49,
+  "international": 919,
+  "private_foundation": 81649,
+  "state_agency": 18,
+  "federal_agency": 991,
+  "local_government": 90
+ },
+ "construction": {
+  "federal": 948,
+  "stateLocal": 1418,
+  "international": 0
+ },
+ "awardRows": 125551,
+ "sizeMb": 211
+}

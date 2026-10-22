@@ -1,5 +1,6 @@
 "use client";
 
+import { ImportDialog } from "./import-dialog";
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Pencil, Plus, Trash2 } from "lucide-react";
@@ -168,9 +169,12 @@ export function ProjectsPanel({ projects, readOnly }: { projects: PortfolioProje
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <p className="max-w-[65ch] text-base text-ink-muted">Every project a bid can show. Bids choose the most relevant for each solicitation; the SF 330 shows up to ten in Section F.</p>
         {readOnly ? null : (
-          <Button size="sm" onClick={() => setEditing(blankProject())}>
-            <Plus className="size-4" aria-hidden /> Add a project
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <ImportDialog kind="projects" />
+            <Button size="sm" onClick={() => setEditing(blankProject())}>
+              <Plus className="size-4" aria-hidden /> Add a project
+            </Button>
+          </div>
         )}
       </div>
       {projects.length ? (
@@ -180,12 +184,12 @@ export function ProjectsPanel({ projects, readOnly }: { projects: PortfolioProje
               <div className="min-w-0">
                 <h3 className="font-display text-xl text-ink">{p.name}</h3>
                 <p className="text-base text-ink-muted">
-                  {p.client} · {[p.city, p.state].filter(Boolean).join(", ")} · {ROLE_WORDS[p.role]}
-                  {p.status === "completed" ? (p.completionDate ? ` · completed ${p.completionDate.slice(0, 4)}` : "") : " · in progress"}
+                  {p.client}, {[p.city, p.state].filter(Boolean).join(", ")}, {ROLE_WORDS[p.role]}
+                  {p.status === "completed" ? (p.completionDate ? `, completed ${p.completionDate.slice(0, 4)}` : "") : ", in progress"}
                 </p>
                 <p className="mt-1 max-w-[70ch] text-base text-ink">{p.scope}</p>
                 <p className="mt-1 text-sm text-ink-muted">
-                  {[p.sizeSqft ? `${p.sizeSqft.toLocaleString("en-US")} sq ft` : null, p.constructionCost ? `construction ${formatMoney(p.constructionCost)}` : null, p.contractValue ? `fee ${formatMoney(p.contractValue)}` : null, p.profileCode ? `SF 330 code ${p.profileCode}` : null, p.reference ? `reference: ${p.reference.name}` : "no reference yet"].filter(Boolean).join(" · ")}
+                  {[p.sizeSqft ? `${p.sizeSqft.toLocaleString("en-US")} sq ft` : null, p.constructionCost ? `construction ${formatMoney(p.constructionCost)}` : null, p.contractValue ? `fee ${formatMoney(p.contractValue)}` : null, p.profileCode ? `SF 330 code ${p.profileCode}` : null, p.reference ? `reference: ${p.reference.name}` : "no reference yet"].filter(Boolean).join(", ")}
                 </p>
               </div>
               {readOnly ? null : (
@@ -298,9 +302,12 @@ export function PeoplePanel({ personnel, projects, readOnly }: { personnel: Pers
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <p className="max-w-[65ch] text-base text-ink-muted">Key personnel with their registrations and the projects they worked on. Bids tailor each résumé to the solicitation from these records.</p>
         {readOnly ? null : (
-          <Button size="sm" onClick={() => setEditing({ name: "", title: "", role: "", discipline: "", yearsTotal: null, yearsWithFirm: null, education: [], registrations: [], certifications: [], summary: "", projectIds: [], resumeDocumentId: null, office: null })}>
-            <Plus className="size-4" aria-hidden /> Add a person
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <ImportDialog kind="people" />
+            <Button size="sm" onClick={() => setEditing({ name: "", title: "", role: "", discipline: "", yearsTotal: null, yearsWithFirm: null, education: [], registrations: [], certifications: [], summary: "", projectIds: [], resumeDocumentId: null, office: null })}>
+              <Plus className="size-4" aria-hidden /> Add a person
+            </Button>
+          </div>
         )}
       </div>
       <ul className="mt-4 border-t border-rule">
@@ -309,7 +316,7 @@ export function PeoplePanel({ personnel, projects, readOnly }: { personnel: Pers
             <div className="min-w-0">
               <h3 className="font-display text-xl text-ink">{p.name}</h3>
               <p className="text-base text-ink-muted">
-                {p.title} · usually {p.role.toLowerCase()} · {p.yearsTotal ?? "?"} years, {p.yearsWithFirm ?? "?"} with the firm
+                {p.title}, usually {p.role.toLowerCase()}, {p.yearsTotal ?? "?"} years, {p.yearsWithFirm ?? "?"} with the firm
               </p>
               <p className="mt-1 text-base text-ink">{p.registrations.map((r) => `${r.license} (${r.state})`).join("; ") || "No registrations listed"}</p>
               {p.certifications.length ? <p className="text-sm text-ink-muted">{p.certifications.join(", ")}</p> : null}
@@ -401,7 +408,7 @@ export function CredentialsPanel({ certifications, readOnly }: { certifications:
           <li key={c.id} className="flex items-start justify-between gap-4 border-b border-rule py-3">
             <div>
               <p className="font-semibold text-ink">{c.label || certWords(c.kind)}</p>
-              <p className="text-sm text-ink-muted">{[c.issuer, c.state, c.number, c.expires ? `expires ${c.expires}` : null].filter(Boolean).join(" · ")}</p>
+              <p className="text-sm text-ink-muted">{[c.issuer, c.state, c.number, c.expires ? `expires ${c.expires}` : null].filter(Boolean).join(", ")}</p>
             </div>
             {readOnly ? null : (
               <Button variant="ghost" size="icon-sm" className="shrink-0" aria-label={`Edit ${c.label}`} onClick={() => setEditing({ ...c })}>

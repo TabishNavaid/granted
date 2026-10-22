@@ -33,15 +33,14 @@ import type {
   Organization,
   Outcome,
   Requirement,
-  Section,
-  Subscription,
-} from "@/lib/types";
+  Section, BidSearchFilters } from "@/lib/types";
 import { wordCount } from "@/lib/format";
 import { runtimeMode } from "@/lib/env";
 import { adminClient, createUserClient } from "@/lib/supabase/clients";
 import { getSession, requireSession, type SessionContext } from "@/lib/supabase/session";
 import type { LoopResult, Services } from "./contracts";
-import { checkUse, exportCampaign, icsUrlFor, usageThisMonth, withUsage } from "./shared";
+import { exportCampaign, icsUrlFor } from "./shared";
+import { countRuns, monthStart, summarize } from "@/lib/usage/limits";
 import { planMilestones as planFromDeadline } from "@/lib/loop/milestones";
 import { BUDGET_CATEGORY_LABEL, budgetTotal } from "@/lib/loop/budget";
 
@@ -318,6 +317,7 @@ export const map = {
     startedAt: iso(r.started_at),
     finishedAt: r.finished_at ? iso(r.finished_at) : null,
     inboxItemId: (r.inbox_item_id as string | null) ?? null,
+    usageKind: (r.usage_kind as AgentRun["usageKind"]) ?? null,
   }),
   runRow: (run: Partial<AgentRun>, extra: { models?: string[] } = {}): Row => {
     const out: Row = {};
@@ -335,6 +335,7 @@ export const map = {
     if (run.startedAt !== undefined) out.started_at = run.startedAt;
     if (run.finishedAt !== undefined) out.finished_at = run.finishedAt;
     if (run.inboxItemId !== undefined) out.inbox_item_id = run.inboxItemId;
+    if (run.usageKind !== undefined) out.usage_kind = run.usageKind;
     if (extra.models) out.models = extra.models;
     return out;
   },
@@ -344,16 +345,7 @@ export const map = {
   orgContact: (r: Row): OrgContact => ({ id: str(r.id), orgId: str(r.org_id), name: str(r.name), organization: str(r.organization), role: str(r.role), email: (r.email as string | null) ?? null, phone: (r.phone as string | null) ?? null, kind: (r.kind as OrgContact["kind"]) ?? "other", relationship: str(r.relationship), funderId: (r.funder_id as string | null) ?? null, source: (r.source as OrgContact["source"]) ?? "manual", lastTouchAt: r.last_touch_at ? iso(r.last_touch_at) : null, createdAt: iso(r.created_at) }),
   contactNote: (r: Row): ContactNote => ({ id: str(r.id), orgId: str(r.org_id), contactId: str(r.contact_id), kind: (r.kind as ContactNote["kind"]) ?? "note", note: str(r.note), nextStep: (r.next_step as string | null) ?? null, happenedAt: iso(r.happened_at) }),
   campaign: (r: Row): SocialCampaign => ({ id: str(r.id), orgId: str(r.org_id), month: str(r.month), theme: str(r.theme), posts: (r.posts as SocialCampaign["posts"]) ?? [], status: (r.status as SocialCampaign["status"]) ?? "draft", createdAt: iso(r.created_at) }),
-  savedSearch: (r: Row): SavedSearch => ({ id: str(r.id), orgId: str(r.org_id), name: str(r.name), keyword: str(r.keyword), fundingCategories: (r.funding_categories as string[]) ?? [], createdAt: iso(r.created_at), lastRunAt: r.last_run_at ? iso(r.last_run_at) : null }),
-  subscription: (r: Row | null, orgId: string): Subscription => ({
-    id: str(r?.id, "sub"),
-    orgId,
-    plan: (r?.plan as Subscription["plan"]) ?? "free",
-    status: (r?.status as Subscription["status"]) ?? "active",
-    currentPeriodEnd: r?.current_period_end ? iso(r.current_period_end) : new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString(),
-    seats: Number(r?.seats ?? 1),
-    usage: { proposalsThisMonth: 0, proposalLimit: (r?.plan ?? "free") === "free" ? 1 : (r?.plan ?? "free") === "starter" ? 3 : null, matchesThisMonth: 0, matchLimit: (r?.plan ?? "free") === "free" ? 5 : null },
-  }),
+  savedSearch: (r: Row): SavedSearch => ({ id: str(r.id), orgId: str(r.org_id), name: str(r.name), keyword: str(r.keyword), fundingCategories: (r.funding_categories as string[]) ?? [], filters: (r.filters as BidSearchFilters | null) ?? null, createdAt: iso(r.created_at), lastRunAt: r.last_run_at ? iso(r.last_run_at) : null }),
   notifications: (r: Row | null): NotificationSettings => ({ weeklyDigest: r?.weekly_digest == null ? true : Boolean(r.weekly_digest), milestoneReminders: r?.milestone_reminders == null ? true : Boolean(r.milestone_reminders), inboxAlerts: r?.inbox_alerts == null ? true : Boolean(r.inbox_alerts), reminderDaysBefore: Number(r?.reminder_days_before ?? 3) }),
 };
 
@@ -423,6 +415,35 @@ async function recomputeSectionChecks(db: SupabaseClient, section: Section) {
 export function makeSupabaseServices(): Services {
   const db = adminClient();
   const ctx = (): Promise<SessionContext> => requireSession();
+  /**
+   * The invitation email: a one-time sign-in link that only the invitee receives (it never goes back to the
+   * inviter, who could otherwise sign in as them). Returns false when email delivery is not set up.
+   */
+  const sendInvite = async (input: { email: string; role: Member["role"]; inviterName: string; orgId: string }): Promise<boolean> => {
+    const { emailConnected, sendEmail } = await import("@/lib/integrations/email");
+    if (!emailConnected()) return false;
+    const base = siteUrl();
+    const next = `${base}/auth/callback?next=/inbox`;
+    let link = await db.auth.admin.generateLink({ type: "invite", email: input.email, options: { redirectTo: next } });
+    let type = "invite";
+    if (link.error) {
+      link = await db.auth.admin.generateLink({ type: "magiclink", email: input.email, options: { redirectTo: next } });
+      type = "magiclink";
+    }
+    const hashed = link.data?.properties?.hashed_token;
+    if (!hashed) return false;
+    const { data: org } = await db.from("organizations").select("name").eq("id", input.orgId).maybeSingle();
+    const { inviteEmail } = await import("@/lib/email/templates");
+    const t = inviteEmail({ inviterName: input.inviterName, workspaceName: String(org?.name ?? "a workspace"), role: input.role, link: `${base}/auth/callback?token_hash=${encodeURIComponent(hashed)}&type=${type}&next=/inbox` });
+    const r = await sendEmail({ to: input.email, subject: t.subject, text: t.text, html: t.html, tags: [{ name: "category", value: "invite" }] });
+    return r.ok;
+  };
+  /** Reviewers read, comment, and approve; owners and editors change drafts, plans, and records. */
+  const editorOnly = async () => {
+    const s = await ctx();
+    const { data } = await db.from("org_members").select("role").eq("org_id", s.orgId).eq("user_id", s.userId).maybeSingle();
+    if (data?.role === "reviewer") throw new Error("Board reviewers can read and approve sections but cannot change this. Ask the owner or an editor.");
+  };
   const loopStore = async () => {
     const s = await ctx();
     const { makeSupabaseStore } = await import("@/lib/loop/supabase-store");
@@ -438,6 +459,12 @@ export function makeSupabaseServices(): Services {
       const s = await ctx();
       return map.org(must(await db.from("organizations").update(map.orgPatch(patch)).eq("id", s.orgId).select("*").single(), "organization"));
     },
+    async verifyEin(ein: string) {
+      await ctx();
+      const { verifyNonprofit } = await import("@/lib/catalog/registry");
+      const v = await verifyNonprofit(ein);
+      return { status: v.status, message: v.message };
+    },
     async listMembers() {
       const s = await ctx();
       const rows = many(await db.from("org_members").select("id, org_id, user_id, invited_email, role, status, profiles(full_name, email)").eq("org_id", s.orgId), "members");
@@ -448,8 +475,11 @@ export function makeSupabaseServices(): Services {
     },
     async inviteMember(email: string, role: Member["role"]) {
       const s = await ctx();
-      const r = must(await db.from("org_members").insert({ org_id: s.orgId, invited_email: email, role, status: "invited" }).select("*").single(), "invite");
-      return { id: String(r.id), orgId: s.orgId, fullName: "", email, role, status: "invited" as const };
+      const address = email.trim().toLowerCase();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(address)) throw new Error("That does not look like an email address.");
+      const r = must(await db.from("org_members").insert({ org_id: s.orgId, invited_email: address, role, status: "invited" }).select("*").single(), "invite");
+      const inviteEmailSent = await sendInvite({ email: address, role, inviterName: s.fullName || s.email, orgId: s.orgId });
+      return { id: String(r.id), orgId: s.orgId, fullName: "", email: address, role, status: "invited" as const, inviteEmailSent };
     },
     async currentUser() {
       const s = await ctx();
@@ -488,7 +518,6 @@ export function makeSupabaseServices(): Services {
       const created = must(await db.from("organizations").insert({ name: name.trim() || "New organization", onboarding_step: "start" }).select("id, name").single(), "organization");
       const id = String(created.id);
       await db.from("org_members").insert({ org_id: id, user_id: s.userId, invited_email: s.email, role: "owner", status: "active" });
-      await db.from("subscriptions").insert({ org_id: id, plan: "free", status: "active", seats: 1 });
       await db.from("notification_settings").insert({ org_id: id });
       const { setActiveOrg } = await import("@/lib/supabase/session");
       await setActiveOrg(id);
@@ -513,6 +542,7 @@ export function makeSupabaseServices(): Services {
       return many(await db.from("facts").select("*").eq("org_id", s.orgId).order("created_at"), "facts").map(map.fact);
     },
     async updateFact(id: string, patch: Partial<Fact>) {
+      await editorOnly();
       const s = await ctx();
       return map.fact(must(await db.from("facts").update(map.factPatch(patch)).eq("id", id).eq("org_id", s.orgId).select("*").single(), "fact"));
     },
@@ -544,6 +574,7 @@ export function makeSupabaseServices(): Services {
       return map.document(r);
     },
     async updateDocument(id: string, patch: { type: Document["type"] }) {
+      await editorOnly();
       const s = await ctx();
       return map.document(must(await db.from("documents").update({ type: patch.type }).eq("id", id).eq("org_id", s.orgId).select("*").single(), "document"));
     },
@@ -605,9 +636,9 @@ export function makeSupabaseServices(): Services {
       const s = await ctx();
       return many(await db.from("saved_searches").select("*").eq("org_id", s.orgId).order("created_at", { ascending: false }), "saved searches").map(map.savedSearch);
     },
-    async saveSearch(input: { name: string; keyword: string; fundingCategories: string[] }) {
+    async saveSearch(input: { name: string; keyword: string; fundingCategories: string[]; filters?: BidSearchFilters | null }) {
       const s = await ctx();
-      return map.savedSearch(must(await db.from("saved_searches").insert({ org_id: s.orgId, name: input.name.trim() || input.keyword, keyword: input.keyword.trim(), funding_categories: input.fundingCategories }).select("*").single(), "saved search"));
+      return map.savedSearch(must(await db.from("saved_searches").insert({ org_id: s.orgId, name: input.name.trim() || input.keyword, keyword: input.keyword.trim(), funding_categories: input.fundingCategories, filters: input.filters ?? null }).select("*").single(), "saved search"));
     },
     async deleteSavedSearch(id: string) {
       const s = await ctx();
@@ -671,6 +702,7 @@ export function makeSupabaseServices(): Services {
       };
     },
     async updateSection(id: string, bodyHtml: string) {
+      await editorOnly();
       await ctx();
       const cur = map.section(must(await db.from("sections").select("*").eq("id", id).single(), "section"));
       const hasText = Boolean(bodyHtml.replace(/<[^>]+>/g, "").trim());
@@ -684,6 +716,7 @@ export function makeSupabaseServices(): Services {
       return map.section(must(await db.from("sections").update({ status }).eq("id", id).select("*").single(), "section"));
     },
     async answerMissingFact(id: string, answer: string) {
+      await editorOnly();
       const s = await ctx();
       const { answerAndRedraft } = await import("@/lib/loop");
       const { makeSupabaseStore } = await import("@/lib/loop/supabase-store");
@@ -714,6 +747,7 @@ export function makeSupabaseServices(): Services {
       return (await toApplicationViews(db, [map.application(r)]))[0];
     },
     async setAskAmount(id: string, askAmount: number | null) {
+      await editorOnly();
       const s = await ctx();
       const r = must(await db.from("applications").update({ ask_amount: askAmount }).eq("id", id).eq("org_id", s.orgId).select("*").single(), "application");
       return (await toApplicationViews(db, [map.application(r)]))[0];
@@ -723,6 +757,7 @@ export function makeSupabaseServices(): Services {
       return many(await db.from("section_versions").select("*").eq("section_id", sectionId).order("created_at", { ascending: false }).limit(30), "versions").map(map.version);
     },
     async restoreVersion(versionId: string) {
+      await editorOnly();
       const s = await ctx();
       const v = map.version(must(await db.from("section_versions").select("*").eq("id", versionId).single(), "version"));
       const cur = map.section(must(await db.from("sections").select("*").eq("id", v.sectionId).single(), "section"));
@@ -732,6 +767,7 @@ export function makeSupabaseServices(): Services {
       return r;
     },
     async revise(input: { sectionId: string; html: string; action: "rewrite" | "shorten" | "expand" | "tone"; tone?: "plain" | "warm" | "formal" | "confident"; wordLimit?: number | null }) {
+      await editorOnly();
       const { st } = await loopStore();
       const { reviseSection } = await import("@/lib/loop/features");
       return reviseSection(st, input);
@@ -751,6 +787,7 @@ export function makeSupabaseServices(): Services {
       return st.getBudget(id);
     },
     async saveBudget(id: string, lines: Budget["lines"], justification: string) {
+      await editorOnly();
       const { st } = await loopStore();
       return st.saveBudget(id, lines, justification);
     },
@@ -850,6 +887,7 @@ export function makeSupabaseServices(): Services {
       return map.milestone(must(await db.from("milestones").update({ assignee_id: assigneeId }).eq("id", id).eq("org_id", s.orgId).select("*").single(), "milestone"));
     },
     async planMilestones(applicationId: string, options?: { boardReview?: boolean; hours?: number }) {
+      await editorOnly();
       const { s, st } = await loopStore();
       const ctxApp = await st.getApplication(applicationId);
       if (!ctxApp || !ctxApp.opportunity.deadline) return [];
@@ -876,46 +914,21 @@ export function makeSupabaseServices(): Services {
     },
   };
 
-  const billing = {
-    async getSubscription() {
+  const jobs = {
+    async start(spec: { jobId: string; kind: string; args: unknown[] }) {
       const s = await ctx();
-      const { data } = await db.from("subscriptions").select("*").eq("org_id", s.orgId).maybeSingle();
-      const [apps, matches] = await Promise.all([db.from("applications").select("*").eq("org_id", s.orgId), db.from("matches").select("*").eq("org_id", s.orgId)]);
-      return withUsage(map.subscription(data, s.orgId), usageThisMonth((apps.data ?? []).map(map.application), (matches.data ?? []).map(map.match)));
+      const { enqueue, isBackgroundKind } = await import("@/lib/jobs/runner");
+      if (!isBackgroundKind(spec.kind)) return { mode: "inline" as const };
+      await enqueue(spec, s);
+      return { mode: "background" as const };
     },
-    async checkoutUrl(plan: "starter" | "growth") {
+  };
+
+  const account = {
+    async getUsage() {
       const s = await ctx();
-      const { createCheckoutSession, stripeConnected } = await import("@/lib/integrations/stripe");
-      if (!stripeConnected()) return { ok: false as const, code: "no_ai" as const, error: "Stripe is not connected on this server yet. The Integrations page says how to add it." };
-      const { data } = await db.from("subscriptions").select("stripe_customer_id").eq("org_id", s.orgId).maybeSingle();
-      const base = siteUrl();
-      const r = await createCheckoutSession({ orgId: s.orgId, email: s.email, plan, customerId: (data?.stripe_customer_id as string | null) ?? null, successUrl: `${base}/settings?tab=billing&checkout=success`, cancelUrl: `${base}/settings?tab=billing&checkout=canceled` });
-      return r.ok ? { ok: true as const, data: { url: r.url } } : { ok: false as const, code: "failed" as const, error: r.message };
-    },
-    async portalUrl() {
-      const s = await ctx();
-      const { createPortalSession, stripeConnected } = await import("@/lib/integrations/stripe");
-      if (!stripeConnected()) return { ok: false as const, code: "no_ai" as const, error: "Stripe is not connected on this server yet." };
-      const { data } = await db.from("subscriptions").select("stripe_customer_id").eq("org_id", s.orgId).maybeSingle();
-      if (!data?.stripe_customer_id) return { ok: false as const, code: "failed" as const, error: "No billing account yet. Start a paid plan first." };
-      const base = siteUrl();
-      const r = await createPortalSession({ customerId: String(data.stripe_customer_id), returnUrl: `${base}/settings?tab=billing` });
-      return r.ok ? { ok: true as const, data: { url: r.url } } : { ok: false as const, code: "failed" as const, error: r.message };
-    },
-    async canUse(what: "proposal" | "match") {
-      return checkUse(await billing.getSubscription(), what);
-    },
-    async listInvoices() {
-      await ctx();
-      return [];
-    },
-    async changePlan(plan: Subscription["plan"]) {
-      const s = await ctx();
-      const { stripeConnected } = await import("@/lib/integrations/stripe");
-      // With Stripe connected, paid plans go through Checkout; only a downgrade to Free is switched here.
-      if (stripeConnected() && plan !== "free") return billing.getSubscription();
-      const { data } = await db.from("subscriptions").upsert({ org_id: s.orgId, plan, status: "active" }, { onConflict: "org_id" }).select("*").single();
-      return map.subscription(data, s.orgId);
+      const { data } = await db.from("agent_runs").select("agent, title, usage_kind, status, tokens_in, tokens_out, cost_usd, started_at").eq("org_id", s.orgId).gte("started_at", monthStart().toISOString());
+      return summarize(countRuns((data ?? []).map((r) => ({ agent: String(r.agent), title: String(r.title), usageKind: (r.usage_kind as "draft" | "assist" | null) ?? null, status: String(r.status), tokensIn: Number(r.tokens_in ?? 0), tokensOut: Number(r.tokens_out ?? 0), costUsd: Number(r.cost_usd ?? 0), startedAt: new Date(String(r.started_at)).toISOString() }))));
     },
     async getNotificationSettings() {
       const s = await ctx();
@@ -1001,16 +1014,14 @@ export function makeSupabaseServices(): Services {
       return readJob(jobId);
     },
     async draftLetter(applicationId: string, jobId?: string) {
-      const limit = await billing.canUse("proposal");
-      if (!limit.ok) return { ok: false as const, code: "failed" as const, error: limit.message ?? "Your plan's limit for this month is used up." };
+      await editorOnly();
       const s = await ctx();
       const { draftLetterFor } = await import("@/lib/loop");
       const { makeSupabaseStore } = await import("@/lib/loop/supabase-store");
       return draftLetterFor(makeSupabaseStore(s), applicationId, jobId);
     },
     async draftProposal(applicationId: string, jobId?: string) {
-      const limit = await billing.canUse("proposal");
-      if (!limit.ok) return { ok: false as const, code: "failed" as const, error: limit.message ?? "Your plan's limit for this month is used up." };
+      await editorOnly();
       const { st } = await loopStore();
       const { draftProposalFor } = await import("@/lib/loop/features");
       return draftProposalFor(st, applicationId, jobId);
@@ -1189,9 +1200,9 @@ export function makeSupabaseServices(): Services {
     },
   };
 
-  const x = makeSupabaseFeatures(db, ctx, { org, knowledge, opportunities, applications, inbox, calendar, outreach, contacts, social, integrations, billing } as never);
-  // Row level security scopes every segment table to the org's members; screens hide edits from reviewers.
-  const seg = makeSupabaseSegments({ db, loopStore: async () => (await loopStore()).st, requireEditor: () => undefined, applicationView: (id) => applications.get(id) });
+  const x = makeSupabaseFeatures(db, ctx, { org, knowledge, opportunities, applications, inbox, calendar, outreach, contacts, social, integrations, account } as never);
+  // Row level security scopes every segment table to the org's members. Reviewers read and approve; they do not edit records.
+  const seg = makeSupabaseSegments({ db, loopStore: async () => (await loopStore()).st, requireEditor: editorOnly, applicationView: (id) => applications.get(id) });
   return {
     ...seg.services,
     org: { ...org, ...x.org },
@@ -1201,7 +1212,8 @@ export function makeSupabaseServices(): Services {
     inbox: { ...inbox, ...x.inbox },
     calendar: { ...calendar, ...x.calendar },
     activity,
-    billing,
+    account,
+    jobs,
     auth,
     loop,
     demo,

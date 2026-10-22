@@ -5,7 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
  * Keeps the Supabase session cookie fresh and sends signed-out visitors to
  * sign in. Does nothing in demo mode, where every screen runs on mock data.
  */
-const PROTECTED = ["/inbox", "/opportunities", "/applications", "/pipeline", "/calendar", "/outreach", "/profile", "/activity", "/settings", "/connections", "/social", "/onboarding"];
+const PROTECTED = ["/admin", "/inbox", "/opportunities", "/applications", "/pipeline", "/calendar", "/outreach", "/profile", "/activity", "/settings", "/connections", "/social", "/onboarding"];
 
 function demo() {
   const flag = process.env.DEMO_MODE?.trim().toLowerCase();
@@ -15,7 +15,7 @@ function demo() {
   return !keys;
 }
 
-const DEMO_COOKIE = "fl_demo";
+const DEMO_COOKIE = "ff_demo";
 
 export async function proxy(request: NextRequest) {
   if (demo()) {

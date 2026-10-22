@@ -1,0 +1,20 @@
+{
+ "errorcode": 0,
+ "msg": "Webservice Succeeds",
+ "data": {
+  "id": 364087,
+  "revision": 0,
+  "opportunityNumber": "ED-GRANTS-101526-002",
+  "opportunityTitle": "Institute of Education Sciences (IES): National Center for Special Education Research (NCSER): Transformative Research in Special Education, Assistance Listing Number (ALN) 84.324T",
+  "owningAgencyCode": "ED",
+  "listed": "L",
+  "synopsis": {
+   "opportunityId": 364087,
+   "agencyCode": "ED",
+   "responseDate": "Dec 11, 2026 12:00:00 AM EST",
+   "postingDate": "Oct 16, 2026 12:00:00 AM EDT",
+   "awardCeiling": "3750000",
+   "awardFloor": "none"
+  }
+ }
+}

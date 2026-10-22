@@ -1,5 +1,5 @@
 /**
- * Copy for the "What help costs" section on the home page.
+ * Copy for a "What help costs" section. Not shown on any page right now.
  * A sourced figure lists its source; when it changes, update `checked`.
  */
 

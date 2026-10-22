@@ -63,7 +63,7 @@ function Timeline({ timeline }: { timeline: WinAnalytics["timeline"] }) {
           Asked
         </span>
         <span className="inline-flex items-center gap-2">
-          <span className="inline-block size-3 rounded-sm bg-meadow" />
+          <span className="inline-block size-3 rounded-sm bg-fellow" />
           Won
         </span>
       </div>
@@ -84,7 +84,7 @@ function Timeline({ timeline }: { timeline: WinAnalytics["timeline"] }) {
                 </div>
                 <div className="flex items-center gap-2" title={`${monthLabel(t.month)}: won ${formatMoney(t.won)}`}>
                   <div className="h-2.5 min-w-0 flex-1">
-                    <div className="h-full rounded-r-sm bg-meadow" style={{ width: pct(t.won) }} />
+                    <div className="h-full rounded-r-sm bg-fellow" style={{ width: pct(t.won) }} />
                   </div>
                   <span className="w-16 shrink-0 text-right text-xs text-ink tnum">
                     <span className="sr-only">Won </span>

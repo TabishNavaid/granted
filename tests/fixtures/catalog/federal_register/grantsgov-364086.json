@@ -1,0 +1,20 @@
+{
+ "errorcode": 0,
+ "msg": "Webservice Succeeds",
+ "data": {
+  "id": 364086,
+  "revision": 0,
+  "opportunityNumber": "ED-GRANTS-101526-001",
+  "opportunityTitle": "Institute of Education Sciences (IES): National Center on Education Research (NCER): From Seedlings to Scale, Assistance Listing Number (ALN) 84.305J",
+  "owningAgencyCode": "ED",
+  "listed": "L",
+  "synopsis": {
+   "opportunityId": 364086,
+   "agencyCode": "ED",
+   "responseDate": "Dec 11, 2026 12:00:00 AM EST",
+   "postingDate": "Oct 16, 2026 12:00:00 AM EDT",
+   "awardCeiling": "500000",
+   "awardFloor": "none"
+  }
+ }
+}

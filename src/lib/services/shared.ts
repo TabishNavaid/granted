@@ -1,6 +1,5 @@
-import type { Application, Match, SocialCampaign, Subscription } from "@/lib/types";
+import type { SocialCampaign } from "@/lib/types";
 import { siteUrl } from "@/lib/site-url";
-import { canUse as canUseLimits, PLAN_LIMITS } from "@/lib/billing/limits";
 
 /** Pure helpers both adapters share. */
 
@@ -15,24 +14,6 @@ export function exportCampaign(c: SocialCampaign, format: "text" | "csv"): strin
 
 export function monthKey(d = new Date()) {
   return d.toISOString().slice(0, 7);
-}
-
-/** How much of the plan has been used this calendar month, from the rows themselves. */
-export function usageThisMonth(applications: Application[], matches: Match[]): { proposalsThisMonth: number; matchesThisMonth: number } {
-  const month = monthKey();
-  return {
-    proposalsThisMonth: applications.filter((a) => a.createdAt.slice(0, 7) === month && a.stage !== "discovered").length,
-    matchesThisMonth: matches.filter((m) => m.createdAt.slice(0, 7) === month).length,
-  };
-}
-
-export function withUsage(sub: Subscription, usage: { proposalsThisMonth: number; matchesThisMonth: number }): Subscription {
-  const limits = PLAN_LIMITS[sub.plan];
-  return { ...sub, usage: { proposalsThisMonth: usage.proposalsThisMonth, proposalLimit: limits.proposalsPerMonth, matchesThisMonth: usage.matchesThisMonth, matchLimit: limits.matchesPerMonth } };
-}
-
-export function checkUse(sub: Subscription, what: "proposal" | "match") {
-  return canUseLimits(sub.plan, what, what === "proposal" ? sub.usage.proposalsThisMonth : sub.usage.matchesThisMonth);
 }
 
 export function icsUrlFor(token: string) {

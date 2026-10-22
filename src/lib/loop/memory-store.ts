@@ -1,3 +1,4 @@
+import { countRuns } from "@/lib/usage/limits";
 import { state, newId, now } from "@/lib/services/mock";
 import { sessionMap } from "@/lib/services/demo-session";
 import * as seed from "@/lib/mock/data";
@@ -150,6 +151,9 @@ export const memoryStore: LoopStore = {
   async updateRun(id, patch) {
     const r = state.runs.find((x) => x.id === id);
     if (r) Object.assign(r, patch);
+  },
+  async usageThisMonth() {
+    return countRuns(state.runs);
   },
   async listBoilerplates() {
     return structuredClone(state.boilerplates);

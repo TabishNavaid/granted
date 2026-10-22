@@ -6,7 +6,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
   const [events, apps, settings, members, icsUrl, matches, outbox] = await Promise.all([
     services.calendar.listEvents(),
     services.applications.list(),
-    services.billing.getNotificationSettings(),
+    services.account.getNotificationSettings(),
     services.org.listMembers(),
     services.calendar.icsUrl(),
     services.opportunities.listMatches(),

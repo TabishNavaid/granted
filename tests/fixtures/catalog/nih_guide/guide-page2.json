@@ -1,0 +1,185 @@
+{
+ "statusCode": 200,
+ "data": {
+  "took": 32,
+  "timed_out": false,
+  "_shards": {
+   "total": 1,
+   "successful": 1,
+   "skipped": 0,
+   "failed": 0
+  },
+  "hits": {
+   "total": 6,
+   "max_score": 0,
+   "hits": [
+    {
+     "_index": "nih-guidedocs",
+     "_id": "42654",
+     "_score": 0,
+     "_source": {
+      "rowid": "42654",
+      "type": "active",
+      "title": "Administrative Supplements to Existing NIH Grants and Cooperative Agreements (Parent Admin Supp Clinical Trial Optional)",
+      "docnum": "PA-26-001",
+      "organization": {
+       "parent": "NIH",
+       "primary": "NIH"
+      },
+      "parentIC": "NIH",
+      "primaryIC": "NIH",
+      "reldate": "2025-11-26T00:00:00.000Z",
+      "expdate": "2028-12-01T00:00:00.000Z",
+      "parentFOA": "Yes",
+      "doctype": "PA",
+      "ac": [
+       "Admin Supp"
+      ],
+      "filename": "PA-26-001.html",
+      "clinicaltrials": "Optional",
+      "sponsors": [
+       "NHLBI",
+       "NIA",
+       "NIDA",
+       "NIDCD",
+       "NIMHD",
+       "RM",
+       "NHGRI",
+       "NIAMS",
+       "NIBIB",
+       "NIEHS",
+       "NIGMS",
+       "NIMH",
+       "NINDS",
+       "NIAID",
+       "NCCIH",
+       "NCATS",
+       "NCI",
+       "NEI",
+       "NIAAA",
+       "NIDCR",
+       "NIDDK",
+       "OBSSR",
+       "FIC",
+       "NINR",
+       "NLM",
+       "OD",
+       "ECHO",
+       "ORWH",
+       "ORIP",
+       "ODP",
+       "ODS",
+       "NICHD"
+      ],
+      "noticeSubject": null,
+      "urgetFoaMother": null,
+      "opendate": "2025-12-01T00:00:00.000Z",
+      "appreceiptdate": null,
+      "lard": null,
+      "intentdate": null,
+      "fadirectcosts": null,
+      "purpose": "Current recipients of specific types of NIH research grants may apply for administrative supplements, using this Notice of Funding Opportunity (NOFO), to provide additional funding to a currently funded grant to meet increased costs that are within the scope of the peer-reviewed and approved project, but that were unforeseen when the new or competing renewal application was awarded.  Applications for administrative supplements are considered prior approval requests (as described in Section 8.1.2.11 of the NIH Grants Policy Statement) and will be routed directly to the Grants Management Officer of the parent award. There is no guarantee that funds are available from the awarding IC or for any specific grant. Therefore, prior to submission, applicants must discuss potential requests with the awarding ICO grants and program officials.",
+      "ggid": "360368",
+      "doctext": "Key Dates Posted Date November 26, 2025 Open Date Earliest Submission Date) December 01, 2025 Application Due Date(s) Due dates may vary by awarding IC. See Administrative Supplements on the NIH Grants & Funding site for IC-specific information including any special due dates. Applicants may also contact their respective awarding IC. Applicants are encouraged to apply early to allow adequate time to make any corrections to errors found in the application during the submission process by the due date. AIDS Application Due Date(s) Not Applicable Scientific Merit Review Not Applicable Advisory Council Review Not Applicable Earliest Start Date Earliest start dates vary by awarding IC. Expiration Date November 30, 2028 Due Dates for E.O. 12372 Not Applicable Required Application Instructions It is critic ... Eligible Organizations All organizations administering an eligible parent award may apply for a supplement under this NOFO.Higher Education Institutions - Includes all typesPublic/State Controlled Institutions of Higher EducationPrivate Institutions of Higher EducationNonprofits Other Than Institutions of Higher EducationNonprofits with 501(c)(3) IRS Status Other than Institutions of Higher Education)Nonprofits without 501(c)(3) IRS Status Other than Institutions of Higher Education)For-Profit OrganizationsSmall BusinessesFor-Profit Organizations Other than Small Businesses)Local GovernmentsState GovernmentsCounty GovernmentsCity or Township GovernmentsSpecial District GovernmentsIndian/Native American Tribal Governments Federally Recognized)Indian/Native American Tribal Governments Other than Federally Recognized) Federal Government Eligible Agencies of the Federal Government U.S. Territory or Possession Other Independent School Districts Public Housing Authorities/Indian Housing Authorities Native American Tribal Organizations other than Federally recognized tribal governments) Faith-based or Community-based Organizations Regional Organizations Non-domestic non-U.S.) Entities Organizations) This funding opportunity is for supplements to existing projects. To be eligible, the parent award must be active and the research proposed in the supplement must be accomplished within the competitive segment. The proposed supplement must be to provide for an increase in costs due to unforeseen circumstances. All additional costs must be within the scope of the peer reviewed and approved project. IMPORTANT: The research proposed by the NIH recipient in the supplement application must be within the original scope of the NIH-supported grant project. Foreign Organizations/International Collaborations Non-domestic non-U.S.) Entities Foreign Organizations) are eligible to apply. Non-domestic non-U.S.) components of U.S. Organizations are eligible to apply. Foreign components, as defined in the NIH Grants Policy Statement, are allowed. NIH will no longer issue awards i.e., new, renewal, or non-competing continuation) to domestic or foreign entities that involve foreign subawards/subcontracts. All NIH-funded research involving foreign subawards/subcontracts must be submitted in response to a NOFO that is specifically designated for funded international collaborations. This new requirement was effective, May 1, 2025.Applications involving foreign subawards/subcontracts submitted in response to this NOFO will be deemed noncompliant and will not be considered for funding. This policy applies to all monetary international collaborations resulting in foreign subawards/subcontracts, however, it does not preclude unfunded international collaborations or foreign components, funding for foreign consultants, or procurement of unique equipment or supplies from foreign vendors. Required Registrations Applicant Organiz"
+     },
+     "sort": [
+      1764115200000
+     ]
+    },
+    {
+     "_index": "nih-guidedocs",
+     "_id": "43157",
+     "_score": 0,
+     "_source": {
+      "rowid": "43157",
+      "type": "active",
+      "title": "NLM Institutional Grants for Research Training in Biomedical Informatics, Data Science, and AI (T15 Independent Clinical Trial Not Allowed)",
+      "docnum": "RFA-LM-28-001",
+      "organization": {
+       "parent": "NIH",
+       "primary": "NLM"
+      },
+      "parentIC": "NIH",
+      "primaryIC": "NLM",
+      "reldate": "2026-10-16T00:00:00.000Z",
+      "expdate": "2027-02-12T00:00:00.000Z",
+      "parentFOA": "No",
+      "doctype": "RFA",
+      "ac": [
+       "T15"
+      ],
+      "filename": null,
+      "clinicaltrials": "Not_Allowed",
+      "sponsors": [
+       "NEI",
+       "NIDA",
+       "NCI",
+       "NIAID",
+       "NIMH",
+       "ODSS",
+       "OBSSR",
+       "NIDCD",
+       "NIDCR",
+       "NINDS"
+      ],
+      "noticeSubject": null,
+      "urgetFoaMother": null,
+      "opendate": "2027-01-11T00:00:00.000Z",
+      "appreceiptdate": null,
+      "lard": null,
+      "intentdate": null,
+      "fadirectcosts": null,
+      "purpose": "<p>The National Library of Medicine (NLM) invites applications for innovative predoctoral and postdoctoral training programs that prepare the next generation of&nbsp;researchers&nbsp;in biomedical informatics, data science, and artificial intelligence/machine learning (AI/ML). NLM emphasizes&nbsp;cutting-edge, forward-looking training experiences that equip trainees to address complex health and biomedical challenges through advanced computational approaches. Applications may propose the creation of new training programs or the renewal of existing NLM-supported programs. These programs are designed to meet the growing demand for researchers with deep&nbsp;expertise&nbsp;in biomedical computing, data science, and AI/ML, with clear relevance to health and biomedical research. Recognizing the inherently interdisciplinary nature of these fields, NLM seeks programs that integrate methods&nbsp;and&nbsp;perspectives&nbsp;across disciplines to advance biomedical informatics, data science, and AI/ML.</p>",
+      "ggid": "361318",
+      "doctext": "Key Dates Posted Date October 16, 2026 Open Date Earliest Submission Date) January 11, 2027 Application Due Dates Review and Award Cycles New Renewal / Resubmission / Revision as allowed) AIDS - New/Renewal/Resubmission/Revision, as allowed Scientific Merit Review Advisory Council Review Earliest Start Date February 11, 2027 February 11, 2027 Not Applicable July 2027 October 2027 December 2027 All applications are due by 5:00 PM local time of applicant organization. Applicants are encouraged to apply early to allow adequate time to make any corrections to errors found in the application during the submission process by the due date. No late applications will be accepted for this Notice of Funding Opportunity NOFO). Expiration Date February 12, 2027 Due Dates for E.O. 12372 Not Applicable Required Application Instructions It is critic ... Eligible Organizations Higher Education Institutions - Includes all typesPublic/State Controlled Institutions of Higher EducationPrivate Institutions of Higher EducationNonprofits Other Than Institutions of Higher EducationNonprofits with 501(c)(3) IRS Status Other than Institutions of Higher Education)Nonprofits without 501(c)(3) IRS Status Other than Institutions of Higher Education)Local GovernmentsIndian/Native American Tribal Governments Federally Recognized)Indian/Native American Tribal Governments Other than Federally Recognized)U.S. Territory or PossessionOtherNative American Tribal Organizations other than Federally recognized tribal governments)Faith-based or Community-based Organizations Federal Governments Eligible Agencies of the Federal Government U.S. Territory or Possession The sponsoring institution must assure support for the proposed program. Appropriate institutional commitment to the program includes the provision of adequate staff, facilities, and educational resources that can contribute to the planned program. The applicant institution must have a strong and high-quality research program in the area(s) proposed under this NOFO and must have the requisite faculty, staff, potential trainees and facilities on site to conduct the proposed institutional program. In many cases, it is anticipated that the proposed program will complement other ongoing research training programs occurring at the applicant institution and that a substantial number of program faculty will have active research projects in which participating trainees may gain relevant experience consistent with their research interests and goals. Foreign Organizations/International Collaborations Non-domestic non-U.S.) Entities Foreign Institutions) are not eligible to apply. Non-domestic non-U.S.) components of U.S. Organizations are not eligible to apply. Required Registrations Applicant Organiz"
+     },
+     "sort": [
+      1792108800000
+     ]
+    },
+    {
+     "_index": "nih-guidedocs",
+     "_id": "42864",
+     "_score": 0,
+     "_source": {
+      "rowid": "42864",
+      "type": "active",
+      "title": "Maximizing Investigators&rsquo; Research Award (MIRA) for Early Stage Investigators (ESI)",
+      "docnum": "PAR-27-032",
+      "organization": {
+       "parent": "NIH",
+       "primary": "NIGMS"
+      },
+      "parentIC": "NIH",
+      "primaryIC": "NIGMS",
+      "reldate": "2026-05-12T00:00:00.000Z",
+      "expdate": "2029-02-07T00:00:00.000Z",
+      "parentFOA": "No",
+      "doctype": "PAR",
+      "ac": [
+       "R35"
+      ],
+      "filename": null,
+      "clinicaltrials": "Optional",
+      "sponsors": [
+       "none"
+      ],
+      "noticeSubject": null,
+      "urgetFoaMother": null,
+      "opendate": "2026-09-02T00:00:00.000Z",
+      "appreceiptdate": null,
+      "lard": null,
+      "intentdate": null,
+      "fadirectcosts": null,
+      "purpose": "The Maximizing Investigators' Research Award (MIRA) for Early Stage Investigators (ESIs) provides support for ESIs with a program of research that aligns with the NIGMS mission.MIRA distributes funding among promising investigators across the country. The goal is to boost scientific productivity and the chances for important breakthroughs.Through this program, investigators can:Receive independent research funding early to start and sustain strong research careers.Explore new, unique research areas in the NIGMS mission.Take on ambitious, creative projects.Shift focus to include emerging techniques and technologies as needed.Devote more time to mentoring trainees in a stable research environment.",
+      "ggid": "360593",
+      "doctext": "%PDF-1.7 %???? 2567 0 obj endobj 2587 0 obj Filter/FlateDecode/ID[]/Index[2567 192]/Info 2566 0 R/Length 121/Prev 345886/Root 2568 0 R/Size 2759/Type/XRef/W[1 3 1]>>stream h?bbd```b``? \"?H?8??\"=|@$?i;???<1 ??Dr???e ?????V?L??d???? ?'?0012pM???????MX?(9J?J2? ?#?3??u ? 9 endstream endobj startxref 0 %%EOF 2758 0 obj stream h?b```b``if`a``?? ? ?@1V x((?(???????@???@?CQBz???p??0?tV8? ?@?Ft?j?^???? L5?lcKb????h??????C??[K}?M??? BD??)??2X5r6?>``?S??:?V?cssw()i?( QP?*&%[??( e??H1\u00d51%??%??HJ?u?U?a<??h?\\'???h?v?? H(4? ?,.P??-?a R??SX"
+     },
+     "sort": [
+      1778544000000
+     ]
+    }
+   ]
+  }
+ }
+}

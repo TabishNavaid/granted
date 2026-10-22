@@ -1,56 +1,51 @@
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------
-   Plain, grown-up product UI: white pages, one deep ink close to black,
-   quiet gray rules, generous space. A few watercolor wildflowers frame
-   the edges of the landing page and the Funded screen; nothing inside
-   the product is drawn. The landing page adds a meadow green, one ink
-   band, and soft panels from the paintings. No gradients.
+   Public Record: a well-kept register. White pages, a green-black ink,
+   hairline rules as structure, record numbers in monospace. One accent,
+   fellow green, for moving forward and for "a person approved this".
+   A highlighter yellow only behind evidence: cited text and source lines.
+   No gradients, no drawings. See BRAND.md (private) for the reasoning.
    ------------------------------------------------------------------ */
 
 :root {
   color-scheme: light;
 
   --paper: #ffffff;
-  --paper-tint: #f6f7f9;
-  --paper-hover: #eeeff3;
+  /* Sunken fields, table headers, the current nav item: a cool gray with a trace of green, not cream. */
+  --paper-tint: #f4f5f2;
+  --paper-hover: #eaece8;
 
-  /* Ink: near black with a hint of blue. 15.4:1 on white. */
-  --ink: #1c2340;
-  /* 6.6:1 on white, 6.2:1 on paper tint. */
-  --ink-muted: #565c73;
-  --ink-deep: #11162b;
+  /* Ink: green-black. 16.5:1 on white. */
+  --ink: #14201b;
+  /* 6.6:1 on white, 6.1:1 on paper tint. */
+  --ink-muted: #52605a;
+  --ink-deep: #0b1410;
 
-  --rule: #e6e7ec;
-  /* Control borders: 3.4:1 on white. */
-  --rule-strong: #868b9c;
+  --rule: #dfe3de;
+  /* Control borders: 3.1:1 on white. */
+  --rule-strong: #86918b;
 
-  /*
-   * The second color: a deep meadow green from the leaves in Walcott's
-   * plates. 7.8:1 on white, so it can carry text. Used sparingly on the
-   * landing page for the one thing in a section that matters most, and as
-   * the ground of one full-bleed section. Never in the app.
-   */
-  --meadow: #2f5b45;
-  --meadow-light: #a9c9ae;
-  /* Soft panels under product screenshots, taken from the paintings. */
-  --panel-sage: #e8eee7;
-  --panel-cream: #f4efe6;
-  --panel-mist: #e9ecf4;
-  /* Type on the ink band: 13.7:1 and 8.2:1. */
-  --on-ink: #f4f1ea;
-  --on-ink-muted: #b8bdcf;
+  /* The one accent. 7.6:1 on white, so it carries text and links. */
+  --fellow: #1e5b43;
+  --fellow-deep: #154532;
+  --fellow-tint: #e6f0ea;
+  /* Evidence: a highlighter behind cited text and source excerpts. Never a fill for anything else. */
+  --evidence: #fff1b8;
+  /* Type on the ink band: 15.9:1 and 8.4:1. */
+  --on-ink: #f3f5f2;
+  --on-ink-muted: #b7c2bc;
 
   /* The only warning color. 6.6:1 on white. */
   --alert: #b42318;
-  /* Focus ring. 7.1:1 on white. */
-  --focus: #2f4bc7;
+  /* Focus ring. 6.7:1 on white. */
+  --focus: #1d4ed8;
 
   --primary: var(--ink);
   --primary-hover: var(--ink-deep);
   --primary-fg: #ffffff;
 
-  --lift: 0 1px 2px rgb(28 35 64 / 0.06), 0 12px 32px -16px rgb(28 35 64 / 0.22);
+  --lift: 0 1px 2px rgb(20 32 27 / 0.06), 0 12px 32px -16px rgb(20 32 27 / 0.22);
 }
 
 @theme inline {
@@ -69,11 +64,10 @@
   --color-rule: var(--rule);
   --color-rule-strong: var(--rule-strong);
   --color-alert: var(--alert);
-  --color-meadow: var(--meadow);
-  --color-meadow-light: var(--meadow-light);
-  --color-panel-sage: var(--panel-sage);
-  --color-panel-cream: var(--panel-cream);
-  --color-panel-mist: var(--panel-mist);
+  --color-fellow: var(--fellow);
+  --color-fellow-deep: var(--fellow-deep);
+  --color-fellow-tint: var(--fellow-tint);
+  --color-evidence: var(--evidence);
   --color-on-ink: var(--on-ink);
   --color-on-ink-muted: var(--on-ink-muted);
   --color-focus: var(--focus);
@@ -81,9 +75,10 @@
   --color-primary-hover: var(--primary-hover);
   --color-primary-fg: var(--primary-fg);
 
-  --font-display: var(--font-newsreader), "Iowan Old Style", Georgia, serif;
-  --font-body: var(--font-atkinson), "Helvetica Neue", Arial, sans-serif;
-  --font-sans: var(--font-atkinson), "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-public), "Helvetica Neue", Arial, sans-serif;
+  --font-body: var(--font-public), "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-public), "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
 
   --text-*: initial;
   --text-xs: 0.8125rem;
@@ -106,8 +101,11 @@
   --text-5xl--line-height: 3.95rem;
   --text-6xl: 4.75rem;
   --text-6xl--line-height: 4.85rem;
-  --text-h1: clamp(2.25rem, 1.7rem + 2.2vw, 3.25rem);
+  --text-h1: clamp(2rem, 1.6rem + 1.6vw, 2.9rem);
   --text-h1--line-height: 1.08;
+  /* Page titles inside the app: calmer than the marketing site. */
+  --text-title: clamp(1.75rem, 1.5rem + 0.8vw, 2.25rem);
+  --text-title--line-height: 1.15;
   --text-display: clamp(2.9rem, 1.4rem + 5.6vw, 6rem);
   --text-display--line-height: 1;
 
@@ -123,33 +121,18 @@
   --ease-grow: cubic-bezier(0.25, 0.9, 0.3, 1);
   --ease-pop: cubic-bezier(0.34, 1.4, 0.64, 1);
 
-  --animate-stem: stem-grow 0.55s var(--ease-grow) var(--bloom-delay, 0ms) both;
-  --animate-head: head-open 0.5s var(--ease-pop) calc(var(--bloom-delay, 0ms) + 0.4s) both;
-  --animate-rise: rise 0.9s var(--ease-grow) var(--bloom-delay, 0ms) both;
+  --animate-draw: draw 0.5s var(--ease-grow) both;
+  --animate-draw-late: draw 0.35s var(--ease-grow) 0.3s both;
   --animate-leave: leave 0.42s ease-in both;
   --animate-sheet-in: sheet-in 0.16s ease-out both;
   --animate-fade-in: fade-in 0.2s ease-out both;
 }
 
-/* ---------- The one orchestrated moment: a small flower blooms on what you approved ---------- */
-
-/* The stem rises out of the line it stands on... */
-@keyframes stem-grow {
-  from { clip-path: inset(100% 0 0 0); }
-  to { clip-path: inset(var(--head, 0%) 0 0 0); }
+/* ---------- The one orchestrated moment: a check draws itself beside what a person approved ---------- */
+@keyframes draw {
+  from { stroke-dashoffset: 63; }
+  to { stroke-dashoffset: 0; }
 }
-/* ...then the flowers open at the top of it. */
-@keyframes head-open {
-  0% { opacity: 0; transform: scale(0.3); }
-  70% { opacity: 1; transform: scale(1.06); }
-  100% { opacity: 1; transform: scale(1); }
-}
-/* A whole plant coming up from the bottom edge (the Funded meadow). */
-@keyframes rise {
-  from { clip-path: inset(100% 0 0 0); opacity: 0.4; }
-  to { clip-path: inset(0 0 0 0); opacity: 1; }
-}
-/* A bloom that is only there for a moment. */
 @keyframes fleeting {
   0%, 75% { opacity: 1; }
   100% { opacity: 0; }
@@ -184,19 +167,21 @@
     line-height: 1.6;
   }
   ::selection {
-    background: #dfe4f7;
+    background: var(--evidence);
     color: var(--ink-deep);
   }
   h1, h2, h3, .font-display {
     font-family: var(--font-display);
-    font-weight: 500;
-    font-optical-sizing: auto;
-    letter-spacing: -0.018em;
+    font-weight: 600;
+    letter-spacing: -0.022em;
     line-height: 1.12;
   }
   h1 {
-    letter-spacing: -0.025em;
+    letter-spacing: -0.03em;
     text-wrap: balance;
+  }
+  code, kbd, .font-mono {
+    font-family: var(--font-mono);
   }
   :focus-visible {
     outline: 3px solid var(--focus);
@@ -321,13 +306,13 @@
     vertical-align: baseline;
     margin: 0 0.15em;
     padding: 0 0.45em;
-    border: 1px solid var(--rule);
+    border: 1px solid #e9d98a;
     border-radius: var(--radius-sm);
-    background: var(--paper-tint);
+    background: var(--evidence);
     color: var(--ink);
-    font-family: var(--font-body);
-    font-size: 0.72em;
-    font-weight: 600;
+    font-family: var(--font-mono);
+    font-size: 0.7em;
+    font-weight: 500;
     line-height: 1.5;
     cursor: pointer;
     user-select: none;

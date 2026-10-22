@@ -3,7 +3,9 @@ import type { Page } from "@playwright/test";
 /** Every route the product serves, with a demo id where one is needed. */
 export const ALL_ROUTES = [
   "/",
-  "/pricing",
+  "/free",
+  "/data",
+  "/faq",
   "/about",
   "/security",
   "/privacy",
@@ -45,7 +47,7 @@ export const ALL_ROUTES = [
   "/activity",
   "/settings",
   "/settings?tab=team",
-  "/settings?tab=billing",
+  "/settings?tab=usage",
   "/settings/integrations",
   "/connections",
   "/social",

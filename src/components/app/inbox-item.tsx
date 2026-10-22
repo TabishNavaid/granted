@@ -12,8 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import { Input, Textarea } from "@/components/ui/input";
 import { Label, Field } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Bloom } from "@/components/drawings/bloom";
-import { flowerFor } from "@/lib/drawings";
+import { ApprovedMark } from "@/components/brand/approved-mark";
 import { FitScore } from "./fit-score";
 import { MilestoneBadge } from "./badges";
 import { CitationChip } from "./citation-chip";
@@ -94,7 +93,7 @@ export function InboxItemCard({ item, ctx, leaving, onApprove, onReject, fileAwa
         </span>
       </div>
 
-      <h3 id={headingId} className="mt-2 max-w-[30ch] font-display text-2xl leading-tight text-ink sm:text-[1.75rem]">
+      <h3 id={headingId} className="mt-2 max-w-[34ch] font-display text-xl leading-tight text-ink sm:text-[1.375rem]">
         {item.title}
       </h3>
       <p className="mt-2 max-w-[65ch] text-base text-ink-muted">{item.summary}</p>
@@ -130,7 +129,7 @@ export function InboxItemCard({ item, ctx, leaving, onApprove, onReject, fileAwa
         </div>
       ) : (
         <div className="mt-5 flex min-h-10 flex-wrap items-end gap-x-3 text-sm text-ink-muted">
-          {leaving === "seal" ? <Bloom flower={flowerFor(item.id)} grow className="-mb-1 h-12" /> : null}
+          {leaving === "seal" ? <ApprovedMark grow className="-mb-1 h-7 w-7" /> : null}
           <span className="font-semibold text-ink">{approved ? (item.status === "edited" ? "Approved with edits" : doneWord[item.type]) : "Declined"}</span>
           <span>{leaving === "seal" ? "Just now" : item.resolvedAt ? formatDate(item.resolvedAt, "EEEE, MMMM d") : null}</span>
         </div>
@@ -458,7 +457,7 @@ export function CompactInboxRow({ item, ctx, leaving, onApprove, onReject, defau
         )
       ) : leaving === "seal" ? (
         <span className="flex items-end gap-1.5 text-sm font-semibold text-ink">
-          <Bloom flower={flowerFor(item.id)} grow className="-mb-0.5 h-10" />
+          <ApprovedMark grow className="-mb-0.5 h-7 w-7" />
           {doneWord[item.type]}
         </span>
       ) : leaving ? null : (

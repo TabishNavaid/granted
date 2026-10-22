@@ -1,0 +1,74 @@
+[
+ {
+  "contractnumber": "AGR-FS202702R",
+  "contracttitle": "Commercial Timber Sale Redden State Forest Ellendale Stand 24",
+  "opendate": "2026-09-30T00:00:00.000",
+  "deadlinedate": "2026-10-21T00:00:00.000",
+  "agencycode": "AGR",
+  "unspsc": "1112",
+  "bidurl": {
+   "url": "https://mmp.delaware.gov/Bids/Details/9343"
+  },
+  "count": "1"
+ },
+ {
+  "contractnumber": "AGR-FS202703R",
+  "contracttitle": "Commercial Timber Sale Redden State Forest Chesapeake Stand 27",
+  "opendate": "2026-10-14T00:00:00.000",
+  "deadlinedate": "2026-11-04T00:00:00.000",
+  "agencycode": "AGR",
+  "unspsc": "1112",
+  "bidurl": {
+   "url": "https://mmp.delaware.gov/Bids/Details/9365"
+  },
+  "count": "1"
+ },
+ {
+  "contractnumber": "ARNG2318-BIDENMICROGRID",
+  "contracttitle": "Biden Microgrid",
+  "opendate": "2026-09-22T00:00:00.000",
+  "deadlinedate": "2026-11-10T00:00:00.000",
+  "agencycode": "ARNG",
+  "unspsc": "2611;3912;4323;7215",
+  "bidurl": {
+   "url": "https://mmp.delaware.gov/Bids/Details/9327"
+  },
+  "count": "1"
+ },
+ {
+  "contractnumber": "BSD270002-CMSERVICES",
+  "contracttitle": "CM Services for New Bush Early Education Center",
+  "opendate": "2026-10-15T00:00:00.000",
+  "deadlinedate": "2026-11-04T00:00:00.000",
+  "agencycode": "BSD",
+  "unspsc": "7212",
+  "bidurl": {
+   "url": "https://mmp.delaware.gov/Bids/Details/9376"
+  },
+  "count": "1"
+ },
+ {
+  "contractnumber": "CHR26008A-HOMEBOUND",
+  "contracttitle": "Homebound Supportive Instruction Services",
+  "opendate": "2026-09-23T00:00:00.000",
+  "deadlinedate": "2026-11-04T00:00:00.000",
+  "agencycode": "CHR",
+  "unspsc": "8614",
+  "bidurl": {
+   "url": "https://mmp.delaware.gov/Bids/Details/9337"
+  },
+  "count": "1"
+ },
+ {
+  "contractnumber": "COL26011-WPHSBIDB",
+  "contracttitle": "William Penn High Bid Pack B",
+  "opendate": "2026-10-16T00:00:00.000",
+  "deadlinedate": "2026-11-12T00:00:00.000",
+  "agencycode": "COL",
+  "unspsc": "7212",
+  "bidurl": {
+   "url": "https://mmp.delaware.gov/Bids/Details/9369"
+  },
+  "count": "1"
+ }
+]

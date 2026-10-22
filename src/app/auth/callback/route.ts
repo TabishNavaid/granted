@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const r = await supabase.auth.exchangeCodeForSession(code);
     error = r.error?.message ?? null;
   } else if (tokenHash && type) {
-    const r = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: type as "magiclink" | "email" | "signup" });
+    const r = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: type as "magiclink" | "email" | "signup" | "invite" });
     error = r.error?.message ?? null;
   } else {
     error = "The link is missing its code.";

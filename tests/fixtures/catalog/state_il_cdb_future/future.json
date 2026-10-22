@@ -1,0 +1,47 @@
+[
+ {
+  "project_number": "040-010-134",
+  "description": "Replace Fire Alarm System",
+  "location_name": "Illinois Veterans' Home at Quincy - Adams County - Adams",
+  "approximate_cost": "Less than $6,000,000",
+  "estimated_bid_date": "2027-01-12T00:00:00.000",
+  "project_manager": "Chris MacGibbon",
+  "architect_engineer": "Introba Inc."
+ },
+ {
+  "project_number": "102-000-065",
+  "description": "Replace Roofing Systems Illinois Beach State Park and Chain O' Lakes",
+  "location_name": "Statewide Program - Statewide",
+  "approximate_cost": "Less than $800,000",
+  "estimated_bid_date": "2026-12-15T00:00:00.000",
+  "project_manager": "Andrea Hunt",
+  "architect_engineer": "GSG Material Testing, Inc., dba The HOH Group, Inc."
+ },
+ {
+  "project_number": "102-507-006",
+  "description": "Demolish Buildings and Removal of Pool House and Foundation",
+  "location_name": "Iroquois County State Wildlife Area - Beaverville, Iroquois County - Iroquois",
+  "approximate_cost": "Less than $900,000",
+  "estimated_bid_date": "2026-10-27T00:00:00.000",
+  "project_manager": "Dan Troglio",
+  "architect_engineer": "Globetrotters Engineering Corporation"
+ },
+ {
+  "project_number": "102-737-012",
+  "description": "Renovate Campground Electrical",
+  "location_name": "Lake Murphysboro State Park - Murphysboro, Jackson County - Jackson",
+  "approximate_cost": "Less than $3,500,000",
+  "estimated_bid_date": "2027-01-19T00:00:00.000",
+  "project_manager": "Scott Satterlee",
+  "architect_engineer": "Klingner & Associates, P.C."
+ },
+ {
+  "project_number": "104-010-011",
+  "description": "Renovation and Restoration of the Colony Church and Other Associated Structures",
+  "location_name": "Bishop Hill Historic Site - Henry County - Henry",
+  "approximate_cost": "Less than $15,000,000",
+  "estimated_bid_date": "2027-06-22T00:00:00.000",
+  "project_manager": "Chris MacGibbon",
+  "architect_engineer": "Johnson Lasky Kindelin Architects, Inc."
+ }
+]

@@ -47,7 +47,7 @@ export function CapabilityPage({ capability: c }: { capability: Capability }) {
           <ol className="border-t border-rule">
             {c.steps.map((s, i) => (
               <li key={s.title} className="grid grid-cols-[2.75rem_1fr] gap-x-4 border-b border-rule py-7 sm:grid-cols-[3.5rem_1fr]">
-                <span className="font-display text-4xl leading-none text-meadow tnum" aria-hidden>
+                <span className="font-display text-4xl leading-none text-fellow tnum" aria-hidden>
                   {i + 1}
                 </span>
                 <div>

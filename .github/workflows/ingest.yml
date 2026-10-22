@@ -1,0 +1,77 @@
+# The opportunity database: scheduled ingestion from every source, outside Vercel (see docs/jobs.md).
+# Each source runs in the slot its own schedule implies (src/lib/catalog/schedule.ts). Runs are logged in
+# catalog_ingest_runs and shown at /admin/ingestion. Nothing runs until SUPABASE_DB_URL is set as a secret.
+name: Opportunity database
+
+on:
+  schedule:
+    - cron: "25 * * * *" # hourly: SAM.gov contract opportunities
+    - cron: "15 9 * * *" # daily: Grants.gov, NIH, NSF, SBIR, state and local bids, international, foundations
+    - cron: "40 6 * * 0" # weekly: award totals, assistance listings, Federal Register, scholarships
+    - cron: "0 5 1 * *" # monthly: the IRS exempt organization registry
+  workflow_dispatch:
+    inputs:
+      sources:
+        description: "Source ids separated by spaces, or all"
+        default: "all"
+      mode:
+        description: "backfill reads everything; incremental reads what changed"
+        type: choice
+        options: [incremental, backfill]
+        default: incremental
+
+concurrency:
+  group: ingest-${{ github.event.schedule || 'manual' }}
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    env:
+      DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}
+      SAM_GOV_API_KEY: ${{ secrets.SAM_GOV_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      # Optional tuning, set as repository variables (Settings > Secrets and variables > Actions > Variables).
+      IRS_990PF_MIN_GIVING: ${{ vars.IRS_990PF_MIN_GIVING }}
+      CATALOG_EMBED_MAX: ${{ vars.CATALOG_EMBED_MAX }}
+      GEMINI_EMBEDDING_MODEL: ${{ vars.GEMINI_EMBEDDING_MODEL }}
+      SOCRATA_APP_TOKEN: ${{ secrets.SOCRATA_APP_TOKEN }}
+      INGEST_CACHE_DIR: ${{ github.workspace }}/.ingest-cache
+    steps:
+      - name: Wait for the database
+        if: env.DATABASE_URL == ''
+        run: echo "SUPABASE_DB_URL is not set yet, so there is nothing to load. See LAUNCH.md."
+      - uses: actions/checkout@v4
+        if: env.DATABASE_URL != ''
+      - uses: actions/setup-node@v4
+        if: env.DATABASE_URL != ''
+        with:
+          node-version: 22
+          cache: npm
+      - name: Cache large downloads between runs
+        if: env.DATABASE_URL != ''
+        uses: actions/cache@v4
+        with:
+          path: .ingest-cache
+          key: ingest-${{ github.run_id }}
+          restore-keys: ingest-
+      - run: npm ci --no-audit --no-fund
+        if: env.DATABASE_URL != ''
+      - name: Run the sources that are due
+        if: env.DATABASE_URL != ''
+        env:
+          SCHEDULE: ${{ github.event.schedule }}
+          SOURCES: ${{ inputs.sources }}
+          MODE: ${{ inputs.mode }}
+        run: |
+          case "$SCHEDULE" in
+            "25 * * * *") args="--due hourly" ;;
+            "15 9 * * *") args="--due daily" ;;
+            "40 6 * * 0") args="--due weekly" ;;
+            "0 5 1 * *") args="--due monthly" ;;
+            *) args="$SOURCES --mode $MODE --trigger manual" ;;
+          esac
+          npx tsx --tsconfig tsconfig.json scripts/ingest.ts $args

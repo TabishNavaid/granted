@@ -2,7 +2,8 @@
 
 import { cookies } from "next/headers";
 import { isDemoMode } from "@/lib/env";
-import { mockServices, registerIntegrationsServer } from "./mock";
+import { mockServices } from "./mock";
+import "./server-init";
 import { DEMO_COOKIE, runInSession } from "./demo-session";
 import type { Services } from "./contracts";
 
@@ -16,7 +17,6 @@ type Domain = keyof Services;
  */
 let real: Services | null = null;
 
-registerIntegrationsServer(() => import("./mock-integrations-server"));
 
 async function current(): Promise<Services> {
   if (isDemoMode()) return mockServices;

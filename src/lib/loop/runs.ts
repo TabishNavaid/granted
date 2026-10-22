@@ -1,6 +1,8 @@
 import type { AgentName, AgentRun, SourceUsed, ToolCall } from "@/lib/types";
 import type { TokenUsage } from "@/lib/ai";
 import type { LoopStore } from "./store";
+import { hasAi } from "@/lib/env";
+import { UsageLimitError, canRun, type UsageKind } from "@/lib/usage/limits";
 
 /**
  * Every agent call lands in agent_runs: what it read, which tools it called,
@@ -54,9 +56,15 @@ export class Recorder {
 
 export async function recordRun<T>(
   store: LoopStore,
-  meta: { agent: AgentName; title: string; trigger: AgentRun["trigger"] },
+  meta: { agent: AgentName; title: string; trigger: AgentRun["trigger"]; usage?: UsageKind },
   fn: (rec: Recorder) => Promise<{ output: T; summary: string }>,
 ): Promise<{ output: T; run: AgentRun }> {
+  const usageKind: UsageKind = meta.usage ?? "assist";
+  // The monthly allowance protects model costs, so it applies only when a real model is called.
+  if (hasAi() && store.usageThisMonth) {
+    const used = await store.usageThisMonth();
+    if (!canRun(usageKind, used[usageKind])) throw new UsageLimitError(usageKind);
+  }
   const rec = new Recorder();
   const run = await store.createRun({
     orgId: store.orgId,
@@ -73,6 +81,7 @@ export async function recordRun<T>(
     startedAt: new Date().toISOString(),
     finishedAt: null,
     inboxItemId: null,
+    usageKind,
   });
   const finish = async (patch: Partial<AgentRun>) => {
     const full: Partial<AgentRun> = {

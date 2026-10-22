@@ -11,15 +11,16 @@ import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/product", label: "Product" },
-  { href: "/how-it-works", label: "How it works" },
   { href: "/who-its-for", label: "Who it's for" },
-  { href: "/pricing", label: "Pricing" },
+  { href: "/data", label: "The data" },
+  { href: "/how-it-works", label: "How it works" },
+  { href: "/free", label: "Free" },
 ];
 
 /** The audience pages, listed under "Who it's for" in the nav and the footer. */
 const audienceLinks = [
+  { href: "/for/architecture-and-construction", label: "Architecture, engineering, and construction" },
   { href: "/for/nonprofits", label: "Nonprofits" },
-  { href: "/for/architecture-and-construction", label: "Architecture and construction" },
   { href: "/for/research", label: "Research teams" },
   { href: "/for/students", label: "Students" },
 ];
@@ -62,7 +63,7 @@ function AudienceMenu({ pathname }: { pathname: string }) {
       <button
         ref={button}
         type="button"
-        className="inline-flex size-8 items-center justify-center rounded-sm text-ink hover:bg-panel-sage"
+        className="inline-flex size-8 items-center justify-center rounded-sm text-ink hover:bg-paper-tint"
         aria-expanded={open}
         aria-controls="audience-menu"
         aria-label="Pages for each audience"
@@ -75,13 +76,13 @@ function AudienceMenu({ pathname }: { pathname: string }) {
           <ul className="flex flex-col">
             {audienceLinks.map((l) => (
               <li key={l.href}>
-                <Link href={l.href} onClick={() => setOpen(false)} aria-current={pathname === l.href ? "page" : undefined} className={cn("block rounded-sm px-3 py-2 underline-offset-4 hover:bg-panel-sage hover:underline", pathname === l.href && "font-semibold")}>
+                <Link href={l.href} onClick={() => setOpen(false)} aria-current={pathname === l.href ? "page" : undefined} className={cn("block rounded-sm px-3 py-2 underline-offset-4 hover:bg-paper-tint hover:underline", pathname === l.href && "font-semibold")}>
                   {l.label}
                 </Link>
               </li>
             ))}
             <li className="mt-1 border-t border-rule pt-1">
-              <Link href="/who-its-for" onClick={() => setOpen(false)} className="block rounded-sm px-3 py-2 text-ink-muted underline-offset-4 hover:bg-panel-sage hover:text-ink hover:underline">
+              <Link href="/who-its-for" onClick={() => setOpen(false)} className="block rounded-sm px-3 py-2 text-ink-muted underline-offset-4 hover:bg-paper-tint hover:text-ink hover:underline">
                 All of them, with what is limited today
               </Link>
             </li>
@@ -116,7 +117,7 @@ export function SiteNav() {
             Sign in
           </Link>
           <Button asChild>
-            <Link href="/sign-up">Start free</Link>
+            <Link href="/sign-up">Create a free workspace</Link>
           </Button>
         </div>
         <button type="button" className="inline-flex size-10 items-center justify-center text-ink lg:hidden" aria-expanded={open} aria-controls="site-menu" aria-label={open ? "Close menu" : "Open menu"} onClick={() => setOpen((o) => !o)}>
@@ -152,7 +153,7 @@ export function SiteNav() {
             <li className="pt-2">
               <Button asChild className="w-full">
                 <Link href="/sign-up" onClick={close}>
-                  Start free
+                  Create a free workspace
                 </Link>
               </Button>
             </li>
@@ -181,12 +182,13 @@ const footerGroups = [
     title: "Learn",
     links: [
       { href: "/how-it-works", label: "How it works" },
-      { href: "/pricing", label: "Pricing" },
+      { href: "/free", label: "Free while we learn" },
+      { href: "/data", label: "Where the data comes from" },
       { href: "/roadmap", label: "Roadmap" },
       { href: "/onboarding", label: "Try the demo" },
     ],
   },
-  { title: "Company", links: [{ href: "/about", label: "About" }, { href: "/security", label: "Security" }, { href: "/contact", label: "Contact" }] },
+  { title: "Company", links: [{ href: "/about", label: "About" }, { href: "/faq", label: "Questions" }, { href: "/security", label: "Security" }, { href: "/contact", label: "Contact" }] },
   { title: "Legal", links: [{ href: "/privacy", label: "Privacy" }, { href: "/terms", label: "Terms" }] },
 ];
 
@@ -196,7 +198,7 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-[75rem] gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1fr_auto] lg:px-10">
         <div>
           <Logo size="sm" />
-          <p className="mt-4 max-w-[40ch] text-base text-ink-muted">{PRODUCT_TAGLINE}</p>
+          <p className="mt-4 max-w-[26ch] text-base text-ink-muted">{PRODUCT_TAGLINE}</p>
         </div>
         <nav aria-label="Footer" className="grid grid-cols-2 gap-x-8 gap-y-8 text-base text-ink sm:grid-cols-3 sm:gap-x-10 xl:grid-cols-5">
           {footerGroups.map((g) => (
@@ -217,7 +219,7 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-rule">
         <p className="mx-auto max-w-[75rem] px-4 py-5 text-sm text-ink-muted sm:px-6 lg:px-10">
-          {PRODUCT_NAME} drafts. You decide. Nothing is sent or submitted without you.
+          {PRODUCT_NAME} drafts. You decide. Nothing is sent or submitted without you. Every opportunity links to its official source.
         </p>
       </div>
     </footer>

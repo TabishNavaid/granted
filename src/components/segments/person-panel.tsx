@@ -33,14 +33,14 @@ export function PersonProfilePanel({ profile, readOnly }: { profile: PersonProfi
     <div className="grid gap-10 lg:grid-cols-[1fr_20rem] [&>*]:min-w-0">
       <section>
         <h2 className="font-display text-3xl text-ink">{p.fullName}</h2>
-        <p className="text-base text-ink-muted">{[p.school, p.hometown && p.state ? `${p.hometown}, ${p.state}` : p.state, p.gpa ? `GPA ${p.gpa}` : null].filter(Boolean).join(" · ")}</p>
+        <p className="text-base text-ink-muted">{[p.school, p.hometown && p.state ? `${p.hometown}, ${p.state}` : p.state, p.gpa ? `GPA ${p.gpa}` : null].filter(Boolean).join(", ")}</p>
         <h3 className="mt-6 font-semibold text-ink">Experiences</h3>
         <ul className="mt-2 border-t border-rule">
           {p.experiences.map((e, i) => (
             <li key={e.id} className="border-b border-rule py-3">
               <p className="font-semibold text-ink">
                 {e.title}
-                {e.organization ? `, ${e.organization}` : ""} <span className="font-normal text-ink-muted">· {e.years}</span>
+                {e.organization ? `, ${e.organization}` : ""} <span className="font-normal text-ink-muted">, {e.years}</span>
               </p>
               {readOnly ? (
                 <p className="text-base text-ink">{e.detail}</p>

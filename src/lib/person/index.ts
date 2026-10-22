@@ -1,4 +1,5 @@
 import { AiError, aiErrorMessage, getAi, type JsonSchema } from "@/lib/ai";
+import { UsageLimitError } from "@/lib/usage/limits";
 import { hasAi } from "@/lib/env";
 import { replayActive } from "@/lib/replay/active";
 import { recordRun } from "@/lib/loop/runs";
@@ -139,7 +140,7 @@ export async function readResume(store: BidStore, b: SegmentBackend, input: { te
     });
     return { ok: true, data: output };
   } catch (err) {
-    return { ok: false, code: "failed", error: err instanceof AiError ? aiErrorMessage(err).message : "Something went wrong reading the résumé. Try again." };
+    return { ok: false, code: "failed", error: err instanceof UsageLimitError ? err.message : err instanceof AiError ? aiErrorMessage(err).message : "Something went wrong reading the résumé. Try again." };
   }
 }
 
@@ -164,7 +165,7 @@ export async function draftEssay(store: BidStore, b: SegmentBackend, application
       return { ok: false, code: "not_found", error: "Set up your profile first, from your résumé." };
     }
     const facts = personFacts(profile);
-    const { output } = await recordRun(store, { agent: "proposal", title: `Draft an essay for ${ctx.opportunity.title}`, trigger: "user" }, async (rec) => {
+    const { output } = await recordRun(store, { agent: "proposal", title: `Draft an essay for ${ctx.opportunity.title}`, trigger: "user", usage: "draft" }, async (rec) => {
       if (jobId) advanceJob(jobId, `${profile.experiences.length} experiences`);
       let text = "";
       let gaps: LetterGap[] = [];
@@ -230,6 +231,6 @@ export async function draftEssay(store: BidStore, b: SegmentBackend, application
     return { ok: true, data: output };
   } catch (err) {
     if (jobId) finishJob(jobId, "failed");
-    return { ok: false, code: "failed", error: err instanceof AiError ? aiErrorMessage(err).message : "Something went wrong drafting the essay. Try again." };
+    return { ok: false, code: "failed", error: err instanceof UsageLimitError ? err.message : err instanceof AiError ? aiErrorMessage(err).message : "Something went wrong drafting the essay. Try again." };
   }
 }

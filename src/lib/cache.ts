@@ -10,7 +10,7 @@ export interface CacheBackend {
   set(key: string, value: unknown, expiresAt: number): Promise<void>;
 }
 
-const memory = ((globalThis as typeof globalThis & { __firstlightCache?: Map<string, { value: unknown; expiresAt: number }> }).__firstlightCache ??= new Map<string, { value: unknown; expiresAt: number }>());
+const memory = ((globalThis as typeof globalThis & { __fundfellowsCache?: Map<string, { value: unknown; expiresAt: number }> }).__fundfellowsCache ??= new Map<string, { value: unknown; expiresAt: number }>());
 let backend: CacheBackend | null = null;
 
 export function registerCacheBackend(b: CacheBackend | null) {
@@ -23,7 +23,7 @@ async function disk() {
   if (typeof window !== "undefined") throw new Error("no disk in the browser");
   const [fs, os, path] = await Promise.all([import(/* webpackIgnore: true */ /* turbopackIgnore: true */ "node:fs/promises"), import(/* webpackIgnore: true */ /* turbopackIgnore: true */ "node:os"), import(/* webpackIgnore: true */ /* turbopackIgnore: true */ "node:path")]);
   const dev = process.env.NODE_ENV !== "production";
-  const dir = dev ? path.join(process.cwd(), ".cache") : path.join(os.tmpdir(), "granted-cache");
+  const dir = dev ? path.join(process.cwd(), ".cache") : path.join(os.tmpdir(), "fundfellows-cache");
   return { fs, dir, file: (key: string) => path.join(dir, sha1Hex(key) + ".json") };
 }
 

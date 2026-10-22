@@ -85,7 +85,7 @@ export function FunderDetail({ profile }: { profile: FunderProfile }) {
               {funderTypeLabel[funder.type]}
               {filing ? `, ${filing.city}, ${filing.state}` : funder.geography ? `, ${funder.geography}` : ""}
             </p>
-            <h1 className="mt-1 font-display text-h1 text-ink">{funder.name}</h1>
+            <h1 className="mt-1 font-display text-title text-ink">{funder.name}</h1>
             <p className="mt-4 max-w-[65ch] text-lg text-ink-muted">{funder.description}</p>
             <p className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-muted">
               <a href={filing ? filing.irsUrl || funder.sourceUrl : funder.sourceUrl} target="_blank" rel="noreferrer" className={linkClass}>

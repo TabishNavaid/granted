@@ -75,7 +75,7 @@ export function PeerOrganizations({ peers }: { peers: Peer[] }) {
           description="Peers appear once you have matches with private foundations: we list the other organizations those foundations funded. Add a foundation from the directory to start."
           action={
             <Button asChild variant="secondary">
-              <Link href="/funders">Search the foundation directory</Link>
+              <Link href="/funders">Search private foundations</Link>
             </Button>
           }
         />

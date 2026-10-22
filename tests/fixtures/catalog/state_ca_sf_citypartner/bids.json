@@ -1,0 +1,107 @@
+[
+ {
+  "event_id": "SFGOV~0000002191",
+  "department": "Public Utilities Commission",
+  "status": "Amended",
+  "category": "Commodity",
+  "type": "Seeking Bids",
+  "open_date": "2019-05-13T14:00:00.000",
+  "due_date": "2099-12-31T12:00:00.000",
+  "title": "EXT PUC | Construction & Prof Services",
+  "sfcitypartner_link": {
+   "url": "https://sfcitypartner.sfgov.org/pages/Events-BS3/event-details.aspx?Page=AUC_RESP_INQ_DTL&Action=U&AUC_ID=0000002191&AUC_ROUND=1&AUC_VERSION=2&BIDDER_ID=0000000001&BIDDER_LOC=1&BIDDER_SETID=SHARE&BIDDER_TYPE=B&BUSINESS_UNIT=SFGOV"
+  },
+  "data_as_of": "2026-10-18T23:19:40.000",
+  "data_loaded_at": "2026-10-19T03:15:15.992"
+ },
+ {
+  "event_id": "SFGOV~0000009170",
+  "department": "Public Works",
+  "status": "Open",
+  "category": "Commodity",
+  "type": "Seeking Bids",
+  "open_date": "2026-09-29T00:00:00.000",
+  "due_date": "2026-10-28T14:30:00.000",
+  "title": "EXT DPW | PW SAN BRUNO AVE PAVE RENOV",
+  "sfcitypartner_link": {
+   "url": "https://sfcitypartner.sfgov.org/pages/Events-BS3/event-details.aspx?Page=AUC_RESP_INQ_DTL&Action=U&AUC_ID=0000009170&AUC_ROUND=1&AUC_VERSION=1&BIDDER_ID=0000000001&BIDDER_LOC=1&BIDDER_SETID=SHARE&BIDDER_TYPE=B&BUSINESS_UNIT=SFGOV"
+  },
+  "data_as_of": "2026-10-18T23:19:40.000",
+  "data_loaded_at": "2026-10-19T03:15:15.992"
+ },
+ {
+  "event_id": "SFGOV~0000010917",
+  "department": "Public Works",
+  "status": "Amended",
+  "category": "Commodity",
+  "type": "Seeking Bids",
+  "open_date": "2025-07-07T00:00:00.000",
+  "due_date": "2028-07-07T00:00:00.000",
+  "title": "EXT DPW | SFFD DOT Project - CM/GC: Trade Package",
+  "sfcitypartner_link": {
+   "url": "https://sfcitypartner.sfgov.org/pages/Events-BS3/event-details.aspx?Page=AUC_RESP_INQ_DTL&Action=U&AUC_ID=0000010917&AUC_ROUND=1&AUC_VERSION=11&BIDDER_ID=0000000001&BIDDER_LOC=1&BIDDER_SETID=SHARE&BIDDER_TYPE=B&BUSINESS_UNIT=SFGOV"
+  },
+  "data_as_of": "2026-10-18T23:19:40.000",
+  "data_loaded_at": "2026-10-19T03:15:15.992"
+ },
+ {
+  "event_id": "SFGOV~0000010933",
+  "department": "Recreation and Park Commission",
+  "status": "Amended",
+  "category": "Personal Services",
+  "type": "Seeking Bids",
+  "open_date": "2025-07-16T11:48:10.000",
+  "due_date": "2026-12-31T23:59:00.000",
+  "title": "EXT REC | CON26-0006 Precita Park - MLBE",
+  "sfcitypartner_link": {
+   "url": "https://sfcitypartner.sfgov.org/pages/Events-BS3/event-details.aspx?Page=AUC_RESP_INQ_DTL&Action=U&AUC_ID=0000010933&AUC_ROUND=1&AUC_VERSION=5&BIDDER_ID=0000000001&BIDDER_LOC=1&BIDDER_SETID=SHARE&BIDDER_TYPE=B&BUSINESS_UNIT=SFGOV"
+  },
+  "data_as_of": "2026-10-18T23:19:40.000",
+  "data_loaded_at": "2026-10-19T03:15:15.992"
+ },
+ {
+  "event_id": "SFGOV~0000011112",
+  "department": "Recreation and Park Commission",
+  "status": "Amended",
+  "category": "Personal Services",
+  "type": "Seeking Bids",
+  "open_date": "2025-09-24T10:57:44.000",
+  "due_date": "2026-12-31T23:59:00.000",
+  "title": "EXT REC | CON26-0011 Geneva Office Ext - MLBE",
+  "sfcitypartner_link": {
+   "url": "https://sfcitypartner.sfgov.org/pages/Events-BS3/event-details.aspx?Page=AUC_RESP_INQ_DTL&Action=U&AUC_ID=0000011112&AUC_ROUND=1&AUC_VERSION=3&BIDDER_ID=0000000001&BIDDER_LOC=1&BIDDER_SETID=SHARE&BIDDER_TYPE=B&BUSINESS_UNIT=SFGOV"
+  },
+  "data_as_of": "2026-10-18T23:19:40.000",
+  "data_loaded_at": "2026-10-19T03:15:15.992"
+ },
+ {
+  "event_id": "SFGOV~0000011162",
+  "department": "Public Works",
+  "status": "Amended",
+  "category": "Commodity",
+  "type": "Seeking Bids",
+  "open_date": "2025-10-09T00:00:00.000",
+  "due_date": "2030-10-09T14:30:00.000",
+  "title": "EXT DPW | Ingleside Police Stn Repl Trade Package",
+  "sfcitypartner_link": {
+   "url": "https://sfcitypartner.sfgov.org/pages/Events-BS3/event-details.aspx?Page=AUC_RESP_INQ_DTL&Action=U&AUC_ID=0000011162&AUC_ROUND=1&AUC_VERSION=5&BIDDER_ID=0000000001&BIDDER_LOC=1&BIDDER_SETID=SHARE&BIDDER_TYPE=B&BUSINESS_UNIT=SFGOV"
+  },
+  "data_as_of": "2026-10-18T23:19:40.000",
+  "data_loaded_at": "2026-10-19T03:15:15.992"
+ },
+ {
+  "event_id": "SFGOV~0000011304",
+  "department": "Recreation and Park Commission",
+  "status": "Amended",
+  "category": "Personal Services",
+  "type": "Seeking Bids",
+  "open_date": "2025-11-24T10:21:07.000",
+  "due_date": "2026-12-31T23:59:00.000",
+  "title": "EXT REC | CON26-0001 Marina Dredging - SF First",
+  "sfcitypartner_link": {
+   "url": "https://sfcitypartner.sfgov.org/pages/Events-BS3/event-details.aspx?Page=AUC_RESP_INQ_DTL&Action=U&AUC_ID=0000011304&AUC_ROUND=1&AUC_VERSION=2&BIDDER_ID=0000000001&BIDDER_LOC=1&BIDDER_SETID=SHARE&BIDDER_TYPE=B&BUSINESS_UNIT=SFGOV"
+  },
+  "data_as_of": "2026-10-18T23:19:40.000",
+  "data_loaded_at": "2026-10-19T03:15:15.992"
+ }
+]

@@ -29,7 +29,6 @@ export type InboxStatus = "pending" | "approved" | "rejected" | "edited";
 export type AgentRunStatus = "queued" | "running" | "succeeded" | "failed";
 export type OutcomeResult = "won" | "lost" | "no_response" | "withdrawn";
 export type EmailKind = "intro" | "question" | "loi_cover" | "thank_you" | "follow_up" | "feedback_request";
-export type PlanTier = "free" | "starter" | "growth";
 export type MemberRole = "owner" | "editor" | "reviewer";
 export type ProposalMode = "letter" | "proposal" | "concept_note" | "bid" | "sf330" | "research" | "essay";
 export type EmailStatus = "draft" | "approved" | "sent";
@@ -82,6 +81,8 @@ export interface Member {
   email: string;
   role: MemberRole;
   status: "active" | "invited";
+  /** Set on a fresh invite: whether the invitation email went out (false when email is not set up). */
+  inviteEmailSent?: boolean;
 }
 
 /** documents */
@@ -455,6 +456,8 @@ export interface AgentRun {
   startedAt: ISODate;
   finishedAt: ISODate | null;
   inboxItemId: string | null;
+  /** What the run counts against in the monthly allowance (src/lib/usage/limits.ts). */
+  usageKind?: "draft" | "assist" | null;
 }
 
 /** outcomes */
@@ -473,25 +476,6 @@ export interface Outcome {
 
 export type LossReason = "fit" | "budget_size" | "competition" | "eligibility" | "outcomes_data" | "timing" | "relationship" | "writing" | "unknown";
 
-/** subscriptions */
-export interface Subscription {
-  id: string;
-  orgId: string;
-  plan: PlanTier;
-  status: "active" | "trialing" | "past_due" | "canceled";
-  currentPeriodEnd: ISODate;
-  seats: number;
-  usage: { proposalsThisMonth: number; proposalLimit: number | null; matchesThisMonth: number; matchLimit: number | null };
-}
-
-export interface Invoice {
-  id: string;
-  date: ISODate;
-  amount: number;
-  status: "paid" | "open" | "failed";
-  pdfUrl: string;
-}
-
 /** notification_settings */
 export interface NotificationSettings {
   weeklyDigest: boolean;
@@ -507,8 +491,18 @@ export interface SavedSearch {
   name: string;
   keyword: string;
   fundingCategories: string[];
+  /** Set for a bid search over the opportunity database. */
+  filters?: BidSearchFilters | null;
   createdAt: ISODate;
   lastRunAt: ISODate | null;
+}
+
+/** A firm's bid search: work categories, region, set-asides, and words. Empty lists mean "any". */
+export interface BidSearchFilters {
+  naics: string[];
+  states: string[];
+  setAsides: string[];
+  keywords: string[];
 }
 
 /** A Grants.gov notice from a search, before anyone has scored it. Everything here is from the API. */

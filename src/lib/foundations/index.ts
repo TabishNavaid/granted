@@ -1,5 +1,4 @@
 import type { EligibilityCheck, Fact, Funder, Opportunity, Organization } from "@/lib/types";
-import dataset from "@/data/foundations.json";
 import { displayName } from "./names";
 
 /**
@@ -43,6 +42,8 @@ export interface FoundationRecord {
   granteeCities: { city: string; state: string; count: number }[];
   grantees: FoundationGrant[];
   officers?: { name: string; title: string }[];
+  /** The filing itself (a PDF on apps.irs.gov) when the database found it; better than the search page link. */
+  filingUrl?: string | null;
 }
 
 interface Dataset {
@@ -51,26 +52,47 @@ interface Dataset {
   foundations: FoundationRecord[];
 }
 
-const raw = dataset as unknown as Dataset;
-// On the 990-PF, application details are filled in only when the "preselected organizations only" box is not checked.
-const data: Dataset = {
-  ...raw,
-  foundations: raw.foundations.map((f) => ({ ...f, name: displayName(f.name), filedName: f.name, acceptsUnsolicited: f.acceptsUnsolicited == null && f.application?.howTo ? true : f.acceptsUnsolicited })),
-};
+// The demo's foundation set (390 filings, about 1 MB) loads on first use, not with every page: callers
+// `await loadFoundations()` before the synchronous helpers below, which throw if it has not loaded.
+let data: Dataset | null = null;
+let loading: Promise<void> | null = null;
 
-export const FOUNDATION_STATES = data.states;
-export const FOUNDATIONS_GENERATED_AT = data.generatedAt;
+export function loadFoundations(): Promise<void> {
+  return (loading ??= import("@/data/foundations.json", { with: { type: "json" } }).then((m) => {
+    const raw = (m.default ?? m) as unknown as Dataset;
+    // On the 990-PF, application details are filled in only when the "preselected organizations only" box is not checked.
+    data = {
+      ...raw,
+      foundations: raw.foundations.map((f) => ({ ...f, name: displayName(f.name), filedName: f.name, acceptsUnsolicited: f.acceptsUnsolicited == null && f.application?.howTo ? true : f.acceptsUnsolicited })),
+    };
+  }));
+}
+
+function loaded(): Dataset {
+  if (!data) throw new Error("Foundation data is not loaded yet. Call loadFoundations() first.");
+  return data;
+}
+
+/** When the bundled filings were read. Fixed at build time so pages can show it without loading the set. */
+export const FOUNDATIONS_GENERATED_AT = "2026-10-18T22:04:05Z";
 
 export function allFoundations(): FoundationRecord[] {
-  return data.foundations;
+  return loaded().foundations;
 }
 
 export const funderIdFor = (ein: string) => `pf_${ein}`;
 export const opportunityIdFor = (ein: string) => `pf_${ein}_grants`;
 
+/** Foundations read from the opportunity database in this process, so detail lookups find them too. */
+const fromDatabase = new Map<string, FoundationRecord>();
+export function rememberFoundations(records: FoundationRecord[]) {
+  for (const r of records) fromDatabase.set(r.ein, r);
+}
+
 export function foundationByFunderId(id: string): FoundationRecord | null {
   const ein = id.replace(/^pf_/, "").replace(/_grants$/, "");
-  return data.foundations.find((f) => f.ein === ein) ?? null;
+  // Never throws: in the real product most foundations come from the database and the bundled set may not be loaded.
+  return fromDatabase.get(ein) ?? data?.foundations.find((f) => f.ein === ein) ?? null;
 }
 
 const STATE_CODES: Record<string, string> = { ohio: "OH", kentucky: "KY", "north carolina": "NC", indiana: "IN", "west virginia": "WV", tennessee: "TN", virginia: "VA", "south carolina": "SC", michigan: "MI", pennsylvania: "PA" };
@@ -81,7 +103,8 @@ export function stateCode(s: string | null | undefined): string {
 }
 
 /** The IRS page for this organization, where its filed returns can be opened. */
-export function irsPageUrl(f: Pick<FoundationRecord, "ein" | "filedName" | "city" | "state">): string {
+export function irsPageUrl(f: Pick<FoundationRecord, "ein" | "filedName" | "city" | "state"> & { filingUrl?: string | null }): string {
+  if (f.filingUrl) return f.filingUrl;
   const q = new URLSearchParams({ ein: f.ein, name: f.filedName.toUpperCase(), city: f.city.toUpperCase(), state: f.state, countryAbbr: "US", dba: "", type: "CHARITIES", orgTags: "CHARITIES" });
   return `https://apps.irs.gov/app/eos/details/?${q.toString()}`;
 }
@@ -264,7 +287,11 @@ function findFact(facts: Fact[], re: RegExp): Fact | undefined {
  * foundation with no grant for that main work stays a possible fit at most,
  * and one that scores very low is left out.
  */
-export function matchFoundations(input: { org: Organization; facts: Fact[]; limit?: number }): FoundationScreen {
+/**
+ * `pool` is the set of foundations to screen: in the real product, the foundations in the opportunity database that
+ * give in the organization's state (every state is covered); in the demo, the bundled sample of three states.
+ */
+export function matchFoundations(input: { org: Organization; facts: Fact[]; limit?: number; pool?: FoundationRecord[] }): FoundationScreen {
   const { org, facts } = input;
   const st = stateCode(org.state);
   const work = workOf(org);
@@ -277,7 +304,7 @@ export function matchFoundations(input: { org: Organization; facts: Fact[]; limi
     .toLowerCase()
     .split(/[^a-z]+/)
     .filter((w) => w.length >= 5 && !/^(count|north|south|carolina|kentucky|virginia|ohio|codes|areas?|states?|parts?|eastern|western|central)/.test(w));
-  const all = data.foundations;
+  const all = input.pool ?? loaded().foundations;
   const setAside: FoundationScreen["setAside"] = [];
   let inState = 0;
   let closed = 0;
@@ -411,7 +438,7 @@ export function peerOrganizations(input: { org: Organization; funderIds: string[
 export function fundersLikeYou(input: { org: Organization; peers: PeerOrg[]; exclude: string[]; limit?: number }): { foundation: FoundationRecord; peers: string[] }[] {
   const peerKeys = new Set(input.peers.map((p) => normName(p.name)));
   const out: { foundation: FoundationRecord; peers: string[] }[] = [];
-  for (const f of data.foundations) {
+  for (const f of loaded().foundations) {
     if (input.exclude.includes(funderIdFor(f.ein))) continue;
     const hits = f.grantees.filter((g) => peerKeys.has(normName(g.name))).map((g) => g.name);
     if (hits.length) out.push({ foundation: f, peers: [...new Set(hits)] });
@@ -460,12 +487,12 @@ const SCHOLARSHIP = /scholar|tuition|student aid|educational award|fellowship/i;
  * schools or programs awards went through; the people who received them are
  * never stored or shown.
  */
-export function matchScholarships(input: { state: string; level: "high_school" | "undergraduate" | "graduate" | "adult"; field: string; hometown: string; limit?: number }): import("@/lib/types").ScholarshipMatch[] {
+export function matchScholarships(input: { state: string; level: "high_school" | "undergraduate" | "graduate" | "adult"; field: string; hometown: string; limit?: number; pool?: FoundationRecord[] }): import("@/lib/types").ScholarshipMatch[] {
   const st = stateCode(input.state);
   const field = input.field.trim().toLowerCase();
   const town = input.hometown.trim().toLowerCase();
   const out: (import("@/lib/types").ScholarshipMatch & { score: number })[] = [];
-  for (const f of data.foundations) {
+  for (const f of input.pool ?? loaded().foundations) {
     const awards = f.grantees.filter((g) => SCHOLARSHIP.test(`${g.name} ${g.purpose}`));
     const isFund = f.focus.includes("Scholarships") || /scholar/i.test(f.name);
     // A foundation that mostly funds organizations is not a scholarship source, even if one grant mentions tuition.

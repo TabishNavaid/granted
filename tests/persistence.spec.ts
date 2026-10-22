@@ -38,7 +38,7 @@ test("a bid's decision and compliance matrix survive reloads, and a reload mid-d
   await quiet(page);
   const problems = watch(page);
   await page.goto("/api/demo/open?sample=org_cibolo_line&next=/opportunities");
-  await expect(page.getByRole("heading", { name: "From SAM.gov" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Open bids for your work" })).toBeVisible();
   await page.getByRole("button", { name: "Add an RFP" }).first().click();
   await page.getByRole("button", { name: "Use the sample notice" }).click();
   await page.waitForURL("**/applications/**", { timeout: 120_000 });

@@ -18,7 +18,8 @@ import type {
 import type { Services } from "./contracts";
 import { wordCount } from "@/lib/format";
 import { hasAi, runtimeMode } from "@/lib/env";
-import { checkUse, exportCampaign, icsUrlFor, withUsage } from "./shared";
+import { exportCampaign, icsUrlFor } from "./shared";
+import { countRuns, summarize } from "@/lib/usage/limits";
 import { planMilestones as planFromDeadline } from "@/lib/loop/milestones";
 import { BUDGET_CATEGORY_LABEL, budgetTotal } from "@/lib/loop/budget";
 import { reviseText as demoRevise } from "@/lib/agents";
@@ -70,8 +71,6 @@ function seededState() {
     sectionVersions: [] as SectionVersion[],
     reviewerChecks: [] as ReviewerCheck[],
     documentTexts: {} as Record<string, string>,
-    subscription: clone(seed.subscription),
-    invoices: clone(seed.invoices),
     notifications: clone(seed.notificationSettings),
     metrics: clone(seed.impactMetrics),
     voiceNote: seed.voiceNote,
@@ -98,7 +97,6 @@ export type DemoState = ReturnType<typeof seededState>;
 /** A sample organization that has not been set up yet: no facts, no matches, no history. */
 function blankState(sample: SampleOrg): DemoState {
   const base = seededState();
-  const orgId = sample.org.id;
   return {
     ...base,
     org: { ...clone(sample.org), createdAt: now() },
@@ -125,8 +123,6 @@ function blankState(sample: SampleOrg): DemoState {
     budgets: [],
     metrics: [],
     voiceNote: "",
-    subscription: { ...base.subscription, id: `sub_${orgId}`, orgId, plan: "free", usage: { proposalsThisMonth: 0, proposalLimit: 1, matchesThisMonth: 0, matchLimit: 5 } },
-    invoices: [],
   };
 }
 
@@ -155,7 +151,6 @@ function firmState(sample: SampleOrg): DemoState {
     ...f,
     funders: [...base.funders.filter((x) => !f.funders.some((y) => y.id === x.id)), ...f.funders],
     opportunities: [...base.opportunities.filter((x) => !f.opportunities.some((y) => y.id === x.id)), ...f.opportunities],
-    subscription: { ...base.subscription, plan: "growth", usage: { proposalsThisMonth: 2, proposalLimit: null, matchesThisMonth: 0, matchLimit: null } },
   };
 }
 
@@ -205,10 +200,10 @@ export const now = () => new Date().toISOString();
 const delay = (ms = 0) => new Promise((r) => setTimeout(r, ms));
 export const newId = (prefix: string) => `${prefix}_${nextInSequence("id", 1000)}`;
 
-/** Team, billing, and deleting the workspace belong to the owner (roles: owner, editor, board reviewer). */
+/** The team and deleting the workspace belong to the owner (roles: owner, editor, board reviewer). */
 function requireOwner() {
   const me = state.members.find((m) => m.id === seed.CURRENT_USER_ID);
-  if (me && me.role !== "owner") throw new Error("Only the workspace owner can change the team, billing, or the workspace itself.");
+  if (me && me.role !== "owner") throw new Error("Only the workspace owner can change the team or the workspace itself.");
 }
 
 /** Board reviewers read, comment, and approve sections; they do not change drafts or plans. */
@@ -309,6 +304,10 @@ export const mockServices: Services = {
     async update(patch) {
       Object.assign(state.org, patch);
       return clone(state.org);
+    },
+    async verifyEin() {
+      // The demo has no copy of the IRS registry.
+      return null;
     },
     async listMembers() {
       return clone(state.members);
@@ -494,7 +493,7 @@ export const mockServices: Services = {
       return clone(state.savedSearches);
     },
     async saveSearch(input) {
-      const s = { id: newId("search"), orgId: state.org.id, name: input.name.trim() || input.keyword, keyword: input.keyword.trim(), fundingCategories: input.fundingCategories, createdAt: now(), lastRunAt: null };
+      const s = { id: newId("search"), orgId: state.org.id, name: input.name.trim() || input.keyword, keyword: input.keyword.trim(), fundingCategories: input.fundingCategories, filters: input.filters ?? null, createdAt: now(), lastRunAt: null };
       state.savedSearches.unshift(s);
       return clone(s);
     },
@@ -809,29 +808,16 @@ export const mockServices: Services = {
     },
   },
 
-  billing: {
-    async getSubscription() {
-      // The demo keeps its seeded usage numbers; counting the seeded applications would exhaust the plan.
-      return withUsage(clone(state.subscription), { proposalsThisMonth: state.subscription.usage.proposalsThisMonth, matchesThisMonth: state.subscription.usage.matchesThisMonth });
+  jobs: {
+    async start() {
+      // The demo runs every step in place: in the visitor's tab, or in this server's memory with a model key.
+      return { mode: "inline" as const };
     },
-    async checkoutUrl() {
-      return { ok: false, code: "no_ai", error: "Stripe is not connected in the demo. Plans switch in place here; connect Stripe on the Integrations page for real checkout." };
-    },
-    async portalUrl() {
-      return { ok: false, code: "no_ai", error: "Stripe is not connected in the demo." };
-    },
-    async canUse(what) {
-      return checkUse(await mockServices.billing.getSubscription(), what);
-    },
-    async listInvoices() {
-      return clone(state.invoices);
-    },
-    async changePlan(plan) {
-      requireOwner();
-      state.subscription.plan = plan;
-      state.subscription.usage.proposalLimit = plan === "free" ? 1 : plan === "starter" ? 3 : null;
-      state.subscription.usage.matchLimit = plan === "free" ? 5 : null;
-      return clone(state.subscription);
+  },
+
+  account: {
+    async getUsage() {
+      return summarize(countRuns(state.runs));
     },
     async getNotificationSettings() {
       return clone(state.notifications);
@@ -896,15 +882,11 @@ export const mockServices: Services = {
     },
     async draftLetter(applicationId, jobId) {
       requireEditor();
-      const limit = await mockServices.billing.canUse("proposal");
-      if (!limit.ok) return { ok: false, code: "failed", error: limit.message ?? "Your plan's limit for this month is used up." };
       const { draftLetterFor } = await import("@/lib/loop");
       return draftLetterFor(await store(), applicationId, jobId);
     },
     async draftProposal(applicationId, jobId) {
       requireEditor();
-      const limit = await mockServices.billing.canUse("proposal");
-      if (!limit.ok) return { ok: false, code: "failed", error: limit.message ?? "Your plan's limit for this month is used up." };
       if (!hasAi() && !state.sections.some((x) => x.applicationId === applicationId)) {
         return { ok: false, code: "no_ai", error: "The demo has one recorded full proposal, Riverbend's Meridian application. Drafting a new full proposal needs a model key. A letter of inquiry works here." };
       }

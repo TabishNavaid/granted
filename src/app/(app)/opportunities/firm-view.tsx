@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import type { ApplicationView, MatchView } from "@/lib/types";
+import type { ApplicationView, MatchView, SavedSearch } from "@/lib/types";
+import { BidSearches } from "@/components/bids/bid-searches";
 import type { SamNotice } from "@/lib/services/contracts";
 import { PageContainer, PageHeader } from "@/components/app/page-header";
 import { OpportunityCard } from "@/components/app/opportunity-card";
@@ -20,6 +21,8 @@ interface Props {
   sam: { status: "live" | "recorded" | "not_connected"; note: string; notices: SamNotice[]; recordedOn: string | null };
   demo: boolean;
   initialTab: "bids" | "grants";
+  savedSearches: SavedSearch[];
+  profile: { naics: string[]; states: string[] };
 }
 
 const due = (iso: string | null) => {
@@ -29,12 +32,14 @@ const due = (iso: string | null) => {
 };
 
 /** A firm's opportunities: bids and RFPs (its own and SAM.gov's), and, kept apart, grants and incentives open to firms. */
-export function FirmOpportunitiesView({ bids, grants, sam, demo, initialTab }: Props) {
+export function FirmOpportunitiesView({ bids, grants, sam: initialSam, demo, initialTab, savedSearches, profile }: Props) {
   const [tab, setTab] = React.useState(initialTab);
+  const [sam, setSam] = React.useState(initialSam);
+  const [label, setLabel] = React.useState("Your profile");
   const active = bids.filter((b) => !["won", "lost"].includes(b.stage));
   return (
     <PageContainer>
-      <PageHeader title="Opportunities" description="Bids and RFPs you are tracking, federal contract opportunities from SAM.gov for your work categories, and, separately, grants and incentives a firm like yours can apply for." actions={<AddRfpDialog demo={demo} />} />
+      <PageHeader title="Opportunities" description="Bids and RFPs you are tracking, open bids from SAM.gov and state and city portals for your work, and, separately, grants a firm like yours can apply for." actions={<AddRfpDialog demo={demo} />} />
       <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="mt-6">
         <TabsList variant="pill" aria-label="Kind of opportunity">
           <TabsTrigger value="bids">
@@ -59,12 +64,12 @@ export function FirmOpportunitiesView({ bids, grants, sam, demo, initialTab }: P
                         {b.opportunity.title}
                       </Link>
                       <p className="mt-1 text-base text-ink-muted">
-                        {b.funder.name} · {stageLabel(b.stage, "contract")} · {due(b.opportunity.deadline)}
+                        {b.funder.name}, {stageLabel(b.stage, "contract")}, {due(b.opportunity.deadline)}
                       </p>
                     </div>
                     {b.goNoGo != null ? (
                       <p className="text-base text-ink sm:text-right">
-                        <span className="font-display text-2xl tnum">{b.goNoGo}</span> <span className="text-sm text-ink-muted">go/no-go</span>
+                        <span className="font-mono text-2xl tnum">{b.goNoGo}</span> <span className="text-sm text-ink-muted">go/no-go</span>
                       </p>
                     ) : null}
                   </li>
@@ -78,10 +83,14 @@ export function FirmOpportunitiesView({ bids, grants, sam, demo, initialTab }: P
           <section aria-labelledby="sam" className="mt-12">
             <div className="flex flex-wrap items-baseline justify-between gap-3">
               <h2 id="sam" className="font-display text-2xl text-ink">
-                From SAM.gov
+                Open bids for your work
               </h2>
-              <p className={cn("text-sm", sam.status === "not_connected" ? "text-ink" : "text-ink-muted")}>{sam.note}</p>
+              <p className="text-sm text-ink-muted">
+                {sam.notices.length} shown for <span className="font-semibold text-ink">{label}</span>
+              </p>
             </div>
+            <BidSearches saved={savedSearches} profile={profile} onResults={(r, l) => { setSam(r); setLabel(l); }} />
+            <p className={cn("mt-3 text-sm", sam.status === "not_connected" ? "text-ink" : "text-ink-muted")}>{sam.note}</p>
             {sam.status === "not_connected" ? (
               <div className="sheet mt-4 p-5">
                 <p className="text-base text-ink">SAM.gov is not connected.</p>
@@ -94,20 +103,39 @@ export function FirmOpportunitiesView({ bids, grants, sam, demo, initialTab }: P
               <ul className="mt-4 border-t border-rule">
                 {sam.notices.map((n) => (
                   <li key={n.noticeId} className="grid gap-x-6 gap-y-2 border-b border-rule py-5 sm:grid-cols-[4.5rem_1fr]">
-                    <p className="font-display text-3xl leading-none text-ink tnum" aria-label={`Fit ${n.fit?.score ?? 0} of 100`}>
+                    <p className="font-mono text-3xl leading-none text-ink tnum" aria-label={`Fit ${n.fit?.score ?? 0} of 100`}>
                       {n.fit?.score ?? "–"}
                     </p>
                     <div className="min-w-0">
                       <p className="text-sm text-ink-muted">
-                        {n.type} · {n.agency}
-                        {n.office ? ` · ${n.office}` : ""}
+                        <span className="text-ink">{n.type}</span>, {n.agency}
+                        {n.office ? `, ${n.office}` : ""}
                       </p>
                       <h3 className="mt-1 font-display text-xl leading-tight text-ink">{n.title}</h3>
-                      <p className="mt-1 text-base text-ink-muted">
-                        {due(n.responseDeadLine)}
-                        {n.naicsCode ? ` · NAICS ${n.naicsCode}` : ""}
-                        {n.placeOfPerformance ? ` · ${n.placeOfPerformance}` : ""}
-                      </p>
+                      <dl className="mt-1 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+                        <div>
+                          <dt className="sr-only">Due</dt>
+                          <dd className="text-ink">{due(n.responseDeadLine)}</dd>
+                        </div>
+                        {n.naicsCode ? (
+                          <div className="flex gap-1.5">
+                            <dt className="text-ink-muted">NAICS</dt>
+                            <dd className="font-mono text-ink">{n.naicsCode}</dd>
+                          </div>
+                        ) : null}
+                        {n.solicitationNumber ? (
+                          <div className="flex gap-1.5">
+                            <dt className="text-ink-muted">No.</dt>
+                            <dd className="font-mono text-ink">{n.solicitationNumber}</dd>
+                          </div>
+                        ) : null}
+                        {n.placeOfPerformance ? (
+                          <div className="flex gap-1.5">
+                            <dt className="text-ink-muted">Place</dt>
+                            <dd className="text-ink">{n.placeOfPerformance}</dd>
+                          </div>
+                        ) : null}
+                      </dl>
                       {n.setAside ? <p className="mt-1 text-base text-ink">Set aside: {n.setAside}</p> : null}
                       {n.fit?.reasons.length ? (
                         <ul className="mt-2 flex flex-col gap-1 text-base text-ink">
@@ -126,7 +154,7 @@ export function FirmOpportunitiesView({ bids, grants, sam, demo, initialTab }: P
                       <div className="mt-3 flex flex-wrap items-center gap-3">
                         {n.added ? <span className="text-base font-semibold text-ink">Added to your bids</span> : <AddRfpDialog demo={demo} samNoticeId={n.noticeId} trigger={<Button size="sm">Add as a bid</Button>} />}
                         <a href={n.uiLink} target="_blank" rel="noreferrer" className="text-base text-ink underline underline-offset-4">
-                          Open on SAM.gov<span className="sr-only"> (opens in a new tab)</span>
+                          {/sam\.gov/.test(n.uiLink) ? "Open on SAM.gov" : "Open the official notice"}<span className="sr-only"> (opens in a new tab)</span>
                         </a>
                       </div>
                     </div>
@@ -134,7 +162,7 @@ export function FirmOpportunitiesView({ bids, grants, sam, demo, initialTab }: P
                 ))}
               </ul>
             ) : (
-              <EmptyState className="mt-4" size="sm" title="No open notices for your work categories" description="Check your NAICS codes on the Profile page. New notices post every day." />
+              <EmptyState className="mt-4" size="sm" title="No open bids match this search" description="Try a shorter NAICS code (2362 covers all building construction), another state, or fewer set-asides. New notices post every day." />
             )}
           </section>
         </TabsContent>

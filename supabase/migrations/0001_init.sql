@@ -1,4 +1,4 @@
--- Granted: initial schema
+-- FundFellows: initial schema
 -- Postgres 15 on Supabase. Enables pgvector for knowledge search.
 -- Every org-scoped table carries org_id and is protected by RLS keyed on org membership.
 

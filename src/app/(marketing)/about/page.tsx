@@ -14,15 +14,15 @@ export const metadata: Metadata = {
 };
 
 const mission = [
-  "Small nonprofits apply for the same grants as organizations with a development office. The process assumes someone has a free week to research funders and write. At a small nonprofit, that someone is usually the director, working after hours.",
-  `${PRODUCT_NAME} is a funding team for organizations that cannot hire one. It reads what you have already written, finds grants you can apply for, drafts from your own facts, and keeps the dates. You make the calls. A person approves every draft, and every claim links to its source.`,
-  "We are building it with a small group of early users and changing it when they tell us something is wrong.",
+  "A great deal of money is won through applications: grants, public bids, research awards, scholarships. Large organizations have people whose whole job is finding those opportunities and writing them up. A twelve-person design firm, a food bank, a research lab, and a high school senior usually do not.",
+  `${PRODUCT_NAME} is the colleague they would hire if they could: someone with every public record in reach, who reads what you have already written, finds what you qualify for, drafts from your own facts, and keeps the dates. You make the calls. A person approves every draft, and every claim links to its source.`,
+  "We are building it with a small group of early users, starting with a construction firm, and changing it when they tell us something is wrong.",
 ];
 
 export default function AboutPage() {
   return (
     <>
-      <PageIntro title="Grant work for the people doing the work." lead="For small nonprofits without a grant writer. It does the research and the first draft, and a person approves every step." />
+      <PageIntro title="A fellow on your side of the table." lead="For the firms, nonprofits, labs, and students who win their money through applications and have nobody whose whole job that is." />
       <section className="mx-auto max-w-[75rem] px-4 py-14 sm:px-6 lg:grid lg:grid-cols-[1fr_1.4fr] lg:gap-20 lg:px-10 lg:py-20">
         <h2 className="max-w-[14ch] font-display text-3xl text-ink lg:text-4xl">What we are for</h2>
         <div className="mt-6 max-w-[62ch] lg:mt-0">
@@ -53,7 +53,7 @@ export default function AboutPage() {
       <section id="questions" className="scroll-mt-16 border-t border-rule">
         <div className="mx-auto max-w-[75rem] px-4 py-14 sm:px-6 lg:grid lg:grid-cols-[1fr_1.4fr] lg:gap-20 lg:px-10 lg:py-20">
           <div className="lg:sticky lg:top-24 lg:self-start">
-            <SectionHeading plant="wind-poppy" className="max-w-[12ch] text-4xl sm:text-5xl">
+            <SectionHeading className="max-w-[12ch] text-4xl sm:text-5xl">
               Questions, answered plainly.
             </SectionHeading>
             <p className="mt-5 max-w-[36ch] text-base text-ink-muted">

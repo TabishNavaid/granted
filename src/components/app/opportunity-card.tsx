@@ -50,7 +50,7 @@ export function OpportunityCard({ match, className }: { match: MatchView; classN
           <span>{privateFoundation ? "Private foundation" : funderTypeLabel[funder.type]}</span>
           {opportunity.forecasted ? <span>Forecasted, not open yet</span> : null}
         </p>
-        <h3 id={`opp-${match.id}`} className="mt-1.5 font-display text-2xl leading-tight text-ink">
+        <h3 id={`opp-${match.id}`} className="mt-1.5 font-display text-xl leading-tight text-ink sm:text-[1.375rem]">
           <Link href={`/opportunities/${opportunity.id}`} className="hover:underline hover:decoration-ink hover:decoration-2 hover:underline-offset-4">
             {opportunity.title}
           </Link>

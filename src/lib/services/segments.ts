@@ -1,4 +1,4 @@
-import type { ApplicationView, Certification, FirmProfile, PersonProfile, Personnel, PortfolioProject, ResearchProfile } from "@/lib/types";
+import type { ApplicationView, Certification, FirmProfile, PersonProfile, Personnel, PortfolioProject, ResearchProfile, BidSearchFilters } from "@/lib/types";
 import type { BidService, FirmService, LoopResult, PersonService, ResearchService, SamNotice } from "./contracts";
 import type { BidStore } from "@/lib/bids/store";
 import type { RfpPage } from "@/lib/bids/rfp";
@@ -20,7 +20,7 @@ import { SET_ASIDE_CODES } from "@/lib/bids/rfp";
  */
 export interface SegmentBackend {
   store(): Promise<BidStore>;
-  requireEditor(): void;
+  requireEditor(): void | Promise<void>;
   newId(prefix: string): string;
   now(): string;
   applicationView(id: string): Promise<ApplicationView | null>;
@@ -63,7 +63,7 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
       return b.firm.get();
     },
     async saveProfile(patch) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       const cur = (await b.firm.get()) ?? emptyFirm(st.orgId, b.now());
       return b.firm.save({ ...cur, ...patch, orgId: cur.orgId, updatedAt: b.now() });
@@ -72,36 +72,36 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
       return (await b.firm.projects()).sort((x, y) => (y.completionDate ?? "9999").localeCompare(x.completionDate ?? "9999"));
     },
     async saveProject(input) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       return b.firm.saveProject({ ...input, id: input.id ?? b.newId("proj"), orgId: st.orgId });
     },
     async removeProject(id) {
-      b.requireEditor();
+      await b.requireEditor();
       await b.firm.removeProject(id);
     },
     async listPersonnel() {
       return b.firm.personnel();
     },
     async savePerson(input) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       return b.firm.savePerson({ ...input, id: input.id ?? b.newId("per"), orgId: st.orgId });
     },
     async removePerson(id) {
-      b.requireEditor();
+      await b.requireEditor();
       await b.firm.removePerson(id);
     },
     async listCertifications() {
       return b.firm.certifications();
     },
     async saveCertification(input) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       return b.firm.saveCertification({ ...input, id: input.id ?? b.newId("cert"), orgId: st.orgId });
     },
     async removeCertification(id) {
-      b.requireEditor();
+      await b.requireEditor();
       await b.firm.removeCertification(id);
     },
     async recordFacts() {
@@ -111,20 +111,49 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
     },
   };
 
-  async function samNotices(): Promise<{ status: "live" | "recorded" | "not_connected"; notices: import("@/lib/samgov").SamV2Notice[]; recordedOn: string | null; note: string }> {
+  /** Recorded or database notices narrowed by a saved bid search. Empty filter lists mean "any". */
+  function matchesFilters(n: import("@/lib/samgov").SamV2Notice, f: BidSearchFilters | null | undefined): boolean {
+    if (!f) return true;
+    if (f.naics.length && !(n.naicsCode && f.naics.some((c) => n.naicsCode!.startsWith(c)))) return false;
+    const st = n.placeOfPerformance?.state?.code ?? null;
+    if (f.states.length && st && !f.states.includes(st)) return false;
+    if (f.setAsides.length && !f.setAsides.some((a) => [n.typeOfSetAside, n.typeOfSetAsideDescription].some((x) => x && x.toLowerCase().includes(a.toLowerCase())))) return false;
+    if (f.keywords.length) {
+      const text = `${n.title} ${n.descriptionText ?? ""}`.toLowerCase();
+      if (!f.keywords.some((k) => text.includes(k.toLowerCase()))) return false;
+    }
+    return true;
+  }
+
+  async function samNotices(filters?: BidSearchFilters | null): Promise<{ status: "live" | "recorded" | "not_connected"; notices: import("@/lib/samgov").SamV2Notice[]; recordedOn: string | null; note: string }> {
     const sam = await import("@/lib/samgov");
     if (isDemoMode() && (replayActive() || !sam.samKey())) {
       const rec = (await import("@/lib/replay/recordings/firm.samgov.json")).default as unknown as { recordedAt: string; opportunitiesData: import("@/lib/samgov").SamV2Notice[] };
-      return { status: "recorded", notices: rec.opportunitiesData, recordedOn: rec.recordedAt, note: `Recorded from SAM.gov on ${rec.recordedAt}. With a free SAM.gov API key, this searches live.` };
+      const notices = rec.opportunitiesData.filter((n) => matchesFilters(n, filters));
+      return { status: "recorded", notices, recordedOn: rec.recordedAt, note: `Recorded from SAM.gov on ${rec.recordedAt}. The real product reads every open SAM.gov notice and state and city bid portals daily.` };
     }
-    if (!sam.samKey()) return { status: "not_connected", notices: [], recordedOn: null, note: "SAM.gov is not connected. A free public API key from your SAM.gov account turns on federal contract search. Setup steps are on the Integrations page." };
+    const db = await (await import("@/lib/grantsgov")).catalogBackend();
+    if (db) {
+      const st = await b.store();
+      const [records, org] = await Promise.all([st.firmRecords(), st.getOrg()]);
+      const codes = filters?.naics.length ? filters.naics : (records.profile?.naics.map((n) => n.code) ?? []);
+      const states = filters?.states.length ? filters.states : [...new Set([org.state, ...(records.profile?.states ?? [])].map((x) => (x ?? "").trim().toUpperCase()))].filter((x) => /^[A-Z]{2}$/.test(x));
+      if (!codes.length && !states.length && !filters?.keywords.length) return { status: "live", notices: [], recordedOn: null, note: "Add your NAICS codes and the states you work in on the Profile page so we know which bids to show." };
+      try {
+        const keywords = filters?.keywords.length ? filters.keywords : ["construction", "design", "engineering", "architectural", "renovation"];
+        const notices = (await db.contractNotices({ naics: codes, states: states.length ? states : null, keywords, setAsides: filters?.setAsides ?? [], limit: 80 })).filter((n) => matchesFilters(n, filters));
+        return { status: "live", notices, recordedOn: null, note: `Open bids from the opportunity database (SAM.gov and state and city portals, refreshed daily)${codes.length ? ` for NAICS ${codes.join(", ")}` : ""}${states.length ? ` in ${states.join(", ")}` : ""}.` };
+      } catch (err) {
+        return { status: "live", notices: [], recordedOn: null, note: err instanceof Error ? err.message : "The opportunity search failed." };
+      }
+    }
+    if (!sam.samKey()) return { status: "not_connected", notices: [], recordedOn: null, note: "This server has no opportunity database and no SAM.gov key yet." };
     const st = await b.store();
-    const [records, org] = await Promise.all([st.firmRecords(), st.getOrg()]);
-    const codes = records.profile?.naics.map((n) => n.code) ?? [];
+    const records = await st.firmRecords();
+    const codes = filters?.naics.length ? filters.naics : (records.profile?.naics.map((n) => n.code) ?? []);
     if (!codes.length) return { status: "live", notices: [], recordedOn: null, note: "Add your NAICS codes on the Profile page so we know which contract opportunities to search." };
     try {
-      const notices = await sam.searchSam({ naics: codes, state: null });
-      void org;
+      const notices = (await sam.searchSam({ naics: codes, state: filters?.states[0] ?? null })).filter((n) => matchesFilters(n, filters));
       return { status: "live", notices, recordedOn: null, note: `Searched SAM.gov for ${codes.join(", ")} in the last 90 days.` };
     } catch (err) {
       return { status: "live", notices: [], recordedOn: null, note: err instanceof Error ? err.message : "SAM.gov search failed." };
@@ -133,7 +162,7 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
 
   const bids: BidService = {
     async addRfp(input) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       if (input.sample || input.samNoticeId === "5073642275214db4a200d4010bd55522") {
         const { SAMPLE_RFP } = await import("@/lib/replay/recordings/firm-rfp");
@@ -188,21 +217,21 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
       return { application: view, solicitation: ctx.opportunity.solicitation ?? emptySolicitation(), goNoGo, requirements, addenda, fee, meta, projects: records.projects, personnel: records.personnel, matrix: matrixSummary(requirements), readBy: meta?.readBy ?? "rules", pageCount: pages?.length ?? 0 };
     },
     async rescore(applicationId) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       return scoreAndSave(st, applicationId);
     },
     async decide(applicationId, decision, note) {
-      b.requireEditor();
+      await b.requireEditor();
       return decide(await b.store(), applicationId, decision, note);
     },
     async draft(applicationId, jobId) {
-      b.requireEditor();
+      await b.requireEditor();
       const r = await draftBid(await b.store(), applicationId, jobId);
       return r.ok ? r : { ok: false, code: r.code === "not_found" ? "not_found" : "failed", error: r.error };
     },
     async setSelection(applicationId, input) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       const meta = await st.getBidMeta(applicationId);
       if (!meta) return null;
@@ -211,14 +240,14 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
       return next;
     },
     async saveFee(applicationId, fee) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       const saved = await st.saveFee({ ...fee, applicationId });
       await refreshMatrix(st, applicationId);
       return saved;
     },
     async addAddendum(applicationId, input) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       if (input.sample) {
         const { SAMPLE_RFP } = await import("@/lib/replay/recordings/firm-rfp");
@@ -238,7 +267,7 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
       return r.ok ? r : { ok: false, code: r.code === "not_found" ? "not_found" : "failed", error: r.error };
     },
     async acknowledgeAddendum(id, acknowledged) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       const a = await st.updateAddendum(id, { acknowledged });
       await refreshMatrix(st, a.applicationId);
@@ -256,8 +285,25 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
       const sol = ctx.opportunity.solicitation;
       return buildSf330({ org, profile: records.profile, owner: user, notice: { title: ctx.opportunity.title, location: sol?.placeOfPerformance ?? null, date: null, number: sol?.number ?? null }, projects: records.projects, exampleProjectIds: meta?.projectIds ?? [], personnel: records.personnel, assignments: meta?.assignments ?? [], certifications: records.certifications, additionalInformation: meta?.additionalInformation ?? "", teamFirms: meta?.teamFirms ?? [] });
     },
-    async searchSam() {
-      const got = await samNotices();
+    async marketContext(applicationId) {
+      const st = await b.store();
+      const [ctx, records, org] = await Promise.all([st.getApplication(applicationId), st.firmRecords(), st.getOrg()]);
+      const naics = ctx?.opportunity.solicitation?.naics?.[0] ?? records.profile?.naics.find((n) => n.primary)?.code ?? records.profile?.naics[0]?.code;
+      if (!naics) return null;
+      const db = await (await import("@/lib/grantsgov")).catalogBackend();
+      if (db) {
+        const states = [...new Set([org.state, ...(records.profile?.states ?? [])].map((x) => (x ?? "").trim().toUpperCase()))].filter((x) => /^[A-Z]{2}$/.test(x));
+        const context = await db.marketContext({ naics, states }).catch(() => null);
+        return context ? { context, recordedOn: null } : null;
+      }
+      if (isDemoMode()) {
+        const rec = (await import("@/lib/replay/recordings/firm.market.json")).default as unknown as { recordedAt: string; context: import("@/lib/catalog/app").MarketContext };
+        return rec.context.naics === naics ? { context: rec.context, recordedOn: rec.recordedAt } : null;
+      }
+      return null;
+    },
+    async searchSam(input) {
+      const got = await samNotices(input?.filters ?? null);
       const { toSamNotice } = await import("@/lib/samgov");
       const st = await b.store();
       const [records, org, added] = await Promise.all([st.firmRecords(), st.getOrg(), b.addedNoticeIds()]);
@@ -310,7 +356,7 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
       return b.research.get();
     },
     async saveProfile(patch) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       const cur = (await b.research.get()) ?? { orgId: st.orgId, institution: "", department: null, investigators: [], publications: [], priorAwards: [], facilities: [], capabilities: [], keywords: [], smallBusiness: false, updatedAt: b.now() };
       return b.research.save({ ...cur, ...patch, orgId: cur.orgId, updatedAt: b.now() });
@@ -321,7 +367,7 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
       return fundedAnalogs(profile);
     },
     async draftProposal(applicationId, jobId) {
-      b.requireEditor();
+      await b.requireEditor();
       const { draftResearch } = await import("@/lib/research/draft");
       return draftResearch(await b.store(), await b.research.get(), applicationId, jobId);
     },
@@ -332,19 +378,19 @@ export function makeSegmentServices(b: SegmentBackend): { firm: FirmService; bid
       return b.person.get();
     },
     async saveProfile(patch) {
-      b.requireEditor();
+      await b.requireEditor();
       const st = await b.store();
       const cur = (await b.person.get()) ?? { orgId: st.orgId, fullName: "", email: null, level: "undergraduate" as const, field: "", school: null, state: "", hometown: "", gpa: null, education: [], experiences: [], awards: [], activities: [], goals: null, resumeDocumentId: null, updatedAt: b.now() };
       return b.person.save({ ...cur, ...patch, orgId: cur.orgId, updatedAt: b.now() });
     },
     async readResume(input) {
-      b.requireEditor();
+      await b.requireEditor();
       const { readResume } = await import("@/lib/person");
       const st = await b.store();
       return readResume(st, b, input) as Promise<LoopResult<PersonProfile>>;
     },
     async draftEssay(applicationId, prompt, jobId) {
-      b.requireEditor();
+      await b.requireEditor();
       const { draftEssay } = await import("@/lib/person");
       return draftEssay(await b.store(), b, applicationId, prompt, jobId);
     },

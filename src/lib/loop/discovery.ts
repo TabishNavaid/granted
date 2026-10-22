@@ -216,10 +216,12 @@ export async function runDiscovery(input: DiscoveryInput): Promise<DiscoveryResu
   t = Date.now();
   const hits = new Map<string, gg.SearchHit>();
   const searchLog: DiscoveryResult["searches"] = [];
+  let fromGrantsGov = false;
   for (const s of searches) {
-    const { result, fromCache } = await gg.search({ keyword: s.keyword, oppStatuses: "forecasted|posted", eligibilities: gg.ELIGIBILITY.nonprofit501c3, fundingCategories: s.fundingCategories.join("|"), rows: 50 });
+    const { result, fromCache, from } = await gg.search({ keyword: s.keyword, oppStatuses: "forecasted|posted", eligibilities: gg.ELIGIBILITY.nonprofit501c3, fundingCategories: s.fundingCategories.join("|"), rows: 50 });
+    if (from !== "database") fromGrantsGov = true;
     searchLog.push({ keyword: s.keyword, fundingCategories: s.fundingCategories, hits: result.hitCount, fromCache });
-    input.onEvent?.({ kind: "search", text: `Searched Grants.gov for "${s.keyword}"${s.fundingCategories.length ? ` in ${s.fundingCategories.map((c) => gg.FUNDING_CATEGORIES[c] ?? c).join(" and ")}` : ""}`, detail: `${result.hitCount.toLocaleString("en-US")} notice${result.hitCount === 1 ? "" : "s"} open to 501(c)(3) nonprofits` });
+    input.onEvent?.({ kind: "search", text: `Searched ${from === "database" ? "the opportunity database" : "Grants.gov"} for "${s.keyword}"${s.fundingCategories.length ? ` in ${s.fundingCategories.map((c) => gg.FUNDING_CATEGORIES[c] ?? c).join(" and ")}` : ""}`, detail: `${result.hitCount.toLocaleString("en-US")} notice${result.hitCount === 1 ? "" : "s"} open to 501(c)(3) nonprofits` });
     for (const h of result.oppHits) if (!hits.has(h.id)) hits.set(h.id, h);
   }
   const screened = hits.size;
@@ -233,7 +235,7 @@ export async function runDiscovery(input: DiscoveryInput): Promise<DiscoveryResu
   });
   tools.push({ name: "search_opportunities", summary: `${screened} notices from ${searches.length} searches, ${live.length} still open`, durationMs: Date.now() - t });
   input.onStage?.("search", `${screened} notices, ${live.length} still open`);
-  sources.push({ label: "Grants.gov search", url: "https://www.grants.gov/search-grants", documentId: null, kind: "database" });
+  sources.push(searchLog.length && !fromGrantsGov ? { label: "FundFellows opportunity database", url: "https://fundfellows.com/data", documentId: null, kind: "database" } : { label: "Grants.gov search", url: "https://www.grants.gov/search-grants", documentId: null, kind: "database" });
   if (!live.length) {
     return { matches: [], searches: searchLog, screened, read: 0, droppedIneligible: 0, droppedUnsupported: 0, tools, sources, usage, costUsd, models: [...models], durationMs: Date.now() - started };
   }
@@ -271,9 +273,9 @@ export async function runDiscovery(input: DiscoveryInput): Promise<DiscoveryResu
         input.onEvent?.({ kind: "dropped", text: detail.opportunityTitle, detail: !gg.isStillOpen(detail, today) ? "Set aside: it has closed." : "Set aside: nonprofits are not among the eligible applicants." });
         continue;
       }
-      input.onEvent?.({ kind: "notice", text: detail.opportunityTitle, detail: `${gg.notice(detail)?.agencyName ?? detail.owningAgencyCode}${gg.deadlineOf(detail) ? `, due ${gg.deadlineOf(detail)}` : ""}`, url: gg.opportunityPageUrl(id) });
+      input.onEvent?.({ kind: "notice", text: detail.opportunityTitle, detail: `${gg.notice(detail)?.agencyName ?? detail.owningAgencyCode}${gg.deadlineOf(detail) ? `, due ${gg.deadlineOf(detail)}` : ""}`, url: gg.pageUrlOf(detail) });
       candidates.push({ id, detail, text: gg.opportunityText(detail, 2_600) });
-      sources.push({ label: truncate(detail.opportunityTitle, 80), url: gg.opportunityPageUrl(id), documentId: null, kind: "web" });
+      sources.push({ label: truncate(detail.opportunityTitle, 80), url: gg.pageUrlOf(detail), documentId: null, kind: "web" });
     } catch {
       // A single bad fetch should not sink the run.
     }

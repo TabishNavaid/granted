@@ -11,7 +11,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { OpportunityCard } from "@/components/app/opportunity-card";
 import { newestFirst } from "@/lib/matches";
 import { ProgressSteps, type JobView } from "@/components/app/progress-steps";
-import { finalJob, newJobId, watchJob } from "@/lib/progress-client";
+import { finalJob, newJobId, watchJob, runLong } from "@/lib/progress-client";
 
 const FALLBACK: JobView = { status: "running", steps: [{ label: "Planning the searches", state: "active" }, { label: "Searching Grants.gov", state: "pending" }, { label: "Reading the strongest notices in full", state: "pending" }, { label: "Scoring each one against your facts", state: "pending" }, { label: "Checking private foundations' IRS filings", state: "pending" }] };
 
@@ -35,7 +35,7 @@ export function MatchesStep({ initial, total, demo, orgType = "nonprofit" }: { i
     // Started once per attempt, so a second render pass watches the same search.
     if (!run.current || run.current.attempt !== attempt) {
       const id = newJobId();
-      run.current = { attempt, jobId: id, result: services.loop.findMatches(id) };
+      run.current = { attempt, jobId: id, result: runLong(id, "loop.findMatches", [id], () => services.loop.findMatches(id)) };
     }
     const { jobId, result } = run.current;
     const stop = watchJob(jobId, (j) => {
@@ -135,6 +135,7 @@ export function MatchesStep({ initial, total, demo, orgType = "nonprofit" }: { i
                 ? `We kept ${count} scholarship funds. Pick one and paste its essay prompt; we draft from your own experiences.`
                 : `We kept ${count} you can apply for, federal and private, and these are the strongest. Each one says why it fits in plain words. Pick one and we will draft a letter from ${demo ? "the" : "your"} confirmed facts.`}
       </p>
+      {matches.length ? <h2 className="sr-only">Matches</h2> : null}
       {matches.length ? (
         <ul className="mt-8 border-b border-rule">
           {matches.map((m) => (

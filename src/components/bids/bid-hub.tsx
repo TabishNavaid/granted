@@ -1,5 +1,6 @@
 "use client";
 
+import { MarketPanel } from "./market-panel";
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,7 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
 import { ProgressSteps, type JobView } from "@/components/app/progress-steps";
-import { newJobId, watchJob, finalJob } from "@/lib/progress-client";
+import { newJobId, watchJob, finalJob, runLong } from "@/lib/progress-client";
 import { stageLabel, MODE_LABELS } from "@/lib/segments";
 import { milestoneMeta } from "@/lib/agents/meta";
 import { feeTotals, lineTotal } from "@/lib/bids/fee";
@@ -27,11 +28,11 @@ import { cn } from "@/lib/utils";
 const DRAFT_STEPS: JobView = { status: "running", steps: [{ label: "Choosing projects and people from your records", state: "active" }, { label: "Writing the sections", state: "pending" }, { label: "Checking every citation and number", state: "pending" }, { label: "Updating the compliance matrix", state: "pending" }] };
 
 const STATUS: Record<string, { label: string; className: string }> = {
-  met: { label: "Met", className: "bg-panel-sage text-meadow" },
-  partial: { label: "Partly", className: "bg-panel-cream text-ink" },
+  met: { label: "Met", className: "bg-paper-tint text-fellow" },
+  partial: { label: "Partly", className: "bg-paper-tint text-ink" },
   open: { label: "Open", className: "border border-alert text-alert" },
-  firm_action: { label: "Your step", className: "bg-panel-mist text-ink" },
-  not_applicable: { label: "Does not apply", className: "bg-panel-mist text-ink-muted" },
+  firm_action: { label: "Your step", className: "bg-paper-tint text-ink" },
+  not_applicable: { label: "Does not apply", className: "bg-paper-tint text-ink-muted" },
 };
 
 const usd = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
@@ -78,7 +79,7 @@ export function BidHub({ initial, sf330: initialSf, sections, milestones, demo, 
     const jobId = newJobId();
     setJob(DRAFT_STEPS);
     const stop = watchJob(jobId, setJob);
-    const r = await services.bids.draft(app.id, jobId);
+    const r = await runLong(jobId, "bids.draft", [app.id, jobId], () => services.bids.draft(app.id, jobId));
     stop();
     if (!r.ok) {
       setJob(null);
@@ -101,9 +102,9 @@ export function BidHub({ initial, sf330: initialSf, sections, milestones, demo, 
       <header className="mt-4 border-b border-rule pb-6">
         <p className="text-base text-ink-muted">
           {app.funder.name}
-          {sol.number ? ` · ${sol.number}` : ""} · {MODE_LABELS[app.mode]}
+          {sol.number ? `, ${sol.number}` : ""}, {MODE_LABELS[app.mode]}
         </p>
-        <h1 className="mt-1 font-display text-h1 text-ink">{app.opportunity.title}</h1>
+        <h1 className="mt-1 font-display text-title text-ink">{app.opportunity.title}</h1>
         <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-base text-ink-muted">
           <span className="font-semibold text-ink">{stageLabel(app.stage, "contract")}</span>
           {app.opportunity.deadline ? <span>Due {formatDate(app.opportunity.deadline)}</span> : <span>No due date found</span>}
@@ -139,7 +140,7 @@ export function BidHub({ initial, sf330: initialSf, sections, milestones, demo, 
           <div className="grid gap-10 lg:grid-cols-[1fr_20rem] [&>*]:min-w-0">
             <section aria-labelledby="gng">
               <div className="flex flex-wrap items-end gap-6">
-                <p className="font-display text-[5.5rem] leading-[0.85] text-ink tnum" aria-label={`Go/no-go score ${g?.score ?? 0} of 100`}>
+                <p className="font-mono text-[4.5rem] leading-[0.85] tracking-[-0.04em] text-ink tnum" aria-label={`Go/no-go score ${g?.score ?? 0} of 100`}>
                   {g?.score ?? "–"}
                 </p>
                 <div className="pb-1">
@@ -164,8 +165,8 @@ export function BidHub({ initial, sf330: initialSf, sections, milestones, demo, 
                   <li key={f.key} className="grid gap-x-6 gap-y-1 border-b border-rule py-4 sm:grid-cols-[13rem_1fr]">
                     <div>
                       <p className="font-semibold text-ink">{f.label}</p>
-                      <div className="mt-2 h-2 w-full max-w-[10rem] rounded-full bg-panel-sage" aria-hidden>
-                        <div className={cn("h-2 rounded-full", f.score >= 0.7 ? "bg-meadow" : f.score >= 0.4 ? "bg-meadow-light" : "bg-alert")} style={{ width: `${Math.round(f.score * 100)}%` }} />
+                      <div className="mt-2 h-2 w-full max-w-[10rem] rounded-full bg-paper-tint" aria-hidden>
+                        <div className={cn("h-2 rounded-full", f.score >= 0.7 ? "bg-fellow" : f.score >= 0.4 ? "bg-fellow-light" : "bg-alert")} style={{ width: `${Math.round(f.score * 100)}%` }} />
                       </div>
                       <p className="sr-only">{Math.round(f.score * 100)} out of 100</p>
                     </div>
@@ -267,6 +268,9 @@ export function BidHub({ initial, sf330: initialSf, sections, milestones, demo, 
                   Read the original<span className="sr-only"> (opens in a new tab)</span>
                 </a>
               ) : null}
+              <div className="mt-10">
+                <MarketPanel applicationId={app.id} />
+              </div>
             </aside>
           </div>
         </TabsContent>
@@ -607,7 +611,7 @@ function FeePanel({ bid, readOnly, onSaved }: { bid: BidView; readOnly: boolean;
           <tbody>
             {fee.phases.map((ph, i) => (
               <React.Fragment key={ph.key}>
-                <tr className="border-b border-rule bg-panel-sage/50">
+                <tr className="border-b border-rule bg-paper-tint/50">
                   <th scope="rowgroup" colSpan={3} className="py-2 pr-3 font-semibold text-ink">
                     {ph.name}
                   </th>
@@ -699,10 +703,10 @@ function Sf330Preview({ sf, appId }: { sf: Sf330; appId: string }) {
           {a.e.map((r) => (
             <li key={r.personnelId + r.role} className="border-b border-rule py-3">
               <p className="font-semibold text-ink">
-                {r.name} <span className="font-normal text-ink-muted">· {r.role}</span>
+                {r.name} <span className="font-normal text-ink-muted">, {r.role}</span>
               </p>
               <p className="text-sm text-ink-muted">
-                {r.yearsTotal ?? "?"} years, {r.yearsWithFirm ?? "?"} with the firm · {r.registrations.join("; ") || "No registrations listed"}
+                {r.yearsTotal ?? "?"} years, {r.yearsWithFirm ?? "?"} with the firm, {r.registrations.join("; ") || "No registrations listed"}
               </p>
               <p className="mt-1 text-sm text-ink">{r.projects.map((x) => x.title).join("; ")}</p>
             </li>
@@ -716,8 +720,8 @@ function Sf330Preview({ sf, appId }: { sf: Sf330; appId: string }) {
                 {f.key}. {f.title}
               </p>
               <p className="text-sm text-ink-muted">
-                {f.location} · {f.owner}
-                {f.completed.construction ? ` · completed ${f.completed.construction}` : ""}
+                {f.location}, {f.owner}
+                {f.completed.construction ? `, completed ${f.completed.construction}` : ""}
               </p>
             </li>
           ))}

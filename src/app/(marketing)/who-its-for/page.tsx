@@ -7,14 +7,14 @@ import { PRODUCT_NAME } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "Who it's for",
-  description: `${PRODUCT_NAME} for small nonprofits, grant consultants, fiscal sponsors, architecture and construction firms, research teams, and scholarship seekers: the problem each one has, how it helps, and what is limited today.`,
+  description: `${PRODUCT_NAME} for architecture, engineering, and construction firms, nonprofits, research teams, students, grant consultants, and fiscal sponsors: the problem each one has, how it helps, and what is limited today.`,
   alternates: { canonical: "/who-its-for" },
 };
 
 export default function WhoItsForPage() {
   return (
     <>
-      <PageIntro title="Who it is for, and what it cannot do yet." lead="Six kinds of applicants use it. For each, the problem in their own terms, how it helps, and honestly what is limited today.">
+      <PageIntro title="Who it is for, and what it cannot do yet." lead="Firms, nonprofits, research teams, students, and the consultants and fiscal sponsors who apply for others. For each, the problem in their own terms, how it helps, and what is limited today.">
         <nav aria-label="On this page" className="mt-8">
           <ul className="flex flex-wrap gap-x-6 gap-y-2 text-base">
             {audiences.map((a) => (
@@ -33,7 +33,7 @@ export default function WhoItsForPage() {
           <div className="mx-auto max-w-[75rem] px-4 py-16 sm:px-6 lg:px-10 lg:py-24">
             <div className="grid gap-8 lg:grid-cols-[1fr_1.5fr] lg:gap-20">
               <div>
-                <p className="font-display text-6xl leading-[0.85] tracking-[-0.03em] text-meadow tnum" aria-hidden>
+                <p className="font-display text-6xl leading-[0.85] tracking-[-0.03em] text-fellow tnum" aria-hidden>
                   {i + 1}
                 </p>
                 <h2 className="mt-5 font-display text-4xl text-ink sm:text-5xl">{a.name}</h2>

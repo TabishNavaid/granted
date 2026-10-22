@@ -6,7 +6,7 @@
  */
 import { runInSession } from "@/lib/services/demo-session";
 import { mockServices } from "@/lib/services/mock";
-import { matchFoundations } from "@/lib/foundations";
+import { loadFoundations, matchFoundations } from "@/lib/foundations";
 
 (async () => {
   for (const [sid, sample, host] of [["s_probe_youth", "org_riverbend", "riverbendyouth.org"], ["s_probe_food", "org_second_furrow", "secondfurrow.org"], ["s_probe_clinic", "org_pine_hollow", "pinehollowhealth.org"]]) {
@@ -17,6 +17,7 @@ import { matchFoundations } from "@/lib/foundations";
       await mockServices.loop.confirmProfile({ keptFactIds: facts.filter((f) => f.status === "needs_review").map((f) => f.id), factEdits: {}, org: {} });
       const org = await mockServices.org.get();
       console.log(`\n# ${sample}: causes ${JSON.stringify(org.causes)}`);
+      await loadFoundations();
       const screen = matchFoundations({ org, facts: await mockServices.knowledge.listFacts(), limit: 10 });
       for (const m of screen.matches) console.log(`  ${m.fitScore} ${m.foundation.name} [${m.foundation.focus.join(", ")}] ${m.reasons[0]}`);
       await mockServices.loop.findMatches();

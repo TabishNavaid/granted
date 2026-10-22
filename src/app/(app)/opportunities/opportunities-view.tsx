@@ -175,13 +175,18 @@ export function OpportunitiesView({ matches, demo, savedSearches, orgType = "non
           action={demo || matches.length ? undefined : <FindMatchesButton size="md" />}
         />
       ) : (
-        <ul className="mt-6 border-b border-rule">
+        <section aria-labelledby="matches-heading">
+          <h2 id="matches-heading" className="sr-only">
+            Matches
+          </h2>
+          <ul className="mt-6 border-b border-rule">
           {sorted.map((m) => (
             <li key={m.id}>
               <OpportunityCard match={m} />
             </li>
           ))}
-        </ul>
+          </ul>
+        </section>
       )}
 
       <section aria-labelledby="more-places" className="mt-10 border-t border-rule pt-5">
@@ -205,7 +210,7 @@ export function OpportunitiesView({ matches, demo, savedSearches, orgType = "non
       </section>
 
       {orgType !== "nonprofit" ? null : demo ? (
-        <p className="mt-8 max-w-[65ch] text-sm text-ink-muted">In the demo, the Grants.gov searches are recorded runs, so a custom search is not available here. The foundation directory on the Funders page is searchable now.</p>
+        <p className="mt-8 max-w-[65ch] text-sm text-ink-muted">In the demo, the Grants.gov searches are recorded runs, so a custom search is not available here. Foundation search on the Funders page is searchable now.</p>
       ) : (
         <SearchPanel saved={savedSearches} />
       )}

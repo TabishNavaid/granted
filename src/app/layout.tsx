@@ -1,22 +1,30 @@
 import type { Metadata, Viewport } from "next";
-import { Atkinson_Hyperlegible_Next, Newsreader } from "next/font/google";
+import { IBM_Plex_Mono, Public_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { Analytics } from "@vercel/analytics/next";
 import { ToastProvider } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { PRODUCT_DESCRIPTION, PRODUCT_NAME } from "@/lib/brand";
-import { siteUrl } from "@/lib/site-url";
+import { canonicalUrl } from "@/lib/site-url";
 import "./globals.css";
 
-// Headlines: a text serif with an optical size axis, so it is crisp and composed at display sizes.
-const display = Newsreader({ subsets: ["latin"], axes: ["opsz"], style: ["normal", "italic"], variable: "--font-newsreader", display: "swap" });
-// Body and interface: a calm text face built for people who read with effort, so budgets and deadlines stay clear.
-const body = Atkinson_Hyperlegible_Next({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-atkinson", display: "swap", adjustFontFallback: false, fallback: ["Helvetica Neue", "Arial", "sans-serif"] });
+// Everything people read and click: Public Sans, made by the U.S. Web Design System for public services and forms.
+const sans = Public_Sans({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-public", display: "swap" });
+// Identifiers people already work with (solicitation numbers, NAICS codes, dates, counts).
+const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-plex-mono", display: "swap", preload: false });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl()),
+  metadataBase: new URL(canonicalUrl()),
   title: { default: PRODUCT_NAME, template: `%s | ${PRODUCT_NAME}` },
   description: PRODUCT_DESCRIPTION,
+  applicationName: PRODUCT_NAME,
+  alternates: { canonical: "./" },
+  openGraph: { type: "website", siteName: PRODUCT_NAME, url: "./", locale: "en_US" },
+  twitter: { card: "summary_large_image" },
 };
+
+// Background jobs run after the response in the same function (src/lib/jobs/runner.ts); give them room.
+export const maxDuration = 300;
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -26,7 +34,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} h-full`} suppressHydrationWarning>
+    <html lang="en" className={`${sans.variable} ${mono.variable} h-full`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-paper text-ink">
         {/* Light is the brand. Night mode is parked until it has its own design. */}
         <ThemeProvider attribute="class" forcedTheme="light" enableSystem={false} disableTransitionOnChange>
@@ -34,6 +42,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <ToastProvider>{children}</ToastProvider>
           </TooltipProvider>
         </ThemeProvider>
+        {/* Page views only, no cookies. On once Web Analytics is enabled for the Vercel project and VERCEL_ANALYTICS=on. */}
+        {process.env.VERCEL && process.env.VERCEL_ANALYTICS === "on" ? <Analytics /> : null}
       </body>
     </html>
   );

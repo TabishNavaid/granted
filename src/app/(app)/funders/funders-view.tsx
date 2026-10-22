@@ -131,7 +131,7 @@ export function FundersView({ known, initialDirectory, likeYou }: Props) {
 
       <section aria-labelledby="dir-title" className="mt-12">
         <h2 id="dir-title" className="font-display text-2xl text-ink">
-          Foundation directory
+          Foundation search
         </h2>
         <p className="mt-2 max-w-[65ch] text-base text-ink-muted">Private foundations in Ohio, Kentucky, and North Carolina, read from their public IRS Form 990-PF filings.</p>
         <form
@@ -141,7 +141,7 @@ export function FundersView({ known, initialDirectory, likeYou }: Props) {
             void search(query, state);
           }}
           role="search"
-          aria-label="Foundation directory"
+          aria-label="Foundation search"
         >
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="dir-query">Name, city, or cause</Label>

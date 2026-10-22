@@ -5,7 +5,7 @@ import type { Services } from "./contracts";
 import { computeWinAnalytics } from "@/lib/features/analytics";
 import { planMonth } from "@/lib/features/planner";
 import { analyzeVoice, answerByRules, buildLogicModel, conceptNoteSections, credibilityPosts, feedbackRequestEmail, followUpEmail, logicModelHtml, recomputeCompliance, reminderOutbox, winKit } from "@/lib/features";
-import { allFoundations, foundationByFunderId, fundersLikeYou, irsPageUrl, matchFoundations, matchScholarships, noticeTextFor, peerOrganizations, recommendAsk, stateCode, toFunder, toOpportunity } from "@/lib/foundations";
+import { allFoundations, foundationByFunderId, fundersLikeYou, irsPageUrl, matchFoundations, matchScholarships, noticeTextFor, peerOrganizations, recommendAsk, stateCode, toFunder, toOpportunity, rememberFoundations, loadFoundations } from "@/lib/foundations";
 import { map, many, must, toMatchViews } from "./supabase";
 
 /**
@@ -14,7 +14,7 @@ import { map, many, must, toMatchViews } from "./supabase";
  * runs; writes go to the tables in migration 0004.
  */
 type Row = Record<string, unknown>;
-type Base = Pick<Services, "org" | "knowledge" | "opportunities" | "applications" | "inbox" | "calendar" | "outreach" | "contacts" | "social" | "integrations" | "billing">;
+type Base = Pick<Services, "org" | "knowledge" | "opportunities" | "applications" | "inbox" | "calendar" | "outreach" | "contacts" | "social" | "integrations" | "account">;
 
 const DEFAULT_AUTONOMY: Record<AgentName, AgentAutonomy> = { profile: "draft", discovery: "draft", planner: "draft", proposal: "draft", outreach: "draft", calendar: "schedule" };
 const today = () => new Date().toISOString().slice(0, 10);
@@ -56,7 +56,7 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
   }
 
   const requireOwner = async () => {
-    if ((await base.org.currentUser()).role !== "owner") throw new Error("Only the workspace owner can change the team, billing, or the workspace itself.");
+    if ((await base.org.currentUser()).role !== "owner") throw new Error("Only the workspace owner can change the team or the workspace itself.");
   };
   const org = {
     async inviteMember(email: string, role: Member["role"]) {
@@ -192,6 +192,7 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
       return view;
     },
     async recommendAsk(id: string) {
+      await loadFoundations();
       const x = await snapshot();
       const a = appView(x, id);
       const f = foundationByFunderId(a.funder.id);
@@ -260,6 +261,7 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
 
   const inbox = {
     async planNextMonth(): Promise<MonthlyPlan> {
+      await loadFoundations();
       const x = await snapshot();
       const now = new Date();
       const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
@@ -276,7 +278,7 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
   const calendar = {
     async reminderOutbox() {
       const x = await snapshot();
-      const settings = await base.billing.getNotificationSettings();
+      const settings = await base.account.getNotificationSettings();
       const reminders = reminderOutbox({ milestones: x.milestones, settings, today: today(), to: x.s.email, titleFor: (m) => x.apps.find((a) => a.id === m.applicationId)?.opportunity.title ?? "an application" });
       return { reminders, canSend: Boolean(process.env.RESEND_API_KEY && process.env.CRON_SECRET) };
     },
@@ -289,8 +291,18 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
       const fresh = x.matches.filter((m) => m.createdAt >= weekAgo && m.status === "new").sort((a, b) => b.fitScore - a.fitScore);
       const horizon = new Date(Date.now() + 14 * 86_400_000).toISOString().slice(0, 10);
       const soon = x.milestones.filter((m) => !m.done && m.dueDate >= today() && m.dueDate <= horizon);
-      const body = [`Hi ${(x.s.fullName || "").split(" ")[0] || "there"},`, "", fresh.length ? `${fresh.length} new matches this week:` : "No new matches this week.", ...fresh.slice(0, 5).map((m) => `- ${m.opportunity.title} (${m.funder.name}), fit ${m.fitScore}`), "", soon.length ? "Due in the next two weeks:" : "Nothing is due in the next two weeks.", ...soon.map((m) => `- ${m.dueDate}: ${m.title}`)].join("\n");
-      return { subject: fresh.length ? `${fresh.length} new matches and what is due` : "Your week in grants", body, to: x.s.email, canSend: Boolean(process.env.RESEND_API_KEY) };
+      const { weeklyDigestEmail } = await import("@/lib/email/templates");
+      const { canonicalUrl } = await import("@/lib/site-url");
+      const base = canonicalUrl();
+      const t = weeklyDigestEmail({
+        workspaceName: x.org.name,
+        matches: fresh.slice(0, 6).map((m) => ({ title: m.opportunity.title, funder: m.funder.name, url: `${base}/inbox`, deadline: m.opportunity.deadline, source: "your matches", fit: m.fitScore })),
+        databaseNew: [],
+        deadlines: soon.map((m) => ({ title: m.title, application: x.apps.find((a) => a.id === m.applicationId)?.opportunity.title ?? "An application", date: m.dueDate, url: `${base}/applications/${m.applicationId}` })),
+        inboxUrl: `${base}/inbox`,
+        unsubscribeUrl: `${base}/settings?tab=notifications`,
+      });
+      return { subject: t.subject, body: t.text, to: x.s.email, canSend: Boolean(process.env.RESEND_API_KEY) };
     },
   };
 
@@ -306,6 +318,7 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
 
   const contacts = {
     async overlaps() {
+      await loadFoundations();
       const x = await snapshot();
       const norm = (s: string) => s.toLowerCase().replace(/[^a-z]+/g, " ").trim();
       const out: { contact: (typeof x.orgContacts)[number]; funderId: string; funderName: string; how: string }[] = [];
@@ -330,11 +343,13 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
   };
   const funderSvc: Services["funders"] = {
     async list() {
+      await loadFoundations();
       const x = await snapshot();
       const applied = new Set(x.apps.map((a) => a.funder.id));
       return x.funders.map((f) => summaryOf(x, f, applied.has(f.id) ? "applied" : "matched")).sort((a, b) => b.applications - a.applications || (b.fitScore ?? 0) - (a.fitScore ?? 0));
     },
     async get(id) {
+      await loadFoundations();
       const x = await snapshot();
       const rec = foundationByFunderId(id);
       const funder = x.funders.find((f) => f.id === id) ?? (rec ? toFunder(rec) : null);
@@ -354,6 +369,7 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
       return profile;
     },
     async directory(query, st) {
+      await loadFoundations();
       const x = await snapshot();
       const q = query.trim().toLowerCase();
       const want = st ? stateCode(st) : null;
@@ -363,16 +379,19 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
         .map((f) => summaryOf(x, x.funders.find((y) => y.id === `pf_${f.ein}`) ?? toFunder(f), x.funders.some((y) => y.id === `pf_${f.ein}`) ? "matched" : "directory"));
     },
     async fundersLikeYou() {
+      await loadFoundations();
       const x = await snapshot();
       const mine = [...new Set(x.matches.map((m) => m.funder.id).filter((id) => id.startsWith("pf_")))];
       const peers = peerOrganizations({ org: x.org, funderIds: mine, limit: 25 });
       return fundersLikeYou({ org: x.org, peers, exclude: mine, limit: 8 }).map((r) => ({ funder: toFunder(r.foundation), peers: r.peers.slice(0, 4) }));
     },
     async peers() {
+      await loadFoundations();
       const x = await snapshot();
       return peerOrganizations({ org: x.org, funderIds: [...new Set([...x.matches.map((m) => m.funder.id), ...x.apps.map((a) => a.funder.id)].filter((id) => id.startsWith("pf_")))], limit: 16 });
     },
     async addToMatches(funderId) {
+      await loadFoundations();
       const rec = foundationByFunderId(funderId);
       if (!rec) return null;
       const x = await snapshot();
@@ -380,7 +399,7 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
       const st = makeSupabaseStore(x.s);
       const scored = matchFoundations({ org: x.org, facts: x.facts.filter((f: Fact) => f.status === "confirmed"), limit: 400 }).matches.find((m) => m.foundation.ein === rec.ein);
       const stored = await st.upsertOpportunity(toOpportunity(rec), toFunder(rec), noticeTextFor(rec));
-      const m = await st.upsertMatch({ opportunityId: stored.opportunity.id, fitScore: scored?.fitScore ?? 45, reasons: scored?.reasons ?? [`Added from the foundation directory. It gives in ${rec.state}.`], cautions: scored?.cautions ?? [`Based on its ${rec.taxYear} filing with the IRS.`], eligibilityChecks: scored?.eligibilityChecks ?? [], status: "saved", dismissReason: null });
+      const m = await st.upsertMatch({ opportunityId: stored.opportunity.id, fitScore: scored?.fitScore ?? 45, reasons: scored?.reasons ?? [`Added from foundation search. It gives in ${rec.state}.`], cautions: scored?.cautions ?? [`Based on its ${rec.taxYear} filing with the IRS.`], eligibilityChecks: scored?.eligibilityChecks ?? [], status: "saved", dismissReason: null });
       return (await toMatchViews(db, [m]))[0] ?? null;
     },
   };
@@ -415,8 +434,14 @@ export function makeSupabaseFeatures(db: SupabaseClient, ctx: () => Promise<Sess
       return p;
     },
     async matches() {
+      await loadFoundations();
       const p = await scholarships.getProfile();
-      return p ? matchScholarships(p) : [];
+      if (!p) return [];
+      const { foundationPool } = await import("@/lib/catalog/app");
+      const { stateCode: stateCodeOf } = await import("@/lib/catalog/vocab");
+      const pool = await foundationPool(stateCodeOf(p.state), { individuals: true }).catch(() => undefined);
+      if (pool) rememberFoundations(pool);
+      return matchScholarships({ ...p, pool });
     },
   };
 

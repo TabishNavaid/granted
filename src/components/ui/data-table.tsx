@@ -27,7 +27,8 @@ const hideMap = { sm: "hidden sm:table-cell", md: "hidden md:table-cell", lg: "h
 /** A table: hairlines between rows, a tinted header, no frame. */
 export function DataTable<T>({ columns, rows, rowKey, caption, emptyMessage = "Nothing here yet.", onRowClick, className, dense }: DataTableProps<T>) {
   return (
-    <div className={cn("relative w-full overflow-x-auto border-t border-rule", className)}>
+    // Focusable so keyboard users can scroll a table that is wider than a phone screen.
+    <div tabIndex={0} role="region" aria-label={caption ?? "Table"} className={cn("relative w-full overflow-x-auto border-t border-rule focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus", className)}>
       <table className="w-full border-collapse text-sm">
         {caption ? <caption className="sr-only">{caption}</caption> : null}
         <thead>

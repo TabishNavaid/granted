@@ -1,0 +1,67 @@
+<!-- Recorded 2026-10-22 from the official page, trimmed to the part that carries the deadline. -->
+         $openNavIndex = -1;
+                $isMobileMenuOpen = false;
+                document.body.classList.toggle('overflow-hidden', $isMobileMenuOpen);
+                setTimeout(focusSearchInput, 350);
+            }
+        }
+
+        if (evt.key === '/' && !evt.metaKey && !evt.ctrlKey && !evt.altKey) {
+            if ($isSearchDialogOpen) {
+                evt.preventDefault();
+                focusSearchInput();
+            } else if (!isInputFocused) {
+                evt.preventDefault();
+                $isSearchDialogOpen = true;
+                $openNavIndex = -1;
+                $isMobileMenuOpen = false;
+                document.body.classList.toggle('overflow-hidden', $isMobileMenuOpen);
+                setTimeout(focusSearchInput, 350);
+            }
+        }
+    "
+    data-on:click__window="
+        if ($openNavIndex !== -1 && !evt.target.closest('[data-desktop-nav]')) {
+            $openNavIndex = -1;
+        }
+        if ($isSearchDialogOpen && !evt.target.closest('[data-desktop-search]') && !evt.target.closest('[data-desktop-search-toggle]')) {
+            $isSearchDialogOpen = false;
+        }
+    "
+>
+    
+                        
+            <div class="hidden lg:block bg-secondary-400 text-gray-950 text-center px-6 py-4 md:py-3" role="alert">
+            <p class="type-text-md">
+                    <span class="[&_a]:link-underline">
+        <strong>The 2027 CLS application is now open! </strong><a href="https://ais.americancouncils.org/cls"><strong>Apply by November 17, 8 PM Eastern</strong></a><strong>.</strong>
+    </span>
+            </p>
+        </div>
+    
+        <div class="bg-primary-100 hidden lg:block">
+        <div class="container py-3 flex justify-between items-center gap-8">
+            <nav aria-label="Topbar Navigation">
+                <ul class="flex items-center gap-8">
+                                            <li>
+                            <a href="https://clscholarship.org/events" class="type-text-md hover:underline">
+                                Events &amp; Webinars
+                            </a>
+                        </li>
+                                            <li>
+                            <a href="https://clscholarship.org/news" class="type-text-md hover:underline">
+                                News &amp; Stories
+                            </a>
+                        </li>
+                                            <li>
+                            <a href="https://clscholarship.org/resource-library" class="type-text-md hover:underline">
+                                Resource Library
+                            </a>
+                        </li>
+                                            <li>
+                            <a href="https://clscholarship.org/contact-us" class="type-text-md hover:underline">
+                                Contact Us
+                            </a>
+                        </li>
+                                    </ul>
+            </nav>

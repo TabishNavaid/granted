@@ -1,11 +1,12 @@
 import { AiError, aiErrorMessage, getAi, type JsonSchema } from "@/lib/ai";
+import { UsageLimitError } from "@/lib/usage/limits";
 import { hasAi } from "@/lib/env";
 import { replayActive } from "@/lib/replay/active";
 import { recordRun } from "@/lib/loop/runs";
 import { advanceJob, finishJob, logJob, startJob } from "@/lib/loop/progress";
 import { renderSectionText } from "@/lib/loop/proposal";
 import type { LetterGap, RenderOptions } from "@/lib/loop/letter";
-import { sourceLabelFor } from "@/lib/crawl";
+import { sourceLabelFor } from "@/lib/crawl/label";
 import type { Fact, ResearchProfile } from "@/lib/types";
 import type { LoopStore } from "@/lib/loop/store";
 import type { LoopResult } from "@/lib/services/contracts";
@@ -54,7 +55,7 @@ export async function draftResearch(store: LoopStore, profile: ResearchProfile |
     const facts = [...(await store.listFacts()).filter((f) => f.status === "confirmed"), ...researchFacts(profile)];
     const notice = (await store.noticeTextFor(ctx.opportunity.id)) ?? ctx.opportunity.summary;
     const policy = aiPolicyFor(`${ctx.funder.name} ${notice.slice(0, 400)}`);
-    const { output } = await recordRun(store, { agent: "proposal", title: `Draft a research proposal for ${ctx.opportunity.title}`, trigger: "user" }, async (rec) => {
+    const { output } = await recordRun(store, { agent: "proposal", title: `Draft a research proposal for ${ctx.opportunity.title}`, trigger: "user", usage: "draft" }, async (rec) => {
       if (jobId) advanceJob(jobId, policy ? `${policy.agency}: ${policy.level === "strict" ? "strict rules on AI" : policy.level === "disclose" ? "disclose AI use" : "check the notice"}` : "No funder AI policy found; check the notice");
       if (policy) logJob(jobId, { kind: "note", text: `${policy.agency} on AI`, detail: policy.summary });
       const defs = KINDS.research.sections;
@@ -135,6 +136,6 @@ export async function draftResearch(store: LoopStore, profile: ResearchProfile |
     return { ok: true, data: output };
   } catch (err) {
     if (jobId) finishJob(jobId, "failed");
-    return { ok: false, code: "failed", error: err instanceof AiError ? aiErrorMessage(err).message : "Something went wrong drafting the proposal. Try again." };
+    return { ok: false, code: "failed", error: err instanceof UsageLimitError ? err.message : err instanceof AiError ? aiErrorMessage(err).message : "Something went wrong drafting the proposal. Try again." };
   }
 }

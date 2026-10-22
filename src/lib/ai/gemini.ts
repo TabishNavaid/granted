@@ -1,4 +1,4 @@
-import { GoogleGenAI, ThinkingLevel } from "@google/genai";
+import type { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import { AiError, type AiProvider, type GenerateJsonRequest, type GenerateJsonResult, type JsonSchema, type ModelTier } from "./types";
 import { estimateCostUsd } from "./pricing";
 
@@ -66,15 +66,19 @@ export class GeminiProvider implements AiProvider {
     return env?.trim() || DEFAULT_MODELS[tier];
   }
 
-  private ai(): GoogleGenAI {
+  // The SDK loads on the first call, so pages that never call the model do not carry it.
+  private async ai(): Promise<GoogleGenAI> {
     if (!this.apiKey) throw new AiError("GEMINI_API_KEY is not set.", "no_key");
-    if (!this.client) this.client = new GoogleGenAI({ apiKey: this.apiKey });
+    if (!this.client) {
+      const { GoogleGenAI } = await import("@google/genai");
+      this.client = new GoogleGenAI({ apiKey: this.apiKey });
+    }
     return this.client;
   }
 
   async generateJson<T>(req: GenerateJsonRequest): Promise<GenerateJsonResult<T>> {
     const model = this.modelFor(req.tier);
-    const ai = this.ai();
+    const ai = await this.ai();
     const started = Date.now();
     let lastErr: unknown;
     for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
@@ -88,7 +92,7 @@ export class GeminiProvider implements AiProvider {
             responseSchema: toGeminiSchema(req.schema),
             maxOutputTokens: req.maxOutputTokens ?? 8192,
             // Extraction needs little reasoning; scoring and writing get the model's default.
-            thinkingConfig: req.tier === "lite" ? { thinkingLevel: ThinkingLevel.LOW } : undefined,
+            thinkingConfig: req.tier === "lite" ? { thinkingLevel: "LOW" as ThinkingLevel } : undefined,
           },
         });
         const text = response.text;
