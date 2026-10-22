@@ -102,7 +102,7 @@ export function BidHub({ initial, sf330: initialSf, sections, milestones, demo, 
       <header className="mt-4 border-b border-rule pb-6">
         <p className="text-base text-ink-muted">
           {app.funder.name}
-          {sol.number ? ` · ${sol.number}` : ""} · {MODE_LABELS[app.mode]}
+          {sol.number ? `, ${sol.number}` : ""}, {MODE_LABELS[app.mode]}
         </p>
         <h1 className="mt-1 font-display text-title text-ink">{app.opportunity.title}</h1>
         <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-base text-ink-muted">
@@ -703,10 +703,10 @@ function Sf330Preview({ sf, appId }: { sf: Sf330; appId: string }) {
           {a.e.map((r) => (
             <li key={r.personnelId + r.role} className="border-b border-rule py-3">
               <p className="font-semibold text-ink">
-                {r.name} <span className="font-normal text-ink-muted">· {r.role}</span>
+                {r.name} <span className="font-normal text-ink-muted">, {r.role}</span>
               </p>
               <p className="text-sm text-ink-muted">
-                {r.yearsTotal ?? "?"} years, {r.yearsWithFirm ?? "?"} with the firm · {r.registrations.join("; ") || "No registrations listed"}
+                {r.yearsTotal ?? "?"} years, {r.yearsWithFirm ?? "?"} with the firm, {r.registrations.join("; ") || "No registrations listed"}
               </p>
               <p className="mt-1 text-sm text-ink">{r.projects.map((x) => x.title).join("; ")}</p>
             </li>
@@ -720,8 +720,8 @@ function Sf330Preview({ sf, appId }: { sf: Sf330; appId: string }) {
                 {f.key}. {f.title}
               </p>
               <p className="text-sm text-ink-muted">
-                {f.location} · {f.owner}
-                {f.completed.construction ? ` · completed ${f.completed.construction}` : ""}
+                {f.location}, {f.owner}
+                {f.completed.construction ? `, completed ${f.completed.construction}` : ""}
               </p>
             </li>
           ))}

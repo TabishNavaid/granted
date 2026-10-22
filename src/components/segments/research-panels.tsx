@@ -36,7 +36,7 @@ export function TeamRecordsPanel({ profile, readOnly }: { profile: ResearchProfi
             <li key={i.id} className="border-b border-rule py-3">
               <p className="font-semibold text-ink">{i.name}</p>
               <p className="text-sm text-ink-muted">
-                {i.title} · {i.role === "pi" ? "principal investigator" : i.role === "co_pi" ? "co-investigator" : i.role}
+                {i.title}, {i.role === "pi" ? "principal investigator" : i.role === "co_pi" ? "co-investigator" : i.role}
               </p>
               <p className="text-base text-ink">{i.expertise.join(", ")}</p>
             </li>
@@ -57,7 +57,7 @@ export function TeamRecordsPanel({ profile, readOnly }: { profile: ResearchProfi
           {profile.priorAwards.length ? (
             profile.priorAwards.map((a) => (
               <li key={a.id} className="border-b border-rule py-3 text-base text-ink">
-                {a.title} <span className="text-ink-muted">· {a.funder}{a.amount ? ` · ${formatMoney(a.amount)}` : ""}{a.endYear ? ` · ended ${a.endYear}` : ""}</span>
+                {a.title} <span className="text-ink-muted">, {a.funder}{a.amount ? `, ${formatMoney(a.amount)}` : ""}{a.endYear ? `, ended ${a.endYear}` : ""}</span>
               </li>
             ))
           ) : (
@@ -107,7 +107,7 @@ export function FundedAnalogsPanel({ analogs, status, recordedOn }: { analogs: F
               <li key={`${p.source}${p.program}`} className="grid gap-x-6 border-b border-rule py-3 sm:grid-cols-[1fr_auto]">
                 <div>
                   <p className="font-semibold text-ink">
-                    {p.program} <span className="text-sm font-normal text-ink-muted">· {p.source.toUpperCase()}</span>
+                    {p.program} <span className="text-sm font-normal text-ink-muted">, {p.source.toUpperCase()}</span>
                   </p>
                   {p.officers.length ? <p className="text-sm text-ink-muted">Program officers: {p.officers.slice(0, 3).join(", ")}</p> : null}
                 </div>
@@ -129,7 +129,7 @@ export function FundedAnalogsPanel({ analogs, status, recordedOn }: { analogs: F
               <span className="sr-only"> (opens in a new tab)</span>
             </a>
             <p className="text-sm text-ink-muted">
-              {[a.source.toUpperCase(), a.institution, a.state, a.program, a.amount ? formatMoney(a.amount) : null, a.startDate?.slice(0, 4)].filter(Boolean).join(" · ")}
+              {[a.source.toUpperCase(), a.institution, a.state, a.program, a.amount ? formatMoney(a.amount) : null, a.startDate?.slice(0, 4)].filter(Boolean).join(", ")}
             </p>
           </li>
         ))}

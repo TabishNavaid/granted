@@ -70,7 +70,7 @@ export default function HowItWorksPage() {
         </ol>
       </section>
 
-      <ClosingCta title="Walk through it on a sample organization." lead="The demo walks through these steps with a fictional youth program and recorded runs. Nothing you do there is sent anywhere." />
+      <ClosingCta title="Walk through it on a sample organization." lead="The demo walks through these steps with six fictional samples, from a construction firm to a student, and recorded runs on real public notices. Nothing you do there is sent anywhere." />
     </div>
   );
 }

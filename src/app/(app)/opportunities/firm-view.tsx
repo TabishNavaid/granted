@@ -64,7 +64,7 @@ export function FirmOpportunitiesView({ bids, grants, sam: initialSam, demo, ini
                         {b.opportunity.title}
                       </Link>
                       <p className="mt-1 text-base text-ink-muted">
-                        {b.funder.name} · {stageLabel(b.stage, "contract")} · {due(b.opportunity.deadline)}
+                        {b.funder.name}, {stageLabel(b.stage, "contract")}, {due(b.opportunity.deadline)}
                       </p>
                     </div>
                     {b.goNoGo != null ? (

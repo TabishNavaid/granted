@@ -184,12 +184,12 @@ export function ProjectsPanel({ projects, readOnly }: { projects: PortfolioProje
               <div className="min-w-0">
                 <h3 className="font-display text-xl text-ink">{p.name}</h3>
                 <p className="text-base text-ink-muted">
-                  {p.client} · {[p.city, p.state].filter(Boolean).join(", ")} · {ROLE_WORDS[p.role]}
-                  {p.status === "completed" ? (p.completionDate ? ` · completed ${p.completionDate.slice(0, 4)}` : "") : " · in progress"}
+                  {p.client}, {[p.city, p.state].filter(Boolean).join(", ")}, {ROLE_WORDS[p.role]}
+                  {p.status === "completed" ? (p.completionDate ? `, completed ${p.completionDate.slice(0, 4)}` : "") : ", in progress"}
                 </p>
                 <p className="mt-1 max-w-[70ch] text-base text-ink">{p.scope}</p>
                 <p className="mt-1 text-sm text-ink-muted">
-                  {[p.sizeSqft ? `${p.sizeSqft.toLocaleString("en-US")} sq ft` : null, p.constructionCost ? `construction ${formatMoney(p.constructionCost)}` : null, p.contractValue ? `fee ${formatMoney(p.contractValue)}` : null, p.profileCode ? `SF 330 code ${p.profileCode}` : null, p.reference ? `reference: ${p.reference.name}` : "no reference yet"].filter(Boolean).join(" · ")}
+                  {[p.sizeSqft ? `${p.sizeSqft.toLocaleString("en-US")} sq ft` : null, p.constructionCost ? `construction ${formatMoney(p.constructionCost)}` : null, p.contractValue ? `fee ${formatMoney(p.contractValue)}` : null, p.profileCode ? `SF 330 code ${p.profileCode}` : null, p.reference ? `reference: ${p.reference.name}` : "no reference yet"].filter(Boolean).join(", ")}
                 </p>
               </div>
               {readOnly ? null : (
@@ -316,7 +316,7 @@ export function PeoplePanel({ personnel, projects, readOnly }: { personnel: Pers
             <div className="min-w-0">
               <h3 className="font-display text-xl text-ink">{p.name}</h3>
               <p className="text-base text-ink-muted">
-                {p.title} · usually {p.role.toLowerCase()} · {p.yearsTotal ?? "?"} years, {p.yearsWithFirm ?? "?"} with the firm
+                {p.title}, usually {p.role.toLowerCase()}, {p.yearsTotal ?? "?"} years, {p.yearsWithFirm ?? "?"} with the firm
               </p>
               <p className="mt-1 text-base text-ink">{p.registrations.map((r) => `${r.license} (${r.state})`).join("; ") || "No registrations listed"}</p>
               {p.certifications.length ? <p className="text-sm text-ink-muted">{p.certifications.join(", ")}</p> : null}
@@ -408,7 +408,7 @@ export function CredentialsPanel({ certifications, readOnly }: { certifications:
           <li key={c.id} className="flex items-start justify-between gap-4 border-b border-rule py-3">
             <div>
               <p className="font-semibold text-ink">{c.label || certWords(c.kind)}</p>
-              <p className="text-sm text-ink-muted">{[c.issuer, c.state, c.number, c.expires ? `expires ${c.expires}` : null].filter(Boolean).join(" · ")}</p>
+              <p className="text-sm text-ink-muted">{[c.issuer, c.state, c.number, c.expires ? `expires ${c.expires}` : null].filter(Boolean).join(", ")}</p>
             </div>
             {readOnly ? null : (
               <Button variant="ghost" size="icon-sm" className="shrink-0" aria-label={`Edit ${c.label}`} onClick={() => setEditing({ ...c })}>

@@ -101,26 +101,29 @@ export async function dataPageStats(): Promise<DataPageStats> {
   }
 }
 
-export const KIND_GROUPS: { title: string; test: (s: SourceInfo) => boolean }[] = [
-  { title: "Federal grants and programs", test: (s) => s.region === "us" && s.kinds.includes("grant") && !s.kinds.includes("contract") && !/990|foundation/i.test(s.name) },
-  { title: "Contracts and public bids", test: (s) => s.kinds.includes("contract") },
-  { title: "Research funding", test: (s) => s.kinds.includes("research") && !s.kinds.includes("grant") },
-  { title: "Foundations and nonprofits", test: (s) => /990|foundation|exempt|irs/i.test(`${s.name} ${s.id}`) },
-  { title: "Scholarships and fellowships", test: (s) => s.kinds.length === 1 && s.kinds[0] === "scholarship" },
-  { title: "Past awards", test: (s) => s.kinds.length === 0 || /award|spending|reporter/i.test(`${s.name} ${s.id}`) },
+/** How the /data page groups sources. A source not listed falls into "Other sources". */
+const GROUPS: { title: string; ids: string[] }[] = [
+  { title: "Federal grants and programs", ids: ["grantsgov", "federal_register", "sam_assistance"] },
+  { title: "Federal contracts", ids: ["sam_opportunities"] },
+  { title: "State and city bids", ids: [] },
+  { title: "Research funding", ids: ["nih_guide", "nsf_funding", "sbir_topics", "nasa_nspires"] },
+  { title: "Foundations and nonprofits", ids: ["irs_990pf", "irs_registry"] },
+  { title: "Scholarships and fellowships", ids: ["curated_scholarships"] },
+  { title: "Outside the United States", ids: [] },
+  { title: "Past awards (totals only)", ids: ["usaspending", "nih_reporter", "nsf_awards", "sbir_awards"] },
 ];
 
 export function groupSources<T extends SourceInfo>(sources: T[]): { title: string; sources: T[] }[] {
-  const used = new Set<string>();
-  const out: { title: string; sources: T[] }[] = [];
-  for (const g of KIND_GROUPS) {
-    const list = sources.filter((s) => !used.has(s.id) && g.test(s));
-    list.forEach((s) => used.add(s.id));
-    if (list.length) out.push({ title: g.title, sources: list });
-  }
+  const out = GROUPS.map((g) => ({
+    title: g.title,
+    sources: sources.filter((s) =>
+      g.title === "State and city bids" ? s.region === "state" || s.region === "local" : g.title === "Outside the United States" ? s.region === "international" : g.ids.includes(s.id),
+    ),
+  }));
+  const used = new Set(out.flatMap((g) => g.sources.map((s) => s.id)));
   const rest = sources.filter((s) => !used.has(s.id));
   if (rest.length) out.push({ title: "Other sources", sources: rest });
-  return out;
+  return out.filter((g) => g.sources.length);
 }
 
 export { TYPE_LABELS };

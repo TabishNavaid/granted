@@ -9,7 +9,7 @@ import { PRODUCT_NAME } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: "Product",
-  description: `What ${PRODUCT_NAME} does: matching against Grants.gov and private foundation filings, drafts with sources, deadlines, outreach, connections, and win analytics. Every step waits for your approval.`,
+  description: `What ${PRODUCT_NAME} does: matching against the opportunity database (federal grants, public bids, research funding, foundations, and scholarships), drafts with sources, deadlines, outreach, connections, and win analytics. Every step waits for your approval.`,
   alternates: { canonical: "/product" },
 };
 
@@ -79,7 +79,7 @@ export default function ProductPage() {
         </div>
       </section>
 
-      <NeverBand items={never} title="What it will never do" lead="These hold across every part of the product, on every plan." />
+      <NeverBand items={never} title="What it will never do" lead="These hold across every part of the product." />
 
       <section className="border-b border-rule">
         <div className="mx-auto flex max-w-[75rem] flex-col gap-4 px-4 py-12 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-10">
