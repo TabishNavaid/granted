@@ -1,0 +1,556 @@
+{
+ "meta": {
+  "search_id": "lmVXdxpcMUaEvc6v8xjaWw",
+  "total": 181,
+  "offset": 0,
+  "limit": 30,
+  "sort_field": "appl_id",
+  "sort_order": "asc",
+  "sorted_by_relevance": false,
+  "properties": {
+   "URL": "https:/reporter.nih.gov/search/lmVXdxpcMUaEvc6v8xjaWw/projects"
+  }
+ },
+ "results": [
+  {
+   "appl_id": 11239786,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "OH",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "R01",
+   "award_amount": 329273,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11240275,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "PA",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "R01",
+   "award_amount": 304983,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11240299,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "SC",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "R01",
+   "award_amount": 589709,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11247150,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "KY",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "G08",
+   "award_amount": 254234,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11247551,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "NJ",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "G13",
+   "award_amount": 48277,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11249220,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "CA",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "R13",
+   "award_amount": 20000,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11249556,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "CA",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "G13",
+   "award_amount": 103754,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11251760,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "TX",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "R21",
+   "award_amount": 220725,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11252543,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "MD",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "R01",
+   "award_amount": 561850,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11255371,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "UT",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "R44",
+   "award_amount": 306721,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11259583,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "IL",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "R01",
+   "award_amount": 539207,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11261730,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "NY",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "R01",
+   "award_amount": 381375,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11263134,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "MO",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "R01",
+   "award_amount": 1,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11270042,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "MD",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "R01",
+   "award_amount": 1399500,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11271152,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "NJ",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "R01",
+   "award_amount": 353250,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11283547,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "NY",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "K99",
+   "award_amount": 119504,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11284471,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "IL",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "R21",
+   "award_amount": 210258,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11288140,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "NY",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "R03",
+   "award_amount": 82250,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11288260,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "NY",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "R21",
+   "award_amount": 228825,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11288452,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "CA",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "R21",
+   "award_amount": 216000,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11288897,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "NM",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "G13",
+   "award_amount": 114043,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11289349,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "MO",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "R01",
+   "award_amount": 349875,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11289366,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "OH",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "R01",
+   "award_amount": 615836,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11289431,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "MA",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "R01",
+   "award_amount": 387919,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11289575,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "TN",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "R01",
+   "award_amount": 1521723,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11292292,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "TX",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "G13",
+   "award_amount": 106274,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11292706,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "CO",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "G13",
+   "award_amount": 100002,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11295337,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "CA",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "R01",
+   "award_amount": 652850,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11295844,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "PA",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "R01",
+   "award_amount": 622659,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11296133,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "TN",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "2",
+   "activity_code": "R01",
+   "award_amount": 393750,
+   "agency_ic_admin": {
+    "code": "LM",
+    "abbreviation": "NLM",
+    "name": "National Library of Medicine",
+    "admin_org_id": "12500048",
+    "admin_funding_url": ""
+   }
+  }
+ ]
+}

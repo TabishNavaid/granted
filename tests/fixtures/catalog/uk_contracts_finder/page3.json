@@ -1,0 +1,115 @@
+{
+    "uri": "https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?stages=tender&limit=4&publishedFrom=2026-10-20T00:00:00&publishedTo=2026-10-21T00:00:00",
+    "version": "1.1",
+    "extensions": [
+        "https://standard.open-contracting.org/profiles/eu/master/en/extension.json",
+        "https://raw.githubusercontent.com/portaledcahn/ocds_tenderDatePublished_extension/master/extension.json",
+        "https://raw.githubusercontent.com/open-contracting-extensions/ocds_budget_breakdown_extension/master/extension.json",
+        "https://raw.githubusercontent.com/Crown-Commercial-Service/ocds_awards_datePublished_extension/main/extension.json",
+        "https://raw.githubusercontent.com/Crown-Commercial-Service/ocds_partyDetails_vcse_extension/main/extension.json",
+        "https://raw.githubusercontent.com/Crown-Commercial-Service/ocds_tender_suitability_extension/main/extension.json",
+        "https://raw.githubusercontent.com/open-contracting-extensions/ocds_pagination_extension/master/extension.json"
+    ],
+    "publishedDate": "2026-10-20T10:47:26+01:00",
+    "publisher": {
+        "name": "Cabinet Office",
+        "scheme": "GB-GOR",
+        "uid": "D2",
+        "uri": "https://www.gov.uk/government/organisations/cabinet-office"
+    },
+    "license": "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+    "publicationPolicy": "https://www.gov.uk/government/publications/open-contracting",
+    "releases": [
+        {
+            "ocid": "ocds-b5fd17-3b1b4809-0f04-40ea-aa80-2471268ea7ec",
+            "id": "dcf661f4-e9c7-4e5c-a726-4405a0151b33-918353",
+            "language": "en",
+            "date": "2026-10-20T10:47:26+01:00",
+            "tag": [
+                "tender"
+            ],
+            "initiationType": "tender",
+            "tender": {
+                "id": "LBBRENT001-DN833530-67449823",
+                "title": "test",
+                "description": "test",
+                "datePublished": "2026-10-20T10:47:25+01:00",
+                "status": "active",
+                "classification": {
+                    "scheme": "CPV",
+                    "id": "72000000",
+                    "description": "IT services: consulting, software development, Internet and support"
+                },
+                "items": [
+                    {
+                        "id": "1",
+                        "deliveryAddresses": [
+                            {
+                                "countryName": "United Kingdom"
+                            }
+                        ]
+                    }
+                ],
+                "value": {
+                    "amount": 50000,
+                    "currency": "GBP"
+                },
+                "procurementMethod": "limited",
+                "procurementMethodDetails": "Competitive quotation (below threshold)",
+                "tenderPeriod": {
+                    "endDate": "2026-10-20T12:00:00+01:00"
+                },
+                "contractPeriod": {
+                    "startDate": "2026-11-04T00:00:00Z",
+                    "endDate": "2026-11-06T23:59:59Z"
+                },
+                "suitability": {
+                    "sme": false,
+                    "vcse": false
+                },
+                "mainProcurementCategory": "services",
+                "documents": [
+                    {
+                        "id": "1",
+                        "documentType": "tenderNotice",
+                        "description": "Opportunity notice on Contracts Finder",
+                        "url": "https://www.contractsfinder.service.gov.uk/Notice/dcf661f4-e9c7-4e5c-a726-4405a0151b33",
+                        "datePublished": "2026-10-20T10:47:25+01:00",
+                        "format": "text/html",
+                        "language": "en"
+                    }
+                ]
+            },
+            "parties": [
+                {
+                    "id": "GB-CFS-66340",
+                    "name": "London Borough of Brent",
+                    "identifier": {
+                        "legalName": "London Borough of Brent"
+                    },
+                    "address": {
+                        "streetAddress": "Brent Civic Centre",
+                        "locality": "Wembley",
+                        "postalCode": "HA9 0FJ",
+                        "countryName": "United Kingdom"
+                    },
+                    "contactPoint": {
+                        "name": "Gemma McCourt",
+                        "email": "gemma.mccourt@sharedtechnology.services",
+                        "telephone": "+44 2089376081"
+                    },
+                    "details": {
+                        "url": "http://www.brent.gov.uk/"
+                    },
+                    "roles": [
+                        "buyer"
+                    ]
+                }
+            ],
+            "buyer": {
+                "id": "GB-CFS-66340",
+                "name": "London Borough of Brent"
+            }
+        }
+    ]
+}

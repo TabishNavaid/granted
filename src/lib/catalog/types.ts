@@ -11,6 +11,7 @@ export type FunderKind =
   | "corporate"
   | "university"
   | "international"
+  | "foreign_government"
   | "other";
 
 /** One data source, as recorded in catalog_sources and shown on /data. */

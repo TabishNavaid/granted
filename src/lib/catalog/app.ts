@@ -250,10 +250,10 @@ export function toOpportunityDetail(r: CatalogRow) {
   };
 }
 
-/** Contract and bid sources: SAM.gov plus every state, local, and international procurement feed. */
-export async function contractSources(): Promise<string[]> {
-  const { data } = await adminClient().from("catalog_sources").select("id, kinds, enabled").contains("kinds", ["contract"]);
-  const ids = (data ?? []).filter((s) => s.enabled !== false).map((s) => String(s.id));
+/** Contract and bid sources: SAM.gov plus state and local feeds; international tenders only when asked for. */
+export async function contractSources(opts: { international?: boolean } = {}): Promise<string[]> {
+  const { data } = await adminClient().from("catalog_sources").select("id, kinds, enabled, region").contains("kinds", ["contract"]);
+  const ids = (data ?? []).filter((s) => s.enabled !== false && (opts.international || s.region !== "international")).map((s) => String(s.id));
   return ids.length ? ids : BID_SOURCES;
 }
 

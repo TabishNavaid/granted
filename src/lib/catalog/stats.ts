@@ -24,6 +24,8 @@ export interface SourceInfo {
 }
 
 export interface SourceCount {
+  /** Federal program listings (the assistance catalog): not open calls, so counted apart. */
+  programs?: number;
   open: number;
   forecasted: number;
   total: number;
@@ -37,7 +39,9 @@ export interface DataPageStats {
   asOf: string | null;
   label: string | null;
   sources: (SourceInfo & { count: SourceCount | null })[];
-  totals: { open: number; forecasted: number; byType: Record<CatalogType, number>; funders: number; foundations: number };
+  totals: { open: number; forecasted: number; byType: Record<CatalogType, number>; funders: number; foundations: number; programs: number };
+  /** Open construction and architecture-engineering bids. */
+  construction: { federal: number; stateLocal: number; international: number };
 }
 
 type Snapshot = {
@@ -46,13 +50,16 @@ type Snapshot = {
   sources: SourceInfo[];
   counts: Record<string, SourceCount>;
   funders: Record<string, number>;
+  construction?: { federal: number; stateLocal: number; international: number };
 };
 
 function build(s: Snapshot, live: boolean, asOf: string | null): DataPageStats {
   const byType: Record<CatalogType, number> = { grant: 0, contract: 0, research: 0, scholarship: 0 };
   let open = 0;
   let forecasted = 0;
+  let programs = 0;
   for (const c of Object.values(s.counts)) {
+    programs += c.programs ?? 0;
     open += c.open;
     forecasted += c.forecasted;
     for (const [t, n] of Object.entries(c.byType)) byType[t as CatalogType] += n ?? 0;
@@ -63,7 +70,8 @@ function build(s: Snapshot, live: boolean, asOf: string | null): DataPageStats {
     asOf,
     label: s.label,
     sources: s.sources.filter((x) => x.enabled).map((x) => ({ ...x, count: s.counts[x.id] ?? null })),
-    totals: { open, forecasted, byType, funders, foundations: (s.funders.private_foundation ?? 0) + (s.funders.community_foundation ?? 0) },
+    totals: { open, forecasted, byType, funders, foundations: (s.funders.private_foundation ?? 0) + (s.funders.community_foundation ?? 0), programs },
+    construction: s.construction ?? { federal: 0, stateLocal: 0, international: 0 },
   };
 }
 
@@ -73,11 +81,12 @@ export async function dataPageStats(): Promise<DataPageStats> {
   try {
     const { adminClient } = await import("@/lib/supabase/clients");
     const db = adminClient();
-    const [stats, funders] = await Promise.all([db.rpc("catalog_public_stats"), db.rpc("catalog_public_funder_counts")]);
+    const [stats, funders, aec] = await Promise.all([db.rpc("catalog_public_stats"), db.rpc("catalog_public_funder_counts"), db.rpc("catalog_public_construction_stats")]);
     if (stats.error || funders.error) throw new Error(stats.error?.message ?? funders.error?.message);
     const counts: Record<string, SourceCount> = {};
-    for (const r of (stats.data ?? []) as { source: string; type: CatalogType; open_count: number; forecasted_count: number; total_count: number; last_checked: string | null }[]) {
-      const c = (counts[r.source] ??= { open: 0, forecasted: 0, total: 0, lastChecked: null, byType: {} });
+    for (const r of (stats.data ?? []) as { source: string; type: CatalogType; open_count: number; forecasted_count: number; total_count: number; last_checked: string | null; program_count: number }[]) {
+      const c = (counts[r.source] ??= { open: 0, forecasted: 0, total: 0, lastChecked: null, byType: {}, programs: 0 });
+      c.programs = (c.programs ?? 0) + Number(r.program_count ?? 0);
       c.open += Number(r.open_count);
       c.forecasted += Number(r.forecasted_count);
       c.total += Number(r.total_count);
@@ -85,7 +94,8 @@ export async function dataPageStats(): Promise<DataPageStats> {
       if (r.last_checked && (!c.lastChecked || r.last_checked > c.lastChecked)) c.lastChecked = r.last_checked;
     }
     const f = Object.fromEntries(((funders.data ?? []) as { kind: string; funder_count: number }[]).map((r) => [r.kind, Number(r.funder_count)]));
-    return build({ ...snap, counts, funders: f, label: null }, true, new Date().toISOString());
+    const c = Object.fromEntries(((aec.data ?? []) as { scope: string; open_count: number }[]).map((r) => [r.scope, Number(r.open_count)]));
+    return build({ ...snap, counts, funders: f, label: null, construction: { federal: c.federal ?? 0, stateLocal: c.state_local ?? 0, international: c.international ?? 0 } }, true, new Date().toISOString());
   } catch {
     return build(snap, false, snap.measuredAt);
   }

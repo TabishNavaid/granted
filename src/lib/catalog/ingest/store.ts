@@ -99,7 +99,8 @@ export async function upsertFunders(sql: Sql, source: string, rows: FunderInput[
     const out = await sql<{ id: string; key: string }[]>`
       insert into catalog_funders ${sql(values)}
       on conflict (key) do update set
-        name = excluded.name, kind = excluded.kind, parent_key = coalesce(excluded.parent_key, catalog_funders.parent_key),
+        name = case when catalog_funders.source = excluded.source then excluded.name else catalog_funders.name end,
+        kind = case when catalog_funders.source = excluded.source then excluded.kind else catalog_funders.kind end, parent_key = coalesce(excluded.parent_key, catalog_funders.parent_key),
         ein = coalesce(excluded.ein, catalog_funders.ein), website = coalesce(excluded.website, catalog_funders.website),
         city = coalesce(excluded.city, catalog_funders.city), state = coalesce(excluded.state, catalog_funders.state), country = excluded.country,
         focus = case when cardinality(excluded.focus) > 0 then excluded.focus else catalog_funders.focus end,
@@ -189,7 +190,7 @@ export function toRow(sql: Sql, source: string, license: string, o: OpportunityI
     categories: cleanArray(o.categories),
     place_state: o.place?.state ?? null,
     place_city: o.place?.city ?? null,
-    place_country: o.place?.country ?? "US",
+    place_country: o.place ? (o.place.country === undefined ? "US" : o.place.country) : "US",
     place_zip: o.place?.zip ?? null,
     place_text: o.place?.text?.slice(0, 300) ?? null,
     attachments: sql.json((o.attachments ?? []).slice(0, 40) as unknown as postgres.JSONValue),
@@ -304,10 +305,14 @@ export async function closeUnseen(sql: Sql, source: string, since: Date): Promis
   return out.length;
 }
 
+/** Expire and dedupe, one run at a time across every job (an advisory lock), so concurrent sources never deadlock. */
 export async function expireAndDedupe(sql: Sql): Promise<{ expired: number; deduped: number }> {
-  const [e] = await sql<{ n: number }[]>`select catalog_expire() as n`;
-  const [d] = await sql<{ n: number }[]>`select catalog_dedupe() as n`;
-  return { expired: e.n, deduped: d.n };
+  return sql.begin(async (tx) => {
+    await tx`select pg_advisory_xact_lock(7203481)`;
+    const [e] = await tx<{ n: number }[]>`select catalog_expire() as n`;
+    const [d] = await tx<{ n: number }[]>`select catalog_dedupe() as n`;
+    return { expired: e.n, deduped: d.n };
+  }) as Promise<{ expired: number; deduped: number }>;
 }
 
 /** Old change history is pruned: two years is enough for trends. */

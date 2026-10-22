@@ -1,0 +1,445 @@
+{
+    "uri": "https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?stages=tender&limit=4&publishedFrom=2026-10-20T00:00:00&publishedTo=2026-10-21T00:00:00",
+    "version": "1.1",
+    "extensions": [
+        "https://standard.open-contracting.org/profiles/eu/master/en/extension.json",
+        "https://raw.githubusercontent.com/portaledcahn/ocds_tenderDatePublished_extension/master/extension.json",
+        "https://raw.githubusercontent.com/open-contracting-extensions/ocds_budget_breakdown_extension/master/extension.json",
+        "https://raw.githubusercontent.com/Crown-Commercial-Service/ocds_awards_datePublished_extension/main/extension.json",
+        "https://raw.githubusercontent.com/Crown-Commercial-Service/ocds_partyDetails_vcse_extension/main/extension.json",
+        "https://raw.githubusercontent.com/Crown-Commercial-Service/ocds_tender_suitability_extension/main/extension.json",
+        "https://raw.githubusercontent.com/open-contracting-extensions/ocds_pagination_extension/master/extension.json"
+    ],
+    "publishedDate": "2026-10-20T12:18:14+01:00",
+    "publisher": {
+        "name": "Cabinet Office",
+        "scheme": "GB-GOR",
+        "uid": "D2",
+        "uri": "https://www.gov.uk/government/organisations/cabinet-office"
+    },
+    "license": "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+    "publicationPolicy": "https://www.gov.uk/government/publications/open-contracting",
+    "releases": [
+        {
+            "ocid": "ocds-b5fd17-020f5209-ceb3-4b97-91ad-bdf928c26335",
+            "id": "7f9a030d-c41d-4f56-8806-67c681600b21-918401",
+            "language": "en",
+            "date": "2026-10-20T12:18:14+01:00",
+            "tag": [
+                "tender"
+            ],
+            "initiationType": "tender",
+            "tender": {
+                "id": "28994cbc-6a2b-4e11-adf3-52819f694d66",
+                "title": "CA18585 -  ITT Repair and replacement works to whole site drainage system",
+                "description": "?The Diocese of Norwich Education Services Company (DoNESC) is carrying out a procurement exercise on the behalf of Diss Church of England Junior Academy to procure repair and replacement works to whole site drainage system.  \r\n\r\nTo access this competition: \r\n\r\nRegistered:\r\nLogin to https://suppliers.multiquote.com and view the opportunity CA18585.\r\n\r\nNot registered:\r\nVisit https://suppliers.multiquote.com then register and quote CA18585 as the reason for registration. \r\n\r\n Any queries please contact MultiQuote on 020 3920 8054.",
+                "datePublished": "2026-10-20T12:18:14+01:00",
+                "status": "active",
+                "classification": {
+                    "scheme": "CPV",
+                    "id": "45210000",
+                    "description": "Building construction work"
+                },
+                "items": [
+                    {
+                        "id": "1",
+                        "deliveryAddresses": [
+                            {
+                                "postalCode": "NR20 3LR"
+                            },
+                            {
+                                "countryName": "British Oversea Territories"
+                            },
+                            {
+                                "countryName": "Channel Islands"
+                            },
+                            {
+                                "countryName": "Europe"
+                            },
+                            {
+                                "countryName": "Isle of Man"
+                            },
+                            {
+                                "countryName": "Rest of the World"
+                            },
+                            {
+                                "countryName": "United Kingdom"
+                            }
+                        ]
+                    }
+                ],
+                "value": {
+                    "amount": 100000,
+                    "currency": "GBP"
+                },
+                "procurementMethod": "open",
+                "procurementMethodDetails": "Open procedure",
+                "tenderPeriod": {
+                    "endDate": "2026-11-27T17:00:00Z"
+                },
+                "contractPeriod": {
+                    "startDate": "2027-07-23T00:00:00+01:00",
+                    "endDate": "2027-09-02T23:59:59+01:00"
+                },
+                "suitability": {
+                    "sme": true,
+                    "vcse": false
+                },
+                "mainProcurementCategory": "works",
+                "documents": [
+                    {
+                        "id": "1",
+                        "documentType": "tenderNotice",
+                        "description": "Opportunity notice on Contracts Finder",
+                        "url": "https://www.contractsfinder.service.gov.uk/Notice/7f9a030d-c41d-4f56-8806-67c681600b21",
+                        "datePublished": "2026-10-20T12:18:14+01:00",
+                        "format": "text/html",
+                        "language": "en"
+                    }
+                ]
+            },
+            "parties": [
+                {
+                    "id": "GB-CFS-308954",
+                    "name": "Diocese of Norwich Education and Academies Trust",
+                    "identifier": {
+                        "legalName": "Diocese of Norwich Education and Academies Trust"
+                    },
+                    "address": {
+                        "streetAddress": "Orchard House, East Tuddenham",
+                        "locality": "Norwich",
+                        "postalCode": "NR20 3LR",
+                        "countryName": "England"
+                    },
+                    "contactPoint": {
+                        "name": "Mark Jeffries",
+                        "email": "support@multiquote.com",
+                        "telephone": "0151 482 9230"
+                    },
+                    "details": {
+                        "url": "https://suppliers.multiquote.com"
+                    },
+                    "roles": [
+                        "buyer"
+                    ]
+                }
+            ],
+            "buyer": {
+                "id": "GB-CFS-308954",
+                "name": "Diocese of Norwich Education and Academies Trust"
+            }
+        },
+        {
+            "ocid": "ocds-b5fd17-b53f716a-39c2-4936-bdf0-036d7bbba3ff",
+            "id": "067dd4c5-c6fe-4c5e-9d2f-fae1de906e1a-918396",
+            "language": "en",
+            "date": "2026-10-20T12:09:15+01:00",
+            "tag": [
+                "tender"
+            ],
+            "initiationType": "tender",
+            "tender": {
+                "id": "3d906c64-5e6d-416b-b1cf-77f29da81f37",
+                "title": "CA18489 - Askham Bryan College - Provision for External Audit Services",
+                "description": "Askham Bryan College is seeking to appoint an experienced provider of External Audit Services following the expiry of its current contract. The College requires a high-quality audit service that will deliver the statutory audit and associated assurance engagements, while providing independent assurance on financial reporting, regularity, governance, and compliance. The procurement will ensure value for money and the appointment of a suitably qualified auditor with expertise in the Further Education sector.\r\n\r\nTo access this competition: \r\n\r\nRegistered:\r\nLogin to https://suppliers.multiquote.com and view the opportunity CA18489.\r\n\r\nNot registered:\r\nVisit https://suppliers.multiquote.com then register and quote CA18489 as the reason for registration. \r\n\r\n Any queries please contact MultiQuote on 020 3920 8054.",
+                "datePublished": "2026-10-20T12:09:15+01:00",
+                "status": "active",
+                "classification": {
+                    "scheme": "CPV",
+                    "id": "79212100",
+                    "description": "Financial auditing services"
+                },
+                "items": [
+                    {
+                        "id": "1",
+                        "deliveryAddresses": [
+                            {
+                                "postalCode": "YO23 3FR"
+                            },
+                            {
+                                "countryName": "British Oversea Territories"
+                            },
+                            {
+                                "countryName": "Channel Islands"
+                            },
+                            {
+                                "countryName": "Europe"
+                            },
+                            {
+                                "countryName": "Isle of Man"
+                            },
+                            {
+                                "countryName": "Rest of the World"
+                            },
+                            {
+                                "countryName": "United Kingdom"
+                            }
+                        ]
+                    }
+                ],
+                "value": {
+                    "amount": 475000,
+                    "currency": "GBP"
+                },
+                "procurementMethod": "open",
+                "procurementMethodDetails": "Open procedure",
+                "tenderPeriod": {
+                    "endDate": "2026-11-16T12:00:00Z"
+                },
+                "contractPeriod": {
+                    "startDate": "2027-04-01T00:00:00+01:00",
+                    "endDate": "2030-03-31T23:59:59+01:00"
+                },
+                "suitability": {
+                    "sme": true,
+                    "vcse": false
+                },
+                "mainProcurementCategory": "services",
+                "documents": [
+                    {
+                        "id": "1",
+                        "documentType": "tenderNotice",
+                        "description": "Opportunity notice on Contracts Finder",
+                        "url": "https://www.contractsfinder.service.gov.uk/Notice/067dd4c5-c6fe-4c5e-9d2f-fae1de906e1a",
+                        "datePublished": "2026-10-20T12:09:15+01:00",
+                        "format": "text/html",
+                        "language": "en"
+                    }
+                ]
+            },
+            "parties": [
+                {
+                    "id": "GB-CFS-97437",
+                    "name": "Askham Bryan College",
+                    "identifier": {
+                        "legalName": "Askham Bryan College"
+                    },
+                    "address": {
+                        "streetAddress": "Askham Bryan",
+                        "locality": "York",
+                        "postalCode": "YO23 3FR",
+                        "countryName": "England"
+                    },
+                    "contactPoint": {
+                        "email": "support@multiquote.com",
+                        "telephone": "0151 482 9230"
+                    },
+                    "details": {
+                        "url": "https://suppliers.multiquote.com"
+                    },
+                    "roles": [
+                        "buyer"
+                    ]
+                }
+            ],
+            "buyer": {
+                "id": "GB-CFS-97437",
+                "name": "Askham Bryan College"
+            }
+        },
+        {
+            "ocid": "ocds-b5fd17-8594b734-d603-40c3-aad6-548b64b1f1da",
+            "id": "6e156deb-0b84-46e2-bae5-427ee3e1cf0c-918382",
+            "language": "en",
+            "date": "2026-10-20T11:43:29+01:00",
+            "tag": [
+                "tender"
+            ],
+            "initiationType": "tender",
+            "tender": {
+                "id": "BRAVE-IS-002",
+                "title": "Institutional Strengthening and Capability Development Plan for Disaster Risk Management in Khyber Pakhtunkhwa",
+                "description": "DAI Global UK is seeking a firm to prepare an Institutional Strengthening and Capability Development Plan for Disaster Risk Management (DRM) in Khyber Pakhtunkhwa (KP), Pakistan. The assignment is delivered under Building Resilience and Addressing Vulnerability to Emergencies - Institutional Strengthening (BRAVE-IS), a multi-year (2026-2029) technical assistance programme funded by the UK Foreign, Commonwealth & Development Office (FCDO). The contracting organisation is DAI Pakistan Pvt. Ltd.\r\n\r\nThe firm will work with the Relief, Rehabilitation and Settlement Department, Government of KP, and its attached agencies: the Provincial Disaster Management Authority (PDMA), Rescue 1122 and the Civil Defence Directorate. The work is in four stages:\r\n- Stage 1, Inception (weeks 1-2)\r\n- Stage 2, Diagnostic and validation (weeks 3-6): institutional, financial, HR and digital systems assessment\r\n- Stage 3, Recommendations and plans (weeks 7-12): a five-year Institutional Strengthening Plan for each of PDMA, Rescue 1122 and Civil Defence\r\n- Stage 4, Early implementation support (weeks 13-36): implementation-ready products, commissioned at BRAVE-IS's discretion on completion of Stage 3\r\n\r\nThe contract is fixed price, with payment linked to acceptance of agreed deliverables. Personnel will be based in Peshawar, with field visits to selected districts of KP. The firm must propose four Key Persons: a Team Lead (institutional strengthening), a Public Financial Management Expert, a Digital Systems and ERP Expert, and a DRM Expert. HR management and GIS expertise are also required.\r\n\r\nHow to apply\r\nThe full Request for Proposals (RFP) is attached to this notice. Submit one email to brave-is@dai.com with the subject \"BRAVE-IS-002 - Proposal - [Firm name]\", attaching two PDFs: (i) the technical submission, with CVs as an annex, and (ii) the financial proposal, with separate budgets for Stages 1-3 and Stage 4.\r\n\r\nClarification questions must be sent to brave-is@dai.com by 26 October 2026, with the subject \"BRAVE-IS-002 - Clarification Question - [Firm name]\". Responses will be shared with all bidders without identifying who asked.\r\n\r\nProposals are due by 17:00 Pakistan Standard Time (12:00 UK time) on 4 November 2026 and must remain valid for 90 days. Late submissions will not be considered. Issue of this RFP does not commit DAI to award a contract.",
+                "datePublished": "2026-10-20T11:43:29+01:00",
+                "status": "active",
+                "classification": {
+                    "scheme": "CPV",
+                    "id": "79400000",
+                    "description": "Business and management consultancy and related services"
+                },
+                "items": [
+                    {
+                        "id": "1",
+                        "deliveryAddresses": [
+                            {
+                                "countryName": "Pakistan"
+                            }
+                        ]
+                    }
+                ],
+                "procurementMethod": "open",
+                "procurementMethodDetails": "Open procedure (below threshold)",
+                "tenderPeriod": {
+                    "endDate": "2026-11-04T12:00:00Z"
+                },
+                "contractPeriod": {
+                    "startDate": "2026-12-01T00:00:00Z",
+                    "endDate": "2027-03-31T23:59:59+01:00"
+                },
+                "suitability": {
+                    "sme": true,
+                    "vcse": true
+                },
+                "mainProcurementCategory": "services",
+                "documents": [
+                    {
+                        "id": "1",
+                        "documentType": "tenderNotice",
+                        "description": "Opportunity notice on Contracts Finder",
+                        "url": "https://www.contractsfinder.service.gov.uk/Notice/6e156deb-0b84-46e2-bae5-427ee3e1cf0c",
+                        "datePublished": "2026-10-20T11:43:29+01:00",
+                        "format": "text/html",
+                        "language": "en"
+                    },
+                    {
+                        "id": "2",
+                        "documentType": "evaluationCriteria",
+                        "url": "https://www.contractsfinder.service.gov.uk/Notice/Attachment/52f9f194-aacd-4231-b017-08a8f21d26d7",
+                        "format": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    }
+                ]
+            },
+            "relatedProcesses": [
+                {
+                    "id": "1",
+                    "relationship": [
+                        "parent"
+                    ]
+                }
+            ],
+            "parties": [
+                {
+                    "id": "GB-SRS-sid4gov.cabinetoffice.gov.uk/e23DHg7c",
+                    "name": "DAI GLOBAL UK LTD",
+                    "identifier": {
+                        "legalName": "DAI GLOBAL UK LTD",
+                        "scheme": "GB-SRS",
+                        "id": "sid4gov.cabinetoffice.gov.uk/e23DHg7c"
+                    },
+                    "address": {
+                        "streetAddress": "4 Fulwood Place",
+                        "locality": "London",
+                        "postalCode": "WC1V 6HG",
+                        "countryName": "England"
+                    },
+                    "contactPoint": {
+                        "email": "brave-is@dai.com",
+                        "telephone": "07979822086"
+                    },
+                    "roles": [
+                        "buyer"
+                    ]
+                }
+            ],
+            "buyer": {
+                "id": "GB-SRS-sid4gov.cabinetoffice.gov.uk/e23DHg7c",
+                "name": "DAI GLOBAL UK LTD"
+            }
+        },
+        {
+            "ocid": "ocds-b5fd17-3f38734f-4e9a-400c-b71d-b1093db8deb7",
+            "id": "b583fb08-d85c-405e-81a1-fab5f053a5ca-918370",
+            "language": "en",
+            "date": "2026-10-20T11:10:18+01:00",
+            "tag": [
+                "tender"
+            ],
+            "initiationType": "tender",
+            "tender": {
+                "id": "tender_555489/1620961",
+                "title": "Supply Chain Notice: WC1948344 - CIDP26 Islandwide Demolitions, Dhekelia & Episkopi (CYPRUS)",
+                "description": "CIDP 26 ISLANDWIDE DEMOLITIONS - DHEKELIA & EPISKOPI STATIONS\r\n\r\nProject Scope\r\n\r\nThe project comprises the demolition of 24 No. assets at Minden Village, Dhekelia, together with the removal of associated infrastructure, with the objective of returning the affected areas to brownfield status. The scope at Dhekelia also incorporates the brownfield conversion of the former Pergamos and Rhine Camp demolition sites. The Episkopi scope comprises the demolition of 9 No. building assets, together with the brownfield conversion of a previously demolished site.\r\n\r\nThe works include, but are not limited to:\r\n\r\n-\tDemolition and removal of the identified building assets and associated infrastructure.\r\n\r\n-\tRemoval and appropriate management of asbestos-containing materials, where identified, \r\nincluding their temporary storage at the designated Transit Asbestos Compound within the EESA at Akrotiri, in accordance with the applicable requirements and procedures.\r\n\r\n-\tRemoval of all associated underground services and infrastructure.\r\n\r\n-\tClearance and removal of demolition arisings, rubble, scrap and other waste materials.\r\n\r\n-\tReinstatement and associated earthworks required to return the sites to the specified brownfield condition.\r\n\r\n-\tComprehensive recording and maintenance of waste and recyclable material data throughout the works. This shall include, as a minimum, the type, weight, volume and final tipping/disposal site of rubble waste, scrap and other recyclable materials collected and removed from the sites.\r\n\r\n-\tThe Contractor will be required to ensure that all demolition, waste management, asbestos-related activities, transportation, temporary storage, recycling, disposal and site reinstatement activities are undertaken in accordance with the applicable legislation, standards, environmental requirements and project procedures.\r\n\r\nWorks Excluded from the Tender Scope\r\n\r\nA substantial programme of enabling works has already been undertaken in preparation for the project. Accordingly, these completed enabling works do not form part of the scope of this tender.:\r\n\r\n-\tIsolation of services (water, electricity, telecommunications and sewage).\r\n-\tSurveys for asbestos demolition and quantification.\r\n-\tSurveys for European Protected Species.\r\n-\tVAT Surveys for scrap material.\r\n\r\n\r\n\r\nThe Provisional Key Tender dates for the project are as follows:\r\n\r\n-\tExpression of interest: Friday 16/10/2026\r\n-\tExpression of interest return: Thursday 22/10/2026\r\n-\tInvitation to Tender: Friday 23/10/2026\r\n-\tTender Return Date: Monday 23/11/2026\r\n-\tContract award: Monday 15/01/2027\r\n-\tCommencement of work: Monday 18/01/2027\r\n-\tCompletion of work: Wednesday 31/03/2027\r\n\r\nThe currency of this project is Euro (€).\r\nThe location of this project is Dhekelia and Episkopi, Cyprus (British Forces).\r\n\r\nAdditional information: \r\nAny company wishing to participate in this tender should complete the Pre-Qualification Questionnaire (PQQ) and the EOI form which are attached and return them electronically to the above email address by no later than 12:00 EET on 22/10/2026. \r\n \r\nFor companies that have submitted a PQQ within the last 12 months, there is no requirement to re-submit it. They must provide the details of their last PQQ submission to guarantee inclusion on the invitation list.  \r\n\r\nATTACHMENTS\r\nPre-Qualification Questionnaire (PQQ)\r\nExpression of Interest form",
+                "datePublished": "2026-10-20T11:10:18+01:00",
+                "status": "active",
+                "classification": {
+                    "scheme": "CPV",
+                    "id": "45111100",
+                    "description": "Demolition work"
+                },
+                "items": [
+                    {
+                        "id": "1",
+                        "deliveryAddresses": [
+                            {
+                                "postalCode": "B37 7ES"
+                            },
+                            {
+                                "region": "West Midlands",
+                                "countryName": "United Kingdom"
+                            }
+                        ]
+                    }
+                ],
+                "value": {
+                    "amount": 1000000,
+                    "currency": "GBP"
+                },
+                "procurementMethodDetails": "Other - Other",
+                "tenderPeriod": {
+                    "endDate": "2026-10-22T23:59:00+01:00"
+                },
+                "contractPeriod": {
+                    "startDate": "2027-01-15T00:00:00Z",
+                    "endDate": "2027-03-31T23:59:59+01:00"
+                },
+                "suitability": {
+                    "sme": true,
+                    "vcse": false
+                },
+                "mainProcurementCategory": "works",
+                "documents": [
+                    {
+                        "id": "1",
+                        "documentType": "tenderNotice",
+                        "description": "Opportunity notice on Contracts Finder",
+                        "url": "https://www.contractsfinder.service.gov.uk/Notice/b583fb08-d85c-405e-81a1-fab5f053a5ca",
+                        "datePublished": "2026-10-20T11:10:18+01:00",
+                        "format": "text/html",
+                        "language": "en"
+                    },
+                    {
+                        "id": "2",
+                        "description": "n/a",
+                        "url": "https://www.contractsfinder.service.gov.uk/Notice/Attachment/9b30b44c-4bd4-40d8-b57c-94c4f712e1d5",
+                        "format": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    },
+                    {
+                        "id": "3",
+                        "description": "n/a",
+                        "url": "https://www.contractsfinder.service.gov.uk/Notice/Attachment/539b70ef-3ea0-4941-9442-96bd73ace210",
+                        "format": "application/pdf"
+                    }
+                ]
+            },
+            "parties": [
+                {
+                    "id": "GB-CFS-281786",
+                    "name": "Ministry of Defence",
+                    "identifier": {
+                        "legalName": "Ministry of Defence"
+                    },
+                    "address": {
+                        "streetAddress": "Mitie - Defence International  T2 Trinity Park  Bickenhall Lane",
+                        "locality": "Birmingham",
+                        "postalCode": "B37 7ES",
+                        "countryName": "England"
+                    },
+                    "contactPoint": {
+                        "name": "Mite Tender Manager",
+                        "email": "MitieTenderManager@secmitie.co.uk"
+                    },
+                    "roles": [
+                        "buyer"
+                    ]
+                }
+            ],
+            "buyer": {
+                "id": "GB-CFS-281786",
+                "name": "Ministry of Defence"
+            }
+        }
+    ],
+    "links": {
+        "next": "https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?stages=tender&limit=4&publishedFrom=2026-10-20T00:00:00&publishedTo=2026-10-21T00:00:00&cursor=cHVibGlzaGVkRnJvbT0yMDI2LTEwLTIwVDAwOjAwOjAwfHB1Ymxpc2hlZFRvPTIwMjYtMTAtMjFUMDA6MDA6MDB8c3RhZ2VzPXRlbmRlcnxsaW1pdD00fG5leHRDdXJzb3I9Nzg3MTQ3"
+    }
+}

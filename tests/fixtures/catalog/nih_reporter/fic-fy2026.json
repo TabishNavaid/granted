@@ -1,0 +1,556 @@
+{
+ "meta": {
+  "search_id": "nWomQwCDd0Ow23wwJ5-PeQ",
+  "total": 490,
+  "offset": 0,
+  "limit": 30,
+  "sort_field": "appl_id",
+  "sort_order": "asc",
+  "sorted_by_relevance": false,
+  "properties": {
+   "URL": "https:/reporter.nih.gov/search/nWomQwCDd0Ow23wwJ5-PeQ/projects"
+  }
+ },
+ "results": [
+  {
+   "appl_id": 11137203,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "NY",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "2",
+   "activity_code": "D43",
+   "award_amount": 118485,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11137330,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "DC",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "D43",
+   "award_amount": 124785,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11139069,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "MA",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "D43",
+   "award_amount": 114211,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11139293,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "CA",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "D43",
+   "award_amount": 216895,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11173919,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": null,
+    "org_country": "MOZAMBIQUE"
+   },
+   "award_type": "2",
+   "activity_code": "D43",
+   "award_amount": 305609,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11175849,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "CT",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "2",
+   "activity_code": "D43",
+   "award_amount": 298312,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11180434,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "RI",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "R01",
+   "award_amount": 216080,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11228420,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": null,
+    "org_country": "CAMEROON"
+   },
+   "award_type": "1",
+   "activity_code": "R21",
+   "award_amount": 156179,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11230930,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "MI",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "R21",
+   "award_amount": 99747,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11234971,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": null,
+    "org_country": "NIGERIA"
+   },
+   "award_type": "1",
+   "activity_code": "R21",
+   "award_amount": 232347,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11235121,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "CT",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "D43",
+   "award_amount": 266955,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11237170,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "TN",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "R25",
+   "award_amount": 154202,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11237181,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "DC",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "R25",
+   "award_amount": 75105,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11238129,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "OH",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "R01",
+   "award_amount": 3396376,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11239846,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": null,
+    "org_country": "CAMEROON"
+   },
+   "award_type": "1",
+   "activity_code": "K43",
+   "award_amount": 87360,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11240143,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "GA",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "R21",
+   "award_amount": 92281,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11241936,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": null,
+    "org_country": "VIETNAM"
+   },
+   "award_type": "1",
+   "activity_code": "R21",
+   "award_amount": 166535,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11244746,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "GA",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "R21",
+   "award_amount": 201355,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11247089,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "MO",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "D43",
+   "award_amount": 123218,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11247141,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "TN",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "D43",
+   "award_amount": 181255,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11247153,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": null,
+    "org_country": "SOUTH AFRICA"
+   },
+   "award_type": "5",
+   "activity_code": "D43",
+   "award_amount": 302400,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11248323,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": null,
+    "org_country": "KENYA"
+   },
+   "award_type": "5",
+   "activity_code": "D43",
+   "award_amount": 282724,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11248348,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": null,
+    "org_country": "UGANDA"
+   },
+   "award_type": "5",
+   "activity_code": "D43",
+   "award_amount": 296483,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11248385,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "CA",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "D43",
+   "award_amount": 194586,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11248394,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "TN",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "D43",
+   "award_amount": 103090,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11248414,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "GA",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "5",
+   "activity_code": "D43",
+   "award_amount": 190590,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11249259,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": null,
+    "org_country": "GEORGIA"
+   },
+   "award_type": "1",
+   "activity_code": "R01",
+   "award_amount": 192292,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11249315,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "PA",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "R01",
+   "award_amount": 159938,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11249347,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "FL",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "R01",
+   "award_amount": 616000,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  },
+  {
+   "appl_id": 11250370,
+   "fiscal_year": 2026,
+   "organization": {
+    "org_state": "CT",
+    "org_country": "UNITED STATES"
+   },
+   "award_type": "1",
+   "activity_code": "R01",
+   "award_amount": 161039,
+   "agency_ic_admin": {
+    "code": "TW",
+    "abbreviation": "FIC",
+    "name": "John E. Fogarty International Center for Advanced Study in the Health Sciences",
+    "admin_org_id": "12500060",
+    "admin_funding_url": ""
+   }
+  }
+ ]
+}

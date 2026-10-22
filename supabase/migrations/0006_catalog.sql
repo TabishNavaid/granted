@@ -35,7 +35,7 @@ create table if not exists catalog_funders (
   key text not null unique,             -- 'agency:HHS-NIH', 'ein:123456789', 'state:CA:caleprocure'
   name text not null,
   kind text not null check (kind in ('federal_agency', 'state_agency', 'local_government', 'private_foundation',
-    'community_foundation', 'corporate', 'university', 'international', 'other')),
+    'community_foundation', 'corporate', 'university', 'international', 'foreign_government', 'other')),
   parent_key text,
   ein text,
   website text,
@@ -121,7 +121,7 @@ create table if not exists catalog_opportunities (
   categories text[] not null default '{}',
   place_state text,
   place_city text,
-  place_country text not null default 'US',
+  place_country text default 'US',          -- ISO code; null for multi-country (EU-wide, regional)
   place_zip text,
   place_text text,
   attachments jsonb not null default '[]',  -- links only: [{name, url, size}]
@@ -144,6 +144,7 @@ create index if not exists catalog_opps_open_idx on catalog_opportunities (type,
   where duplicate_of is null and status in ('open', 'forecasted');
 create index if not exists catalog_opps_status_idx on catalog_opportunities (status, source);
 create index if not exists catalog_opps_canonical_idx on catalog_opportunities (canonical_key) where canonical_key is not null;
+create index if not exists catalog_opps_duplicate_idx on catalog_opportunities (duplicate_of) where duplicate_of is not null;
 create index if not exists catalog_opps_naics_idx on catalog_opportunities using gin (naics);
 create index if not exists catalog_opps_elig_idx on catalog_opportunities using gin (eligibility);
 create index if not exists catalog_opps_aln_idx on catalog_opportunities using gin (assistance_listings);
@@ -274,25 +275,34 @@ create index if not exists catalog_runs_source_idx on catalog_ingest_runs (sourc
 create or replace function catalog_dedupe() returns int language plpgsql as $$
 declare changed int;
 begin
+  -- Only keys shared by two or more rows can change anything.
+  create temporary table if not exists _dup_groups (canonical_key text primary key) on commit drop;
+  truncate _dup_groups;
+  insert into _dup_groups select canonical_key from catalog_opportunities where canonical_key is not null group by 1 having count(*) > 1;
+
   with ranked as (
-    select o.id, o.canonical_key,
+    select o.id,
       first_value(o.id) over (partition by o.canonical_key order by s.priority, o.first_seen, o.id) as primary_id
     from catalog_opportunities o join catalog_sources s on s.id = o.source
-    where o.canonical_key is not null
-  ), target as (
-    select id, case when id = primary_id then null else primary_id end as dup from ranked
+    where o.canonical_key in (select canonical_key from _dup_groups)
   )
-  update catalog_opportunities o set duplicate_of = t.dup
-  from target t where o.id = t.id and o.duplicate_of is distinct from t.dup;
+  update catalog_opportunities o set duplicate_of = nullif(r.primary_id, o.id)
+  from ranked r where o.id = r.id and o.duplicate_of is distinct from nullif(r.primary_id, o.id);
   get diagnostics changed = row_count;
 
-  update catalog_opportunities p set also_listed = coalesce(x.listed, '[]'::jsonb)
-  from (
-    select o.id, (select jsonb_agg(jsonb_build_object('source', d.source, 'url', d.source_url) order by d.source)
-                  from catalog_opportunities d where d.duplicate_of = o.id) as listed
-    from catalog_opportunities o where o.duplicate_of is null and o.canonical_key is not null
-  ) x
-  where p.id = x.id and p.also_listed is distinct from coalesce(x.listed, '[]'::jsonb);
+  -- Rows whose key is no longer shared stand alone again.
+  update catalog_opportunities o set duplicate_of = null
+  where o.duplicate_of is not null and (o.canonical_key is null or o.canonical_key not in (select canonical_key from _dup_groups));
+
+  with listed as (
+    select duplicate_of as id, jsonb_agg(jsonb_build_object('source', source, 'url', source_url) order by source) as listed
+    from catalog_opportunities where duplicate_of is not null group by duplicate_of
+  )
+  update catalog_opportunities p set also_listed = l.listed
+  from listed l where p.id = l.id and p.also_listed is distinct from l.listed;
+
+  update catalog_opportunities p set also_listed = '[]'::jsonb
+  where p.also_listed <> '[]'::jsonb and not exists (select 1 from catalog_opportunities d where d.duplicate_of = p.id);
   return changed;
 end $$;
 
@@ -388,13 +398,15 @@ $$;
 
 -- Public counts for the /data page. Anyone may read totals; nobody reads rows without signing in.
 create or replace function catalog_public_stats() returns table (
-  source text, type text, open_count bigint, forecasted_count bigint, total_count bigint, last_checked timestamptz
+  source text, type text, open_count bigint, forecasted_count bigint, total_count bigint, last_checked timestamptz, program_count bigint
 ) language sql stable security definer set search_path = public as $$
+  -- Program listings (the federal assistance catalog) are counted apart: a program is not an open call.
   select o.source, o.type,
-    count(*) filter (where o.status = 'open' and o.duplicate_of is null),
-    count(*) filter (where o.status = 'forecasted' and o.duplicate_of is null),
+    count(*) filter (where o.status = 'open' and o.duplicate_of is null and coalesce(o.notice_type, '') <> 'program'),
+    count(*) filter (where o.status = 'forecasted' and o.duplicate_of is null and coalesce(o.notice_type, '') <> 'program'),
     count(*),
-    max(o.last_checked)
+    max(o.last_checked),
+    count(*) filter (where o.notice_type = 'program' and o.status = 'open')
   from catalog_opportunities o
   group by o.source, o.type
 $$;
@@ -444,3 +456,20 @@ revoke all on function catalog_search(text, text[], text[], text[], text[], text
 grant execute on function catalog_search(text, text[], text[], text[], text[], text[], text[], text[], text[], text[], text[], text[], numeric, numeric, timestamptz, timestamptz, boolean, timestamptz, int, int) to authenticated, service_role;
 revoke all on function catalog_match_embedding(vector, text[], text[], text[], int) from public, anon;
 grant execute on function catalog_match_embedding(vector, text[], text[], text[], int) to authenticated, service_role;
+
+-- Open construction and architecture-engineering bids, for the home page: NAICS sector 23 or the A/E codes, or
+-- a state or local bid the connector marked as construction or architecture and engineering.
+create or replace function catalog_public_construction_stats() returns table (scope text, open_count bigint)
+language sql stable security definer set search_path = public as $$
+  with b as (
+    select o.source, o.region from (
+      select c.source, s.region from catalog_opportunities c join catalog_sources s on s.id = c.source
+      where c.type = 'contract' and c.duplicate_of is null and c.status in ('open', 'forecasted')
+        and (exists (select 1 from unnest(c.naics) n where n like '23%' or n in ('541310', '541320', '541330', '541340', '541350', '541370', '541380', '541410', '541420', '541490', '541611', '541618', '541620', '541690', '541990', '562910'))
+             or c.categories && array['construction', 'architecture and engineering'])
+    ) o
+  )
+  select case when region = 'us' then 'federal' when region = 'international' then 'international' else 'state_local' end, count(*)
+  from b group by 1
+$$;
+grant execute on function catalog_public_construction_stats() to anon, authenticated;

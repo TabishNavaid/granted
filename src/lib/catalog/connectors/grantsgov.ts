@@ -169,6 +169,8 @@ export function toOpportunity(r: GgRecord, now = new Date()): OpportunityInput |
     sourceId: id,
     sourceUrl: detailUrl(id),
     opportunityNumber: s(r, "OpportunityNumber") || null,
+    // Grants.gov writes NSF solicitation numbers bare ("25-543"); NSF's own listing says "NSF 25-543". Same notice.
+    canonicalKey: agencyCode?.toUpperCase().startsWith("NSF") && /^\d{2}-\d{3}$/.test(s(r, "OpportunityNumber").trim()) ? `num:NSF${s(r, "OpportunityNumber").trim()}` : null,
     type,
     noticeType: forecast ? "forecast" : "nofo",
     title,

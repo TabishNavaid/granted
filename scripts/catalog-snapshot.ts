@@ -22,18 +22,20 @@ async function main() {
   const sources = connectors
     .map(({ source: s }) => ({ id: s.id, name: s.name, covers: s.covers, homepage: s.homepage, docsUrl: s.docsUrl ?? null, termsUrl: s.termsUrl ?? null, license: s.license, attribution: s.attribution ?? null, kinds: s.kinds, region: s.region, cadence: s.cadence, needsKey: s.needsKey ?? null, enabled: s.enabled, notes: s.notes ?? null }))
     .sort((a, b) => a.name.localeCompare(b.name));
-  let counts: Record<string, { open: number; forecasted: number; total: number; lastChecked: string | null; byType: Record<string, number> }> = {};
+  let counts: Record<string, { open: number; forecasted: number; total: number; lastChecked: string | null; byType: Record<string, number>; programs: number }> = {};
   let funders: Record<string, number> = {};
   let awardRows = 0;
   let sizeMb: number | null = null;
   let measuredAt: string | null = null;
+  let construction = { federal: 0, stateLocal: 0, international: 0 };
   if (databaseUrl()) {
     const sql = connect();
     try {
-      const rows = await sql<{ source: string; type: string; open_count: string; forecasted_count: string; total_count: string; last_checked: Date | null }[]>`select * from catalog_public_stats()`;
+      const rows = await sql<{ source: string; type: string; open_count: string; forecasted_count: string; total_count: string; last_checked: Date | null; program_count: string }[]>`select * from catalog_public_stats()`;
       counts = {};
       for (const r of rows) {
-        const c = (counts[r.source] ??= { open: 0, forecasted: 0, total: 0, lastChecked: null, byType: {} });
+        const c = (counts[r.source] ??= { open: 0, forecasted: 0, total: 0, lastChecked: null, byType: {}, programs: 0 });
+        c.programs += Number(r.program_count);
         c.open += Number(r.open_count);
         c.forecasted += Number(r.forecasted_count);
         c.total += Number(r.total_count);
@@ -42,6 +44,8 @@ async function main() {
         if (lc && (!c.lastChecked || lc > c.lastChecked)) c.lastChecked = lc;
       }
       funders = Object.fromEntries((await sql<{ kind: string; funder_count: string }[]>`select * from catalog_public_funder_counts()`).map((r) => [r.kind, Number(r.funder_count)]));
+      const aec = Object.fromEntries((await sql<{ scope: string; open_count: string }[]>`select * from catalog_public_construction_stats()`).map((r) => [r.scope, Number(r.open_count)]));
+      construction = { federal: aec.federal ?? 0, stateLocal: aec.state_local ?? 0, international: aec.international ?? 0 };
       awardRows = Number((await sql<{ n: string }[]>`select count(*) as n from catalog_award_stats`)[0].n);
       sizeMb = Math.round(Number((await sql<{ b: string }[]>`select sum(pg_total_relation_size(c.oid)) as b from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public' and c.relkind = 'r' and c.relname like 'catalog_%'`)[0].b) / 1048576);
       measuredAt = new Date().toISOString();
@@ -49,7 +53,7 @@ async function main() {
       await sql.end({ timeout: 5 });
     }
   }
-  const out = { measuredAt, label: arg("label") ?? (measuredAt ? "a test load of the database" : null), sources, counts, funders, awardRows, sizeMb };
+  const out = { measuredAt, label: arg("label") ?? (measuredAt ? "a test load of the database" : null), sources, counts, funders, construction, awardRows, sizeMb };
   const file = path.join(process.cwd(), "src", "data", "catalog-snapshot.json");
   writeFileSync(file, `${JSON.stringify(out, null, 1)}\n`);
   const open = Object.values(counts).reduce((n, c) => n + c.open, 0);
